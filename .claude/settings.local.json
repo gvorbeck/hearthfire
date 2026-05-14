@@ -7,7 +7,14 @@
       "Bash(grep -n \"^[A-Z][A-Z].*$\" \"/Users/garrett.vorbeck/Sites/stonetop/Stonetop \\(Book 1\\).txt\")",
       "Bash(grep -n \"^[A-Z][a-z]*$\" \"/Users/garrett.vorbeck/Sites/stonetop/Stonetop \\(Book 1\\).txt\")",
       "Bash(find /Users/garrett.vorbeck/Sites -name \"*Stonetop*.txt\" -type f 2>/dev/null)",
-      "Read(//Users/garrett.vorbeck/Sites/**)"
+      "Read(//Users/garrett.vorbeck/Sites/**)",
+      "Bash(grep -n \"^[0-9]\\\\+$\\\\|Inventory\\\\|Animal Companion\\\\|Crew\\\\|Initiates\\\\|Invocations\\\\|Ghost\\\\|Revenant\\\\|Thrall\")",
+      "Bash(grep -n \"^141$\\\\|^142$\\\\|^143$\\\\|^144$\\\\|^145$\\\\|^146$\\\\|^147$\\\\|^148$\\\\|^149$\\\\|^150$\\\\|^151$\\\\|^152$\" \"/Users/garrett.vorbeck/Sites/stonetop/docs/Stonetop \\(Book 1\\).txt\")",
+      "Bash(grep -n \"^167$\" \"/Users/garrett.vorbeck/Sites/stonetop/docs/Stonetop \\(Book 1\\).txt\")",
+      "Bash(grep -n \"^103$\" \"/Users/garrett.vorbeck/Sites/stonetop/docs/Stonetop \\(Book 1\\).txt\")",
+      "Bash(grep -B 50 \"^Noruba's Ice Sphere$\" \"/Users/garrett.vorbeck/Sites/stonetop/docs/Stonetop \\(Book 1\\).txt\")",
+      "Bash(grep \"^[0-9]\\\\{2,3\\\\}$\")",
+      "Bash(grep -n \"^[0-9]\\\\{2,3\\\\}$\")"
     ]
   }
 }
