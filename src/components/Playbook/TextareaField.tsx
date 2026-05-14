@@ -47,7 +47,7 @@ export const TextareaField = ({ value, label, note, onSave, rows = 6 }: Textarea
     const text = e.target.value;
     setLocal(text);
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => save(text), 800);
+    debounceRef.current = setTimeout(() => save(text), 1500);
   }, [save]);
 
   const handleBlur = useCallback(() => {
