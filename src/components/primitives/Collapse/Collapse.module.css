@@ -47,7 +47,7 @@
 }
 
 .body {
-  padding-bottom: var(--spacing-4);
+  padding: 0 var(--spacing-4) var(--spacing-6);
 }
 
 .body[hidden] {

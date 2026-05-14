@@ -22,6 +22,25 @@
   height: var(--spacing-4);
 }
 
+.stepList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  padding-left: var(--spacing-5);
+  margin: 0;
+}
+
+.stepList > li > :first-child {
+  margin-top: 0;
+}
+
+.otherThings {
+  margin-top: var(--spacing-8);
+  padding-top: var(--spacing-6);
+  border-top: 1px solid var(--color-stone-700);
+}
+
+
 .centered {
   flex: 1;
   display: flex;
