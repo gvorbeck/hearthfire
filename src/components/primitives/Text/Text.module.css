@@ -1,0 +1,29 @@
+.base {
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.sm {
+  font-size: 0.75rem;
+}
+
+.md {
+  font-size: 0.875rem;
+}
+
+.lg {
+  font-size: 1rem;
+}
+
+.default {
+  color: var(--color-stone-100);
+}
+
+.muted {
+  color: var(--color-stone-400);
+}
+
+.accent {
+  color: var(--color-gold-400);
+}

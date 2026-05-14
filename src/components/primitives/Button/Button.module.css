@@ -1,0 +1,65 @@
+.base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+}
+
+.base:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Variants */
+.primary {
+  background-color: var(--color-gold-400);
+  color: var(--color-stone-900);
+}
+
+.primary:hover:not(:disabled) {
+  background-color: var(--color-gold-300);
+}
+
+.secondary {
+  background-color: transparent;
+  color: var(--color-gold-400);
+  border: 1px solid var(--color-gold-400);
+}
+
+.secondary:hover:not(:disabled) {
+  background-color: var(--color-gold-400);
+  color: var(--color-stone-900);
+}
+
+.ghost {
+  background-color: transparent;
+  color: var(--color-stone-300);
+  border: 1px solid var(--color-stone-600);
+}
+
+.ghost:hover:not(:disabled) {
+  background-color: var(--color-stone-700);
+  color: var(--color-stone-100);
+}
+
+/* Sizes */
+.sm {
+  font-size: 0.75rem;
+  padding: var(--spacing-1) var(--spacing-3);
+}
+
+.md {
+  font-size: 0.875rem;
+  padding: var(--spacing-2) var(--spacing-4);
+}
+
+.lg {
+  font-size: 1rem;
+  padding: var(--spacing-3) var(--spacing-6);
+}
