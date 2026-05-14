@@ -18,6 +18,7 @@ export interface Character {
 
 export interface GameSession {
   id: string;
+  name: string;
   createdAt: number;
   characters: Character[];
 }

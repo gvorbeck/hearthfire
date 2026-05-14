@@ -10,8 +10,68 @@
   margin-bottom: var(--spacing-8);
 }
 
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.editNameBtn {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: var(--spacing-1);
+  cursor: pointer;
+  color: var(--color-stone-500);
+  border-radius: var(--radius-md);
+  transition: color 0.15s ease;
+}
+
+.editNameBtn:hover {
+  color: var(--color-gold-400);
+}
+
+.nameInput {
+  font-family: var(--font-sans);
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-stone-100);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid var(--color-gold-400);
+  outline: none;
+  padding: 0;
+  width: 100%;
+  max-width: 480px;
+}
+
 .gameId {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
   margin-top: var(--spacing-2);
+}
+
+.copyBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-stone-500);
+  border-radius: var(--radius-md);
+  transition: color 0.15s ease;
+  overflow: visible;
+}
+
+.copyBtn:hover {
+  color: var(--color-gold-400);
 }
 
 .sections {

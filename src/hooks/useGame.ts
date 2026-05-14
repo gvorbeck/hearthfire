@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { useCallback, useEffect, useState } from 'react';
+import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type { GameSession } from '../types';
 
@@ -7,6 +7,7 @@ interface UseGameResult {
   game: GameSession | null;
   loading: boolean;
   error: string | null;
+  updateGameName: (name: string) => Promise<void>;
 }
 
 export const useGame = (gameId: string): UseGameResult => {
@@ -37,5 +38,14 @@ export const useGame = (gameId: string): UseGameResult => {
     return unsubscribe;
   }, [gameId]);
 
-  return { game, loading, error };
+  const updateGameName = useCallback(async (name: string) => {
+    try {
+      await updateDoc(doc(db, 'games', gameId), { name });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update game name');
+      throw err;
+    }
+  }, [gameId]);
+
+  return { game, loading, error, updateGameName };
 };
