@@ -73,6 +73,21 @@
   height: var(--spacing-4);
 }
 
+.contentRules {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  font-size: 0.875rem;
+  color: var(--color-stone-200);
+  line-height: 1.6;
+}
+
+.contentRules strong {
+  color: var(--text-primary);
+  font-style: italic;
+}
+
+
 .centered {
   flex: 1;
   display: flex;

@@ -1,8 +1,10 @@
+import { useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useGame } from '@/hooks/useGame';
 import { Heading, Text, Button, Collapse, RuleDivider } from '@/components/primitives';
 import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
-import { SubList, PlaybookTable, PlaybookCallout } from '@/components/Playbook';
+import { SubList, PlaybookTable, PlaybookCallout, TextareaField } from '@/components/Playbook';
+import type { ContentLists } from '@/types';
 import { DEFAULT_GAME_NAME } from '@/lib/constants';
 import styles from './GmPlaybook.module.css';
 
@@ -168,6 +170,31 @@ const DamageAndDebilities = () => (
   </div>
 );
 
+interface ContentSectionProps {
+  content: ContentLists | undefined;
+  onSave: (field: keyof ContentLists, value: string) => Promise<void>;
+}
+
+const ContentSection = ({ content, onSave }: ContentSectionProps) => {
+  const saveExcluded = useCallback((v: string) => onSave('excluded', v), [onSave]);
+  const saveVeiled = useCallback((v: string) => onSave('veiled', v), [onSave]);
+  const saveSpecial = useCallback((v: string) => onSave('specialHandling', v), [onSave]);
+
+  return (
+    <div>
+      <div className={styles.contentRules}>
+        <Text size="sm">Keep this in sync with the steading playbook. Review it at the start of each session.</Text>
+        <Text size="sm">When <strong>anyone calls "time out,"</strong> play stops. Step out of character, check in with each other, maybe take a break. Discuss what's wrong, player-to-player.</Text>
+        <Text size="sm">If <strong>content was included that shouldn't have been</strong>, acknowledge the mistake, fix the fiction, and move on.</Text>
+        <Text size="sm">If <strong>someone realizes they need content to be excluded, veiled, or handled in a particular way</strong>, then update the lists. Clarify specifics, now or later, but don't ask for reasons. Fix the fiction. Check in with the player(s). When everyone is ready, move on.</Text>
+      </div>
+      <TextareaField label="Excluded content" note="(Not part of the game, on-camera or off)" value={content?.excluded ?? ''} onSave={saveExcluded} />
+      <TextareaField label="Veiled content" note="(Part of the fiction, but only off-camera)" value={content?.veiled ?? ''} onSave={saveVeiled} />
+      <TextareaField label="Special handling" value={content?.specialHandling ?? ''} onSave={saveSpecial} />
+    </div>
+  );
+};
+
 const SECTION_CONTENT: Partial<Record<string, () => React.ReactNode>> = {
   'The core loop': () => <CoreLoop />,
   'GM moves': () => <GmMoves />,
@@ -191,7 +218,7 @@ const SECTION_CONTENT: Partial<Record<string, () => React.ReactNode>> = {
 
 export const GmPlaybook = () => {
   const { id = '' } = useParams<{ id: string }>();
-  const { game, loading, error } = useGame(id);
+  const { game, loading, error, updateContent } = useGame(id);
 
   if (loading) {
     return (
@@ -240,7 +267,9 @@ export const GmPlaybook = () => {
       <div className={styles.sections}>
         {SECTIONS.map(section => (
           <Collapse key={section} label={section}>
-            {SECTION_CONTENT[section]?.() ?? <div className={styles.placeholder} />}
+            {section === 'Content'
+              ? <ContentSection content={game.content} onSave={updateContent} />
+              : SECTION_CONTENT[section]?.() ?? <div className={styles.placeholder} />}
           </Collapse>
         ))}
       </div>

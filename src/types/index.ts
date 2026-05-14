@@ -16,9 +16,16 @@ export interface Character {
   level: number;
 }
 
+export interface ContentLists {
+  excluded: string;
+  veiled: string;
+  specialHandling: string;
+}
+
 export interface GameSession {
   id: string;
   name: string;
   createdAt: number;
   characters: Character[];
+  content?: ContentLists;
 }

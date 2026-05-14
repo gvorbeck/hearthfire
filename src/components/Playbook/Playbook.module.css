@@ -77,3 +77,62 @@
   color: var(--text-accent);
   font-style: italic;
 }
+
+/* ── TextareaField ──────────────────────────────────── */
+.contentField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-6);
+  padding-top: var(--spacing-6);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.contentFieldHeader {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-3);
+}
+
+.contentFieldLabel {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-stone-400);
+}
+
+.contentFieldNote {
+  font-size: 0.75rem;
+  color: var(--color-stone-500);
+}
+
+.contentFieldStatus {
+  margin-left: auto;
+  font-size: 0.6875rem;
+  color: var(--color-gold-500);
+  font-family: var(--font-sans);
+  letter-spacing: 0.04em;
+  min-width: 3.5rem;
+  text-align: right;
+}
+
+.contentFieldTextarea {
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  padding: var(--spacing-3) var(--spacing-4);
+  resize: vertical;
+  width: 100%;
+  transition: border-color 0.15s ease;
+}
+
+.contentFieldTextarea:focus {
+  outline: none;
+  border-color: var(--border-accent);
+}
