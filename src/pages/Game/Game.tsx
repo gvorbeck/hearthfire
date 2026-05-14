@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
-import { useGame } from '../../hooks/useGame';
-import { DEFAULT_GAME_NAME } from '../../lib/constants';
-import { Button, Heading, Stack, Text, Icon } from '../../components/primitives';
-import { GameIdModal } from '../../components/GameIdModal/GameIdModal';
-import { Breadcrumb } from '../../components/Breadcrumb/Breadcrumb';
+import { useGame } from '@/hooks/useGame';
+import { DEFAULT_GAME_NAME } from '@/lib/constants';
+import { Button, Heading, Stack, Text, Icon } from '@/components/primitives';
+import { GameIdModal } from '@/components/GameIdModal/GameIdModal';
+import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
 import styles from './Game.module.css';
 
 

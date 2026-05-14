@@ -1,8 +1,8 @@
 import { useParams, Link } from 'react-router-dom';
-import { useGame } from '../../hooks/useGame';
-import { Heading, Text, Button, Collapse } from '../../components/primitives';
-import { Breadcrumb } from '../../components/Breadcrumb/Breadcrumb';
-import { DEFAULT_GAME_NAME } from '../../lib/constants';
+import { useGame } from '@/hooks/useGame';
+import { Heading, Text, Button, Collapse } from '@/components/primitives';
+import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
+import { DEFAULT_GAME_NAME } from '@/lib/constants';
 import styles from './GmPlaybook.module.css';
 
 const SECTIONS = [

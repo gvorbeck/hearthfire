@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addDoc, collection } from 'firebase/firestore';
-import { db } from '../../lib/firebase';
-import { Button, Heading, Input, Stack, Text } from '../../components/primitives';
+import { db } from '@/lib/firebase';
+import { Button, Heading, Input, Stack, Text } from '@/components/primitives';
 import styles from './Home.module.css';
 
 export const Home = () => {

@@ -1,8 +1,8 @@
 import { Routes, Route } from 'react-router-dom';
-import { Home } from './pages/Home/Home';
-import { Game } from './pages/Game/Game';
-import { GmPlaybook } from './pages/GmPlaybook/GmPlaybook';
-import styles from './App.module.css';
+import { Home } from '@/pages/Home/Home';
+import { Game } from '@/pages/Game/Game';
+import { GmPlaybook } from '@/pages/GmPlaybook/GmPlaybook';
+import styles from '@/App.module.css';
 
 export const App = () => (
   <>

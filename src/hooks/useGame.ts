@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
-import { db } from '../lib/firebase';
-import type { GameSession } from '../types';
+import { db } from '@/lib/firebase';
+import type { GameSession } from '@/types';
 
 interface UseGameResult {
   game: GameSession | null;

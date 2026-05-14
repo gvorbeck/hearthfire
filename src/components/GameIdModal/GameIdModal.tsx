@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Modal } from '../primitives/Modal/Modal';
-import { Button, Heading, Text } from '../primitives';
+import { Modal } from '@/components/primitives/Modal/Modal';
+import { Button, Heading, Text } from '@/components/primitives';
 import styles from './GameIdModal.module.css';
 
 interface GameIdModalProps {
