@@ -1,0 +1,117 @@
+# Code Review
+
+**Read-only review — do not edit any files.** Identify and report findings only.
+
+Perform an in-depth code review of all currently modified files (staged + unstaged) against this project's coding standards.
+
+## Steps
+
+1. Run `git diff HEAD --name-only` and `git diff --cached --name-only` to get the list of modified files.
+2. Read each modified file in full.
+3. Review each file against every category below. For each finding, note the file path and line number.
+
+## Project Context
+
+Stack: Vite + React 18 + TypeScript (strict), React Router v6, Firebase v10 (Firestore), CSS Modules, clsx.  
+Architecture: flat `games/{id}` Firestore doc, `characters[]` nested array, full real-time sync via `onSnapshot`, no auth.  
+Design system: primitives in `src/components/primitives/` (Button, Text, Heading, Input, Stack, Icon, Modal).
+
+## Review Categories
+
+### Code Style (Project Conventions — Non-Negotiable)
+- `function` declarations used instead of arrow functions — every function must be an arrow function, including exports, components, and utilities
+- `clsx(...)` inlined inside JSX instead of hoisted above the return as `const cx = clsx(...)`
+- Styling done outside CSS Modules (inline styles, Tailwind, styled-components, etc.)
+- CSS class names accessed as `styles.foo` instead of importing `styles` from the module
+- TypeScript `any` usage — strict mode is required throughout
+- Comments that describe *what* instead of *why* (naming, visible logic); only add comments when the WHY is genuinely non-obvious
+
+### Correctness & Bugs
+- Logic errors, off-by-one mistakes, incorrect conditionals
+- Async/await misuse (missing await, unhandled promise rejections, race conditions)
+- Stale closure bugs in hooks — missing or incorrect dependency arrays
+- State mutations (modifying arrays/objects directly instead of spreading/replacing)
+- Optimistic UI updates not rolled back on Firestore write failure
+
+### Firestore Efficiency & Cost
+- Reads triggered inside loops or per-item (should batch or denormalize)
+- `onSnapshot` listeners not cleaned up on component unmount (leaked listeners = ongoing billing)
+- Overly broad reads (fetching full collection when a single doc suffices)
+- Writing entire document when only one field changed — use `updateDoc` with targeted field paths
+- Redundant writes (writing data that hasn't changed)
+- Missing or unnecessary Firestore indexes that would cause extra reads or rejected queries
+- `collection().where()` chains that download more documents than needed client-side filtering would produce
+- Re-subscribing to `onSnapshot` on every render instead of once in a stable `useEffect`
+
+### React Performance & Fine-Tuning
+- Anonymous functions or object literals created inline in JSX props on components that re-render frequently (causes unnecessary re-renders of children)
+- `useMemo` / `useCallback` added without a measurable need — premature optimization counts as a finding
+- `useMemo` / `useCallback` missing where they are clearly warranted (expensive computation or stable reference required for `React.memo` child)
+- Components doing too much — rendering, data-fetching, and business logic all in one place
+- `key` props using array indexes on reorderable or mutable lists
+- `useEffect` with side effects that should be event handlers instead
+- State that could be derived from props or other state (unnecessary `useState`)
+- Missing `React.memo` on pure presentational components that receive stable props
+
+### Architecture & Separation of Responsibilities
+- Firestore calls made directly inside JSX components — data access should live in custom hooks or a data layer
+- Business logic embedded in render functions or event handlers that could be extracted to pure utilities
+- Shared logic copy-pasted across components (DRY violation — extract to hook or utility)
+- Flat document shape assumptions violated — components reaching into nested arrays without going through a consistent accessor
+- Route-level concerns (path params, navigation) leaking into presentational components
+
+### DRY Violations
+- Duplicated logic that should be extracted into a shared utility or custom hook
+- Inline constants (Firestore collection names, field paths, magic strings/numbers) that should be named constants
+- Repeated JSX structures that should be a shared component
+- Copy-pasted type definitions that should be a shared interface
+
+### Naming & Readability
+- Variables, functions, components, or files that don't clearly describe their intent
+- Unnecessary abbreviations that reduce clarity
+- Boolean variables or props not prefixed with `is`, `has`, `can`, `should`
+- Event handlers not prefixed with `handle` or `on`
+- Component files that don't match the component name they export
+
+### Security
+- `dangerouslySetInnerHTML` usage
+- User-supplied input rendered as HTML without sanitization
+- Firestore security rules bypassed client-side (reminder: no-auth model requires careful rule design)
+- Secrets, API keys, or tokens referenced in frontend code
+- Missing input validation on user-facing fields before writing to Firestore
+
+### Accessibility
+- Non-semantic HTML (`<div onClick>` instead of `<button>` or `<a>`)
+- Missing `aria-label` on icon-only interactive elements
+- Interactive elements not reachable via keyboard (missing `tabIndex`, no focus styles)
+- Color as the only visual differentiator (no text or icon backup)
+- Form inputs missing associated `<label>` or `aria-labelledby`
+- Images missing `alt` attributes
+
+### Code Quality & Leanness
+- Dead code, commented-out blocks, `console.log` / `console.error` left in
+- Functions longer than ~40 lines with more than one responsibility
+- Over-engineered abstractions for a single use case — three similar lines beats a premature abstraction
+- Error handling or validation added for scenarios that cannot actually happen
+- Backwards-compatibility shims, re-exports, or renamed `_unused` variables for removed code — delete cleanly
+- Features, fallbacks, or flags not required by the current task
+
+## Output Format
+
+Do not use emojis anywhere in the output.
+
+Group findings by file, then by severity:
+
+**[Bug / Security]** — must fix before merge  
+**[Standards Violation]** — should fix  
+**[Suggestion]** — worth considering  
+
+Number each finding sequentially across all files (1, 2, 3, ...) so findings can be referenced by number.
+
+For each finding:
+```
+N. [SEVERITY] file-path:line — short description
+   Suggestion: what to do instead (one sentence)
+```
+
+End with a summary: total findings by severity, and an overall assessment (Ready / Needs Work / Major Issues).

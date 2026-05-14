@@ -1,0 +1,31 @@
+.idRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  background-color: var(--color-stone-900);
+  border: 1px solid var(--color-stone-600);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-3) var(--spacing-4);
+}
+
+.idText {
+  flex: 1;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  word-break: break-all;
+}
+
+.warning {
+  display: flex;
+  gap: var(--spacing-3);
+  background-color: color-mix(in srgb, var(--color-gold-400) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-gold-400) 30%, transparent);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-3) var(--spacing-4);
+}
+
+.warningLabel {
+  color: var(--color-gold-400);
+  font-weight: 600;
+}

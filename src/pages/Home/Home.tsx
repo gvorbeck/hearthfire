@@ -10,14 +10,21 @@ export const Home = () => {
   const [joinId, setJoinId] = useState('');
   const [joinError, setJoinError] = useState('');
   const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState('');
 
   const handleCreate = async () => {
     setCreating(true);
-    const ref = await addDoc(collection(db, 'games'), {
-      createdAt: Date.now(),
-      characters: [],
-    });
-    navigate(`/game/${ref.id}`);
+    setCreateError('');
+    try {
+      const ref = await addDoc(collection(db, 'games'), {
+        createdAt: Date.now(),
+        characters: [],
+      });
+      navigate(`/game/${ref.id}`, { state: { isNew: true } });
+    } catch {
+      setCreateError('Failed to create game. Please try again.');
+      setCreating(false);
+    }
   };
 
   const handleJoin = (e: React.FormEvent) => {
@@ -28,6 +35,11 @@ export const Home = () => {
       return;
     }
     navigate(`/game/${trimmed}`);
+  };
+
+  const handleJoinIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setJoinId(e.target.value);
+    setJoinError('');
   };
 
   return (
@@ -53,6 +65,7 @@ export const Home = () => {
             <Button onClick={handleCreate} disabled={creating} size="lg">
               {creating ? 'Creating…' : 'New Game'}
             </Button>
+            {createError && <Text color="muted" size="sm">{createError}</Text>}
           </Stack>
         </div>
 
@@ -67,10 +80,7 @@ export const Home = () => {
                 label="Game ID"
                 placeholder="ABC123"
                 value={joinId}
-                onChange={(e) => {
-                  setJoinId(e.target.value);
-                  setJoinError('');
-                }}
+                onChange={handleJoinIdChange}
                 error={joinError}
               />
               <Button type="submit" variant="secondary" size="lg">

@@ -1,11 +1,21 @@
-import { useParams, Link } from 'react-router-dom';
+import { useState } from 'react';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { useGame } from '../../hooks/useGame';
 import { Button, Heading, Stack, Text } from '../../components/primitives';
+import { GameIdModal } from '../../components/GameIdModal/GameIdModal';
 import styles from './Game.module.css';
+
+interface LocationState {
+  isNew?: boolean;
+}
 
 export const Game = () => {
   const { id = '' } = useParams<{ id: string }>();
+  const { state } = useLocation();
   const { game, loading, error } = useGame(id);
+  const [showIdModal, setShowIdModal] = useState((state as LocationState | null)?.isNew === true);
+
+  const handleCloseIdModal = () => setShowIdModal(false);
 
   if (loading) {
     return (
@@ -40,6 +50,8 @@ export const Game = () => {
   }
 
   return (
+    <>
+    <GameIdModal gameId={id} open={showIdModal} onClose={handleCloseIdModal} />
     <main className={styles.page}>
       <Stack gap={2} className={styles.header}>
         <Heading as="h1" size="xl">Session</Heading>
@@ -87,5 +99,6 @@ export const Game = () => {
         </div>
       </div>
     </main>
+    </>
   );
 };
