@@ -3,7 +3,11 @@
     "allow": [
       "Bash(npm install *)",
       "Bash(npx tsc *)",
-      "Bash(npm uninstall *)"
+      "Bash(npm uninstall *)",
+      "Bash(grep -n \"^[A-Z][A-Z].*$\" \"/Users/garrett.vorbeck/Sites/stonetop/Stonetop \\(Book 1\\).txt\")",
+      "Bash(grep -n \"^[A-Z][a-z]*$\" \"/Users/garrett.vorbeck/Sites/stonetop/Stonetop \\(Book 1\\).txt\")",
+      "Bash(find /Users/garrett.vorbeck/Sites -name \"*Stonetop*.txt\" -type f 2>/dev/null)",
+      "Read(//Users/garrett.vorbeck/Sites/**)"
     ]
   }
 }
