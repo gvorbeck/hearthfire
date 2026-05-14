@@ -1,13 +1,13 @@
 .page {
   flex: 1;
-  padding: var(--spacing-8) var(--spacing-4);
+  padding: var(--spacing-8) var(--spacing-6);
   max-width: 960px;
   margin: 0 auto;
   width: 100%;
 }
 
 .header {
-  margin-bottom: var(--spacing-8);
+  margin-bottom: var(--spacing-10);
 }
 
 .nameRow {
@@ -33,24 +33,25 @@
 }
 
 .nameInput {
-  font-family: var(--font-sans);
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--color-stone-100);
+  font-family: var(--font-serif);
+  font-size: 2.75rem;
+  font-weight: normal;
+  color: var(--text-heading);
   background: transparent;
   border: none;
-  border-bottom: 2px solid var(--color-gold-400);
+  border-bottom: 1px solid var(--border-accent);
   outline: none;
-  padding: 0;
+  padding: 0 0 var(--spacing-1);
   width: 100%;
-  max-width: 480px;
+  max-width: 560px;
+  line-height: 1.05;
 }
 
 .gameId {
   display: flex;
   align-items: center;
   gap: var(--spacing-2);
-  margin-top: var(--spacing-2);
+  margin-top: var(--spacing-3);
 }
 
 .copyBtn {
@@ -74,6 +75,10 @@
   color: var(--color-gold-400);
 }
 
+.titleRule {
+  margin-top: var(--spacing-6);
+}
+
 .sections {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -81,22 +86,36 @@
 }
 
 .section {
-  background-color: var(--color-navy-800);
-  border: 1px solid var(--color-stone-700);
+  background-color: var(--surface-panel);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   padding: var(--spacing-6);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  position: relative;
+  overflow: hidden;
 }
 
-.sectionTitle {
-  margin-bottom: var(--spacing-4);
+.section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: var(--spacing-6);
+  right: var(--spacing-6);
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--border-accent), transparent);
+  opacity: 0.5;
 }
 
 .placeholder {
-  background-color: var(--color-navy-900);
-  border: 1px dashed var(--color-stone-600);
+  background-color: var(--surface-raised);
+  border: 1px dashed var(--border-subtle);
   border-radius: var(--radius-md);
   padding: var(--spacing-6);
   text-align: center;
+  flex: 1;
 }
 
 .centered {

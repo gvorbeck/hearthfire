@@ -17,13 +17,13 @@
 }
 
 .default {
-  color: var(--color-stone-100);
+  color: var(--text-primary);
 }
 
 .muted {
-  color: var(--color-stone-400);
+  color: var(--text-secondary);
 }
 
 .accent {
-  color: var(--color-gold-400);
+  color: var(--text-accent);
 }

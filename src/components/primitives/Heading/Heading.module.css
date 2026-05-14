@@ -1,16 +1,19 @@
 .base {
   font-family: var(--font-serif);
-  color: var(--color-gold-400);
+  color: var(--text-heading);
   line-height: 1.2;
   margin: 0;
+  font-weight: normal;
 }
 
 .xl {
-  font-size: 2.5rem;
+  font-size: 2.75rem;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
 }
 
 .lg {
-  font-size: 1.875rem;
+  font-size: 2rem;
 }
 
 .md {
@@ -18,5 +21,16 @@
 }
 
 .sm {
-  font-size: 1.125rem;
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+  color: var(--color-stone-200);
+}
+
+.label {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-stone-400);
 }

@@ -5,4 +5,5 @@ export { Modal } from './Modal/Modal';
 export { Text } from './Text/Text';
 export { Heading } from './Heading/Heading';
 export { Input } from './Input/Input';
+export { RuleDivider } from './RuleDivider/RuleDivider';
 export { Stack } from './Stack/Stack';

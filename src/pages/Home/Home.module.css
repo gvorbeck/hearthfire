@@ -4,16 +4,49 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-8) var(--spacing-4);
+  padding: var(--spacing-12) var(--spacing-6);
   gap: var(--spacing-12);
 }
 
 .hero {
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-stone-400);
+  margin-bottom: var(--spacing-3);
+}
+
+.wordmark {
+  font-family: var(--font-serif);
+  font-size: clamp(3rem, 8vw, 5rem);
+  line-height: 1;
+  color: var(--text-heading);
+  font-weight: normal;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.rule {
+  width: 100%;
+  max-width: 320px;
+  margin: var(--spacing-5) 0;
 }
 
 .subtitle {
-  margin-top: var(--spacing-3);
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+  margin: 0;
 }
 
 .cards {
@@ -21,22 +54,42 @@
   grid-template-columns: 1fr 1fr;
   gap: var(--spacing-6);
   width: 100%;
-  max-width: 640px;
+  max-width: 600px;
 }
 
-@media (max-width: 540px) {
+@media (max-width: 520px) {
   .cards {
     grid-template-columns: 1fr;
   }
 }
 
 .card {
-  background-color: var(--color-navy-800);
-  border: 1px solid var(--color-stone-700);
+  background-color: var(--surface-panel);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   padding: var(--spacing-6);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  position: relative;
+  overflow: hidden;
 }
 
-.cardTitle {
-  margin-bottom: var(--spacing-4);
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: var(--spacing-6);
+  right: var(--spacing-6);
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--border-accent), transparent);
+  opacity: 0.5;
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  flex: 1;
 }

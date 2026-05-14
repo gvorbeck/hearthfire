@@ -1,25 +1,31 @@
 .page {
   flex: 1;
-  padding: var(--spacing-8) var(--spacing-4);
-  max-width: 720px;
+  padding: var(--spacing-8) var(--spacing-6);
+  max-width: 800px;
   margin: 0 auto;
   width: 100%;
 }
 
-.title {
+.header {
   margin-top: var(--spacing-6);
   margin-bottom: var(--spacing-8);
 }
 
-.sections {
-  background-color: var(--color-navy-800);
-  border: 1px solid var(--color-stone-700);
-  border-radius: var(--radius-lg);
-  padding: 0 var(--spacing-6);
+.title {
+  margin: var(--spacing-3) 0 0;
+  letter-spacing: 0.01em;
 }
 
-.placeholder {
-  height: var(--spacing-4);
+.titleRule {
+  margin-top: var(--spacing-6);
+}
+
+.sections {
+  background-color: var(--surface-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
 }
 
 .stepList {
@@ -28,18 +34,44 @@
   gap: var(--spacing-8);
   padding-left: var(--spacing-5);
   margin: 0;
+  counter-reset: step-counter;
+  list-style: none;
 }
 
-.stepList > li > :first-child {
-  margin-top: 0;
+.stepList > li {
+  position: relative;
+  padding-left: var(--spacing-6);
+  counter-increment: step-counter;
+}
+
+.stepList > li::before {
+  content: counter(step-counter);
+  position: absolute;
+  left: 0;
+  top: 3px;
+  width: 20px;
+  height: 20px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-sm);
+  color: var(--color-gold-400);
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .subsection {
   margin-top: var(--spacing-8);
   padding-top: var(--spacing-6);
-  border-top: 1px solid var(--color-stone-700);
+  border-top: 1px solid var(--border-subtle);
 }
 
+.placeholder {
+  height: var(--spacing-4);
+}
 
 .centered {
   flex: 1;

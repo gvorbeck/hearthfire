@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { useGame } from '@/hooks/useGame';
 import { DEFAULT_GAME_NAME } from '@/lib/constants';
-import { Button, Heading, Stack, Text, Icon } from '@/components/primitives';
+import { Button, Heading, RuleDivider, Stack, Text, Icon } from '@/components/primitives';
 import { GameIdModal } from '@/components/GameIdModal/GameIdModal';
 import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
 import styles from './Game.module.css';
@@ -101,8 +101,8 @@ export const Game = () => {
     <>
     <GameIdModal gameId={id} open={showIdModal} onClose={handleCloseIdModal} />
     <main className={styles.page}>
-      <Breadcrumb crumbs={[{ label: game.name || DEFAULT_GAME_NAME }]} />
-      <Stack gap={2} className={styles.header}>
+      <div className={styles.header}>
+        <Breadcrumb crumbs={[{ label: game.name || DEFAULT_GAME_NAME }]} />
         <div className={styles.nameRow}>
           {editingName ? (
             <input
@@ -131,31 +131,26 @@ export const Game = () => {
             <Icon name={copied ? 'check' : 'copy'} size="small" />
           </button>
         </div>
-      </Stack>
+        <RuleDivider className={styles.titleRule} />
+      </div>
 
       <div className={styles.sections}>
         <div className={styles.section}>
-          <Heading as="h2" size="sm" className={styles.sectionTitle}>
-            GM Playbook
-          </Heading>
+          <Heading as="h2" size="label">GM Playbook</Heading>
           <Link to={`/game/${id}/gm`}>
             <Button variant="secondary" size="xl" fullWidth>Open Playbook</Button>
           </Link>
         </div>
 
         <div className={styles.section}>
-          <Heading as="h2" size="sm" className={styles.sectionTitle}>
-            Stonetop
-          </Heading>
+          <Heading as="h2" size="label">Stonetop</Heading>
           <div className={styles.placeholder}>
             <Text color="muted" size="sm">Town playbook coming soon</Text>
           </div>
         </div>
 
         <div className={styles.section}>
-          <Heading as="h2" size="sm" className={styles.sectionTitle}>
-            Characters
-          </Heading>
+          <Heading as="h2" size="label">Characters</Heading>
           {game.characters.length === 0 ? (
             <div className={styles.placeholder}>
               <Text color="muted" size="sm">No characters yet</Text>

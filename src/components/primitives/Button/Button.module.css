@@ -7,45 +7,49 @@
   font-family: var(--font-sans);
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
   white-space: nowrap;
+  letter-spacing: 0.02em;
 }
 
 .base:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
 /* Variants */
 .primary {
   background-color: var(--color-gold-400);
-  color: var(--color-stone-900);
+  color: var(--color-forge-900);
 }
 
 .primary:hover:not(:disabled) {
   background-color: var(--color-gold-300);
+  box-shadow: 0 0 16px rgba(230, 176, 32, 0.25);
 }
 
 .secondary {
   background-color: transparent;
-  color: var(--color-gold-400);
-  border: 1px solid var(--color-gold-400);
+  color: var(--color-gold-300);
+  border: 1px solid var(--color-gold-500);
 }
 
 .secondary:hover:not(:disabled) {
-  background-color: var(--color-gold-400);
-  color: var(--color-stone-900);
+  background-color: color-mix(in srgb, var(--color-gold-400) 12%, transparent);
+  border-color: var(--color-gold-300);
+  color: var(--color-gold-200);
 }
 
 .ghost {
   background-color: transparent;
-  color: var(--color-stone-300);
-  border: 1px solid var(--color-stone-600);
+  color: var(--color-stone-400);
+  border: 1px solid var(--border-subtle);
 }
 
 .ghost:hover:not(:disabled) {
-  background-color: var(--color-stone-700);
-  color: var(--color-stone-100);
+  background-color: var(--surface-raised);
+  color: var(--color-stone-200);
+  border-color: var(--border-strong);
 }
 
 /* Layout */
@@ -74,7 +78,9 @@
 }
 
 .xl {
-  font-size: 1.125rem;
+  font-size: 0.875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   padding: var(--spacing-4) var(--spacing-8);
   gap: var(--spacing-3);
 }

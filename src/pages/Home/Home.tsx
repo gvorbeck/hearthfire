@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { addDoc, collection } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { Button, Heading, Input, Stack, Text } from '@/components/primitives';
+import { createGame } from '@/lib/game';
+import { Button, Heading, Input, RuleDivider, Stack, Text } from '@/components/primitives';
 import styles from './Home.module.css';
 
 export const Home = () => {
@@ -16,11 +15,8 @@ export const Home = () => {
     setCreating(true);
     setCreateError('');
     try {
-      const ref = await addDoc(collection(db, 'games'), {
-        createdAt: Date.now(),
-        characters: [],
-      });
-      navigate(`/game/${ref.id}`, { state: { isNew: true } });
+      const id = await createGame();
+      navigate(`/game/${id}`, { state: { isNew: true } });
     } catch {
       setCreateError('Failed to create game. Please try again.');
       setCreating(false);
@@ -45,45 +41,39 @@ export const Home = () => {
   return (
     <main className={styles.page}>
       <div className={styles.hero}>
-        <Heading as="h1" size="xl">
-          Stonetop
-        </Heading>
-        <Text color="muted" className={styles.subtitle}>
-          Party tracker for the TTRPG by Jeremy Strandberg
-        </Text>
+        <Text className={styles.eyebrow}>Party Tracker</Text>
+        <Heading as="h1" size="xl" className={styles.wordmark}>Stonetop</Heading>
+        <RuleDivider className={styles.rule} />
+        <Text className={styles.subtitle}>For the TTRPG by Jeremy Strandberg</Text>
       </div>
 
       <div className={styles.cards}>
         <div className={styles.card}>
-          <Heading as="h2" size="md" className={styles.cardTitle}>
-            Create a Game
-          </Heading>
-          <Stack gap={4}>
+          <Heading as="h2" size="label">New Game</Heading>
+          <div className={styles.cardBody}>
             <Text color="muted" size="sm">
               Start a new session. Share the generated ID with your players.
             </Text>
-            <Button onClick={handleCreate} disabled={creating} size="lg">
-              {creating ? 'Creating…' : 'New Game'}
+            <Button onClick={handleCreate} disabled={creating} size="lg" fullWidth>
+              {creating ? 'Creating…' : 'Create Game'}
             </Button>
             {createError && <Text color="muted" size="sm">{createError}</Text>}
-          </Stack>
+          </div>
         </div>
 
         <div className={styles.card}>
-          <Heading as="h2" size="md" className={styles.cardTitle}>
-            Join a Game
-          </Heading>
-          <form onSubmit={handleJoin}>
+          <Heading as="h2" size="label">Join Game</Heading>
+          <form onSubmit={handleJoin} className={styles.cardBody}>
             <Stack gap={4}>
               <Input
                 id="join-id"
                 label="Game ID"
-                placeholder="ABC123"
+                placeholder="Paste your ID"
                 value={joinId}
                 onChange={handleJoinIdChange}
                 error={joinError}
               />
-              <Button type="submit" variant="secondary" size="lg">
+              <Button type="submit" variant="secondary" size="lg" fullWidth>
                 Join
               </Button>
             </Stack>

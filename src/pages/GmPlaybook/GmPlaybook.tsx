@@ -1,15 +1,13 @@
 import { useParams, Link } from 'react-router-dom';
 import { useGame } from '@/hooks/useGame';
-import { Heading, Text, Button, Collapse } from '@/components/primitives';
+import { Heading, Text, Button, Collapse, RuleDivider } from '@/components/primitives';
 import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
 import { SubList, PlaybookTable, PlaybookCallout } from '@/components/Playbook';
 import { DEFAULT_GAME_NAME } from '@/lib/constants';
 import styles from './GmPlaybook.module.css';
 
-const CORE_LOOP = 'The core loop';
-
 const SECTIONS = [
-  CORE_LOOP,
+  'The core loop',
   'GM moves',
   'Principles',
   'Damage and debilities',
@@ -83,8 +81,6 @@ const CoreLoop = () => (
     </div>
   </div>
 );
-
-const GM_MOVES = 'GM moves';
 
 const GmMoves = () => (
   <div>
@@ -172,10 +168,10 @@ const DamageAndDebilities = () => (
   </div>
 );
 
-const SECTION_CONTENT: Partial<Record<string, React.ReactNode>> = {
-  [CORE_LOOP]: <CoreLoop />,
-  [GM_MOVES]: <GmMoves />,
-  'Principles': <SubList items={[
+const SECTION_CONTENT: Partial<Record<string, () => React.ReactNode>> = {
+  'The core loop': () => <CoreLoop />,
+  'GM moves': () => <GmMoves />,
+  'Principles': () => <SubList items={[
     'Follow the rules',
     'Begin and end with the fiction',
     'Address the characters, not the players',
@@ -190,7 +186,7 @@ const SECTION_CONTENT: Partial<Record<string, React.ReactNode>> = {
     'Let things breathe',
     'Let things burn',
   ]} />,
-  'Damage and debilities': <DamageAndDebilities />,
+  'Damage and debilities': () => <DamageAndDebilities />,
 };
 
 export const GmPlaybook = () => {
@@ -236,12 +232,15 @@ export const GmPlaybook = () => {
 
   return (
     <main className={styles.page}>
-      <Breadcrumb crumbs={crumbs} />
-      <Heading as="h1" size="xl" className={styles.title}>GM Playbook</Heading>
+      <div className={styles.header}>
+        <Breadcrumb crumbs={crumbs} />
+        <Heading as="h1" size="xl" className={styles.title}>GM Playbook</Heading>
+        <RuleDivider className={styles.titleRule} />
+      </div>
       <div className={styles.sections}>
         {SECTIONS.map(section => (
           <Collapse key={section} label={section}>
-            {SECTION_CONTENT[section] ?? <div className={styles.placeholder} />}
+            {SECTION_CONTENT[section]?.() ?? <div className={styles.placeholder} />}
           </Collapse>
         ))}
       </div>

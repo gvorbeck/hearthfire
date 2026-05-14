@@ -2,8 +2,8 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-2);
-  background-color: var(--color-stone-900);
-  border: 1px solid var(--color-stone-600);
+  background-color: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   padding: var(--spacing-3) var(--spacing-4);
 }
@@ -14,13 +14,14 @@
   font-size: 1rem;
   letter-spacing: 0.05em;
   word-break: break-all;
+  color: var(--text-accent);
 }
 
 .warning {
   display: flex;
   gap: var(--spacing-3);
-  background-color: color-mix(in srgb, var(--color-gold-400) 8%, transparent);
-  border: 1px solid color-mix(in srgb, var(--color-gold-400) 30%, transparent);
+  background-color: color-mix(in srgb, var(--color-gold-400) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-gold-400) 25%, transparent);
   border-radius: var(--radius-md);
   padding: var(--spacing-3) var(--spacing-4);
 }

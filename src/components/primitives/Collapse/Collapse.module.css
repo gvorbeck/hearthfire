@@ -1,9 +1,26 @@
 .root {
-  border-bottom: 1px solid var(--color-stone-700);
+  border-bottom: 1px solid var(--border-subtle);
+  position: relative;
 }
 
 .root:last-child {
   border-bottom: none;
+}
+
+.root::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--border-accent);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.open::before {
+  opacity: 1;
 }
 
 .trigger {
@@ -11,21 +28,27 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: var(--spacing-3) 0;
+  padding: var(--spacing-4) var(--spacing-6);
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--color-stone-200);
-  font-family: var(--font-sans);
-  font-size: 0.875rem;
-  font-weight: 500;
+  color: var(--color-stone-300);
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: normal;
   text-align: left;
-  gap: var(--spacing-3);
-  transition: color 0.15s ease;
+  gap: var(--spacing-4);
+  transition: color 0.15s ease, background-color 0.15s ease;
+  letter-spacing: 0.01em;
 }
 
 .trigger:hover {
-  color: var(--color-gold-400);
+  color: var(--text-accent);
+  background-color: var(--surface-raised);
+}
+
+.open .trigger {
+  color: var(--text-accent);
 }
 
 .label {
@@ -40,6 +63,7 @@
 
 .open .chevron {
   transform: rotate(180deg);
+  color: var(--color-gold-500);
 }
 
 .trigger:hover .chevron {
@@ -47,7 +71,8 @@
 }
 
 .body {
-  padding: 0 var(--spacing-4) var(--spacing-6);
+  padding: 0 var(--spacing-6) var(--spacing-8);
+  padding-left: calc(var(--spacing-6) + 2px);
 }
 
 .body[hidden] {

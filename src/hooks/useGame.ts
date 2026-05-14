@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { GAMES_COLLECTION } from '@/lib/constants';
 import type { GameSession } from '@/types';
 
 interface UseGameResult {
@@ -16,7 +17,7 @@ export const useGame = (gameId: string): UseGameResult => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const ref = doc(db, 'games', gameId);
+    const ref = doc(db, GAMES_COLLECTION, gameId);
 
     const unsubscribe = onSnapshot(
       ref,
@@ -40,7 +41,7 @@ export const useGame = (gameId: string): UseGameResult => {
 
   const updateGameName = useCallback(async (name: string) => {
     try {
-      await updateDoc(doc(db, 'games', gameId), { name });
+      await updateDoc(doc(db, GAMES_COLLECTION, gameId), { name });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update game name');
       throw err;

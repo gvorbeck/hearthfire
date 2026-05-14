@@ -4,7 +4,7 @@ import styles from './Heading.module.css';
 
 interface HeadingProps {
   as?: 'h1' | 'h2' | 'h3' | 'h4';
-  size?: 'xl' | 'lg' | 'md' | 'sm';
+  size?: 'xl' | 'lg' | 'md' | 'sm' | 'label';
   className?: string;
   id?: string;
   children: ReactNode;

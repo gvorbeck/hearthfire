@@ -1,0 +1,28 @@
+.root {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+
+.root::before,
+.root::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+}
+
+.root::before {
+  background: linear-gradient(to left, var(--border-accent), transparent);
+}
+
+.root::after {
+  background: linear-gradient(to right, var(--border-accent), transparent);
+}
+
+.diamond {
+  width: 6px;
+  height: 6px;
+  background: var(--color-gold-400);
+  transform: rotate(45deg);
+  flex-shrink: 0;
+}
