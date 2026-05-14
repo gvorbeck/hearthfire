@@ -5,20 +5,23 @@ import styles from './Button.module.css';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost';
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   icon?: IconName;
+  fullWidth?: boolean;
 }
 
-const iconSizeMap: Record<'sm' | 'md' | 'lg', IconSize> = {
+const iconSizeMap: Record<'sm' | 'md' | 'lg' | 'xl', IconSize> = {
   sm: 'small',
   md: 'small',
   lg: 'medium',
+  xl: 'large',
 };
 
 export const Button = ({
   variant = 'primary',
   size = 'md',
   icon,
+  fullWidth = false,
   className,
   children,
   ...props
@@ -28,6 +31,7 @@ export const Button = ({
     styles[variant],
     styles[size],
     icon && !children && styles.iconOnly,
+    fullWidth && styles.fullWidth,
     className
   );
 

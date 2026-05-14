@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { useGame } from '../../hooks/useGame';
+import { DEFAULT_GAME_NAME } from '../../lib/constants';
 import { Button, Heading, Stack, Text, Icon } from '../../components/primitives';
 import { GameIdModal } from '../../components/GameIdModal/GameIdModal';
 import { Breadcrumb } from '../../components/Breadcrumb/Breadcrumb';
 import styles from './Game.module.css';
 
-const DEFAULT_GAME_NAME = 'Stonetop Game';
 
 interface LocationState {
   isNew?: boolean;
@@ -138,9 +138,9 @@ export const Game = () => {
           <Heading as="h2" size="sm" className={styles.sectionTitle}>
             GM Playbook
           </Heading>
-          <div className={styles.placeholder}>
-            <Text color="muted" size="sm">GM tools coming soon</Text>
-          </div>
+          <Link to={`/game/${id}/gm`}>
+            <Button variant="secondary" size="xl" fullWidth>Open Playbook</Button>
+          </Link>
         </div>
 
         <div className={styles.section}>

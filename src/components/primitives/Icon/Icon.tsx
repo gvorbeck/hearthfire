@@ -1,6 +1,13 @@
 import type { SVGProps } from 'react';
 
 const icons = {
+  'chevron-down': (
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="m19.5 8.25-7.5 7.5-7.5-7.5"
+    />
+  ),
   pencil: (
     <path
       strokeLinecap="round"
