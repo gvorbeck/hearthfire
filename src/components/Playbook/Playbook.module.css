@@ -39,14 +39,27 @@
   border-bottom: none;
 }
 
-.table td {
-  padding: var(--spacing-2) var(--spacing-3);
+.tableCell {
+  padding: var(--spacing-2) var(--spacing-3) var(--spacing-2) 0;
+  color: var(--color-stone-200);
   vertical-align: top;
 }
 
-.table td:first-child {
-  padding-left: 0;
-  color: var(--color-stone-200);
+.tableCellIndent {
+  padding: var(--spacing-1) var(--spacing-3) var(--spacing-1) var(--spacing-5);
+  color: var(--color-stone-300);
+  vertical-align: top;
+}
+
+.tableGroupRow td {
+  padding-top: var(--spacing-3);
+}
+
+.tableGroupCell {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+  padding-bottom: var(--spacing-1);
 }
 
 .tableValue {
@@ -58,6 +71,67 @@
   font-weight: normal;
   letter-spacing: 0.02em;
   padding-right: 0;
+  vertical-align: top;
+}
+
+.tableTh {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-stone-400);
+  padding: var(--spacing-2) var(--spacing-3) var(--spacing-2) 0;
+  text-align: left;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.tableTh:last-child {
+  text-align: right;
+}
+
+/* ── Bordered table variant ─────────────────────────── */
+.tableWrapper {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-top: var(--spacing-4);
+}
+
+.tableTitle {
+  text-align: center;
+  font-family: var(--font-serif);
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  padding: var(--spacing-3) var(--spacing-4) var(--spacing-2);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.tableBordered {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.tableBordered .tableCell {
+  padding-left: var(--spacing-4);
+}
+
+.tableBordered .tableCellIndent {
+  padding-left: var(--spacing-8);
+}
+
+.tableBordered .tableGroupCell {
+  padding-left: var(--spacing-4);
+}
+
+.tableBordered .tableTh:first-child {
+  padding-left: var(--spacing-4);
+}
+
+.tableBordered .tableValue,
+.tableBordered .tableTh:last-child {
+  padding-right: var(--spacing-4);
 }
 
 /* ── Callout ────────────────────────────────────────── */

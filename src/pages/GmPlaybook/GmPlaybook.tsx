@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useGame } from '@/hooks/useGame';
 import { Heading, Text, Button, Collapse, RuleDivider } from '@/components/primitives';
 import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
-import { CoreLoop, GmMoves, Principles, DamageAndDebilities, ContentSection, Threats, IWonder } from '@/components/Playbook/sections';
+import { CoreLoop, GmMoves, Principles, DamageAndDebilities, ContentSection, Threats, IWonder, Expeditions } from '@/components/Playbook/sections';
 import { DEFAULT_GAME_NAME } from '@/lib/constants';
 import styles from './GmPlaybook.module.css';
 
@@ -85,6 +85,7 @@ export const GmPlaybook = () => {
               : section === 'Content' ? <ContentSection content={game.content} onSave={updateContent} />
               : section === 'Threats' ? <Threats />
               : section === 'I wonder…' ? <IWonder value={game.iWonder ?? ''} onSave={saveIWonder} />
+              : section === 'Expeditions' ? <Expeditions />
               : <div className={styles.placeholder} />}
           </Collapse>
         ))}
