@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { useGame } from '@/hooks/useGame';
@@ -97,6 +98,9 @@ export const Game = () => {
     );
   }
 
+  const charactersCx = clsx(styles.section, styles.sectionCharacters);
+  const rightCx = clsx(styles.section, styles.sectionRight);
+
   return (
     <>
     <GameIdModal gameId={id} open={showIdModal} onClose={handleCloseIdModal} />
@@ -135,21 +139,7 @@ export const Game = () => {
       </div>
 
       <div className={styles.sections}>
-        <div className={styles.section}>
-          <Heading as="h2" size="label">GM Playbook</Heading>
-          <Link to={`/game/${id}/gm`}>
-            <Button variant="secondary" size="xl" fullWidth>Open Playbook</Button>
-          </Link>
-        </div>
-
-        <div className={styles.section}>
-          <Heading as="h2" size="label">Stonetop</Heading>
-          <div className={styles.placeholder}>
-            <Text color="muted" size="sm">Town playbook coming soon</Text>
-          </div>
-        </div>
-
-        <div className={styles.section}>
+        <div className={charactersCx}>
           <Heading as="h2" size="label">Characters</Heading>
           {game.characters.length === 0 ? (
             <div className={styles.placeholder}>
@@ -164,6 +154,20 @@ export const Game = () => {
               ))}
             </Stack>
           )}
+        </div>
+
+        <div className={rightCx}>
+          <Heading as="h2" size="label">Stonetop</Heading>
+          <div className={styles.placeholder}>
+            <Text color="muted" size="sm">Town playbook coming soon</Text>
+          </div>
+        </div>
+
+        <div className={rightCx}>
+          <Heading as="h2" size="label">GM Playbook</Heading>
+          <Link to={`/game/${id}/gm`}>
+            <Button variant="secondary" size="xl" fullWidth>Open Playbook</Button>
+          </Link>
         </div>
       </div>
     </main>

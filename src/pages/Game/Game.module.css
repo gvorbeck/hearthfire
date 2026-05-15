@@ -81,8 +81,23 @@
 
 .sections {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: 1fr;
   gap: var(--spacing-6);
+}
+
+@media (min-width: 640px) {
+  .sections {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .sectionCharacters {
+    grid-column: 1;
+    align-self: start;
+  }
+
+  .sectionRight {
+    grid-column: 2;
+  }
 }
 
 .section {
