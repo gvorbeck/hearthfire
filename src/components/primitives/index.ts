@@ -1,4 +1,5 @@
 export { Button } from './Button/Button';
+export { Dropdown } from './Dropdown/Dropdown';
 export { Collapse } from './Collapse/Collapse';
 export { Icon } from './Icon/Icon';
 export { Modal } from './Modal/Modal';
