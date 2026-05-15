@@ -38,6 +38,7 @@ export const Game = () => {
 
   const handleCloseIdModal = () => setShowIdModal(false);
   const handleCloseAddCharacter = () => setShowAddCharacter(false);
+  const handleOpenAddCharacter = () => setShowAddCharacter(true);
 
   const startEditing = () => {
     setNameValue(game?.name ?? DEFAULT_GAME_NAME);
@@ -101,6 +102,7 @@ export const Game = () => {
     );
   }
 
+  const gameName = game.name || DEFAULT_GAME_NAME;
   const charactersCx = clsx(styles.section, styles.sectionCharacters);
   const rightCx = clsx(styles.section, styles.sectionRight);
 
@@ -110,7 +112,7 @@ export const Game = () => {
     <AddCharacterModal open={showAddCharacter} onClose={handleCloseAddCharacter} />
     <main className={styles.page}>
       <div className={styles.header}>
-        <Breadcrumb crumbs={[{ label: game.name || DEFAULT_GAME_NAME }]} />
+        <Breadcrumb crumbs={[{ label: gameName }]} />
         <div className={styles.nameRow}>
           {editingName ? (
             <input
@@ -124,7 +126,7 @@ export const Game = () => {
             />
           ) : (
             <>
-              <Heading as="h1" size="xl">{game.name || DEFAULT_GAME_NAME}</Heading>
+              <Heading as="h1" size="xl">{gameName}</Heading>
               <button className={styles.editNameBtn} onClick={startEditing} aria-label="Edit game name">
                 <Icon name="pencil" size="small" />
               </button>
@@ -154,7 +156,7 @@ export const Game = () => {
               ))}
             </Stack>
           )}
-          <Button variant="secondary" size="xl" fullWidth onClick={() => setShowAddCharacter(true)}>
+          <Button variant="secondary" size="xl" fullWidth onClick={handleOpenAddCharacter}>
             Add Character
           </Button>
         </div>

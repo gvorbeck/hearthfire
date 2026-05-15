@@ -14,6 +14,7 @@ interface ModalProps {
 export const Modal = ({ open, onClose, children, className, 'aria-labelledby': labelledBy }: ModalProps) => {
   const panelRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
+  // keeps ref current so the keydown effect sees the latest onClose without re-registering the listener
   useEffect(() => { onCloseRef.current = onClose; });
 
   useEffect(() => {
@@ -31,11 +32,10 @@ export const Modal = ({ open, onClose, children, className, 'aria-labelledby': l
 
   if (!open) return null;
 
-  const handleBackdropClick = () => onClose();
   const handlePanelClick = (e: React.MouseEvent) => e.stopPropagation();
 
   return createPortal(
-    <div className={styles.backdrop} onClick={handleBackdropClick} role="none">
+    <div className={styles.backdrop} onClick={onClose} role="none">
       <div
         ref={panelRef}
         className={clsx(styles.panel, className)}
