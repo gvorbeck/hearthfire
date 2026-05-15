@@ -11,3 +11,4 @@ export { Discoveries } from './Discoveries';
 export { Hazards } from './Hazards';
 export { Monsters } from './Monsters';
 export { NPCs } from './NPCs';
+export { Followers } from './Followers';
