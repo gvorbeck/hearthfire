@@ -36,6 +36,37 @@ const icons = {
       d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
     />
   ),
+  spring: (
+    <>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 21V12" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 12C12 12 8 10 7 6c2 0 4 1 5 3" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 12C12 12 16 10 17 6c-2 0-4 1-5 3" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 12C12 12 10 8 12 4c2 4 0 8 0 8" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 18c0-1.66 1.34-3 3-3s3 1.34 3 3" />
+    </>
+  ),
+  summer: (
+    <>
+      <circle cx="12" cy="12" r="4" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+    </>
+  ),
+  autumn: (
+    <>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 3C7 3 4 7 4 11c0 2.5 1.5 4.5 3 6" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 3c5 0 8 4 8 8 0 2.5-1.5 4.5-3 6" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 3c0 0 0 10-3 14" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 3c0 0 0 10 3 14" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 17c1-2 3-2 3-2s2 0 3 2" />
+    </>
+  ),
+  winter: (
+    <>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 2v20M2 12h20" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4.93 4.93l14.14 14.14M19.07 4.93L4.93 19.07" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6l-2 2 2 2 2-2zM12 14l-2 2 2 2 2-2zM6 12l2-2 2 2-2 2zM14 12l2-2 2 2-2 2z" />
+    </>
+  ),
 };
 
 export type IconName = keyof typeof icons;

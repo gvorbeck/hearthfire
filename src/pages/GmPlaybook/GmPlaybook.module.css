@@ -106,6 +106,17 @@
   margin-top: var(--spacing-4);
 }
 
+.seasonHeading {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.seasonIcon {
+  color: var(--color-gold-500);
+  flex-shrink: 0;
+}
+
 .centered {
   flex: 1;
   display: flex;

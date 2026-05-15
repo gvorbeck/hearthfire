@@ -12,3 +12,4 @@ export { Hazards } from './Hazards';
 export { Monsters } from './Monsters';
 export { NPCs } from './NPCs';
 export { Followers } from './Followers';
+export { Homefront } from './Homefront';
