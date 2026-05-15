@@ -17,7 +17,9 @@
       "Bash(grep -n \"^[0-9]\\\\{2,3\\\\}$\")",
       "Bash(grep -E \"\\\\.\\(tsx?|jsx?\\)$\")",
       "Bash(npm run *)",
-      "Bash(xargs ls -la)"
+      "Bash(xargs ls -la)",
+      "Bash(git -C /Users/garrett.vorbeck/Sites/stonetop remote -v)",
+      "Bash(git -C /Users/garrett.vorbeck/Sites/stonetop remote add origin git@github.com:gvorbeck/hearthfire.git)"
     ]
   }
 }
