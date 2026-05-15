@@ -1,7 +1,7 @@
+import type { PlaybookType } from "@/types";
+
 export const DEFAULT_GAME_NAME = "Stonetop Game";
 export const GAMES_COLLECTION = "games";
-
-import type { PlaybookType } from "@/types";
 
 export interface PlaybookOption {
   value: PlaybookType;
@@ -14,7 +14,7 @@ export const PLAYBOOKS: PlaybookOption[] = [
     value: "blessed",
     label: "The Blessed",
     description:
-      "Danu, the Great Mother, provides. We need only learn her secrets: the names by which the trees call each other; the mark made with redberry juice to ward off impure spirits; the language ofthe wolves. A thousand such secrets Danu keeps, to share with only her true children. Her Blessed.",
+      "Danu, the Great Mother, provides. We need only learn her secrets: the names by which the trees call each other; the mark made with redberry juice to ward off impure spirits; the language of the wolves. A thousand such secrets Danu keeps, to share with only her true children. Her Blessed.",
   },
   {
     value: "fox",

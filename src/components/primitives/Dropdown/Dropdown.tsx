@@ -1,17 +1,20 @@
-import { type SelectHTMLAttributes } from 'react';
-import clsx from 'clsx';
-import styles from './Dropdown.module.css';
+import { type SelectHTMLAttributes } from "react";
+import clsx from "clsx";
+import styles from "./Dropdown.module.css";
 
 interface DropdownOption<T extends string> {
   value: T;
   label: string;
 }
 
-interface DropdownProps<T extends string> extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'value' | 'onChange'> {
+interface DropdownProps<T extends string> extends Omit<
+  SelectHTMLAttributes<HTMLSelectElement>,
+  "value" | "onChange"
+> {
   label: string;
   id: string;
   options: DropdownOption<T>[];
-  value: T | '';
+  value: T | "";
   onChange: (value: T) => void;
   placeholder?: string;
 }
@@ -22,7 +25,7 @@ export const Dropdown = <T extends string>({
   options,
   value,
   onChange,
-  placeholder = 'Select…',
+  placeholder = "Select…",
   className,
   ...props
 }: DropdownProps<T>) => {
@@ -38,10 +41,20 @@ export const Dropdown = <T extends string>({
         {label}
       </label>
       <div className={styles.selectWrapper}>
-        <select id={id} className={selectCx} value={value} onChange={handleChange} {...props}>
-          <option value="" disabled>{placeholder}</option>
+        <select
+          id={id}
+          className={selectCx}
+          value={value}
+          onChange={handleChange}
+          {...props}
+        >
+          <option value="" disabled>
+            {placeholder}
+          </option>
           {options.map((opt) => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
           ))}
         </select>
         <span className={styles.chevron} aria-hidden="true" />
