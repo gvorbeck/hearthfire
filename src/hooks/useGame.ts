@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { arrayUnion, doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { GAMES_COLLECTION } from '@/lib/constants';
-import type { Character, ContentLists, GameSession } from '@/types';
+import type { Character, CharacterData, ContentLists, GameSession } from '@/types';
 
 interface UseGameResult {
   game: GameSession | null;
@@ -10,6 +10,7 @@ interface UseGameResult {
   error: string | null;
   updateGameName: (name: string) => Promise<void>;
   updateCharacterName: (characterId: string, name: string) => Promise<void>;
+  updateCharacterData: (characterId: string, data: Partial<CharacterData>) => Promise<void>;
   updateContent: (field: keyof ContentLists, value: string) => Promise<void>;
   updateField: (field: keyof Pick<GameSession, 'threats' | 'iWonder'>, value: string) => Promise<void>;
   addCharacter: (character: Character) => Promise<void>;
@@ -93,5 +94,19 @@ export const useGame = (gameId: string): UseGameResult => {
     }
   }, [gameId]);
 
-  return { game, loading, error, updateGameName, updateCharacterName, updateContent, updateField, addCharacter };
+  const updateCharacterData = useCallback(async (characterId: string, data: Partial<CharacterData>) => {
+    const current = gameRef.current;
+    if (!current) return;
+    const updatedCharacters = current.characters.map((c: Character) =>
+      c.id === characterId ? { ...c, data: { ...c.data, ...data } } : c
+    );
+    try {
+      await updateDoc(doc(db, GAMES_COLLECTION, gameId), { characters: updatedCharacters });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update character data');
+      throw err;
+    }
+  }, [gameId]);
+
+  return { game, loading, error, updateGameName, updateCharacterName, updateCharacterData, updateContent, updateField, addCharacter };
 };

@@ -19,12 +19,14 @@ export const PLAYBOOKS: PlaybookOption[] = [
   {
     value: "fox",
     label: "The Fox",
-    description: "",
+    description:
+      "The elders tell a story about Fox, who knows lots of tricks, and Hedgehog, who knows one: how tocurl up into a ball when there's danger. Fox can't eat Hedgehog when he's all curled up, so in the storyFox goes hungry. But you're not that Fox, and this is no story. You want that Hedgehog? Go get a knife.",
   },
   {
     value: "heavy",
     label: "The Heavy",
-    description: "",
+    description:
+      "These are good people. Hard-working, honest. They look out for each other. But sometimes, looking out for each other ain't enough. Sometimes, good people need someone to stick up for them. Someone who's not afraid to get a little bloody. To get heavy. Yeah, someone like you.",
   },
   {
     value: "judge",

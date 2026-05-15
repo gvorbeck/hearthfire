@@ -1,0 +1,55 @@
+.label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  cursor: pointer;
+  user-select: none;
+}
+
+.input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.indicator {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-strong);
+  background: var(--surface-raised);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-gold-400);
+  opacity: 0;
+  transform: scale(0.5);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.input:checked + .indicator {
+  border-color: var(--color-gold-500);
+}
+
+.input:checked + .indicator .dot {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.input:focus-visible + .indicator {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: 2px;
+}
+
+.label:hover .indicator {
+  border-color: var(--color-gold-400);
+}

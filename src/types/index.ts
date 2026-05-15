@@ -9,11 +9,17 @@ export type PlaybookType =
   | 'seeker'
   | 'would-be-hero';
 
+export interface CharacterData {
+  background?: string;
+  backgroundChoices?: string[];
+}
+
 export interface Character {
   id: string;
   name: string;
   playbook: PlaybookType;
   level: number;
+  data?: CharacterData;
 }
 
 export interface ContentLists {
