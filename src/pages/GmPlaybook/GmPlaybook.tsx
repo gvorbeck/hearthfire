@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useGame } from '@/hooks/useGame';
 import { Heading, Text, Button, Collapse, RuleDivider } from '@/components/primitives';
 import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
-import { CoreLoop, GmMoves, Principles, DamageAndDebilities, ContentSection, Threats, IWonder, Expeditions, Sites } from '@/components/Playbook/sections';
+import { CoreLoop, GmMoves, Principles, DamageAndDebilities, ContentSection, Threats, IWonder, Expeditions, Sites, Discoveries, Hazards } from '@/components/Playbook/sections';
 import { DEFAULT_GAME_NAME } from '@/lib/constants';
 import styles from './GmPlaybook.module.css';
 
@@ -34,6 +34,8 @@ const STATIC_CONTENT: Partial<Record<string, React.ReactNode>> = {
   'Threats': <Threats />,
   'Expeditions': <Expeditions />,
   'Sites': <Sites />,
+  'Discoveries': <Discoveries />,
+  'Hazards': <Hazards />,
 };
 
 export const GmPlaybook = () => {

@@ -7,3 +7,5 @@ export { Threats } from './Threats';
 export { IWonder } from './IWonder';
 export { Expeditions } from './Expeditions';
 export { Sites } from './Sites';
+export { Discoveries } from './Discoveries';
+export { Hazards } from './Hazards';
