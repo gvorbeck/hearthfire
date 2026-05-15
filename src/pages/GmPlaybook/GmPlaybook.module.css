@@ -88,6 +88,18 @@
 }
 
 
+.threatMovesGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-6) var(--spacing-8);
+  margin-top: var(--spacing-4);
+}
+
+.threatType {
+  font-style: italic;
+  margin-bottom: var(--spacing-1);
+}
+
 .centered {
   flex: 1;
   display: flex;

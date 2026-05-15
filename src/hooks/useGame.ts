@@ -10,6 +10,7 @@ interface UseGameResult {
   error: string | null;
   updateGameName: (name: string) => Promise<void>;
   updateContent: (field: keyof ContentLists, value: string) => Promise<void>;
+  updateField: (field: 'threats' | 'iWonder', value: string) => Promise<void>;
 }
 
 export const useGame = (gameId: string): UseGameResult => {
@@ -58,5 +59,14 @@ export const useGame = (gameId: string): UseGameResult => {
     }
   }, [gameId]);
 
-  return { game, loading, error, updateGameName, updateContent };
+  const updateField = useCallback(async (field: 'threats' | 'iWonder', value: string) => {
+    try {
+      await updateDoc(doc(db, GAMES_COLLECTION, gameId), { [field]: value });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save');
+      throw err;
+    }
+  }, [gameId]);
+
+  return { game, loading, error, updateGameName, updateContent, updateField };
 };

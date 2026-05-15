@@ -28,4 +28,6 @@ export interface GameSession {
   createdAt: number;
   characters: Character[];
   content?: ContentLists;
+  threats?: string;
+  iWonder?: string;
 }
