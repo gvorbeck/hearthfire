@@ -6,43 +6,40 @@ import { Heading, Button } from '@/components/primitives';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
 import { PageHeader } from '@/components/PageHeader/PageHeader';
 import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, Moves, SpecialPossessions, Introductions } from '@/components/CharacterSheet/sections';
-import { BlessedBackground, BlessedInstinct, BlessedAppearance, BlessedSections } from '@/components/CharacterSheet/playbooks/BlessedSections';
+import { BlessedBackground, BlessedInstinct, BlessedAppearance, BlessedPlaceOfOrigin, BlessedSections } from '@/components/CharacterSheet/playbooks/BlessedSections';
 import type { Character, CharacterData, GameSession, PlaybookType } from '@/types';
 import styles from './CharacterPlaybook.module.css';
 
-interface BackgroundSectionProps {
+interface PlaybookSectionProps {
   character: Character;
   onSave: (data: Partial<CharacterData>) => Promise<void>;
 }
 
-const BackgroundSection = ({ character, onSave }: BackgroundSectionProps) => {
+const BackgroundSection = ({ character, onSave }: PlaybookSectionProps) => {
   switch (character.playbook) {
     case 'blessed': return <BlessedBackground data={character.data} onSave={onSave} />;
     default: return <Background />;
   }
 };
 
-interface InstinctSectionProps {
-  character: Character;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
-}
-
-const InstinctSection = ({ character, onSave }: InstinctSectionProps) => {
+const InstinctSection = ({ character, onSave }: PlaybookSectionProps) => {
   switch (character.playbook) {
     case 'blessed': return <BlessedInstinct data={character.data} onSave={onSave} />;
     default: return <Instinct />;
   }
 };
 
-interface AppearanceSectionProps {
-  character: Character;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
-}
-
-const AppearanceSection = ({ character, onSave }: AppearanceSectionProps) => {
+const AppearanceSection = ({ character, onSave }: PlaybookSectionProps) => {
   switch (character.playbook) {
     case 'blessed': return <BlessedAppearance data={character.data} onSave={onSave} />;
     default: return <Appearance />;
+  }
+};
+
+const PlaceOfOriginSection = ({ character, onSave }: PlaybookSectionProps) => {
+  switch (character.playbook) {
+    case 'blessed': return <BlessedPlaceOfOrigin data={character.data} onSave={onSave} />;
+    default: return <PlaceOfOrigin />;
   }
 };
 
@@ -132,7 +129,7 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
               onSave={handleSaveCharacterData}
             />
             <AppearanceSection character={character} onSave={handleSaveCharacterData} />
-            <PlaceOfOrigin />
+            <PlaceOfOriginSection character={character} onSave={handleSaveCharacterData} />
           </div>
         </div>
         <div className={styles.colFull}><Stats /></div>

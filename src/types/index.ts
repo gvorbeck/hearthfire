@@ -16,6 +16,7 @@ export interface CharacterData {
   instinctCustom?: string;
   appearance?: Record<string, string>;
   appearanceCustom?: string;
+  placeOfOrigin?: string;
 }
 
 export interface Character {
