@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import { Home } from '@/pages/Home/Home';
 import { Game } from '@/pages/Game/Game';
 import { GmPlaybook } from '@/pages/GmPlaybook/GmPlaybook';
+import { CharacterPlaybook } from '@/pages/CharacterPlaybook/CharacterPlaybook';
 import styles from '@/App.module.css';
 
 export const App = () => (
@@ -10,6 +11,7 @@ export const App = () => (
       <Route path="/" element={<Home />} />
       <Route path="/game/:id" element={<Game />} />
       <Route path="/game/:id/gm" element={<GmPlaybook />} />
+      <Route path="/game/:id/:playbook" element={<CharacterPlaybook />} />
     </Routes>
     <footer className={styles.footer}>
       Stonetop is written by Jeremy Strandberg and published by Lampblack &amp; Brimstone.

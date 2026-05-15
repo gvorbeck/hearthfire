@@ -7,6 +7,7 @@ import { Button, Heading, RuleDivider, Stack, Text, Icon } from '@/components/pr
 import { GameIdModal } from '@/components/GameIdModal/GameIdModal';
 import { AddCharacterModal } from '@/components/AddCharacterModal/AddCharacterModal';
 import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
+import { GameGuard } from '@/components/GameGuard/GameGuard';
 import styles from './Game.module.css';
 
 
@@ -70,117 +71,101 @@ export const Game = () => {
     copiedTimerRef.current = setTimeout(() => setCopied(false), 2000);
   };
 
-  if (loading) {
-    return (
-      <main className={styles.centered}>
-        <Text color="muted">Loading game…</Text>
-      </main>
-    );
-  }
-
-  if (error) {
-    return (
-      <main className={styles.centered}>
-        <Heading as="h2" size="md">Something went wrong</Heading>
-        <Text color="muted">{error}</Text>
-        <Link to="/">
-          <Button variant="secondary">Back to Home</Button>
-        </Link>
-      </main>
-    );
-  }
-
-  if (!game) {
-    return (
-      <main className={styles.centered}>
-        <Heading as="h2" size="md">Game not found</Heading>
-        <Text color="muted">No game with ID &ldquo;{id}&rdquo; exists.</Text>
-        <Link to="/">
-          <Button variant="secondary">Back to Home</Button>
-        </Link>
-      </main>
-    );
-  }
-
-  const gameName = game.name || DEFAULT_GAME_NAME;
-  const charactersCx = clsx(styles.section, styles.sectionCharacters);
-  const rightCx = clsx(styles.section, styles.sectionRight);
-
   return (
-    <>
-    <GameIdModal gameId={id} open={showIdModal} onClose={handleCloseIdModal} />
-    <AddCharacterModal
-      open={showAddCharacter}
-      onClose={handleCloseAddCharacter}
-      existingPlaybooks={game.characters.map((c) => c.playbook)}
-      onAdd={addCharacter}
-    />
-    <main className={styles.page}>
-      <div className={styles.header}>
-        <Breadcrumb crumbs={[{ label: gameName }]} />
-        <div className={styles.nameRow}>
-          {editingName ? (
-            <input
-              ref={nameInputRef}
-              className={styles.nameInput}
-              value={nameValue}
-              onChange={handleNameChange}
-              onBlur={commitName}
-              onKeyDown={handleNameKeyDown}
-              aria-label="Game name"
-            />
-          ) : (
-            <>
-              <Heading as="h1" size="xl">{gameName}</Heading>
-              <button className={styles.editNameBtn} onClick={startEditing} aria-label="Edit game name">
-                <Icon name="pencil" size="small" />
-              </button>
-            </>
-          )}
-        </div>
-        <div className={styles.gameId}>
-          <Text color="muted" size="sm">
-            Game ID: <Text as="span" color="accent" size="sm">{game.id}</Text>
-          </Text>
-          <button className={styles.copyBtn} onClick={copyGameId} aria-label="Copy game ID">
-            <Icon name={copied ? 'check' : 'copy'} size="small" />
-          </button>
-        </div>
-        <RuleDivider className={styles.titleRule} />
-      </div>
+    <GameGuard
+      loading={loading}
+      error={error}
+      game={game}
+      loadingText="Loading game…"
+      notFoundMessage={`No game with ID "${id}" exists.`}
+    >
+      {(g) => {
+        const gameName = g.name || DEFAULT_GAME_NAME;
+        const charactersCx = clsx(styles.section, styles.sectionCharacters);
+        const rightCx = clsx(styles.section, styles.sectionRight);
 
-      <div className={styles.sections}>
-        <div className={charactersCx}>
-          <Heading as="h2" size="label">Characters</Heading>
-          {game.characters.length > 0 && (
-            <Stack gap={3}>
-              {game.characters.map((character) => (
-                <Text key={character.id} size="sm">
-                  {character.name} — {PLAYBOOKS.find((p) => p.value === character.playbook)?.label ?? character.playbook}
+        return (
+          <>
+          <GameIdModal gameId={id} open={showIdModal} onClose={handleCloseIdModal} />
+          <AddCharacterModal
+            open={showAddCharacter}
+            onClose={handleCloseAddCharacter}
+            existingPlaybooks={g.characters.map((c) => c.playbook)}
+            onAdd={addCharacter}
+          />
+          <main className={styles.page}>
+            <div className={styles.header}>
+              <Breadcrumb crumbs={[{ label: gameName }]} />
+              <div className={styles.nameRow}>
+                {editingName ? (
+                  <input
+                    ref={nameInputRef}
+                    className={styles.nameInput}
+                    value={nameValue}
+                    onChange={handleNameChange}
+                    onBlur={commitName}
+                    onKeyDown={handleNameKeyDown}
+                    aria-label="Game name"
+                  />
+                ) : (
+                  <>
+                    <Heading as="h1" size="xl">{gameName}</Heading>
+                    <button className={styles.editNameBtn} onClick={startEditing} aria-label="Edit game name">
+                      <Icon name="pencil" size="small" />
+                    </button>
+                  </>
+                )}
+              </div>
+              <div className={styles.gameId}>
+                <Text color="muted" size="sm">
+                  Game ID: <Text as="span" color="accent" size="sm">{g.id}</Text>
                 </Text>
-              ))}
-            </Stack>
-          )}
-          <Button variant="secondary" size="xl" fullWidth onClick={handleOpenAddCharacter}>
-            Add Character
-          </Button>
-        </div>
+                <button className={styles.copyBtn} onClick={copyGameId} aria-label="Copy game ID">
+                  <Icon name={copied ? 'check' : 'copy'} size="small" />
+                </button>
+              </div>
+              <RuleDivider className={styles.titleRule} />
+            </div>
 
-        <div className={rightCx}>
-          <Heading as="h2" size="label">Stonetop</Heading>
-          <div className={styles.placeholder}>
-            <Text color="muted" size="sm">Town playbook coming soon</Text>
-          </div>
-        </div>
+            <div className={styles.sections}>
+              <div className={charactersCx}>
+                <Heading as="h2" size="label">Characters</Heading>
+                {g.characters.length > 0 && (
+                  <Stack gap={3}>
+                    {g.characters.map((character) => {
+                      const playbookOption = PLAYBOOKS.find((p) => p.value === character.playbook);
+                      const buttonLabel = `${playbookOption?.label ?? character.playbook} Playbook`;
+                      return (
+                        <Link key={character.id} to={`/game/${id}/${character.playbook}`}>
+                          <Button variant="secondary" size="xl" fullWidth>{buttonLabel}</Button>
+                        </Link>
+                      );
+                    })}
+                  </Stack>
+                )}
+                <Button variant="secondary" size="xl" fullWidth onClick={handleOpenAddCharacter}>
+                  Add Character
+                </Button>
+              </div>
 
-        <div className={rightCx}>
-          <Heading as="h2" size="label">GM Playbook</Heading>
-          <Link to={`/game/${id}/gm`}>
-            <Button variant="secondary" size="xl" fullWidth>Open Playbook</Button>
-          </Link>
-        </div>
-      </div>
-    </main>
-    </>
+              <div className={rightCx}>
+                <Heading as="h2" size="label">Stonetop</Heading>
+                <div className={styles.placeholder}>
+                  <Text color="muted" size="sm">Town playbook coming soon</Text>
+                </div>
+              </div>
+
+              <div className={rightCx}>
+                <Heading as="h2" size="label">GM Playbook</Heading>
+                <Link to={`/game/${id}/gm`}>
+                  <Button variant="secondary" size="xl" fullWidth>Open Playbook</Button>
+                </Link>
+              </div>
+            </div>
+          </main>
+          </>
+        );
+      }}
+    </GameGuard>
   );
 };

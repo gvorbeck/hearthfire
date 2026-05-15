@@ -116,13 +116,3 @@
   color: var(--color-gold-500);
   flex-shrink: 0;
 }
-
-.centered {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-4);
-  padding: var(--spacing-16) var(--spacing-4);
-}
