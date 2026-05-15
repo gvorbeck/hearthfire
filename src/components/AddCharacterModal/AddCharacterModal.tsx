@@ -30,11 +30,16 @@ export const AddCharacterModal = ({
     onClose();
   };
 
+  const [addError, setAddError] = useState<string | null>(null);
+
+  const handlePlaybookChange = (value: PlaybookType) => setPlaybook(value);
+
   const handleAdd = () => {
     if (!playbook) return;
-    const character = { id: crypto.randomUUID(), name: "", playbook, level: 1 };
+    const selectedLabel = PLAYBOOKS.find((p) => p.value === playbook)?.label ?? playbook;
+    const character = { id: crypto.randomUUID(), name: selectedLabel, playbook, level: 1 };
     handleClose();
-    onAdd(character);
+    onAdd(character).catch(() => setAddError("Failed to add character. Please try again."));
   };
 
   const availablePlaybooks = PLAYBOOKS.filter((p) => !existingPlaybooks.includes(p.value));
@@ -54,13 +59,16 @@ export const AddCharacterModal = ({
         label="Playbook"
         options={availablePlaybooks}
         value={playbook}
-        onChange={setPlaybook}
+        onChange={handlePlaybookChange}
         placeholder="Choose a playbook…"
       />
       {selectedPlaybook && (
         <Text size="sm" color="muted" className={styles.description}>
           {selectedPlaybook.description}
         </Text>
+      )}
+      {addError && (
+        <Text size="sm" color="muted">{addError}</Text>
       )}
       <div className={styles.actions}>
         <Button type="button" variant="secondary" onClick={handleClose} size="md">

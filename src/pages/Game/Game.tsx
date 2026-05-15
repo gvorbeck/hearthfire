@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { useGame } from '@/hooks/useGame';
-import { DEFAULT_GAME_NAME } from '@/lib/constants';
+import { DEFAULT_GAME_NAME, PLAYBOOKS } from '@/lib/constants';
 import { Button, Heading, RuleDivider, Stack, Text, Icon } from '@/components/primitives';
 import { GameIdModal } from '@/components/GameIdModal/GameIdModal';
 import { AddCharacterModal } from '@/components/AddCharacterModal/AddCharacterModal';
@@ -156,7 +156,7 @@ export const Game = () => {
             <Stack gap={3}>
               {game.characters.map((character) => (
                 <Text key={character.id} size="sm">
-                  {character.name} — {character.playbook}
+                  {character.name} — {PLAYBOOKS.find((p) => p.value === character.playbook)?.label ?? character.playbook}
                 </Text>
               ))}
             </Stack>
