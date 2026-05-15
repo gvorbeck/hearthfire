@@ -10,12 +10,12 @@ import { BlessedBackground, BlessedSections } from '@/components/CharacterSheet/
 import type { Character, CharacterData, GameSession, PlaybookType } from '@/types';
 import styles from './CharacterPlaybook.module.css';
 
-interface BackgroundProps {
+interface BackgroundSectionProps {
   character: Character;
   onSave: (data: Partial<CharacterData>) => Promise<void>;
 }
 
-const getBackground = ({ character, onSave }: BackgroundProps): React.ReactNode => {
+const BackgroundSection = ({ character, onSave }: BackgroundSectionProps) => {
   switch (character.playbook) {
     case 'blessed': return <BlessedBackground data={character.data} onSave={onSave} />;
     default: return <Background />;
@@ -40,16 +40,6 @@ interface ContentProps {
 const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, updateCharacterData }: ContentProps) => {
   const playbookOption = PLAYBOOKS.find((p) => p.value === playbook);
   const character = g.characters.find((c) => c.playbook === playbook);
-
-  const saveCharacterName = useCallback(
-    (name: string) => updateCharacterName(character?.id ?? '', name),
-    [updateCharacterName, character?.id]
-  );
-
-  const saveCharacterData = useCallback(
-    (data: Partial<CharacterData>) => updateCharacterData(character?.id ?? '', data),
-    [updateCharacterData, character?.id]
-  );
 
   if (!playbookOption) {
     return (
@@ -92,12 +82,15 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
         titleLabel="Edit character name"
         subtitle={characterName ? playbookLabel : undefined}
         gameId={id}
-        onSaveTitle={saveCharacterName}
+        onSaveTitle={(name) => updateCharacterName(character.id, name)}
       />
       <div className={styles.layout}>
         <div className={styles.columns}>
           <div className={styles.colLeft}>
-            {getBackground({ character, onSave: saveCharacterData })}
+            <BackgroundSection
+              character={character}
+              onSave={(data) => updateCharacterData(character.id, data)}
+            />
           </div>
           <div className={styles.colRight}>
             <Instinct />
@@ -125,6 +118,16 @@ export const CharacterPlaybook = () => {
   const { id = '', playbook = '' } = useParams<{ id: string; playbook: string }>();
   const { game, loading, error, updateCharacterName, updateCharacterData } = useGame(id);
 
+  const handleUpdateCharacterName = useCallback(
+    (characterId: string, name: string) => updateCharacterName(characterId, name),
+    [updateCharacterName]
+  );
+
+  const handleUpdateCharacterData = useCallback(
+    (characterId: string, data: Partial<CharacterData>) => updateCharacterData(characterId, data),
+    [updateCharacterData]
+  );
+
   return (
     <GameGuard loading={loading} error={error} game={game} errorBackTo={`/game/${id}`} errorBackLabel="Back to Game">
       {(g) => (
@@ -132,8 +135,8 @@ export const CharacterPlaybook = () => {
           g={g}
           id={id}
           playbook={playbook as PlaybookType}
-          updateCharacterName={updateCharacterName}
-          updateCharacterData={updateCharacterData}
+          updateCharacterName={handleUpdateCharacterName}
+          updateCharacterData={handleUpdateCharacterData}
         />
       )}
     </GameGuard>

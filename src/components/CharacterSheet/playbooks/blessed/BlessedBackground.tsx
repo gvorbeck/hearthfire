@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Radio, Checkbox, Text } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import type { CharacterData } from '@/types';
@@ -68,12 +68,12 @@ interface BoundedCheckboxListProps {
 const BoundedCheckboxList = ({ optionValue, choices, disabled, selected, onSave }: BoundedCheckboxListProps) => {
   const atMax = selected.length >= choices.max;
 
-  const handleChange = (value: string, checked: boolean) => {
+  const handleChange = useCallback((value: string, checked: boolean) => {
     const next = checked
       ? [...selected, value]
       : selected.filter((v) => v !== value);
     onSave(next);
-  };
+  }, [selected, onSave]);
 
   return (
     <div className={styles.choices}>
@@ -107,6 +107,19 @@ export const BlessedBackground = ({ data, onSave }: BlessedBackgroundProps) => {
   const selectedOptionRef = useRef(selectedOption);
   selectedOptionRef.current = selectedOption;
 
+  // Firestore data arrives async after mount; sync local state once it lands.
+  useEffect(() => {
+    if (data?.background !== undefined) setSelectedOption(data.background);
+    if (data?.backgroundChoices !== undefined) setSelectedChoices(data.backgroundChoices);
+  }, [data?.background, data?.backgroundChoices]);
+
+  // Clear the debounce timer on unmount so the callback never fires after navigation.
+  useEffect(() => {
+    return () => {
+      if (choiceDebounceRef.current) clearTimeout(choiceDebounceRef.current);
+    };
+  }, []);
+
   const handleOptionChange = (value: string) => {
     if (choiceDebounceRef.current) clearTimeout(choiceDebounceRef.current);
     setSelectedOption(value);
@@ -117,6 +130,7 @@ export const BlessedBackground = ({ data, onSave }: BlessedBackgroundProps) => {
   const handleChoicesChange = (choices: string[]) => {
     setSelectedChoices(choices);
     if (choiceDebounceRef.current) clearTimeout(choiceDebounceRef.current);
+    // Debounce so rapid checkbox toggling costs one write instead of one per click.
     choiceDebounceRef.current = setTimeout(() => {
       onSave({ background: selectedOptionRef.current, backgroundChoices: choices });
     }, 1000);
@@ -136,7 +150,7 @@ export const BlessedBackground = ({ data, onSave }: BlessedBackgroundProps) => {
             />
             <div className={styles.optionBody}>
               {opt.paragraphs.map((p, i) => (
-                <Text key={i} size="sm">{p}</Text>
+                <Text key={`${opt.value}-p${i}`} size="sm">{p}</Text>
               ))}
               {opt.choices && (
                 <BoundedCheckboxList
