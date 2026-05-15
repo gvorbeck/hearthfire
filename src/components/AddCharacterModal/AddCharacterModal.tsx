@@ -7,17 +7,21 @@ import {
   Text,
 } from "@/components/primitives";
 import { PLAYBOOKS } from "@/lib/constants";
-import type { PlaybookType } from "@/types";
+import type { Character, PlaybookType } from "@/types";
 import styles from "./AddCharacterModal.module.css";
 
 interface AddCharacterModalProps {
   open: boolean;
   onClose: () => void;
+  existingPlaybooks: PlaybookType[];
+  onAdd: (character: Character) => Promise<void>;
 }
 
 export const AddCharacterModal = ({
   open,
   onClose,
+  existingPlaybooks,
+  onAdd,
 }: AddCharacterModalProps) => {
   const [playbook, setPlaybook] = useState<PlaybookType | "">("");
 
@@ -26,6 +30,14 @@ export const AddCharacterModal = ({
     onClose();
   };
 
+  const handleAdd = () => {
+    if (!playbook) return;
+    const character = { id: crypto.randomUUID(), name: "", playbook, level: 1 };
+    handleClose();
+    onAdd(character);
+  };
+
+  const availablePlaybooks = PLAYBOOKS.filter((p) => !existingPlaybooks.includes(p.value));
   const selectedPlaybook = PLAYBOOKS.find((p) => p.value === playbook);
 
   return (
@@ -40,7 +52,7 @@ export const AddCharacterModal = ({
       <Dropdown
         id="playbook-select"
         label="Playbook"
-        options={PLAYBOOKS}
+        options={availablePlaybooks}
         value={playbook}
         onChange={setPlaybook}
         placeholder="Choose a playbook…"
@@ -50,9 +62,16 @@ export const AddCharacterModal = ({
           {selectedPlaybook.description}
         </Text>
       )}
-      <Button type="button" variant="secondary" onClick={handleClose} size="md">
-        Cancel
-      </Button>
+      <div className={styles.actions}>
+        <Button type="button" variant="secondary" onClick={handleClose} size="md">
+          Cancel
+        </Button>
+        {playbook && (
+          <Button type="button" onClick={handleAdd} size="md">
+            Add Character
+          </Button>
+        )}
+      </div>
     </Modal>
   );
 };

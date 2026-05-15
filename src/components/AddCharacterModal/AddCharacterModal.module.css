@@ -4,3 +4,9 @@
   border-radius: var(--radius-md);
   padding: var(--spacing-3) var(--spacing-4);
 }
+
+.actions {
+  display: flex;
+  gap: var(--spacing-3);
+  justify-content: flex-end;
+}

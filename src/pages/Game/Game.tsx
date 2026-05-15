@@ -17,7 +17,7 @@ interface LocationState {
 export const Game = () => {
   const { id = '' } = useParams<{ id: string }>();
   const { state } = useLocation();
-  const { game, loading, error, updateGameName } = useGame(id);
+  const { game, loading, error, updateGameName, addCharacter } = useGame(id);
   const [showIdModal, setShowIdModal] = useState((state as LocationState | null)?.isNew === true);
   const [showAddCharacter, setShowAddCharacter] = useState(false);
   const [editingName, setEditingName] = useState(false);
@@ -109,7 +109,12 @@ export const Game = () => {
   return (
     <>
     <GameIdModal gameId={id} open={showIdModal} onClose={handleCloseIdModal} />
-    <AddCharacterModal open={showAddCharacter} onClose={handleCloseAddCharacter} />
+    <AddCharacterModal
+      open={showAddCharacter}
+      onClose={handleCloseAddCharacter}
+      existingPlaybooks={game.characters.map((c) => c.playbook)}
+      onAdd={addCharacter}
+    />
     <main className={styles.page}>
       <div className={styles.header}>
         <Breadcrumb crumbs={[{ label: gameName }]} />
