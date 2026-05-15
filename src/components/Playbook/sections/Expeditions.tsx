@@ -1,12 +1,10 @@
-import { memo } from 'react';
 import { Heading, Text } from '@/components/primitives';
 import { SubList, PlaybookTable, PlaybookCallout } from '@/components/Playbook';
 import styles from '@/pages/GmPlaybook/GmPlaybook.module.css';
 
-export const Expeditions = memo(() => (
+export const Expeditions = () => (
   <div>
 
-    {/* Chart a Course */}
     <PlaybookCallout title="CHART A COURSE">
       <Text>When you <strong>wish to travel to a distant place</strong>, name or describe your destination ("Gordin's Delve," "the hagr's lair," or "wherever these tracks lead"). If the route is unclear, tell the GM how you intend to reach it. The GM will then tell you what's required, the risks, and how long it will likely take.</Text>
       <Text>When you <strong>set out on the journey</strong>, the GM will present each of the challenges one at a time—plus any surprises that you couldn't have seen coming—in whatever order makes the most sense. Address them all and reach your destination.</Text>
@@ -37,12 +35,11 @@ export const Expeditions = memo(() => (
       <Text color="muted">Present each challenge once, at a fitting time/place. Once overcome, don't make them deal with it again except as a hard GM move. ("The way is perilous" is an exception, see below.)</Text>
     </div>
 
-    {/* When the way is perilous */}
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">When the way is perilous</Heading>
       <Text>On each leg of travel, <strong>point to a looming danger</strong> or <strong>introduce a danger</strong>. Maybe roll a Die of Fate.</Text>
       <PlaybookTable
-        columnHeaders={['1d6', 'What happens']}
+        columnHeaders={['What happens', '1d6']}
         rows={[
           { label: 'A danger springs on them, unavoidable', value: '1' },
           { label: 'Introduce a danger, right in front of them', value: '2–3' },
@@ -52,7 +49,6 @@ export const Expeditions = memo(() => (
       />
     </div>
 
-    {/* Travel times */}
     <div className={styles.subsection}>
       <PlaybookTable
         title="Travel times"
@@ -88,7 +84,6 @@ export const Expeditions = memo(() => (
       />
     </div>
 
-    {/* When they make camp */}
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">When they make camp</Heading>
       <SubList items={[
@@ -98,7 +93,7 @@ export const Expeditions = memo(() => (
       ]} />
       <Text>If you know something will happen, it happens. If you think something might happen, but aren't sure, then ask someone to roll the Die of Fate.</Text>
       <PlaybookTable
-        columnHeaders={['1d6', 'What happens']}
+        columnHeaders={['What happens', '1d6']}
         rows={[
           { label: 'Something dangerous approaches, inclined to do harm', value: '1' },
           { label: 'Something dangerous approaches, curious but not aggressive', value: '2' },
@@ -109,7 +104,6 @@ export const Expeditions = memo(() => (
       />
     </div>
 
-    {/* Legs of travel */}
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Legs of travel</Heading>
       <Text><strong>If familiar, short, uneventful:</strong> gloss over it.</Text>
@@ -136,7 +130,6 @@ export const Expeditions = memo(() => (
       <Text color="muted">"What do you do?" Resolve. Repeat or move on.</Text>
     </div>
 
-    {/* Points of interest */}
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Points of interest</Heading>
       <SubList items={[
@@ -160,13 +153,12 @@ export const Expeditions = memo(() => (
       <Text>Otherwise, make a soft GM move. "What do you do?" Resolve actions. Repeat or move on.</Text>
     </div>
 
-    {/* Random weather */}
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Random weather</Heading>
       <Text>You decide the weather, but if you want, ask a player to roll the Die of Fate.</Text>
       <div className={styles.weatherGrid}>
         <PlaybookTable
-          columnHeaders={['1d6', 'Late Winter / Early Spring']}
+          columnHeaders={['Late Winter / Early Spring', '1d6']}
           rows={[
             { label: 'Snow/sleet/hail; an early thunderstorm; or cold, soaking rain', value: '1' },
             { label: 'Cold and windy, maybe some showers', value: '2–3' },
@@ -175,7 +167,7 @@ export const Expeditions = memo(() => (
           ]}
         />
         <PlaybookTable
-          columnHeaders={['1d6', 'Spring / Early Summer']}
+          columnHeaders={['Spring / Early Summer', '1d6']}
           rows={[
             { label: 'Heavy storm (wind, hail, thunder, lightning)', value: '1' },
             { label: 'Steady, chilly rain', value: '2' },
@@ -184,7 +176,7 @@ export const Expeditions = memo(() => (
           ]}
         />
         <PlaybookTable
-          columnHeaders={['1d6', 'Summer']}
+          columnHeaders={['Summer', '1d6']}
           rows={[
             { label: 'Heavy storm (wind, hail, thunder, lightning, tornadoes)', value: '1' },
             { label: 'Blazing heat, still air, not a cloud in sight', value: '2' },
@@ -194,7 +186,7 @@ export const Expeditions = memo(() => (
           ]}
         />
         <PlaybookTable
-          columnHeaders={['1d6', 'Late Summer / Early Autumn']}
+          columnHeaders={['Late Summer / Early Autumn', '1d6']}
           rows={[
             { label: 'Powerful thunderstorm or cold, soaking rain', value: '1' },
             { label: 'Windy with a few rain showers', value: '2' },
@@ -204,7 +196,7 @@ export const Expeditions = memo(() => (
           ]}
         />
         <PlaybookTable
-          columnHeaders={['1d6', 'Autumn']}
+          columnHeaders={['Autumn', '1d6']}
           rows={[
             { label: 'Cold, drenching rain and/or sleet', value: '1' },
             { label: 'Cold, windy, light rain or early snow', value: '2' },
@@ -213,7 +205,7 @@ export const Expeditions = memo(() => (
           ]}
         />
         <PlaybookTable
-          columnHeaders={['1d6', 'Winter']}
+          columnHeaders={['Winter', '1d6']}
           rows={[
             { label: 'Blizzard: wind, snow, all of it', value: '1' },
             { label: 'Intense cold and wind', value: '2' },
@@ -227,4 +219,4 @@ export const Expeditions = memo(() => (
     </div>
 
   </div>
-));
+);

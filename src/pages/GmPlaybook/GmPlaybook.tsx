@@ -26,6 +26,15 @@ const SECTIONS = [
   'Flow of play',
 ];
 
+const STATIC_CONTENT: Partial<Record<string, React.ReactNode>> = {
+  'The core loop': <CoreLoop />,
+  'GM moves': <GmMoves />,
+  'Principles': <Principles />,
+  'Damage and debilities': <DamageAndDebilities />,
+  'Threats': <Threats />,
+  'Expeditions': <Expeditions />,
+};
+
 export const GmPlaybook = () => {
   const { id = '' } = useParams<{ id: string }>();
   const { game, loading, error, updateContent, updateField } = useGame(id);
@@ -68,6 +77,12 @@ export const GmPlaybook = () => {
     { label: 'GM Playbook' },
   ];
 
+  const getSectionContent = (section: string): React.ReactNode => {
+    if (section === 'Content') return <ContentSection content={game.content} onSave={updateContent} />;
+    if (section === 'I wonder…') return <IWonder value={game.iWonder ?? ''} onSave={saveIWonder} />;
+    return STATIC_CONTENT[section] ?? <div className={styles.placeholder} />;
+  };
+
   return (
     <main className={styles.page}>
       <div className={styles.header}>
@@ -78,15 +93,7 @@ export const GmPlaybook = () => {
       <div className={styles.sections}>
         {SECTIONS.map(section => (
           <Collapse key={section} label={section}>
-            {section === 'The core loop' ? <CoreLoop />
-              : section === 'GM moves' ? <GmMoves />
-              : section === 'Principles' ? <Principles />
-              : section === 'Damage and debilities' ? <DamageAndDebilities />
-              : section === 'Content' ? <ContentSection content={game.content} onSave={updateContent} />
-              : section === 'Threats' ? <Threats />
-              : section === 'I wonder…' ? <IWonder value={game.iWonder ?? ''} onSave={saveIWonder} />
-              : section === 'Expeditions' ? <Expeditions />
-              : <div className={styles.placeholder} />}
+            {getSectionContent(section)}
           </Collapse>
         ))}
       </div>
