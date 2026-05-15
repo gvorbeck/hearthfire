@@ -16,7 +16,8 @@
       "Bash(grep \"^[0-9]\\\\{2,3\\\\}$\")",
       "Bash(grep -n \"^[0-9]\\\\{2,3\\\\}$\")",
       "Bash(grep -E \"\\\\.\\(tsx?|jsx?\\)$\")",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(xargs ls -la)"
     ]
   }
 }

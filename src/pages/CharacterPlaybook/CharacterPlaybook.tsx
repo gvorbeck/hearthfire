@@ -5,9 +5,17 @@ import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
 import { Heading, Button } from '@/components/primitives';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
 import { PageHeader } from '@/components/PageHeader/PageHeader';
-import type { GameSession } from '@/types';
-import type { PlaybookType } from '@/types';
+import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, Moves, SpecialPossessions, Introductions } from '@/components/CharacterSheet/sections';
+import { BlessedSections } from '@/components/CharacterSheet/playbooks/BlessedSections';
+import type { GameSession, PlaybookType } from '@/types';
 import styles from './CharacterPlaybook.module.css';
+
+const getTypeSpecificSections = (playbook: PlaybookType): React.ReactNode => {
+  switch (playbook) {
+    case 'blessed': return <BlessedSections />;
+    default: return null;
+  }
+};
 
 interface ContentProps {
   g: GameSession;
@@ -53,6 +61,7 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName }: Cont
   ];
 
   const saveCharacterName = (name: string) => updateCharacterName(character.id, name);
+  const typeSpecific = getTypeSpecificSections(character.playbook);
 
   return (
     <main className={styles.page}>
@@ -64,6 +73,17 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName }: Cont
         gameId={id}
         onSaveTitle={saveCharacterName}
       />
+      <div className={styles.grid}>
+        <div className={styles.colLeft}><Background /></div>
+        <div className={styles.colRight}><Instinct /></div>
+        <div className={styles.colRight}><Appearance /></div>
+        <div className={styles.colRight}><PlaceOfOrigin /></div>
+        <div className={styles.colFull}><Stats /></div>
+        <div className={styles.colFull}><Moves /></div>
+        <div className={styles.colFull}><SpecialPossessions /></div>
+        {typeSpecific && <div className={styles.colLeft}>{typeSpecific}</div>}
+        <div className={styles.colRight}><Introductions /></div>
+      </div>
     </main>
   );
 };
