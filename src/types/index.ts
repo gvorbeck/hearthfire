@@ -14,6 +14,8 @@ export interface CharacterData {
   backgroundChoices?: string[];
   instinct?: string;
   instinctCustom?: string;
+  appearance?: Record<string, string>;
+  appearanceCustom?: string;
 }
 
 export interface Character {
