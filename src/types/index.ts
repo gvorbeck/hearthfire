@@ -17,6 +17,19 @@ export interface CharacterData {
   appearance?: Record<string, string>;
   appearanceCustom?: string;
   placeOfOrigin?: string;
+  statStr?: string;
+  statDex?: string;
+  statInt?: string;
+  statWis?: string;
+  statCon?: string;
+  statCha?: string;
+  debilityWeakened?: boolean;
+  debilityDazed?: boolean;
+  debilityMiserable?: boolean;
+  statHp?: string;
+  statArmor?: string;
+  statXp?: string;
+  statLevel?: string;
 }
 
 export interface Character {

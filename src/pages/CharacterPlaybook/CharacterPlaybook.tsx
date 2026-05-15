@@ -5,7 +5,7 @@ import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
 import { Heading, Button } from '@/components/primitives';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
 import { PageHeader } from '@/components/PageHeader/PageHeader';
-import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, Moves, SpecialPossessions, Introductions } from '@/components/CharacterSheet/sections';
+import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, CharacterStats, Moves, SpecialPossessions, Introductions } from '@/components/CharacterSheet/sections';
 import { BlessedBackground, BlessedInstinct, BlessedAppearance, BlessedPlaceOfOrigin, BlessedSections } from '@/components/CharacterSheet/playbooks/BlessedSections';
 import type { Character, CharacterData, GameSession, PlaybookType } from '@/types';
 import styles from './CharacterPlaybook.module.css';
@@ -40,6 +40,13 @@ const PlaceOfOriginSection = ({ character, onSave }: PlaybookSectionProps) => {
   switch (character.playbook) {
     case 'blessed': return <BlessedPlaceOfOrigin data={character.data} onSave={onSave} />;
     default: return <PlaceOfOrigin />;
+  }
+};
+
+const StatsSection = ({ character, onSave }: PlaybookSectionProps) => {
+  switch (character.playbook) {
+    case 'blessed': return <CharacterStats data={character.data} onSave={onSave} hpMax={18} damage="d6" />;
+    default: return <Stats />;
   }
 };
 
@@ -132,7 +139,7 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
             <PlaceOfOriginSection character={character} onSave={handleSaveCharacterData} />
           </div>
         </div>
-        <div className={styles.colFull}><Stats /></div>
+        <div className={styles.colFull}><StatsSection character={character} onSave={handleSaveCharacterData} /></div>
         <div className={styles.colFull}><Moves /></div>
         <div className={styles.colFull}><SpecialPossessions /></div>
         <div className={styles.columns}>
