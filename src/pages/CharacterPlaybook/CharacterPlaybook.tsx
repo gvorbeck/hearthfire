@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { PageMeta } from '@/components/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
 import { Heading, Button } from '@/components/primitives';
@@ -112,8 +113,16 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
 
   const typeSpecific = getTypeSpecificSections(character.playbook);
 
+  const pageTitle = characterName
+    ? `${characterName} — ${playbookLabel} — Hearthfire`
+    : `${playbookLabel} — Hearthfire`;
+
   return (
     <main className={styles.page}>
+      <PageMeta
+        title={pageTitle}
+        description={`${playbookLabel} for ${gameName}. Track background, stats, moves, and more.`}
+      />
       <PageHeader
         crumbs={crumbs}
         title={characterName || playbookLabel}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { PageMeta } from '@/components/PageMeta/PageMeta';
 import { createGame } from '@/lib/game';
 import { Button, Heading, Input, RuleDivider, Stack, Text } from '@/components/primitives';
 import styles from './Home.module.css';
@@ -40,11 +41,15 @@ export const Home = () => {
 
   return (
     <main className={styles.page}>
+      <PageMeta
+        title="Hearthfire — Stonetop Party Tracker"
+        description="Track your Stonetop TTRPG campaign — manage characters, GM playbook, and game sessions."
+      />
       <div className={styles.hero}>
         <Text className={styles.eyebrow}>Party Tracker</Text>
-        <Heading as="h1" size="xl" className={styles.wordmark}>Stonetop</Heading>
+        <Heading as="h1" size="xl" className={styles.wordmark}>Hearthfire</Heading>
         <RuleDivider className={styles.rule} />
-        <Text className={styles.subtitle}>For the TTRPG by Jeremy Strandberg</Text>
+        <Text className={styles.subtitle}>For the Stonetop TTRPG by Jeremy Strandberg</Text>
       </div>
 
       <div className={styles.cards}>
