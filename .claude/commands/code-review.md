@@ -88,6 +88,21 @@ Design system: primitives in `src/components/primitives/` (Button, Text, Heading
 - Form inputs missing associated `<label>` or `aria-labelledby`
 - Images missing `alt` attributes
 
+### SEO & Web Performance
+- `<title>` and `<meta name="description">` not updated per route — every page shares the same static head
+- Open Graph tags (`og:title`, `og:description`, `og:image`, `og:url`) missing or incomplete
+- `<meta name="twitter:card">` and related tags absent
+- No canonical `<link rel="canonical">` on routes that could be reached via multiple URLs
+- Images missing `alt` text, `width`, and `height` attributes — causes layout shift and skips crawler context
+- Images not lazy-loaded (`loading="lazy"`) when below the fold
+- No `robots.txt` in `public/` — crawlers have no explicit crawl directives
+- No `sitemap.xml` — discoverable routes not registered for indexing
+- Web fonts loaded without `font-display: swap` — invisible text during font load hurts Core Web Vitals
+- No `<link rel="preconnect">` or `<link rel="dns-prefetch">` for third-party origins (Firebase, Google Fonts)
+- Route-level code splitting absent — entire bundle shipped on first load instead of splitting by page
+- Large JS chunks not deferred or dynamically imported where the feature is not needed on initial paint
+- Structured data (JSON-LD) absent where page content is well-defined enough to warrant it (e.g., application landing page)
+
 ### Code Quality & Leanness
 - Dead code, commented-out blocks, `console.log` / `console.error` left in
 - Functions longer than ~40 lines with more than one responsibility

@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useParams } from 'react-router-dom';
+import { PageMeta } from '@/components/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { Heading, Collapse, RuleDivider } from '@/components/primitives';
 import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
@@ -47,11 +48,16 @@ const STATIC_CONTENT: Partial<Record<string, React.ReactNode>> = {
 export const GmPlaybook = () => {
   const { id = '' } = useParams<{ id: string }>();
   const { game, loading, error, updateContent, updateField } = useGame(id);
-  const saveIWonder = useCallback((v: string) => updateField('iWonder', v), [updateField]);
+  const saveIWonder = useCallback((value: string) => updateField('iWonder', value), [updateField]);
 
-  const getSectionContent = (section: string, g: NonNullable<typeof game>): React.ReactNode => {
-    if (section === 'Content') return <ContentSection content={g.content} onSave={updateContent} />;
-    if (section === 'I wonder…') return <IWonder value={g.iWonder ?? ''} onSave={saveIWonder} />;
+  const getSectionContent = (
+    section: string,
+    g: NonNullable<typeof game>,
+    onSaveContent: typeof updateContent,
+    onSaveIWonder: typeof saveIWonder,
+  ): React.ReactNode => {
+    if (section === 'Content') return <ContentSection content={g.content} onSave={onSaveContent} />;
+    if (section === 'I wonder…') return <IWonder value={g.iWonder ?? ''} onSave={onSaveIWonder} />;
     return STATIC_CONTENT[section] ?? <div className={styles.placeholder} />;
   };
 
@@ -66,6 +72,10 @@ export const GmPlaybook = () => {
 
         return (
           <main className={styles.page}>
+            <PageMeta
+              title={`GM Playbook — ${gameName} — Hearthfire`}
+              description={`GM playbook for ${gameName}. Core loop, moves, principles, and session tools.`}
+            />
             <div className={styles.header}>
               <Breadcrumb crumbs={crumbs} />
               <Heading as="h1" size="xl" className={styles.title}>GM Playbook</Heading>
@@ -74,7 +84,7 @@ export const GmPlaybook = () => {
             <div className={styles.sections}>
               {SECTIONS.map(section => (
                 <Collapse key={section} label={section}>
-                  {getSectionContent(section, g)}
+                  {getSectionContent(section, g, updateContent, saveIWonder)}
                 </Collapse>
               ))}
             </div>

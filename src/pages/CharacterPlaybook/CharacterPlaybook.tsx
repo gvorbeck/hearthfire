@@ -1,48 +1,53 @@
 import { useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { PageMeta } from '@/components/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
 import { Heading, Button } from '@/components/primitives';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
 import { PageHeader } from '@/components/PageHeader/PageHeader';
-import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, Moves, SpecialPossessions, Introductions } from '@/components/CharacterSheet/sections';
-import { BlessedBackground, BlessedInstinct, BlessedAppearance, BlessedSections } from '@/components/CharacterSheet/playbooks/BlessedSections';
+import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, CharacterStats, Moves, SpecialPossessions, Introductions } from '@/components/CharacterSheet/sections';
+import { BlessedBackground, BlessedInstinct, BlessedAppearance, BlessedPlaceOfOrigin, BlessedSections } from '@/components/CharacterSheet/playbooks/BlessedSections';
 import type { Character, CharacterData, GameSession, PlaybookType } from '@/types';
 import styles from './CharacterPlaybook.module.css';
 
-interface BackgroundSectionProps {
+interface PlaybookSectionProps {
   character: Character;
   onSave: (data: Partial<CharacterData>) => Promise<void>;
 }
 
-const BackgroundSection = ({ character, onSave }: BackgroundSectionProps) => {
+const BackgroundSection = ({ character, onSave }: PlaybookSectionProps) => {
   switch (character.playbook) {
     case 'blessed': return <BlessedBackground data={character.data} onSave={onSave} />;
     default: return <Background />;
   }
 };
 
-interface InstinctSectionProps {
-  character: Character;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
-}
-
-const InstinctSection = ({ character, onSave }: InstinctSectionProps) => {
+const InstinctSection = ({ character, onSave }: PlaybookSectionProps) => {
   switch (character.playbook) {
     case 'blessed': return <BlessedInstinct data={character.data} onSave={onSave} />;
     default: return <Instinct />;
   }
 };
 
-interface AppearanceSectionProps {
-  character: Character;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
-}
-
-const AppearanceSection = ({ character, onSave }: AppearanceSectionProps) => {
+const AppearanceSection = ({ character, onSave }: PlaybookSectionProps) => {
   switch (character.playbook) {
     case 'blessed': return <BlessedAppearance data={character.data} onSave={onSave} />;
     default: return <Appearance />;
+  }
+};
+
+const PlaceOfOriginSection = ({ character, onSave }: PlaybookSectionProps) => {
+  switch (character.playbook) {
+    case 'blessed': return <BlessedPlaceOfOrigin data={character.data} onSave={onSave} />;
+    default: return <PlaceOfOrigin />;
+  }
+};
+
+const StatsSection = ({ character, onSave }: PlaybookSectionProps) => {
+  switch (character.playbook) {
+    case 'blessed': return <CharacterStats data={character.data} onSave={onSave} hpMax={18} damage="d6" />;
+    default: return <Stats />;
   }
 };
 
@@ -108,8 +113,16 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
 
   const typeSpecific = getTypeSpecificSections(character.playbook);
 
+  const pageTitle = characterName
+    ? `${characterName} — ${playbookLabel} — Hearthfire`
+    : `${playbookLabel} — Hearthfire`;
+
   return (
     <main className={styles.page}>
+      <PageMeta
+        title={pageTitle}
+        description={`${playbookLabel} for ${gameName}. Track background, stats, moves, and more.`}
+      />
       <PageHeader
         crumbs={crumbs}
         title={characterName || playbookLabel}
@@ -132,10 +145,10 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
               onSave={handleSaveCharacterData}
             />
             <AppearanceSection character={character} onSave={handleSaveCharacterData} />
-            <PlaceOfOrigin />
+            <PlaceOfOriginSection character={character} onSave={handleSaveCharacterData} />
           </div>
         </div>
-        <div className={styles.colFull}><Stats /></div>
+        <div className={styles.colFull}><StatsSection character={character} onSave={handleSaveCharacterData} /></div>
         <div className={styles.colFull}><Moves /></div>
         <div className={styles.colFull}><SpecialPossessions /></div>
         <div className={styles.columns}>
