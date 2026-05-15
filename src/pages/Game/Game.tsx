@@ -5,6 +5,7 @@ import { useGame } from '@/hooks/useGame';
 import { DEFAULT_GAME_NAME } from '@/lib/constants';
 import { Button, Heading, RuleDivider, Stack, Text, Icon } from '@/components/primitives';
 import { GameIdModal } from '@/components/GameIdModal/GameIdModal';
+import { AddCharacterModal } from '@/components/AddCharacterModal/AddCharacterModal';
 import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
 import styles from './Game.module.css';
 
@@ -18,6 +19,7 @@ export const Game = () => {
   const { state } = useLocation();
   const { game, loading, error, updateGameName } = useGame(id);
   const [showIdModal, setShowIdModal] = useState((state as LocationState | null)?.isNew === true);
+  const [showAddCharacter, setShowAddCharacter] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [nameValue, setNameValue] = useState('');
   const [copied, setCopied] = useState(false);
@@ -35,6 +37,7 @@ export const Game = () => {
   }, []);
 
   const handleCloseIdModal = () => setShowIdModal(false);
+  const handleCloseAddCharacter = () => setShowAddCharacter(false);
 
   const startEditing = () => {
     setNameValue(game?.name ?? DEFAULT_GAME_NAME);
@@ -104,6 +107,7 @@ export const Game = () => {
   return (
     <>
     <GameIdModal gameId={id} open={showIdModal} onClose={handleCloseIdModal} />
+    <AddCharacterModal open={showAddCharacter} onClose={handleCloseAddCharacter} />
     <main className={styles.page}>
       <div className={styles.header}>
         <Breadcrumb crumbs={[{ label: game.name || DEFAULT_GAME_NAME }]} />
@@ -141,11 +145,7 @@ export const Game = () => {
       <div className={styles.sections}>
         <div className={charactersCx}>
           <Heading as="h2" size="label">Characters</Heading>
-          {game.characters.length === 0 ? (
-            <div className={styles.placeholder}>
-              <Text color="muted" size="sm">No characters yet</Text>
-            </div>
-          ) : (
+          {game.characters.length > 0 && (
             <Stack gap={3}>
               {game.characters.map((character) => (
                 <Text key={character.id} size="sm">
@@ -154,6 +154,9 @@ export const Game = () => {
               ))}
             </Stack>
           )}
+          <Button variant="secondary" size="xl" fullWidth onClick={() => setShowAddCharacter(true)}>
+            Add Character
+          </Button>
         </div>
 
         <div className={rightCx}>

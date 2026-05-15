@@ -13,6 +13,8 @@ interface ModalProps {
 
 export const Modal = ({ open, onClose, children, className, 'aria-labelledby': labelledBy }: ModalProps) => {
   const panelRef = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; });
 
   useEffect(() => {
     if (!open) return;
@@ -20,12 +22,12 @@ export const Modal = ({ open, onClose, children, className, 'aria-labelledby': l
     panelRef.current?.focus();
 
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') onCloseRef.current();
     };
 
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 
