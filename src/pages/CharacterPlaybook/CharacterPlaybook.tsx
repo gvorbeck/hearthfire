@@ -1,15 +1,15 @@
 import { useParams, Link } from 'react-router-dom';
 import { useGame } from '@/hooks/useGame';
 import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
-import { Heading, Button, RuleDivider } from '@/components/primitives';
-import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
+import { Heading, Button } from '@/components/primitives';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
+import { PageHeader } from '@/components/PageHeader/PageHeader';
 import type { PlaybookType } from '@/types';
 import styles from './CharacterPlaybook.module.css';
 
 export const CharacterPlaybook = () => {
   const { id = '', playbook = '' } = useParams<{ id: string; playbook: string }>();
-  const { game, loading, error } = useGame(id);
+  const { game, loading, error, updateCharacterName } = useGame(id);
 
   return (
     <GameGuard loading={loading} error={error} game={game} errorBackTo={`/game/${id}`} errorBackLabel="Back to Game">
@@ -30,21 +30,23 @@ export const CharacterPlaybook = () => {
         const character = g.characters.find((c) => c.playbook === (playbook as PlaybookType));
         const characterName = character?.name?.trim();
         const playbookLabel = `${playbookOption.label} Playbook`;
-        const pageTitle = characterName ? `${characterName} — ${playbookLabel}` : playbookLabel;
         const gameName = g.name || DEFAULT_GAME_NAME;
+        const saveCharacterName = (name: string) => updateCharacterName(character?.id ?? '', name);
 
         const crumbs = [
           { label: gameName, to: `/game/${id}` },
-          { label: pageTitle },
+          { label: playbookLabel },
         ];
 
         return (
           <main className={styles.page}>
-            <div className={styles.header}>
-              <Breadcrumb crumbs={crumbs} />
-              <Heading as="h1" size="xl" className={styles.title}>{pageTitle}</Heading>
-              <RuleDivider className={styles.titleRule} />
-            </div>
+            <PageHeader
+              crumbs={crumbs}
+              title={characterName || playbookLabel}
+              subtitle={characterName ? playbookLabel : undefined}
+              gameId={id}
+              onSaveTitle={saveCharacterName}
+            />
           </main>
         );
       }}

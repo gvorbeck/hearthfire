@@ -1,0 +1,76 @@
+.header {
+  margin-bottom: var(--spacing-10);
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.titleInput {
+  font-family: var(--font-serif);
+  font-size: 2.75rem;
+  font-weight: normal;
+  color: var(--text-heading);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-accent);
+  outline: none;
+  padding: 0 0 var(--spacing-1);
+  width: 100%;
+  max-width: 560px;
+  line-height: 1.05;
+}
+
+.editBtn {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: var(--spacing-1);
+  cursor: pointer;
+  color: var(--color-stone-500);
+  border-radius: var(--radius-md);
+  transition: color 0.15s ease;
+}
+
+.editBtn:hover {
+  color: var(--color-gold-400);
+}
+
+.subtitle {
+  margin-top: var(--spacing-1);
+}
+
+.gameId {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-3);
+}
+
+.copyBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-stone-500);
+  border-radius: var(--radius-md);
+  transition: color 0.15s ease;
+  overflow: visible;
+}
+
+.copyBtn:hover {
+  color: var(--color-gold-400);
+}
+
+.rule {
+  margin-top: var(--spacing-6);
+}

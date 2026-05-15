@@ -6,19 +6,6 @@
   width: 100%;
 }
 
-.header {
-  margin-top: var(--spacing-6);
-  margin-bottom: var(--spacing-8);
-}
-
-.title {
-  margin: var(--spacing-3) 0 0;
-  letter-spacing: 0.01em;
-}
-
-.titleRule {
-  margin-top: var(--spacing-6);
-}
 
 .centered {
   flex: 1;
