@@ -53,6 +53,16 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
   const playbookOption = PLAYBOOKS.find((p) => p.value === playbook);
   const character = g.characters.find((c) => c.playbook === playbook);
 
+  const handleSaveCharacterData = useCallback(
+    (data: Partial<CharacterData>) => updateCharacterData(character?.id ?? '', data),
+    [character?.id, updateCharacterData]
+  );
+
+  const handleSaveCharacterName = useCallback(
+    (name: string) => updateCharacterName(character?.id ?? '', name),
+    [character?.id, updateCharacterName]
+  );
+
   if (!playbookOption) {
     return (
       <main className={styles.centered}>
@@ -94,20 +104,20 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
         titleLabel="Edit character name"
         subtitle={characterName ? playbookLabel : undefined}
         gameId={id}
-        onSaveTitle={(name) => updateCharacterName(character.id, name)}
+        onSaveTitle={handleSaveCharacterName}
       />
       <div className={styles.layout}>
         <div className={styles.columns}>
           <div className={styles.colLeft}>
             <BackgroundSection
               character={character}
-              onSave={(data) => updateCharacterData(character.id, data)}
+              onSave={handleSaveCharacterData}
             />
           </div>
           <div className={styles.colRight}>
             <InstinctSection
               character={character}
-              onSave={(data) => updateCharacterData(character.id, data)}
+              onSave={handleSaveCharacterData}
             />
             <Appearance />
             <PlaceOfOrigin />
@@ -133,16 +143,6 @@ export const CharacterPlaybook = () => {
   const { id = '', playbook = '' } = useParams<{ id: string; playbook: string }>();
   const { game, loading, error, updateCharacterName, updateCharacterData } = useGame(id);
 
-  const handleUpdateCharacterName = useCallback(
-    (characterId: string, name: string) => updateCharacterName(characterId, name),
-    [updateCharacterName]
-  );
-
-  const handleUpdateCharacterData = useCallback(
-    (characterId: string, data: Partial<CharacterData>) => updateCharacterData(characterId, data),
-    [updateCharacterData]
-  );
-
   return (
     <GameGuard loading={loading} error={error} game={game} errorBackTo={`/game/${id}`} errorBackLabel="Back to Game">
       {(g) => (
@@ -150,8 +150,8 @@ export const CharacterPlaybook = () => {
           g={g}
           id={id}
           playbook={playbook as PlaybookType}
-          updateCharacterName={handleUpdateCharacterName}
-          updateCharacterData={handleUpdateCharacterData}
+          updateCharacterName={updateCharacterName}
+          updateCharacterData={updateCharacterData}
         />
       )}
     </GameGuard>

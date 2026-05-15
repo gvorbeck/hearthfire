@@ -29,14 +29,14 @@ export const BlessedInstinct = ({ data, onSave }: BlessedInstinctProps) => {
     if (data?.instinctCustom !== undefined) setCustomText(data.instinctCustom);
   }, [data?.instinct, data?.instinctCustom]);
 
-  const handleSelect = (value: string) => {
+  const handleSelect = useCallback((value: string) => {
     setSelected(value);
     if (value !== CUSTOM_VALUE) {
       onSave({ instinct: value, instinctCustom: '' });
     } else {
       onSave({ instinct: value, instinctCustom: customText });
     }
-  };
+  }, [onSave, customText]);
 
   const saveCustomText = useCallback(
     (value: string) => onSave({ instinct: CUSTOM_VALUE, instinctCustom: value }),
@@ -44,11 +44,15 @@ export const BlessedInstinct = ({ data, onSave }: BlessedInstinctProps) => {
   );
   const { onChange: debouncedChange, onBlur: flushOnBlur } = useDebouncedSave(saveCustomText, 1000);
 
-  const handleCustomChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCustomChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setCustomText(value);
     debouncedChange(value);
-  };
+  }, [debouncedChange]);
+
+  const handleCustomBlur = useCallback(() => {
+    flushOnBlur(customText);
+  }, [flushOnBlur, customText]);
 
   return (
     <PlaybookSection title="Instinct" choose={1}>
@@ -80,8 +84,9 @@ export const BlessedInstinct = ({ data, onSave }: BlessedInstinctProps) => {
                 <input
                   className={styles.customInput}
                   value={customText}
+                  aria-label="Custom instinct"
                   onChange={handleCustomChange}
-                  onBlur={() => flushOnBlur(customText)}
+                  onBlur={handleCustomBlur}
                   placeholder="Describe your instinct…"
                   onClick={(e) => e.stopPropagation()}
                 />

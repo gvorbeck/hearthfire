@@ -1,8 +1,8 @@
 import { useRef, useCallback, useEffect } from 'react';
 
-export const useDebouncedSave = (onSave: (value: string) => Promise<void>, delay = 1500) => {
+export const useDebouncedSave = (onSave: (value: string) => Promise<void>, delay = 1500, initialValue?: string) => {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const lastSavedRef = useRef<string | null>(null);
+  const lastSavedRef = useRef<string | null>(initialValue ?? null);
   const onSaveRef = useRef(onSave);
   onSaveRef.current = onSave;
 
@@ -10,8 +10,8 @@ export const useDebouncedSave = (onSave: (value: string) => Promise<void>, delay
 
   const save = useCallback(async (value: string) => {
     if (value === lastSavedRef.current) return;
-    lastSavedRef.current = value;
     await onSaveRef.current(value);
+    lastSavedRef.current = value;
   }, []);
 
   const onChange = useCallback((value: string) => {
