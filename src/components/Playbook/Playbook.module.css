@@ -134,6 +134,19 @@
   padding-right: var(--spacing-4);
 }
 
+/* ── Inline muted label ─────────────────────────────── */
+.muted {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-family: var(--font-sans);
+  font-weight: normal;
+}
+
+/* ── Spacing ────────────────────────────────────────── */
+.spacerTop {
+  margin-top: var(--spacing-6);
+}
+
 /* ── Paragraphs ─────────────────────────────────────── */
 .paragraphs {
   display: flex;
