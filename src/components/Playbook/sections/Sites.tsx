@@ -47,8 +47,7 @@ export const Sites = () => (
       <Text>Then frame the action at the next scene or situation, and go from there.</Text>
     </div>
 
-    <div className={styles.subsection}>
-      <ol className={styles.stepList}>
+    <ol className={styles.stepList}>
         <li>
           <Heading as="h3" size="sm">Lay the site's foundation</Heading>
           <SubList items={[
@@ -89,7 +88,6 @@ export const Sites = () => (
             'Review and revise. Make it make sense. Fix inconsistencies. Tighten stuff up.',
           ]} />
         </li>
-      </ol>
-    </div>
+    </ol>
   </div>
 );
