@@ -1,0 +1,145 @@
+.flow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  padding-bottom: var(--spacing-4);
+}
+
+.intro {
+  font-size: 0.875rem;
+  color: var(--color-stone-400);
+  margin: 0;
+  font-style: italic;
+  line-height: 1.6;
+}
+
+.nodes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+/* ── Node box ───────────────────────────────────────── */
+.node {
+  position: relative;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-4) var(--spacing-5) var(--spacing-4) var(--spacing-10);
+}
+
+.nodeLabel {
+  position: absolute;
+  left: var(--spacing-3);
+  top: var(--spacing-4);
+  width: 22px;
+  height: 22px;
+  background: var(--surface-page);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-sm);
+  color: var(--color-gold-400);
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.nodeTitle {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-heading);
+  margin-bottom: var(--spacing-1);
+}
+
+.nodeSubtitle {
+  font-size: 0.75rem;
+  color: var(--color-stone-500);
+  font-style: italic;
+  margin-bottom: var(--spacing-3);
+}
+
+.nodeList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.nodeList li {
+  font-size: 0.8125rem;
+  color: var(--color-stone-200);
+  line-height: 1.5;
+  padding-left: var(--spacing-4);
+  position: relative;
+}
+
+.nodeList li::before {
+  content: '–';
+  position: absolute;
+  left: 0;
+  color: var(--color-gold-500);
+  font-weight: 700;
+}
+
+/* ── Exit arrows ────────────────────────────────────── */
+.nodeExits {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  margin-top: var(--spacing-3);
+  padding-top: var(--spacing-3);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.exit {
+  font-size: 0.8125rem;
+  color: var(--color-stone-300);
+  line-height: 1.5;
+}
+
+.exit strong {
+  color: var(--color-gold-300);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+.exitDashed {
+  font-size: 0.8125rem;
+  color: var(--color-stone-400);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.exitDashed strong {
+  color: var(--color-gold-300);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-style: normal;
+  letter-spacing: 0.04em;
+}
+
+/* ── Go-to link ─────────────────────────────────────── */
+.goTo {
+  color: var(--color-gold-300);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-style: normal;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-gold-600);
+  transition: color 0.15s ease, border-color 0.15s ease;
+  scroll-behavior: smooth;
+}
+
+.goTo:hover {
+  color: var(--color-gold-200);
+  border-color: var(--color-gold-400);
+}
