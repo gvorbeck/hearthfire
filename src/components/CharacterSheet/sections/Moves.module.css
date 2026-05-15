@@ -3,3 +3,23 @@
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--spacing-3);
 }
+
+.collapseStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.empty {
+  font-size: 0.8125rem;
+  color: var(--color-stone-500);
+  margin: 0;
+}
+
+.helperText {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  color: var(--color-stone-400);
+  margin: 0 0 var(--spacing-4);
+  line-height: 1.5;
+}

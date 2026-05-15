@@ -16,10 +16,11 @@ const parseBold = (text: string): React.ReactNode[] =>
 export interface MoveDefinition {
   id: string;
   name: string;
-  trigger: string;
-  body?: string;
+  trigger?: string;
+  triggerOverride?: string;
+  body?: string | string[];
   list?: string[];
-  footer?: string;
+  footer?: string | string[];
   uses?: number;
   selectable?: boolean;
 }
@@ -52,12 +53,20 @@ const UseDots = ({ total, checked, onChange }: { total: number; checked: number;
 
 export const Move = ({ move, selected, onSelectChange, usesChecked = 0, onUsesChange }: MoveProps) => {
   const hasCheckbox = move.selectable && onSelectChange !== undefined;
-  const hasUses = move.uses !== undefined && onUsesChange !== undefined;
+  const uses = move.uses;
+  const hasUses = uses !== undefined && onUsesChange !== undefined;
 
   const moveCx = clsx(styles.move, selected && styles.moveSelected);
   const nameCx = clsx(styles.moveName, selected && styles.moveNameSelected);
 
   const nameEl = <span className={nameCx}>{move.name}</span>;
+
+  const handleChange = onSelectChange
+    ? (e: React.ChangeEvent<HTMLInputElement>) => onSelectChange(e.target.checked)
+    : undefined;
+
+  const bodyParagraphs = move.body ? (Array.isArray(move.body) ? move.body : [move.body]) : [];
+  const footerParagraphs = move.footer ? (Array.isArray(move.footer) ? move.footer : [move.footer]) : [];
 
   return (
     <div className={moveCx}>
@@ -67,7 +76,7 @@ export const Move = ({ move, selected, onSelectChange, usesChecked = 0, onUsesCh
             name={`move-${move.id}`}
             value={move.id}
             checked={selected ?? false}
-            onChange={(e) => onSelectChange(e.target.checked)}
+            onChange={handleChange!}
             label={nameEl}
             className={styles.moveCheckbox}
           />
@@ -76,16 +85,23 @@ export const Move = ({ move, selected, onSelectChange, usesChecked = 0, onUsesCh
         )}
         {hasUses && (
           <UseDots
-            total={move.uses!}
+            total={uses}
             checked={usesChecked}
-            onChange={onUsesChange!}
+            onChange={onUsesChange}
           />
         )}
       </div>
-      <p className={styles.moveTrigger}>
-        When you <strong>{move.trigger}</strong>,
-      </p>
-      {move.body && <p className={styles.moveBody}>{parseBold(move.body)}</p>}
+      {(move.triggerOverride || move.trigger) && (
+        <p className={styles.moveTrigger}>
+          {move.triggerOverride
+            ? parseBold(move.triggerOverride)
+            : <><span>When you </span><strong>{move.trigger}</strong>,</>
+          }
+        </p>
+      )}
+      {bodyParagraphs.map((p) => (
+        <p key={p.slice(0, 40)} className={styles.moveBody}>{parseBold(p)}</p>
+      ))}
       {move.list && (
         <ul className={styles.moveList}>
           {move.list.map((item) => (
@@ -93,7 +109,9 @@ export const Move = ({ move, selected, onSelectChange, usesChecked = 0, onUsesCh
           ))}
         </ul>
       )}
-      {move.footer && <p className={styles.moveBody}>{parseBold(move.footer)}</p>}
+      {footerParagraphs.map((p) => (
+        <p key={p.slice(0, 40)} className={styles.moveBody}>{parseBold(p)}</p>
+      ))}
     </div>
   );
 };
