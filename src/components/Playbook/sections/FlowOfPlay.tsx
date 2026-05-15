@@ -4,8 +4,8 @@ const NodeLabel = ({ id }: { id: string }) => (
   <span className={styles.nodeLabel}>{id}</span>
 );
 
-const GoTo = ({ node, label }: { node: string; label?: string }) => (
-  <a href={`#node-${node}`} className={styles.goTo}>{label ?? `go to ${node}`}</a>
+const GoTo = ({ node }: { node: string }) => (
+  <a href={`#node-${node}`} className={styles.goTo}>go to {node}</a>
 );
 
 export const FlowOfPlay = () => (
