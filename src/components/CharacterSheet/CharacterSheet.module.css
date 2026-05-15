@@ -20,8 +20,8 @@
   border-bottom: 1px solid var(--border-subtle);
 }
 
-.placeholder {
-  height: 80px;
-  background: var(--surface-raised);
-  border-radius: var(--radius-md);
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
 }

@@ -20,12 +20,18 @@ const getTypeSpecificSections = (playbook: PlaybookType): React.ReactNode => {
 interface ContentProps {
   g: GameSession;
   id: string;
-  playbook: string;
+  playbook: PlaybookType;
   updateCharacterName: (characterId: string, name: string) => Promise<void>;
 }
 
 const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName }: ContentProps) => {
   const playbookOption = PLAYBOOKS.find((p) => p.value === playbook);
+  const character = g.characters.find((c) => c.playbook === playbook);
+
+  const saveCharacterName = useCallback(
+    (name: string) => updateCharacterName(character?.id ?? '', name),
+    [updateCharacterName, character?.id]
+  );
 
   if (!playbookOption) {
     return (
@@ -37,8 +43,6 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName }: Cont
       </main>
     );
   }
-
-  const character = g.characters.find((c) => c.playbook === (playbook as PlaybookType));
 
   if (!character) {
     return (
@@ -60,7 +64,6 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName }: Cont
     { label: playbookLabel },
   ];
 
-  const saveCharacterName = (name: string) => updateCharacterName(character.id, name);
   const typeSpecific = getTypeSpecificSections(character.playbook);
 
   return (
@@ -92,19 +95,14 @@ export const CharacterPlaybook = () => {
   const { id = '', playbook = '' } = useParams<{ id: string; playbook: string }>();
   const { game, loading, error, updateCharacterName } = useGame(id);
 
-  const handleUpdateCharacterName = useCallback(
-    (characterId: string, name: string) => updateCharacterName(characterId, name),
-    [updateCharacterName]
-  );
-
   return (
     <GameGuard loading={loading} error={error} game={game} errorBackTo={`/game/${id}`} errorBackLabel="Back to Game">
       {(g) => (
         <CharacterPlaybookContent
           g={g}
           id={id}
-          playbook={playbook}
-          updateCharacterName={handleUpdateCharacterName}
+          playbook={playbook as PlaybookType}
+          updateCharacterName={updateCharacterName}
         />
       )}
     </GameGuard>

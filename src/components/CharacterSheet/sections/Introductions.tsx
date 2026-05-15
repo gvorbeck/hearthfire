@@ -1,8 +1,3 @@
-import styles from '../CharacterSheet.module.css';
+import { PlaybookSection } from '../PlaybookSection';
 
-export const Introductions = () => (
-  <section className={styles.section}>
-    <div className={styles.sectionTitle}>Introductions</div>
-    <div className={styles.placeholder} />
-  </section>
-);
+export const Introductions = () => <PlaybookSection title="Introductions" />;
