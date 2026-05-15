@@ -12,6 +12,8 @@ export type PlaybookType =
 export interface CharacterData {
   background?: string;
   backgroundChoices?: string[];
+  instinct?: string;
+  instinctCustom?: string;
 }
 
 export interface Character {

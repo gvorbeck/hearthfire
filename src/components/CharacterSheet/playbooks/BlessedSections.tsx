@@ -1,8 +1,9 @@
 import { BlessedBackground } from './blessed/BlessedBackground';
+import { BlessedInstinct } from './blessed/BlessedInstinct';
 import { PlaybookSection } from '../PlaybookSection';
 import styles from '../CharacterSheet.module.css';
 
-export { BlessedBackground };
+export { BlessedBackground, BlessedInstinct };
 
 export const BlessedSections = () => (
   <div className={styles.stack}>

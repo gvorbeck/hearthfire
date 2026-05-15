@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useId } from 'react';
+import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import styles from './Playbook.module.css';
 
 interface TextareaFieldProps {
@@ -13,28 +14,17 @@ export const TextareaField = ({ value, label, note, onSave, rows = 6 }: Textarea
   const [local, setLocal] = useState(value);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const lastSavedRef = useRef(value);
   const id = useId();
 
-  useEffect(() => {
-    setLocal(value);
-  }, [value]);
+  useEffect(() => { setLocal(value); }, [value]);
 
-  useEffect(() => {
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-      if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
-    };
-  }, []);
+  useEffect(() => () => { if (savedTimerRef.current) clearTimeout(savedTimerRef.current); }, []);
 
-  const save = useCallback(async (text: string) => {
-    if (text === lastSavedRef.current) return;
+  const wrappedSave = useCallback(async (text: string) => {
     setSaving(true);
     try {
       await onSave(text);
-      lastSavedRef.current = text;
       setSaved(true);
       if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
       savedTimerRef.current = setTimeout(() => setSaved(false), 2000);
@@ -43,17 +33,17 @@ export const TextareaField = ({ value, label, note, onSave, rows = 6 }: Textarea
     }
   }, [onSave]);
 
+  const { onChange: debouncedChange, onBlur: flushOnBlur } = useDebouncedSave(wrappedSave);
+
   const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const text = e.target.value;
     setLocal(text);
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => save(text), 1500);
-  }, [save]);
+    debouncedChange(text);
+  }, [debouncedChange]);
 
   const handleBlur = useCallback(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    save(local);
-  }, [save, local]);
+    flushOnBlur(local);
+  }, [flushOnBlur, local]);
 
   return (
     <div className={styles.contentField}>

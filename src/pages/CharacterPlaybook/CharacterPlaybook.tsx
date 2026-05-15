@@ -6,7 +6,7 @@ import { Heading, Button } from '@/components/primitives';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
 import { PageHeader } from '@/components/PageHeader/PageHeader';
 import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, Moves, SpecialPossessions, Introductions } from '@/components/CharacterSheet/sections';
-import { BlessedBackground, BlessedSections } from '@/components/CharacterSheet/playbooks/BlessedSections';
+import { BlessedBackground, BlessedInstinct, BlessedSections } from '@/components/CharacterSheet/playbooks/BlessedSections';
 import type { Character, CharacterData, GameSession, PlaybookType } from '@/types';
 import styles from './CharacterPlaybook.module.css';
 
@@ -19,6 +19,18 @@ const BackgroundSection = ({ character, onSave }: BackgroundSectionProps) => {
   switch (character.playbook) {
     case 'blessed': return <BlessedBackground data={character.data} onSave={onSave} />;
     default: return <Background />;
+  }
+};
+
+interface InstinctSectionProps {
+  character: Character;
+  onSave: (data: Partial<CharacterData>) => Promise<void>;
+}
+
+const InstinctSection = ({ character, onSave }: InstinctSectionProps) => {
+  switch (character.playbook) {
+    case 'blessed': return <BlessedInstinct data={character.data} onSave={onSave} />;
+    default: return <Instinct />;
   }
 };
 
@@ -93,7 +105,10 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
             />
           </div>
           <div className={styles.colRight}>
-            <Instinct />
+            <InstinctSection
+              character={character}
+              onSave={(data) => updateCharacterData(character.id, data)}
+            />
             <Appearance />
             <PlaceOfOrigin />
           </div>
