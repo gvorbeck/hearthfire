@@ -98,7 +98,7 @@ Design system: primitives in `src/components/primitives/` (Button, Text, Heading
 
 ## Output Format
 
-Do not use emojis anywhere in the output.
+No emojis. Plain language throughout — write as if explaining to a junior developer who is learning, not a senior engineer who needs technical depth.
 
 Group findings by file, then by severity:
 
@@ -110,8 +110,15 @@ Number each finding sequentially across all files (1, 2, 3, ...) so findings can
 
 For each finding:
 ```
-N. [SEVERITY] file-path:line — short description
-   Suggestion: what to do instead (one sentence)
+N. [SEVERITY] file-path:line — what the problem is, in plain English (one sentence, no jargon)
+   Fix: what to do instead (one sentence, concrete and specific)
 ```
+
+Rules for writing findings:
+- Lead with what the problem *does wrong*, not what pattern it violates
+- No acronyms or framework jargon unless unavoidable — if you must use a term like `useEffect`, briefly say what it does
+- No passive voice ("this could cause" → "this will cause")
+- No academic phrasing ("it is worth noting", "one may observe")
+- Keep each finding to two sentences total
 
 End with a summary: total findings by severity, and an overall assessment (Ready / Needs Work / Major Issues).
