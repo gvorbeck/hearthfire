@@ -197,6 +197,7 @@ export const CharacterStats = ({ data, onSave, hpMax, damage = 'd6' }: Character
 
   return (
     <PlaybookSection title="Stats">
+      <p className={styles.statsInstruction}>Assign these scores: +2, +1, +1, +0, +0, -1. When a debility is marked, you roll with disadvantage.</p>
       <div className={styles.statsSection}>
         <div className={styles.statRow}>
           {STAT_GROUPS.map((group) => (

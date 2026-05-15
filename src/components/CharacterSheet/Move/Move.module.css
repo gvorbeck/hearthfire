@@ -1,0 +1,128 @@
+/* ── Move card ───────────────────────────────────────── */
+.move {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  padding: var(--spacing-3) var(--spacing-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  transition: border-color 0.15s ease;
+}
+
+.moveSelected {
+  border-color: var(--border-accent);
+}
+
+/* ── Header row (name + use dots) ────────────────────── */
+.moveHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+}
+
+.moveCheckbox {
+  gap: var(--spacing-2);
+}
+
+/* ── Move name ───────────────────────────────────────── */
+.moveName {
+  font-family: var(--font-serif);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  transition: color 0.15s ease;
+}
+
+.moveNameSelected {
+  color: var(--text-accent);
+}
+
+/* ── Trigger + body text ─────────────────────────────── */
+.moveTrigger {
+  font-family: var(--font-serif);
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.45;
+}
+
+.moveTrigger strong,
+.moveBody strong,
+.moveListItem strong {
+  color: var(--text-primary);
+}
+
+.moveBody {
+  font-family: var(--font-serif);
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.45;
+}
+
+/* ── Bullet list ─────────────────────────────────────── */
+.moveList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.moveListItem {
+  font-family: var(--font-serif);
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+.moveListItem::before {
+  content: '\2609';
+  color: var(--color-gold-500);
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+
+/* ── Use dots (type move uses) ───────────────────────── */
+.useDots {
+  display: flex;
+  gap: var(--spacing-1);
+  flex-shrink: 0;
+}
+
+.useDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-strong);
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.useDot:hover {
+  border-color: var(--color-gold-400);
+}
+
+.useDotFilled {
+  background: var(--color-gold-500);
+  border-color: var(--color-gold-500);
+}
+
+.useDotFilled:hover {
+  background: var(--color-gold-400);
+  border-color: var(--color-gold-400);
+}
+
+.useDot:focus-visible {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: 2px;
+}

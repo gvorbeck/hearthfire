@@ -30,6 +30,8 @@ export interface CharacterData {
   statArmor?: string;
   statXp?: string;
   statLevel?: string;
+  typeMoves?: Record<string, boolean>;
+  typeMoveUses?: Record<string, number>;
 }
 
 export interface Character {

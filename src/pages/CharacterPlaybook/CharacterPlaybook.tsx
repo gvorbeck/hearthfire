@@ -45,10 +45,9 @@ const PlaceOfOriginSection = ({ character, onSave }: PlaybookSectionProps) => {
 };
 
 const StatsSection = ({ character, onSave }: PlaybookSectionProps) => {
-  switch (character.playbook) {
-    case 'blessed': return <CharacterStats data={character.data} onSave={onSave} hpMax={18} damage="d6" />;
-    default: return <Stats />;
-  }
+  const playbookOption = PLAYBOOKS.find((p) => p.value === character.playbook);
+  if (!playbookOption) return <Stats />;
+  return <CharacterStats data={character.data} onSave={onSave} hpMax={playbookOption.hpMax} damage={playbookOption.damage} />;
 };
 
 const getTypeSpecificSections = (playbook: PlaybookType): React.ReactNode => {
@@ -149,7 +148,14 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
           </div>
         </div>
         <div className={styles.colFull}><StatsSection character={character} onSave={handleSaveCharacterData} /></div>
-        <div className={styles.colFull}><Moves /></div>
+        <div className={styles.colFull}>
+          <Moves
+            playbook={character.playbook}
+            data={character.data}
+            onSave={handleSaveCharacterData}
+            choose={playbookOption.choose}
+          />
+        </div>
         <div className={styles.colFull}><SpecialPossessions /></div>
         <div className={styles.columns}>
           <div className={styles.colLeft}>
