@@ -1,10 +1,11 @@
 import { Heading, Text } from '@/components/primitives';
 import { SubList, PlaybookTable } from '@/components/Playbook';
+import playbookStyles from '@/components/Playbook/Playbook.module.css';
 import styles from '@/pages/GmPlaybook/GmPlaybook.module.css';
 
 export const Hazards = () => (
   <div>
-    <div className={styles.subsection}>
+    <div>
       <Heading as="h3" size="sm">As a detailed description</Heading>
       <Text>Just describe what it is, what it looks like, what it does, how it works.</Text>
     </div>
@@ -23,9 +24,11 @@ export const Hazards = () => (
 
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">As an impending doom</Heading>
-      <Text>Write down the ultimate bad thing that can happen (e.g. tunnel collapses, they roll Death's Door).</Text>
-      <Text>Write 1-4 events describing how it starts and escalates; assign each event one or more check boxes.</Text>
-      <Text>Optional: write a trigger that causes it to advance, fictional ("Each time the pillars are damaged") or mechanical ("Each time someone rolls doubles").</Text>
+      <div className={playbookStyles.paragraphs}>
+        <Text>Write down the ultimate bad thing that can happen (e.g. tunnel collapses, they roll Death's Door).</Text>
+        <Text>Write 1-4 events describing how it starts and escalates; assign each event one or more check boxes.</Text>
+        <Text>Optional: write a trigger that causes it to advance, fictional ("Each time the pillars are damaged") or mechanical ("Each time someone rolls doubles").</Text>
+      </div>
     </div>
 
     <div className={styles.subsection}>

@@ -134,6 +134,13 @@
   padding-right: var(--spacing-4);
 }
 
+/* ── Paragraphs ─────────────────────────────────────── */
+.paragraphs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
 /* ── Callout ────────────────────────────────────────── */
 .callout {
   border-left: 3px solid var(--border-accent);
