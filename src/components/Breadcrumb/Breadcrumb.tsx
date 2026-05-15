@@ -18,8 +18,8 @@ export const Breadcrumb = ({ crumbs, className }: BreadcrumbProps) => (
       <li className={styles.item}>
         <Link to="/" className={styles.link}>Home</Link>
       </li>
-      {crumbs.map((crumb, i) => (
-        <li key={i} className={styles.item}>
+      {crumbs.map((crumb) => (
+        <li key={crumb.label} className={styles.item}>
           <span className={styles.separator} aria-hidden>›</span>
           {crumb.to ? (
             <Link to={crumb.to} className={styles.link}>{crumb.label}</Link>

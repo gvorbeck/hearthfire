@@ -6,7 +6,6 @@
   width: 100%;
 }
 
-
 .sections {
   display: grid;
   grid-template-columns: 1fr;
@@ -54,6 +53,10 @@
   height: 1px;
   background: linear-gradient(to right, transparent, var(--border-accent), transparent);
   opacity: 0.5;
+}
+
+.sectionCharacters {
+  composes: section;
 }
 
 .characterBtnText {

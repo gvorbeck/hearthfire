@@ -19,6 +19,8 @@ export const useGame = (gameId: string): UseGameResult => {
   const [game, setGame] = useState<GameSession | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const gameRef = useRef<GameSession | null>(null);
+  gameRef.current = game;
 
   useEffect(() => {
     const ref = doc(db, GAMES_COLLECTION, gameId);
@@ -78,9 +80,6 @@ export const useGame = (gameId: string): UseGameResult => {
       throw err;
     }
   }, [gameId]);
-
-  const gameRef = useRef<GameSession | null>(null);
-  gameRef.current = game;
 
   const updateCharacterName = useCallback(async (characterId: string, name: string) => {
     const current = gameRef.current;

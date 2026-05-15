@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Heading, Text, Icon, RuleDivider } from '@/components/primitives';
 import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
 import type { Crumb } from '@/components/Breadcrumb/Breadcrumb';
@@ -7,14 +7,16 @@ import styles from './PageHeader.module.css';
 interface Props {
   crumbs: Crumb[];
   title: string;
+  titleLabel: string;
   subtitle?: string;
   gameId: string;
   onSaveTitle: (value: string) => Promise<void>;
 }
 
-export const PageHeader = ({ crumbs, title, subtitle, gameId, onSaveTitle }: Props) => {
+export const PageHeader = ({ crumbs, title, titleLabel, subtitle, gameId, onSaveTitle }: Props) => {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState('');
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const copiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -31,17 +33,21 @@ export const PageHeader = ({ crumbs, title, subtitle, gameId, onSaveTitle }: Pro
 
   const startEditing = () => {
     setValue(title);
+    setSaveError(null);
     setEditing(true);
   };
 
-  const commit = useCallback(async () => {
+  const commit = async () => {
     const trimmed = value.trim();
     try {
       if (trimmed && trimmed !== title) await onSaveTitle(trimmed);
-    } finally {
       setEditing(false);
+    } catch {
+      setSaveError('Failed to save. Try again.');
     }
-  }, [value, title, onSaveTitle]);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value);
 
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') await commit();
@@ -64,20 +70,21 @@ export const PageHeader = ({ crumbs, title, subtitle, gameId, onSaveTitle }: Pro
             ref={inputRef}
             className={styles.titleInput}
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={handleChange}
             onBlur={commit}
             onKeyDown={handleKeyDown}
-            aria-label="Edit title"
+            aria-label={titleLabel}
           />
         ) : (
           <>
             <Heading as="h1" size="xl">{title}</Heading>
-            <button className={styles.editBtn} onClick={startEditing} aria-label="Edit title">
+            <button className={styles.editBtn} onClick={startEditing} aria-label={titleLabel}>
               <Icon name="pencil" size="small" />
             </button>
           </>
         )}
       </div>
+      {saveError && <Text color="muted" size="sm" className={styles.saveError}>{saveError}</Text>}
       {subtitle && <Text color="muted" size="sm" className={styles.subtitle}>{subtitle}</Text>}
       <div className={styles.gameId}>
         <Text color="muted" size="sm">

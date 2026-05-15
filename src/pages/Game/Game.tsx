@@ -1,4 +1,3 @@
-import clsx from 'clsx';
 import { useState } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { useGame } from '@/hooks/useGame';
@@ -25,7 +24,6 @@ export const Game = () => {
   const handleCloseAddCharacter = () => setShowAddCharacter(false);
   const handleOpenAddCharacter = () => setShowAddCharacter(true);
 
-  const charactersCx = clsx(styles.section, styles.sectionCharacters);
 
   return (
     <GameGuard
@@ -51,12 +49,13 @@ export const Game = () => {
             <PageHeader
               crumbs={[{ label: gameName }]}
               title={gameName}
+              titleLabel="Edit game name"
               gameId={id}
               onSaveTitle={updateGameName}
             />
 
             <div className={styles.sections}>
-              <div className={charactersCx}>
+              <div className={styles.sectionCharacters}>
                 <Heading as="h2" size="label">Characters</Heading>
                 {g.characters.length > 0 && (
                   <Stack gap={3}>

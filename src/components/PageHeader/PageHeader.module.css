@@ -39,6 +39,11 @@
   color: var(--color-gold-400);
 }
 
+.saveError {
+  margin-top: var(--spacing-1);
+  color: var(--color-error, #e05c5c);
+}
+
 .subtitle {
   margin-top: var(--spacing-1);
 }
