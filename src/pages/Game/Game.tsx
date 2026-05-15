@@ -71,6 +71,9 @@ export const Game = () => {
     copiedTimerRef.current = setTimeout(() => setCopied(false), 2000);
   };
 
+  const charactersCx = clsx(styles.section, styles.sectionCharacters);
+  const rightCx = clsx(styles.section, styles.sectionRight);
+
   return (
     <GameGuard
       loading={loading}
@@ -81,8 +84,6 @@ export const Game = () => {
     >
       {(g) => {
         const gameName = g.name || DEFAULT_GAME_NAME;
-        const charactersCx = clsx(styles.section, styles.sectionCharacters);
-        const rightCx = clsx(styles.section, styles.sectionRight);
 
         return (
           <>

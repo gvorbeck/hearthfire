@@ -49,20 +49,20 @@ export const GmPlaybook = () => {
   const { game, loading, error, updateContent, updateField } = useGame(id);
   const saveIWonder = useCallback((v: string) => updateField('iWonder', v), [updateField]);
 
+  const getSectionContent = (section: string, g: NonNullable<typeof game>): React.ReactNode => {
+    if (section === 'Content') return <ContentSection content={g.content} onSave={updateContent} />;
+    if (section === 'I wonder…') return <IWonder value={g.iWonder ?? ''} onSave={saveIWonder} />;
+    return STATIC_CONTENT[section] ?? <div className={styles.placeholder} />;
+  };
+
   return (
-    <GameGuard loading={loading} error={error} game={game} errorBackTo={`/game/${id}`}>
+    <GameGuard loading={loading} error={error} game={game} errorBackTo={`/game/${id}`} errorBackLabel="Back to Game">
       {(g) => {
         const gameName = g.name || DEFAULT_GAME_NAME;
         const crumbs = [
           { label: gameName, to: `/game/${id}` },
           { label: 'GM Playbook' },
         ];
-
-        const getSectionContent = (section: string): React.ReactNode => {
-          if (section === 'Content') return <ContentSection content={g.content} onSave={updateContent} />;
-          if (section === 'I wonder…') return <IWonder value={g.iWonder ?? ''} onSave={saveIWonder} />;
-          return STATIC_CONTENT[section] ?? <div className={styles.placeholder} />;
-        };
 
         return (
           <main className={styles.page}>
@@ -74,7 +74,7 @@ export const GmPlaybook = () => {
             <div className={styles.sections}>
               {SECTIONS.map(section => (
                 <Collapse key={section} label={section}>
-                  {getSectionContent(section)}
+                  {getSectionContent(section, g)}
                 </Collapse>
               ))}
             </div>

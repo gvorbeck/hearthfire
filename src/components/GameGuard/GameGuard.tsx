@@ -10,6 +10,7 @@ interface Props {
   loadingText?: string;
   notFoundMessage?: string;
   errorBackTo?: string;
+  errorBackLabel?: string;
   children: (game: GameSession) => React.ReactNode;
 }
 
@@ -20,6 +21,7 @@ export const GameGuard = ({
   loadingText = 'Loading…',
   notFoundMessage,
   errorBackTo = '/',
+  errorBackLabel = 'Back to Home',
   children,
 }: Props) => {
   if (loading) {
@@ -36,7 +38,7 @@ export const GameGuard = ({
         <Heading as="h2" size="md">Something went wrong</Heading>
         <Text color="muted">{error}</Text>
         <Link to={errorBackTo}>
-          <Button variant="secondary">Back to Home</Button>
+          <Button variant="secondary">{errorBackLabel}</Button>
         </Link>
       </main>
     );

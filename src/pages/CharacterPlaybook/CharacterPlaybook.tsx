@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useGame } from '@/hooks/useGame';
 import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
-import { Heading, RuleDivider } from '@/components/primitives';
+import { Heading, Button, RuleDivider } from '@/components/primitives';
 import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
 import type { PlaybookType } from '@/types';
@@ -11,23 +11,25 @@ export const CharacterPlaybook = () => {
   const { id = '', playbook = '' } = useParams<{ id: string; playbook: string }>();
   const { game, loading, error } = useGame(id);
 
-  const playbookOption = PLAYBOOKS.find((p) => p.value === playbook);
-
-  if (!loading && !error && game && !playbookOption) {
-    return (
-      <main className={styles.centered}>
-        <Heading as="h2" size="md">Playbook not found</Heading>
-        <Link to={`/game/${id}`}>Back to Game</Link>
-      </main>
-    );
-  }
-
   return (
-    <GameGuard loading={loading} error={error} game={game} errorBackTo={`/game/${id}`}>
+    <GameGuard loading={loading} error={error} game={game} errorBackTo={`/game/${id}`} errorBackLabel="Back to Game">
       {(g) => {
+        const playbookOption = PLAYBOOKS.find((p) => p.value === playbook);
+
+        if (!playbookOption) {
+          return (
+            <main className={styles.centered}>
+              <Heading as="h2" size="md">Playbook not found</Heading>
+              <Link to={`/game/${id}`}>
+                <Button variant="secondary">Back to Game</Button>
+              </Link>
+            </main>
+          );
+        }
+
         const character = g.characters.find((c) => c.playbook === (playbook as PlaybookType));
         const characterName = character?.name?.trim();
-        const playbookLabel = `${playbookOption!.label} Playbook`;
+        const playbookLabel = `${playbookOption.label} Playbook`;
         const pageTitle = characterName ? `${characterName} — ${playbookLabel}` : playbookLabel;
         const gameName = g.name || DEFAULT_GAME_NAME;
 
