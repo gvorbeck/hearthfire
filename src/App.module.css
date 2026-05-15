@@ -7,3 +7,7 @@
   border-top: 1px solid var(--border-subtle);
   letter-spacing: 0.03em;
 }
+
+.footer a:hover {
+  text-decoration: underline;
+}
