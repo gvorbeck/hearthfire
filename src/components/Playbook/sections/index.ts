@@ -6,3 +6,4 @@ export { ContentSection } from './ContentSection';
 export { Threats } from './Threats';
 export { IWonder } from './IWonder';
 export { Expeditions } from './Expeditions';
+export { Sites } from './Sites';

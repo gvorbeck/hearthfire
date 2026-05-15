@@ -40,7 +40,7 @@
 
 .stepList > li {
   position: relative;
-  padding-left: var(--spacing-6);
+  padding-left: var(--spacing-10);
   counter-increment: step-counter;
 }
 
@@ -48,7 +48,7 @@
   content: counter(step-counter);
   position: absolute;
   left: 0;
-  top: 3px;
+  top: calc((1.2rem - 20px) / 2);
   width: 20px;
   height: 20px;
   background: var(--surface-raised);
