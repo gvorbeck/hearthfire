@@ -4,6 +4,7 @@ export { Collapse } from './Collapse/Collapse';
 export { Dropdown } from './Dropdown/Dropdown';
 export { Heading } from './Heading/Heading';
 export { Icon } from './Icon/Icon';
+export type { IconName } from './Icon/Icon';
 export { Input } from './Input/Input';
 export { Modal } from './Modal/Modal';
 export { Radio } from './Radio/Radio';

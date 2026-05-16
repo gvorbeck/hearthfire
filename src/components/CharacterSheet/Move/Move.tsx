@@ -1,5 +1,6 @@
 import clsx from 'clsx';
-import { Checkbox } from '@/components/primitives';
+import { Checkbox, Icon } from '@/components/primitives';
+import type { IconName } from '@/components/primitives';
 import styles from './Move.module.css';
 
 const BOLD_RE = /(\*\*[^*]+\*\*|on a 10\+|on a 7[-–]9|on a 6[-–]|either way)/i;
@@ -19,8 +20,11 @@ export interface MoveDefinition {
   trigger?: string;
   triggerOverride?: string;
   body?: string | string[];
+  bodyIcons?: IconName[];
   list?: string[];
   footer?: string | string[];
+  list2?: string[];
+  citation?: string;
   uses?: number;
   selectable?: boolean;
 }
@@ -52,7 +56,6 @@ const UseDots = ({ total, checked, onChange }: { total: number; checked: number;
 );
 
 export const Move = ({ move, selected, onSelectChange, usesChecked = 0, onUsesChange }: MoveProps) => {
-  const hasCheckbox = move.selectable && onSelectChange !== undefined;
   const uses = move.uses;
   const hasUses = uses !== undefined && onUsesChange !== undefined;
 
@@ -61,22 +64,18 @@ export const Move = ({ move, selected, onSelectChange, usesChecked = 0, onUsesCh
 
   const nameEl = <span className={nameCx}>{move.name}</span>;
 
-  const handleChange = onSelectChange
-    ? (e: React.ChangeEvent<HTMLInputElement>) => onSelectChange(e.target.checked)
-    : undefined;
-
   const bodyParagraphs = move.body ? (Array.isArray(move.body) ? move.body : [move.body]) : [];
   const footerParagraphs = move.footer ? (Array.isArray(move.footer) ? move.footer : [move.footer]) : [];
 
   return (
     <div className={moveCx}>
       <div className={styles.moveHeader}>
-        {hasCheckbox ? (
+        {move.selectable && onSelectChange !== undefined ? (
           <Checkbox
             name={`move-${move.id}`}
             value={move.id}
             checked={selected ?? false}
-            onChange={handleChange!}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSelectChange(e.target.checked)}
             label={nameEl}
             className={styles.moveCheckbox}
           />
@@ -99,9 +98,17 @@ export const Move = ({ move, selected, onSelectChange, usesChecked = 0, onUsesCh
           }
         </p>
       )}
-      {bodyParagraphs.map((p) => (
-        <p key={p.slice(0, 40)} className={styles.moveBody}>{parseBold(p)}</p>
-      ))}
+      {bodyParagraphs.map((p, i) => {
+        const icon = move.bodyIcons?.[i];
+        return icon ? (
+          <div key={i} className={styles.moveBodyWithIcon}>
+            <Icon name={icon} size="small" className={styles.moveBodyIcon} aria-hidden="true" />
+            <p className={styles.moveBody}>{parseBold(p)}</p>
+          </div>
+        ) : (
+          <p key={i} className={styles.moveBody}>{parseBold(p)}</p>
+        );
+      })}
       {move.list && (
         <ul className={styles.moveList}>
           {move.list.map((item) => (
@@ -109,9 +116,17 @@ export const Move = ({ move, selected, onSelectChange, usesChecked = 0, onUsesCh
           ))}
         </ul>
       )}
-      {footerParagraphs.map((p) => (
-        <p key={p.slice(0, 40)} className={styles.moveBody}>{parseBold(p)}</p>
+      {footerParagraphs.map((p, i) => (
+        <p key={i} className={styles.moveBody}>{parseBold(p)}</p>
       ))}
+      {move.list2 && (
+        <ul className={styles.moveList}>
+          {move.list2.map((item) => (
+            <li key={item} className={styles.moveListItem}>{parseBold(item)}</li>
+          ))}
+        </ul>
+      )}
+      {move.citation && <p className={styles.moveCitation}>{move.citation}</p>}
     </div>
   );
 };

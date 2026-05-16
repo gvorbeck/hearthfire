@@ -89,6 +89,29 @@
   line-height: 1.6;
 }
 
+/* ── Body with icon ──────────────────────────────────── */
+.moveBodyWithIcon {
+  display: flex;
+  gap: var(--spacing-2);
+  align-items: flex-start;
+}
+
+.moveBodyIcon {
+  color: var(--color-gold-500);
+  flex-shrink: 0;
+  margin-top: 0.1em;
+}
+
+/* ── Citation ────────────────────────────────────────── */
+.moveCitation {
+  font-family: var(--font-serif);
+  font-size: 0.6875rem;
+  color: var(--text-tertiary, var(--text-secondary));
+  margin-top: var(--spacing-1);
+  font-style: italic;
+  text-align: right;
+}
+
 /* ── Use dots (type move uses) ───────────────────────── */
 .useDots {
   display: flex;

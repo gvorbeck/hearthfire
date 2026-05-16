@@ -1,7 +1,15 @@
 .moveGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--spacing-3);
+  columns: 2 280px;
+  column-gap: var(--spacing-3);
+}
+
+.moveGrid > * {
+  break-inside: avoid;
+  margin-bottom: var(--spacing-3);
+}
+
+.moveGrid > *:last-child {
+  margin-bottom: 0;
 }
 
 .collapseStack {
