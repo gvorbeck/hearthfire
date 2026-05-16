@@ -89,7 +89,7 @@ export const HOMEFRONT_MOVES: MoveDefinition[] = [
   {
     id: 'seasons-change',
     name: 'Seasons Change',
-    bodyIcons: ['spring', 'summer', 'autumn', 'winter'],
+    bodyIcons: ['spring', 'summer', 'autumn', 'winter'] as const,
     body: [
       'When **spring bursts forth upon the land**, whoever is the most hopeful rolls +Fortunes: on a 10+, pick 1 seasonal gain; on a 7-9, pick 1 seasonal gain, but a threat to the steading makes itself known or gets worse; on a 6-, threats abound (and don\'t mark XP). Whatever the result, reset Fortunes to +1.',
       'When **the hot days of summer settle across the land**, whoever is most content rolls +Fortunes: on a 10+, pick 2 seasonal gains; on a 7-9, pick 1 seasonal gain; on a 6-, a threat to the steading makes itself known or gets worse (and don\'t mark XP). Whatever the result, the steading generates 1d4-1 Surplus. Then, reset Fortunes to +1.',

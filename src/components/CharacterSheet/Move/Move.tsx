@@ -20,7 +20,7 @@ export interface MoveDefinition {
   trigger?: string;
   triggerOverride?: string;
   body?: string | string[];
-  bodyIcons?: IconName[];
+  bodyIcons?: readonly IconName[];
   list?: string[];
   footer?: string | string[];
   list2?: string[];
