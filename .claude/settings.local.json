@@ -30,7 +30,9 @@
       "Bash(curl -s https://hearthfire.camp/)",
       "Bash(curl -s -I https://hearthfire.camp/assets/index-CaF0wbSk.js)",
       "Bash(curl -s https://hearthfire.camp/assets/index-CaF0wbSk.js)",
-      "Bash(curl -s -I https://hearthfire.camp/assets/index-B7Jm4Wjj.css)"
+      "Bash(curl -s -I https://hearthfire.camp/assets/index-B7Jm4Wjj.css)",
+      "Bash(find ~/.claude -name \"code-review.md\" -o -name \"code-review\" 2>/dev/null | head -20)",
+      "Read(//Users/garrett.vorbeck/.claude/**)"
     ]
   }
 }

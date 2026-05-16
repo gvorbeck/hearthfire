@@ -1,0 +1,36 @@
+.btn {
+  position: fixed;
+  bottom: var(--spacing-8);
+  right: var(--spacing-8);
+  z-index: 100;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--color-gold-500);
+  background-color: var(--surface-raised);
+  color: var(--color-gold-300);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.btn.visible:hover {
+  background-color: color-mix(in srgb, var(--color-gold-400) 12%, transparent);
+  border-color: var(--color-gold-300);
+  color: var(--color-gold-200);
+  box-shadow: 0 0 16px rgba(230, 176, 32, 0.15);
+}
+
+.btn.visible:focus-visible {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: 3px;
+}

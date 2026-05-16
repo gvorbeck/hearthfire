@@ -80,10 +80,13 @@ Design system: primitives in `src/components/primitives/` (Button, Text, Heading
 - Secrets, API keys, or tokens referenced in frontend code
 - Missing input validation on user-facing fields before writing to Firestore
 
-### Accessibility
+### Accessibility (Non-Negotiable — treat violations as [Standards Violation] or higher, never [Suggestion])
 - Non-semantic HTML (`<div onClick>` instead of `<button>` or `<a>`)
 - Missing `aria-label` on icon-only interactive elements
+- Elements hidden visually (`opacity: 0`, `visibility: hidden`) but still reachable via keyboard — must also have `tabIndex={-1}` and `aria-hidden`
+- Missing `:focus-visible` styles on interactive elements — keyboard users must have a visible focus indicator
 - Interactive elements not reachable via keyboard (missing `tabIndex`, no focus styles)
+- `aria-hidden` or `tabIndex` not toggled when an element's visibility changes at runtime
 - Color as the only visual differentiator (no text or icon backup)
 - Form inputs missing associated `<label>` or `aria-labelledby`
 - Images missing `alt` attributes

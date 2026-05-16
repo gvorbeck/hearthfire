@@ -11,3 +11,5 @@ export { Radio } from './Radio/Radio';
 export { RuleDivider } from './RuleDivider/RuleDivider';
 export { Stack } from './Stack/Stack';
 export { Text } from './Text/Text';
+export { ScrollToTop } from './ScrollToTop/ScrollToTop';
+export { Tabs } from './Tabs/Tabs';
