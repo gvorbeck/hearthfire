@@ -22,7 +22,17 @@
       "Bash(git -C /Users/garrett.vorbeck/Sites/stonetop remote add origin git@github.com:gvorbeck/hearthfire.git)",
       "Bash(git -C /Users/garrett.vorbeck/Sites/stonetop status)",
       "Bash(git -C /Users/garrett.vorbeck/Sites/stonetop log --oneline -5)",
-      "Bash(git -C /Users/garrett.vorbeck/Sites/stonetop push -u origin main)"
+      "Bash(git -C /Users/garrett.vorbeck/Sites/stonetop push -u origin main)",
+      "Bash(git -C /Users/garrett.vorbeck/Sites/stonetop log main --oneline -5)",
+      "Bash(git -C /Users/garrett.vorbeck/Sites/stonetop log origin/main --oneline -5)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" https://hearthfire.camp/assets/index-CaF0wbSk.js)",
+      "Bash(curl -s -I https://hearthfire.camp/)",
+      "Bash(curl -s https://hearthfire.camp/)",
+      "Bash(curl -s -I https://hearthfire.camp/assets/index-CaF0wbSk.js)",
+      "Bash(curl -s https://hearthfire.camp/assets/index-CaF0wbSk.js)",
+      "Bash(curl -s -I https://hearthfire.camp/assets/index-B7Jm4Wjj.css)",
+      "Bash(find ~/.claude -name \"code-review.md\" -o -name \"code-review\" 2>/dev/null | head -20)",
+      "Read(//Users/garrett.vorbeck/.claude/**)"
     ]
   }
 }

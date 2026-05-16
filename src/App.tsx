@@ -21,6 +21,8 @@ export const App = () => (
       Stonetop is written by Jeremy Strandberg and published by Lampblack &amp; Brimstone.
       Text released under CC BY-SA 4.0. Some concepts derived from Dungeon World by Sage
       LaTorra &amp; Adam Koebel (CC BY).
+      <br />&copy; {new Date().getFullYear()}{' '}
+      <a href="https://iamgarrett.com" target="_blank" rel="noreferrer">J. Garrett Vorbeck</a>
     </footer>
   </>
 );

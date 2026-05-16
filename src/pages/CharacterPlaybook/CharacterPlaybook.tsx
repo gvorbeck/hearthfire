@@ -1,9 +1,9 @@
-import { useCallback } from 'react';
+import { useCallback, useRef, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PageMeta } from '@/components/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
-import { Heading, Button } from '@/components/primitives';
+import { Heading, Button, ScrollToTop, Tabs } from '@/components/primitives';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
 import { PageHeader } from '@/components/PageHeader/PageHeader';
 import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, CharacterStats, Moves, SpecialPossessions, Introductions } from '@/components/CharacterSheet/sections';
@@ -45,18 +45,54 @@ const PlaceOfOriginSection = ({ character, onSave }: PlaybookSectionProps) => {
 };
 
 const StatsSection = ({ character, onSave }: PlaybookSectionProps) => {
-  switch (character.playbook) {
-    case 'blessed': return <CharacterStats data={character.data} onSave={onSave} hpMax={18} damage="d6" />;
-    default: return <Stats />;
-  }
+  const playbookOption = PLAYBOOKS.find((p) => p.value === character.playbook);
+  if (!playbookOption) return <Stats />;
+  return <CharacterStats data={character.data} onSave={onSave} hpMax={playbookOption.hpMax} damage={playbookOption.damage} />;
 };
 
-const getTypeSpecificSections = (playbook: PlaybookType): React.ReactNode => {
+const TypeSpecificSections = ({ playbook }: { playbook: PlaybookType }) => {
   switch (playbook) {
     case 'blessed': return <BlessedSections />;
     default: return null;
   }
 };
+
+interface PCPlaybookTabProps extends PlaybookSectionProps {
+  choose?: number;
+}
+
+const PCPlaybookTab = ({ character, onSave, choose }: PCPlaybookTabProps) => (
+  <div className={styles.layout}>
+    <div className={styles.columns}>
+      <div className={styles.colLeft}>
+        <BackgroundSection character={character} onSave={onSave} />
+      </div>
+      <div className={styles.colRight}>
+        <InstinctSection character={character} onSave={onSave} />
+        <AppearanceSection character={character} onSave={onSave} />
+        <PlaceOfOriginSection character={character} onSave={onSave} />
+      </div>
+    </div>
+    <div className={styles.colFull}><StatsSection character={character} onSave={onSave} /></div>
+    <div className={styles.colFull}>
+      <Moves
+        playbook={character.playbook}
+        data={character.data}
+        onSave={onSave}
+        choose={choose}
+      />
+    </div>
+    <div className={styles.colFull}><SpecialPossessions /></div>
+    <div className={styles.columns}>
+      <div className={styles.colLeft}>
+        <TypeSpecificSections playbook={character.playbook} />
+      </div>
+      <div className={styles.colRight}>
+        <Introductions />
+      </div>
+    </div>
+  </div>
+);
 
 interface ContentProps {
   g: GameSession;
@@ -67,6 +103,7 @@ interface ContentProps {
 }
 
 const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, updateCharacterData }: ContentProps) => {
+  const headerRef = useRef<HTMLDivElement>(null);
   const playbookOption = PLAYBOOKS.find((p) => p.value === playbook);
   const character = g.characters.find((c) => c.playbook === playbook);
 
@@ -111,11 +148,26 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
     { label: playbookLabel },
   ];
 
-  const typeSpecific = getTypeSpecificSections(character.playbook);
-
   const pageTitle = characterName
     ? `${characterName} — ${playbookLabel} — Hearthfire`
     : `${playbookLabel} — Hearthfire`;
+
+  const tabs = useMemo(() => [
+    {
+      label: 'PC Playbook',
+      content: (
+        <PCPlaybookTab
+          character={character}
+          onSave={handleSaveCharacterData}
+          choose={playbookOption.choose}
+        />
+      ),
+    },
+    {
+      label: 'Inventory',
+      content: null,
+    },
+  ], [character, handleSaveCharacterData, playbookOption.choose]);
 
   return (
     <main className={styles.page}>
@@ -123,43 +175,22 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
         title={pageTitle}
         description={`${playbookLabel} for ${gameName}. Track background, stats, moves, and more.`}
       />
-      <PageHeader
-        crumbs={crumbs}
-        title={characterName || playbookLabel}
-        titleLabel="Edit character name"
-        subtitle={characterName ? playbookLabel : undefined}
-        gameId={id}
-        onSaveTitle={handleSaveCharacterName}
-      />
-      <div className={styles.layout}>
-        <div className={styles.columns}>
-          <div className={styles.colLeft}>
-            <BackgroundSection
-              character={character}
-              onSave={handleSaveCharacterData}
-            />
-          </div>
-          <div className={styles.colRight}>
-            <InstinctSection
-              character={character}
-              onSave={handleSaveCharacterData}
-            />
-            <AppearanceSection character={character} onSave={handleSaveCharacterData} />
-            <PlaceOfOriginSection character={character} onSave={handleSaveCharacterData} />
-          </div>
-        </div>
-        <div className={styles.colFull}><StatsSection character={character} onSave={handleSaveCharacterData} /></div>
-        <div className={styles.colFull}><Moves /></div>
-        <div className={styles.colFull}><SpecialPossessions /></div>
-        <div className={styles.columns}>
-          <div className={styles.colLeft}>
-            {typeSpecific}
-          </div>
-          <div className={styles.colRight}>
-            <Introductions />
-          </div>
-        </div>
+      <ScrollToTop sentinelRef={headerRef} />
+      <div ref={headerRef}>
+        <PageHeader
+          crumbs={crumbs}
+          title={characterName || playbookLabel}
+          titleLabel="Edit character name"
+          subtitle={characterName ? playbookLabel : undefined}
+          gameId={id}
+          onSaveTitle={handleSaveCharacterName}
+        />
       </div>
+      <Tabs
+        aria-label="Character sections"
+        className={styles.tabs}
+        tabs={tabs}
+      />
     </main>
   );
 };

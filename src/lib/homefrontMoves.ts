@@ -1,0 +1,124 @@
+import type { MoveDefinition } from '@/components/CharacterSheet/Move';
+
+export const HOMEFRONT_MOVES: MoveDefinition[] = [
+  {
+    id: 'bolster',
+    name: 'Bolster',
+    triggerOverride: 'When you **prepare for what\'s coming or seek the favor of the gods**, say how and answer the GM\'s questions. Then, hold Preparation based on the amount of time you devote:',
+    list: [
+      'A week or so: 1 Preparation',
+      'A month or so: 2 Preparation',
+      'The better part of a season: 3 Preparation',
+    ],
+    footer: 'When you **make any roll to which your efforts might apply**, you may spend 1 Preparation to add +1 to that roll, after it is made (maximum +1 per roll).',
+    citation: 'Book 1, p. 524',
+  },
+  {
+    id: 'convalesce',
+    name: 'Convalesce',
+    triggerOverride: 'When you **rest for a few days in safety and comfort**, set your HP back to your max and clear all your debilities. When you **rest for a few weeks under the care of a healer**, you heal any problematic wounds that can heal. If you **have suffered a permanent injury or impairment**, either retire or Make a Plan to adapt to it.',
+    citation: 'Book 1, p. 249',
+  },
+  {
+    id: 'deploy',
+    name: 'Deploy',
+    triggerOverride: 'When you **send a steading\'s people into danger or rally them against an attack**, roll +Defenses: on a 10+, it goes as well as can be expected; on a 7-9, it works but someone chooses 1 from the list below. If the steading is acting from a position of strength, you choose. Otherwise, the GM chooses.',
+    list: [
+      'It\'s less effective than you expected',
+      'Injuries abound; the steading marks diminished (disadvantage to Deploy, Muster, Pull Together)',
+      'The GM picks a named NPC involved in the action; they die',
+    ],
+    citation: 'Book 1, p. 526',
+  },
+  {
+    id: 'level-up',
+    name: 'Level Up',
+    triggerOverride: 'When you **have a quiet stretch of time at home and XP equal to (or greater than) 6 + twice your current level**, follow these steps:',
+    list: [
+      '1) Subtract 6 + twice your current level from your XP.',
+      '2) Increase your level by 1.',
+      '3) Choose a new move from your playbook, or an insert class that you\'ve unlocked.',
+      '4) If you are the Blessed (or have a sacred pouch) and your new level is even, increase your max Stock by 1.',
+      '5) If you are the Lightbearer (or have Invoke the Sun God) and your new level is even, choose a new invocation.',
+      '6) Review your Instinct and Appearance (on the front of your playbook). Change anything that no longer applies. Feel free to make up new options.',
+    ],
+    citation: 'Book 1, p. 528',
+  },
+  {
+    id: 'make-a-plan',
+    name: 'Make a Plan',
+    triggerOverride: 'When you **wish to accomplish some project but aren\'t sure how to go about it**, tell the GM what you hope to achieve. They\'ll say what\'s required. If you\'re stumped on how to accomplish one of the requirements, tell the GM and Make a Plan for that.',
+    citation: 'Book 1, p. 530',
+  },
+  {
+    id: 'meet-with-disaster',
+    name: 'Meet with Disaster',
+    triggerOverride: 'When **calamity befalls the steading** or **panic spreads**, reduce Fortunes by 1 (min -1).',
+    footer: 'If **Fortunes would drop below -1 for any reason** (not just calamity or panic), then the GM picks 1 instead:',
+    list2: [
+      'The steading marks diminished from injuries/sickness/doubt (disadvantage to Deploy, Muster, Pull Together)',
+      'The steading marks lacking due to shortages/hoarding/distrust (treat Prosperity as 1 lower)',
+      'The steading marks malcontent from fear/anger/despair (Fortunes reset to +0 each season, not +1; folks need Persuading more often than usual)',
+      'Folks start to leave; reduce Population by 1',
+    ],
+    citation: 'Book 1, p. 532',
+  },
+  {
+    id: 'muster',
+    name: 'Muster',
+    triggerOverride: 'When you **press every able body into the defense of a steading**, reduce Fortunes by 1 and roll +Population: on a 7+, the steading is alert and ready for action until the threat passes, the Seasons Change, or you cease to oversee the muster. On a 10+, also pick 2; on a 7-9, also pick 1.',
+    list: [
+      'Everyone\'s willing to pitch in; don\'t reduce Fortunes after all',
+      'The muster holds together even without your presence',
+      '1 or 2 individuals show real potential; ask the GM who and how',
+    ],
+    citation: 'Book 1, p. 534',
+  },
+  {
+    id: 'pull-together',
+    name: 'Pull Together',
+    triggerOverride: 'When you **set a community to work on improvements, to secure new resources, or to make major repairs**, spend whatever the GM says is required (time, material, Surplus, etc.) and roll +Population: on a 10+, the job gets done; on a 7-9, pick 1:',
+    list: [
+      'It gets done, but other work doesn\'t; reduce Fortunes by 1',
+      'It gets done, but the work is shoddy, crude',
+      'It gets done, but there\'s a consequence (bad blood, an injury, a threat unearthed, etc.)',
+      'There\'s an unforeseen cost, requirement, or challenge; address it and the job gets done',
+    ],
+    citation: 'Book 1, p. 536',
+  },
+  {
+    id: 'seasons-change',
+    name: 'Seasons Change',
+    bodyIcons: ['spring', 'summer', 'autumn', 'winter'],
+    body: [
+      'When **spring bursts forth upon the land**, whoever is the most hopeful rolls +Fortunes: on a 10+, pick 1 seasonal gain; on a 7-9, pick 1 seasonal gain, but a threat to the steading makes itself known or gets worse; on a 6-, threats abound (and don\'t mark XP). Whatever the result, reset Fortunes to +1.',
+      'When **the hot days of summer settle across the land**, whoever is most content rolls +Fortunes: on a 10+, pick 2 seasonal gains; on a 7-9, pick 1 seasonal gain; on a 6-, a threat to the steading makes itself known or gets worse (and don\'t mark XP). Whatever the result, the steading generates 1d4-1 Surplus. Then, reset Fortunes to +1.',
+      'When **autumn falls and the land is ripe for harvest**, whoever is most determined rolls +Fortunes: on a 10+, pick 1 seasonal gain; on a 7-9, pick 1 seasonal gain, but a threat to the steading makes itself known or gets worse; on a 6-, threats abound (and don\'t mark XP). Whatever the result, reset Fortunes to +1. When **the harvest is complete**, roll 1d4; the steading generates that much Surplus.',
+      'When **winter grips the land**, whoever is weariest rolls 1d4+Population; the steading consumes that much Surplus. If there\'s not enough, reduce Surplus to 0 and Meet with Disaster. Then, pick 1:',
+    ],
+    list: [
+      'Reduce Population by 1 (min -1) due to death, decrepitude, and departure',
+      'An important resource (one of the horses, the cistern, etc.) is lost or not maintained',
+      'An important NPC dies, their role unfilled',
+      'Your PC dies, leaves, or retires from play',
+    ],
+    footer: 'Then, roll +Fortunes: on a 10+, the winter is relatively mild, and each player can name a local NPC with whom their relationship improves at least a little (work together to figure out how); on a 7-9, the steading must consume additional Surplus equal to 1d4+Population before winter ends or suffer the consequences as above; on a 6-, as a 7-9, but also threats abound (and don\'t mark XP). Whatever the result, reset Fortunes to +1.',
+    citation: 'Book 1, p. 516',
+  },
+  {
+    id: 'trade-and-barter',
+    name: 'Trade & Barter',
+    triggerOverride: 'When you **wish to acquire or sell a commonly available item**, you can. When you **seek to acquire or sell a special item**, roll +Prosperity and subtract the item\'s Value. In winter, you have disadvantage. On a 10+, you can get it or sell it for a fair price; on a 7-9 when you\'re trying to buy, the GM picks 1:',
+    list: [
+      'You can get it, but it\'ll cost more than usual',
+      '___ has it, but they aren\'t keen to give it up',
+      'You can get something close, but not quite right',
+    ],
+    footer: [
+      'On a 7-9 when you\'re looking to sell: you can sell it now, but you won\'t get its full worth.',
+      'On a 6- either way, don\'t mark XP. If you want to acquire/sell it, you\'ll need to travel to ___ or wait until next season.',
+      'For unique or truly exceptional items, don\'t Trade & Barter. Either get with the GM and Make a Plan or wait for a trade opportunity when Seasons Change.',
+    ],
+    citation: 'Book 1, p. 540',
+  },
+].sort((a, b) => a.name.localeCompare(b.name));
