@@ -14,6 +14,7 @@ interface UseGameResult {
   updateContent: (field: keyof ContentLists, value: string) => Promise<void>;
   updateField: (field: keyof Pick<GameSession, 'threats' | 'iWonder'>, value: string) => Promise<void>;
   addCharacter: (character: Character) => Promise<void>;
+  removeCharacter: (characterId: string) => Promise<void>;
 }
 
 export const useGame = (gameId: string): UseGameResult => {
@@ -82,9 +83,21 @@ export const useGame = (gameId: string): UseGameResult => {
     }
   }, [gameId]);
 
-  // Both updateCharacterName and updateCharacterData read gameRef.current and write
-  // the full characters array. Concurrent calls in the same tick will race — the last
-  // write wins. This is acceptable for this app's single-user-per-character model.
+  const removeCharacter = useCallback(async (characterId: string) => {
+    const current = gameRef.current;
+    if (!current) return;
+    const updatedCharacters = current.characters.filter((c: Character) => c.id !== characterId);
+    try {
+      await updateDoc(doc(db, GAMES_COLLECTION, gameId), { characters: updatedCharacters });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to remove character');
+      throw err;
+    }
+  }, [gameId]);
+
+  // removeCharacter, updateCharacterName, and updateCharacterData all read gameRef.current
+  // and write the full characters array. Concurrent calls in the same tick will race — the
+  // last write wins. This is acceptable for this app's single-user-per-character model.
   const updateCharacterName = useCallback(async (characterId: string, name: string) => {
     const current = gameRef.current;
     if (!current) return;
@@ -111,5 +124,5 @@ export const useGame = (gameId: string): UseGameResult => {
     }
   }, [gameId]);
 
-  return { game, loading, error, updateGameName, updateCharacterName, updateCharacterData, updateContent, updateField, addCharacter };
+  return { game, loading, error, updateGameName, updateCharacterName, updateCharacterData, updateContent, updateField, addCharacter, removeCharacter };
 };

@@ -34,6 +34,7 @@
   /* Ember — danger/warning accent */
   --color-ember-400: #e86b3a;
   --color-ember-600: #b84a22;
+  --color-danger: var(--color-ember-400);
 
   --font-serif: 'IM Fell English', Georgia, serif;
   --font-sans: 'Inter', system-ui, sans-serif;
