@@ -83,7 +83,7 @@ const MoveSelectGroup = ({
   </div>
 );
 
-const UseDots = ({ total, checked, onChange, disabled }: { total: number; checked: number; onChange: (n: number) => void; disabled?: boolean }) => (
+export const UseDots = ({ total, checked, onChange, disabled }: { total: number; checked: number; onChange: (n: number) => void; disabled?: boolean }) => (
   <div className={styles.useDots} aria-label={`Uses: ${checked} of ${total}`}>
     {Array.from({ length: total }, (_, i) => {
       const filled = i < checked;

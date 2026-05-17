@@ -4,40 +4,57 @@
   gap: var(--spacing-3);
 }
 
-.row {
+.possessionRow {
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
   gap: var(--spacing-2);
-  cursor: pointer;
-}
-
-.rowFixed {
-  cursor: default;
 }
 
 .checkbox {
-  flex-shrink: 0;
-  margin-top: 1px;
+  min-width: 0;
+  align-items: flex-start;
 }
 
 .labelBody {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-1);
+  min-width: 0;
+}
+
+.labelText {
+  font-family: var(--font-serif);
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+
+.labelText strong {
+  color: var(--text-primary);
+}
+
+.labelWithUses {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  min-width: 0;
 }
 
 .stockRow {
   display: flex;
   align-items: center;
   gap: var(--spacing-2);
-  margin-top: var(--spacing-1);
 }
 
 .stockLabel {
+  font-family: var(--font-serif);
+  font-size: 0.8125rem;
   color: var(--text-secondary);
 }
 
-.stockDot {
+.dot {
   width: 14px;
   height: 14px;
   border-radius: 50%;
@@ -49,26 +66,32 @@
   flex-shrink: 0;
 }
 
-.stockDot:hover {
+.dot:hover {
   border-color: var(--color-gold-400);
 }
 
-.stockDotFilled {
+.dotFilled {
   background: var(--color-gold-500);
   border-color: var(--color-gold-500);
 }
 
-.stockDotFilled:hover {
+.dotFilled:hover {
   background: var(--color-gold-400);
   border-color: var(--color-gold-400);
 }
 
-.stockDot:focus-visible {
+.dot:focus-visible {
   outline: 2px solid var(--color-gold-400);
   outline-offset: 2px;
 }
 
-.customLine {
+.customPlaceholder {
+  font-family: var(--font-serif);
+  font-size: 0.8125rem;
   color: var(--text-tertiary, var(--text-secondary));
   font-style: italic;
+}
+
+.customInputWrapper {
+  padding-left: calc(16px + var(--spacing-3));
 }

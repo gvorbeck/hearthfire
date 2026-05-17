@@ -34,6 +34,8 @@ export interface CharacterData {
   typeMoveUses?: Record<string, number>;
   typeMoveTakes?: Record<string, number>;
   specialPossessions?: Record<string, boolean>;
+  specialPossessionUses?: Record<string, number>;
+  specialPossessionCustom?: string;
   sacredPouchStock?: number;
   sacredPouchIs?: Record<string, string>;
   sacredPouchTrait?: string;
