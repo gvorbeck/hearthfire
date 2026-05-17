@@ -1,0 +1,66 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.prose {
+  font-family: var(--font-serif);
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.prose strong {
+  color: var(--text-primary);
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--border-subtle);
+  margin: 0;
+}
+
+.instruction {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  margin: 0;
+  font-style: italic;
+}
+
+.isLines {
+  display: flex;
+  flex-direction: column;
+}
+
+.optionRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2) var(--spacing-4);
+  align-items: center;
+  padding: var(--spacing-2) 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.optionRow:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.optionRow:first-child {
+  padding-top: 0;
+}
+
+.optionLabel {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+}
+
+.traits {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}

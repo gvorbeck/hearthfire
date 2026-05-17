@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PageMeta } from '@/components/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
@@ -7,7 +7,7 @@ import { Heading, Button, ScrollToTop, Tabs } from '@/components/primitives';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
 import { PageHeader } from '@/components/PageHeader/PageHeader';
 import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, CharacterStats, Moves, SpecialPossessions, Introductions } from '@/components/CharacterSheet/sections';
-import { BlessedBackground, BlessedInstinct, BlessedAppearance, BlessedPlaceOfOrigin, BlessedSections } from '@/components/CharacterSheet/playbooks/BlessedSections';
+import { BlessedBackground, BlessedInstinct, BlessedAppearance, BlessedPlaceOfOrigin, BlessedSections, BlessedSpecialPossessions } from '@/components/CharacterSheet/playbooks/BlessedSections';
 import type { Character, CharacterData, GameSession, PlaybookType } from '@/types';
 
 const getCharacterLevel = (character: Character): number => {
@@ -55,9 +55,28 @@ const StatsSection = ({ character, onSave }: PlaybookSectionProps) => {
   return <CharacterStats data={character.data} onSave={onSave} hpMax={playbookOption.hpMax} damage={playbookOption.damage} />;
 };
 
-const TypeSpecificSections = ({ playbook }: { playbook: PlaybookType }) => {
-  switch (playbook) {
-    case 'blessed': return <BlessedSections />;
+const SpecialPossessionsSection = ({ character, onSave }: PlaybookSectionProps) => {
+  const handleStockChange = useCallback(
+    (n: number) => onSave({ sacredPouchStock: n }),
+    [onSave]
+  );
+  switch (character.playbook) {
+    case 'blessed': return (
+      <BlessedSpecialPossessions
+        data={character.data}
+        onSave={onSave}
+        sacredPouchStock={character.data?.sacredPouchStock ?? 0}
+        onStockChange={handleStockChange}
+        level={getCharacterLevel(character)}
+      />
+    );
+    default: return <SpecialPossessions />;
+  }
+};
+
+const TypeSpecificSections = ({ character, onSave }: PlaybookSectionProps) => {
+  switch (character.playbook) {
+    case 'blessed': return <BlessedSections data={character.data} onSave={onSave} />;
     default: return null;
   }
 };
@@ -83,10 +102,10 @@ const PCPlaybookTab = ({ character, onSave }: PlaybookSectionProps) => (
         level={getCharacterLevel(character)}
       />
     </div>
-    <div className={styles.colFull}><SpecialPossessions /></div>
+    <div className={styles.colFull}><SpecialPossessionsSection character={character} onSave={onSave} /></div>
     <div className={styles.columns}>
       <div className={styles.colLeft}>
-        <TypeSpecificSections playbook={character.playbook} />
+        <TypeSpecificSections character={character} onSave={onSave} />
       </div>
       <div className={styles.colRight}>
         <Introductions />

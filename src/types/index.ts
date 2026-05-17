@@ -33,6 +33,10 @@ export interface CharacterData {
   typeMoves?: Record<string, boolean>;
   typeMoveUses?: Record<string, number>;
   typeMoveTakes?: Record<string, number>;
+  specialPossessions?: Record<string, boolean>;
+  sacredPouchStock?: number;
+  sacredPouchIs?: Record<string, string>;
+  sacredPouchTrait?: string;
 }
 
 export interface Character {

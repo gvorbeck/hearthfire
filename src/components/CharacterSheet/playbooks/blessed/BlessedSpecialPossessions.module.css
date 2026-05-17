@@ -1,0 +1,74 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-2);
+  cursor: pointer;
+}
+
+.rowFixed {
+  cursor: default;
+}
+
+.checkbox {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.labelBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.stockRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-1);
+}
+
+.stockLabel {
+  color: var(--text-secondary);
+}
+
+.stockDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-strong);
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.stockDot:hover {
+  border-color: var(--color-gold-400);
+}
+
+.stockDotFilled {
+  background: var(--color-gold-500);
+  border-color: var(--color-gold-500);
+}
+
+.stockDotFilled:hover {
+  background: var(--color-gold-400);
+  border-color: var(--color-gold-400);
+}
+
+.stockDot:focus-visible {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: 2px;
+}
+
+.customLine {
+  color: var(--text-tertiary, var(--text-secondary));
+  font-style: italic;
+}
