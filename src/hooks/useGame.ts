@@ -32,7 +32,7 @@ export const useGame = (gameId: string): UseGameResult => {
         if (!snapshot.exists()) {
           setGame(null);
         } else {
-          setGame({ id: snapshot.id, ...snapshot.data() } as GameSession);
+          setGame({ characters: [], ...snapshot.data(), id: snapshot.id } as unknown as GameSession);
         }
         setLoading(false);
         setError(null);
@@ -82,6 +82,9 @@ export const useGame = (gameId: string): UseGameResult => {
     }
   }, [gameId]);
 
+  // Both updateCharacterName and updateCharacterData read gameRef.current and write
+  // the full characters array. Concurrent calls in the same tick will race — the last
+  // write wins. This is acceptable for this app's single-user-per-character model.
   const updateCharacterName = useCallback(async (characterId: string, name: string) => {
     const current = gameRef.current;
     if (!current) return;

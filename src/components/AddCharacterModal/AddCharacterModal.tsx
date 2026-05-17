@@ -1,14 +1,14 @@
-import { useState } from "react";
+import { useState } from 'react';
 import {
   Button,
   Dropdown,
   Heading,
   Modal,
   Text,
-} from "@/components/primitives";
-import { PLAYBOOKS } from "@/lib/constants";
-import type { Character, PlaybookType } from "@/types";
-import styles from "./AddCharacterModal.module.css";
+} from '@/components/primitives';
+import { PLAYBOOKS } from '@/lib/constants';
+import type { Character, PlaybookType } from '@/types';
+import styles from './AddCharacterModal.module.css';
 
 interface AddCharacterModalProps {
   open: boolean;
@@ -23,14 +23,14 @@ export const AddCharacterModal = ({
   existingPlaybooks,
   onAdd,
 }: AddCharacterModalProps) => {
-  const [playbook, setPlaybook] = useState<PlaybookType | "">("");
+  const [playbook, setPlaybook] = useState<PlaybookType | ''>('');
+  const [addError, setAddError] = useState<string | null>(null);
 
   const handleClose = () => {
-    setPlaybook("");
+    setPlaybook('');
+    setAddError(null);
     onClose();
   };
-
-  const [addError, setAddError] = useState<string | null>(null);
 
   const handlePlaybookChange = (value: PlaybookType) => setPlaybook(value);
 
@@ -38,8 +38,9 @@ export const AddCharacterModal = ({
     if (!playbook) return;
     const selectedLabel = PLAYBOOKS.find((p) => p.value === playbook)?.label ?? playbook;
     const character = { id: crypto.randomUUID(), name: selectedLabel, playbook, level: 1 };
-    handleClose();
-    onAdd(character).catch(() => setAddError("Failed to add character. Please try again."));
+    onAdd(character)
+      .then(handleClose)
+      .catch(() => setAddError('Failed to add character. Please try again.'));
   };
 
   const availablePlaybooks = PLAYBOOKS.filter((p) => !existingPlaybooks.includes(p.value));

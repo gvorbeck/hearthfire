@@ -107,13 +107,12 @@ export const BlessedBackground = ({ data, onSave }: BlessedBackgroundProps) => {
   const selectedOptionRef = useRef(selectedOption);
   selectedOptionRef.current = selectedOption;
 
-  // Firestore data arrives async after mount; sync local state once it lands.
   useEffect(() => {
     if (data?.background !== undefined) setSelectedOption(data.background);
     if (data?.backgroundChoices !== undefined) setSelectedChoices(data.backgroundChoices);
   }, [data?.background, data?.backgroundChoices]);
 
-  // Clear the debounce timer on unmount so the callback never fires after navigation.
+  // Cancel pending debounce on unmount so the callback never fires after navigation.
   useEffect(() => {
     return () => {
       if (choiceDebounceRef.current) clearTimeout(choiceDebounceRef.current);

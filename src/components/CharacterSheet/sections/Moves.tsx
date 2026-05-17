@@ -86,7 +86,7 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
     setSelected(data?.typeMoves ?? {});
     setUses(data?.typeMoveUses ?? {});
     setTakes(data?.typeMoveTakes ?? {});
-  }, [data]);
+  }, [data?.typeMoves, data?.typeMoveUses, data?.typeMoveTakes]);
 
   const handleSelect = useCallback((id: string, value: boolean) => {
     const prev = selected;

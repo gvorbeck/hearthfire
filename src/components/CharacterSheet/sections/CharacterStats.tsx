@@ -22,12 +22,12 @@ interface StatBoxProps {
 
 const StatBox = ({ label, abbr, value, onChange, onBlur }: StatBoxProps) => (
   <div className={styles.statBox}>
-    <span className={styles.statLabel}>{label}</span>
+    <label className={styles.statLabel} htmlFor={`stat-${abbr}`}>{label}</label>
     <input
+      id={`stat-${abbr}`}
       className={styles.statInput}
       type="number"
       value={value}
-      aria-label={label}
       onChange={(e) => onChange(e.target.value)}
       onBlur={onBlur}
     />

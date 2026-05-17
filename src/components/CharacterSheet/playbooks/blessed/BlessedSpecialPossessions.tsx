@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback, useRef, useId } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import clsx from 'clsx';
 import { Checkbox, Input } from '@/components/primitives';
 import { UseDots } from '@/components/CharacterSheet/Move';
+import { parseInlineMarkdown } from '@/lib/parseInlineMarkdown';
 import { PlaybookSection } from '../../PlaybookSection';
 import type { CharacterData } from '@/types';
 import styles from './BlessedSpecialPossessions.module.css';
@@ -11,41 +12,41 @@ interface Possession {
   name: string;
   uses?: number;
   isCustom?: boolean;
-  label: React.ReactNode;
+  label: string;
 }
 
 const POSSESSIONS: Possession[] = [
   {
     id: 'apiary',
     name: 'Apiary',
-    label: <><strong>Apiary</strong>: beeswax, candles (<em>close</em>, <em>area</em>, lasts ~1 hr), honey, ◇ bee smokers, ◇ hat &amp; veils, etc.</>,
+    label: '**Apiary**: beeswax, candles (*close*, *area*, lasts ~1 hr), honey, ◇ bee smokers, ◇ hat & veils, etc.',
   },
   {
     id: 'collected-offerings',
     name: 'Collected offerings',
     uses: 3,
-    label: <><strong>Collected offerings</strong>: Expend a use to produce something valuable to a spirit of the wild. Restore 1 use each season.</>,
+    label: '**Collected offerings**: Expend a use to produce something valuable to a spirit of the wild. Restore 1 use each season.',
   },
   {
     id: 'goat-herd',
     name: 'Goat herd',
-    label: <><strong>Goat herd</strong>: milk, cheese, pelts, meat, blood, horn, wool, etc. Each season, 1 in 4 chance of having a bezoar (swallow it to cure poison).</>,
+    label: '**Goat herd**: milk, cheese, pelts, meat, blood, horn, wool, etc. Each season, 1 in 4 chance of having a bezoar (swallow it to cure poison).',
   },
   {
     id: 'herb-garden',
     name: 'Herb garden',
-    label: <><strong>Herb garden</strong>: shears, mortars &amp; pestles, herbs, seeds, remedies, mild poisons, ◇ spades, etc. Each spring, d4 uses of bendis root (<em>reach</em>, <em>area</em>, burns ~1 hr, fumes repel perversions of nature).</>,
+    label: '**Herb garden**: shears, mortars & pestles, herbs, seeds, remedies, mild poisons, ◇ spades, etc. Each spring, d4 uses of bendis root (*reach*, *area*, burns ~1 hr, fumes repel perversions of nature).',
   },
   {
     id: 'mastiffs',
     name: 'Mastiffs',
-    label: <><strong>Mastiffs</strong>, 2–3 followers (<em>alert</em>, <em>keen-nosed</em>, <em>fierce</em>, <em>overprotective</em>); HP 6; Damage d6 (<em>hand</em>, <em>grabby</em>); Instinct: to bark &amp; threaten; Cost: affection.</>,
+    label: '**Mastiffs**, 2–3 followers (*alert*, *keen-nosed*, *fierce*, *overprotective*); HP 6; Damage d6 (*hand*, *grabby*); Instinct: to bark & threaten; Cost: affection.',
   },
   {
     id: 'custom',
     name: 'Custom (discuss with GM)',
     isCustom: true,
-    label: <span className={styles.customPlaceholder}>(discuss with GM)</span>,
+    label: '(discuss with GM)',
   },
 ];
 
@@ -70,7 +71,7 @@ export const BlessedSpecialPossessions = ({
   onStockChange,
   level,
 }: BlessedSpecialPossessionsProps) => {
-  const customInputId = useId();
+
 
   const [selected, setSelected] = useState<Record<string, boolean>>(
     () => data?.specialPossessions ?? {}
@@ -134,10 +135,13 @@ export const BlessedSpecialPossessions = ({
   const capacity = stockCapacity(level);
 
   const renderLabel = (p: Possession, checked: boolean, usesChecked: number): React.ReactNode => {
+    const parsed = p.isCustom
+      ? <span className={styles.customPlaceholder}>{p.label}</span>
+      : <span className={styles.labelText}>{parseInlineMarkdown(p.label)}</span>;
     if (p.uses !== undefined) {
       return (
         <span className={styles.labelWithUses}>
-          <span className={styles.labelText}>{p.label}</span>
+          {parsed}
           <UseDots
             total={p.uses}
             checked={usesChecked}
@@ -147,7 +151,7 @@ export const BlessedSpecialPossessions = ({
         </span>
       );
     }
-    return <span className={styles.labelText}>{p.label}</span>;
+    return parsed;
   };
 
   return (
@@ -156,11 +160,12 @@ export const BlessedSpecialPossessions = ({
         <Checkbox
           aria-label="Sacred pouch"
           checked
-          disabled
+          aria-disabled="true"
+          readOnly
           className={styles.checkbox}
           label={
             <span className={styles.labelBody}>
-              <span className={styles.labelText}><strong>Sacred pouch</strong> (<em>magical</em>): see Sacred Pouch section.</span>
+              <span className={styles.labelText}>{parseInlineMarkdown('**Sacred pouch** (*magical*): see Sacred Pouch section.')}</span>
               <span className={styles.stockRow}>
                 <span className={styles.stockLabel}>Stock:</span>
                 {Array.from({ length: capacity }, (_, i) => {
@@ -168,7 +173,7 @@ export const BlessedSpecialPossessions = ({
                   const dotCx = clsx(styles.dot, filled && styles.dotFilled);
                   return (
                     <button
-                      key={i}
+                      key={`stock-${i}`}
                       type="button"
                       className={dotCx}
                       aria-label={filled ? `Clear stock ${i + 1}` : `Mark stock ${i + 1}`}
@@ -197,8 +202,7 @@ export const BlessedSpecialPossessions = ({
               {p.isCustom && checked && (
                 <div className={styles.customInputWrapper}>
                   <Input
-                    id={customInputId}
-                    label="Possession name"
+                    aria-label="Custom possession name"
                     value={customText}
                     placeholder="Describe possession…"
                     onChange={handleCustomChange}

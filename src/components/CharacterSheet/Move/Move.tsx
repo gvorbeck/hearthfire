@@ -1,18 +1,8 @@
 import clsx from 'clsx';
 import { Checkbox, Icon } from '@/components/primitives';
 import type { IconName } from '@/components/primitives';
+import { parseInlineMarkdown } from '@/lib/parseInlineMarkdown';
 import styles from './Move.module.css';
-
-const BOLD_RE = /(\*\*[^*]+\*\*|on a 10\+|on a 7[-–]9|on a 6[-–]|either way)/i;
-const AUTO_BOLD_RE = /^(on a 10\+|on a 7[-–]9|on a 6[-–]|either way)$/i;
-
-const parseBold = (text: string): React.ReactNode[] =>
-  text.split(BOLD_RE).reduce<React.ReactNode[]>((acc, chunk, i) => {
-    if (!chunk) return acc;
-    if (chunk.startsWith('**')) return [...acc, <strong key={i}>{chunk.slice(2, -2)}</strong>];
-    if (AUTO_BOLD_RE.test(chunk)) return [...acc, <strong key={i}>{chunk}</strong>];
-    return [...acc, chunk];
-  }, []);
 
 export interface MoveDefinition {
   id: string;
@@ -168,7 +158,7 @@ export const Move = ({ move, selected, onSelectChange, usesChecked = 0, onUsesCh
       {(move.triggerOverride || move.trigger) && (
         <p className={styles.moveTrigger}>
           {move.triggerOverride
-            ? parseBold(move.triggerOverride)
+            ? parseInlineMarkdown(move.triggerOverride)
             : <><span>When you </span><strong>{move.trigger}</strong>,</>
           }
         </p>
@@ -178,26 +168,26 @@ export const Move = ({ move, selected, onSelectChange, usesChecked = 0, onUsesCh
         return icon ? (
           <div key={i} className={styles.moveBodyWithIcon}>
             <Icon name={icon} size="small" className={styles.moveBodyIcon} aria-hidden="true" />
-            <p className={styles.moveBody}>{parseBold(p)}</p>
+            <p className={styles.moveBody}>{parseInlineMarkdown(p)}</p>
           </div>
         ) : (
-          <p key={i} className={styles.moveBody}>{parseBold(p)}</p>
+          <p key={i} className={styles.moveBody}>{parseInlineMarkdown(p)}</p>
         );
       })}
       {move.list && (
         <ul className={styles.moveList}>
-          {move.list.map((item) => (
-            <li key={item} className={styles.moveListItem}>{parseBold(item)}</li>
+          {move.list.map((item, i) => (
+            <li key={`${i}-${item}`} className={styles.moveListItem}>{parseInlineMarkdown(item)}</li>
           ))}
         </ul>
       )}
       {footerParagraphs.map((p, i) => (
-        <p key={i} className={styles.moveBody}>{parseBold(p)}</p>
+        <p key={i} className={styles.moveBody}>{parseInlineMarkdown(p)}</p>
       ))}
       {move.list2 && (
         <ul className={styles.moveList}>
-          {move.list2.map((item) => (
-            <li key={item} className={styles.moveListItem}>{parseBold(item)}</li>
+          {move.list2.map((item, i) => (
+            <li key={`${i}-${item}`} className={styles.moveListItem}>{parseInlineMarkdown(item)}</li>
           ))}
         </ul>
       )}

@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PageMeta } from '@/components/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
@@ -9,12 +9,12 @@ import { PageHeader } from '@/components/PageHeader/PageHeader';
 import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, CharacterStats, Moves, SpecialPossessions, Introductions } from '@/components/CharacterSheet/sections';
 import { BlessedBackground, BlessedInstinct, BlessedAppearance, BlessedPlaceOfOrigin, BlessedSections, BlessedSpecialPossessions } from '@/components/CharacterSheet/playbooks/BlessedSections';
 import type { Character, CharacterData, GameSession, PlaybookType } from '@/types';
+import styles from './CharacterPlaybook.module.css';
 
 const getCharacterLevel = (character: Character): number => {
   const parsed = parseInt(character.data?.statLevel ?? '', 10);
   return isNaN(parsed) ? character.level : parsed;
 };
-import styles from './CharacterPlaybook.module.css';
 
 interface PlaybookSectionProps {
   character: Character;
@@ -56,17 +56,13 @@ const StatsSection = ({ character, onSave }: PlaybookSectionProps) => {
 };
 
 const SpecialPossessionsSection = ({ character, onSave }: PlaybookSectionProps) => {
-  const handleStockChange = useCallback(
-    (n: number) => onSave({ sacredPouchStock: n }),
-    [onSave]
-  );
   switch (character.playbook) {
     case 'blessed': return (
       <BlessedSpecialPossessions
         data={character.data}
         onSave={onSave}
         sacredPouchStock={character.data?.sacredPouchStock ?? 0}
-        onStockChange={handleStockChange}
+        onStockChange={(n) => onSave({ sacredPouchStock: n })}
         level={getCharacterLevel(character)}
       />
     );
@@ -122,8 +118,79 @@ interface ContentProps {
   updateCharacterData: (characterId: string, data: Partial<CharacterData>) => Promise<void>;
 }
 
-const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, updateCharacterData }: ContentProps) => {
+interface SheetProps {
+  character: Character;
+  playbookOption: (typeof PLAYBOOKS)[number];
+  id: string;
+  gameName: string;
+  updateCharacterName: (characterId: string, name: string) => Promise<void>;
+  updateCharacterData: (characterId: string, data: Partial<CharacterData>) => Promise<void>;
+}
+
+// Separate component so hooks are always called unconditionally (no early returns above them).
+const CharacterSheet = ({ character, playbookOption, id, gameName, updateCharacterName, updateCharacterData }: SheetProps) => {
   const headerRef = useRef<HTMLDivElement>(null);
+
+  const handleSaveCharacterData = useCallback(
+    (data: Partial<CharacterData>) => updateCharacterData(character.id, data),
+    [updateCharacterData, character.id]
+  );
+
+  const handleSaveCharacterName = useCallback(
+    (name: string) => updateCharacterName(character.id, name),
+    [updateCharacterName, character.id]
+  );
+
+  const characterName = character.name?.trim();
+  const playbookLabel = `${playbookOption.label} Playbook`;
+
+  const crumbs = useMemo(() => [
+    { label: gameName, to: `/game/${id}` },
+    { label: playbookLabel },
+  ], [gameName, id, playbookLabel]);
+
+  const pageTitle = characterName
+    ? `${characterName} — ${playbookLabel} — Hearthfire`
+    : `${playbookLabel} — Hearthfire`;
+
+  const tabs = useMemo(() => [
+    {
+      label: 'PC Playbook',
+      content: <PCPlaybookTab character={character} onSave={handleSaveCharacterData} />,
+    },
+    {
+      label: 'Inventory',
+      content: null,
+    },
+  ], [character, handleSaveCharacterData]);
+
+  return (
+    <main className={styles.page}>
+      <PageMeta
+        title={pageTitle}
+        description={`${playbookLabel} for ${gameName}. Track background, stats, moves, and more.`}
+      />
+      <ScrollToTop sentinelRef={headerRef} />
+      <div ref={headerRef}>
+        <PageHeader
+          crumbs={crumbs}
+          title={characterName || playbookLabel}
+          titleLabel="Edit character name"
+          subtitle={characterName ? playbookLabel : undefined}
+          gameId={id}
+          onSaveTitle={handleSaveCharacterName}
+        />
+      </div>
+      <Tabs
+        aria-label="Character sections"
+        className={styles.tabs}
+        tabs={tabs}
+      />
+    </main>
+  );
+};
+
+const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, updateCharacterData }: ContentProps) => {
   const playbookOption = PLAYBOOKS.find((p) => p.value === playbook);
   const character = g.characters.find((c) => c.playbook === playbook);
 
@@ -149,61 +216,15 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
     );
   }
 
-  const characterName = character.name?.trim();
-  const playbookLabel = `${playbookOption.label} Playbook`;
-  const gameName = g.name || DEFAULT_GAME_NAME;
-
-  const crumbs = [
-    { label: gameName, to: `/game/${id}` },
-    { label: playbookLabel },
-  ];
-
-  const pageTitle = characterName
-    ? `${characterName} — ${playbookLabel} — Hearthfire`
-    : `${playbookLabel} — Hearthfire`;
-
-  const handleSaveCharacterData = (data: Partial<CharacterData>) => updateCharacterData(character.id, data);
-  const handleSaveCharacterName = (name: string) => updateCharacterName(character.id, name);
-
-  const tabs = [
-    {
-      label: 'PC Playbook',
-      content: (
-        <PCPlaybookTab
-          character={character}
-          onSave={handleSaveCharacterData}
-        />
-      ),
-    },
-    {
-      label: 'Inventory',
-      content: null,
-    },
-  ];
-
   return (
-    <main className={styles.page}>
-      <PageMeta
-        title={pageTitle}
-        description={`${playbookLabel} for ${gameName}. Track background, stats, moves, and more.`}
-      />
-      <ScrollToTop sentinelRef={headerRef} />
-      <div ref={headerRef}>
-        <PageHeader
-          crumbs={crumbs}
-          title={characterName || playbookLabel}
-          titleLabel="Edit character name"
-          subtitle={characterName ? playbookLabel : undefined}
-          gameId={id}
-          onSaveTitle={handleSaveCharacterName}
-        />
-      </div>
-      <Tabs
-        aria-label="Character sections"
-        className={styles.tabs}
-        tabs={tabs}
-      />
-    </main>
+    <CharacterSheet
+      character={character}
+      playbookOption={playbookOption}
+      id={id}
+      gameName={g.name || DEFAULT_GAME_NAME}
+      updateCharacterName={updateCharacterName}
+      updateCharacterData={updateCharacterData}
+    />
   );
 };
 

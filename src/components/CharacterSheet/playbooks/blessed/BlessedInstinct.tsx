@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Radio } from '@/components/primitives';
+import { Radio, Input } from '@/components/primitives';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import { PlaybookSection } from '../../PlaybookSection';
 import type { CharacterData } from '@/types';
@@ -81,8 +81,8 @@ export const BlessedInstinct = ({ data, onSave }: BlessedInstinctProps) => {
             onChange={() => handleSelect(CUSTOM_VALUE)}
             label={
               selected === CUSTOM_VALUE ? (
-                <input
-                  className={styles.customInput}
+                // stopPropagation prevents the label click from re-toggling the radio when the user clicks into the text field
+                <Input
                   value={customText}
                   aria-label="Custom instinct"
                   onChange={handleCustomChange}
@@ -90,7 +90,9 @@ export const BlessedInstinct = ({ data, onSave }: BlessedInstinctProps) => {
                   placeholder="Describe your instinct…"
                   onClick={(e) => e.stopPropagation()}
                 />
-              ) : null
+              ) : (
+                <span className={styles.customLabel}>Custom…</span>
+              )
             }
           />
         </div>

@@ -19,6 +19,8 @@ interface BlessedSectionsProps {
 export const BlessedSections = ({ data, onSave }: BlessedSectionsProps) => (
   <div className={styles.stack}>
     <BlessedSacredPouch data={data} onSave={onSave} />
-    <PlaybookSection title="The Earth Mother" />
+    <PlaybookSection title="The Earth Mother">
+      <p>Coming soon.</p>
+    </PlaybookSection>
   </div>
 );
