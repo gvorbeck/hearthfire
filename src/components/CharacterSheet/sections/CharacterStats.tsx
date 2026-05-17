@@ -39,11 +39,12 @@ interface InfoBoxProps {
   label: string;
   value: string;
   isStatic?: boolean;
+  min?: number;
   onChange?: (val: string) => void;
   onBlur?: () => void;
 }
 
-const InfoBox = ({ label, value, isStatic, onChange, onBlur }: InfoBoxProps) => (
+const InfoBox = ({ label, value, isStatic, min, onChange, onBlur }: InfoBoxProps) => (
   <div className={styles.infoBox}>
     {isStatic ? (
       <span className={styles.infoStatic}>{value}</span>
@@ -52,6 +53,7 @@ const InfoBox = ({ label, value, isStatic, onChange, onBlur }: InfoBoxProps) => 
         className={styles.infoInput}
         type="number"
         value={value}
+        min={min}
         aria-label={label}
         onChange={onChange ? (e) => onChange(e.target.value) : undefined}
         onBlur={onBlur}
@@ -227,7 +229,7 @@ export const CharacterStats = ({ data, onSave, hpMax, damage = 'd6' }: Character
           <InfoBox label={hpLabel} value={stats.statHp} onChange={(val) => handleStatChange('statHp', val)} onBlur={flush} />
           <InfoBox label="Armor" value={stats.statArmor} onChange={(val) => handleStatChange('statArmor', val)} onBlur={flush} />
           <InfoBox label="XP" value={stats.statXp} onChange={(val) => handleStatChange('statXp', val)} onBlur={flush} />
-          <InfoBox label="Level" value={stats.statLevel} onChange={(val) => handleStatChange('statLevel', val)} onBlur={flush} />
+          <InfoBox label="Level" value={stats.statLevel} min={1} onChange={(val) => handleStatChange('statLevel', val)} onBlur={flush} />
         </div>
       </div>
     </PlaybookSection>

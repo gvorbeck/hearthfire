@@ -14,6 +14,32 @@ import { PLAYBOOKS } from '@/lib/constants';
 import type { CharacterData, PlaybookType } from '@/types';
 import styles from './Moves.module.css';
 
+const getLockReason = (
+  move: MoveDefinition,
+  typeMoves: MoveDefinition[],
+  level: number,
+  selected: Record<string, boolean>,
+): string | undefined => {
+  const parts: string[] = [];
+  if (move.requiresLevel !== undefined && level < move.requiresLevel) {
+    parts.push(`Level ${move.requiresLevel}+`);
+  }
+  if (move.requires !== undefined) {
+    for (const reqId of move.requires) {
+      const reqMove = typeMoves.find((m) => m.id === reqId);
+      if (reqMove && !(reqMove.startingMove || selected[reqId])) {
+        parts.push(reqMove.name);
+      }
+    }
+  }
+  if (parts.length === 0) return undefined;
+  return `Requires ${parts.join(' and ')}`;
+};
+
+const PLAYBOOK_HELPER_TEXT: Partial<Record<PlaybookType, string>> = {
+  blessed: 'You start with Spirit Tongue, Call the Spirits, 1 from your Background, and 1 of your choice.',
+};
+
 interface MoveSectionProps {
   label: string;
   helperText: React.ReactNode;
@@ -129,18 +155,14 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
           label={`${playbookLabel} Moves`}
           defaultOpen
         >
+          {PLAYBOOK_HELPER_TEXT[playbook] && (
+            <p className={styles.helperText}>{PLAYBOOK_HELPER_TEXT[playbook]}</p>
+          )}
           {typeMoves.length > 0 ? (
             <div className={styles.moveGrid}>
               {typeMoves.map((move) => {
                 const isDisabled = move.startingMove === true;
-                const isLocked =
-                  !isDisabled && (
-                    (move.requiresLevel !== undefined && level < move.requiresLevel) ||
-                    (move.requires !== undefined && move.requires.some((reqId) => {
-                      const reqMove = typeMoves.find((m) => m.id === reqId);
-                      return !(reqMove?.startingMove || selected[reqId]);
-                    }))
-                  );
+                const lockReason = !isDisabled ? getLockReason(move, typeMoves, level, selected) : undefined;
                 return (
                   <Move
                     key={move.id}
@@ -152,7 +174,7 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
                     takesChecked={takes[move.id] ?? 0}
                     onTakesChange={move.takes !== undefined ? (n) => handleTakes(move.id, n) : undefined}
                     disabled={isDisabled}
-                    locked={isLocked}
+                    lockReason={lockReason}
                   />
                 );
               })}

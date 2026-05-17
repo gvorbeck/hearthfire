@@ -9,6 +9,11 @@ import { PageHeader } from '@/components/PageHeader/PageHeader';
 import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, CharacterStats, Moves, SpecialPossessions, Introductions } from '@/components/CharacterSheet/sections';
 import { BlessedBackground, BlessedInstinct, BlessedAppearance, BlessedPlaceOfOrigin, BlessedSections } from '@/components/CharacterSheet/playbooks/BlessedSections';
 import type { Character, CharacterData, GameSession, PlaybookType } from '@/types';
+
+const getCharacterLevel = (character: Character): number => {
+  const parsed = parseInt(character.data?.statLevel ?? '', 10);
+  return isNaN(parsed) ? character.level : parsed;
+};
 import styles from './CharacterPlaybook.module.css';
 
 interface PlaybookSectionProps {
@@ -75,7 +80,7 @@ const PCPlaybookTab = ({ character, onSave }: PlaybookSectionProps) => (
         playbook={character.playbook}
         data={character.data}
         onSave={onSave}
-        level={character.level}
+        level={getCharacterLevel(character)}
       />
     </div>
     <div className={styles.colFull}><SpecialPossessions /></div>

@@ -58,10 +58,6 @@
   border-color: var(--border-subtle);
 }
 
-.input:disabled ~ * {
-  opacity: 0.35;
-}
-
 .label:has(.input:disabled) {
   cursor: not-allowed;
 }

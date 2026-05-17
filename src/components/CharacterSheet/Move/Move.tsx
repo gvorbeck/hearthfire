@@ -42,7 +42,7 @@ interface MoveProps {
   takesChecked?: number;
   onTakesChange?: (count: number) => void;
   disabled?: boolean;
-  locked?: boolean;
+  lockReason?: string;
 }
 
 const TakeBoxes = ({ total, checked, onChange }: { total: number; checked: number; onChange: (n: number) => void }) => (
@@ -83,7 +83,7 @@ const MoveSelectGroup = ({
   </div>
 );
 
-const UseDots = ({ total, checked, onChange }: { total: number; checked: number; onChange: (n: number) => void }) => (
+const UseDots = ({ total, checked, onChange, disabled }: { total: number; checked: number; onChange: (n: number) => void; disabled?: boolean }) => (
   <div className={styles.useDots} aria-label={`Uses: ${checked} of ${total}`}>
     {Array.from({ length: total }, (_, i) => {
       const filled = i < checked;
@@ -95,19 +95,21 @@ const UseDots = ({ total, checked, onChange }: { total: number; checked: number;
           className={dotCx}
           aria-label={filled ? `Clear use ${i + 1}` : `Mark use ${i + 1}`}
           onClick={() => onChange(filled ? i : i + 1)}
+          disabled={disabled}
         />
       );
     })}
   </div>
 );
 
-export const Move = ({ move, selected, onSelectChange, usesChecked = 0, onUsesChange, takesChecked = 0, onTakesChange, disabled, locked }: MoveProps) => {
+export const Move = ({ move, selected, onSelectChange, usesChecked = 0, onUsesChange, takesChecked = 0, onTakesChange, disabled, lockReason }: MoveProps) => {
+  const locked = !!lockReason;
   const uses = move.uses;
   const hasUses = uses !== undefined && onUsesChange !== undefined;
   const takes = move.takes;
   const hasTakes = takes !== undefined && onTakesChange !== undefined;
 
-  const moveCx = clsx(styles.move, selected && styles.moveSelected, locked && styles.moveLocked);
+  const moveCx = clsx(styles.move, selected && styles.moveSelected);
   const nameCx = clsx(styles.moveName, selected && styles.moveNameSelected);
 
   const nameEl = <span className={nameCx}>{move.name}</span>;
@@ -153,15 +155,16 @@ export const Move = ({ move, selected, onSelectChange, usesChecked = 0, onUsesCh
             {nameEl}
           </>
         )}
-        {locked && <span className={styles.moveLockLabel}>Requires prerequisites</span>}
         {hasUses && (
           <UseDots
             total={uses}
             checked={usesChecked}
             onChange={onUsesChange}
+            disabled={disabled || locked || !selected}
           />
         )}
       </div>
+      {lockReason && <p className={styles.moveLockLabel}>{lockReason}</p>}
       {(move.triggerOverride || move.trigger) && (
         <p className={styles.moveTrigger}>
           {move.triggerOverride
