@@ -1,4 +1,4 @@
-import { useCallback, useRef, useMemo } from 'react';
+import { useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PageMeta } from '@/components/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
@@ -57,11 +57,7 @@ const TypeSpecificSections = ({ playbook }: { playbook: PlaybookType }) => {
   }
 };
 
-interface PCPlaybookTabProps extends PlaybookSectionProps {
-  choose?: number;
-}
-
-const PCPlaybookTab = ({ character, onSave, choose }: PCPlaybookTabProps) => (
+const PCPlaybookTab = ({ character, onSave }: PlaybookSectionProps) => (
   <div className={styles.layout}>
     <div className={styles.columns}>
       <div className={styles.colLeft}>
@@ -79,7 +75,7 @@ const PCPlaybookTab = ({ character, onSave, choose }: PCPlaybookTabProps) => (
         playbook={character.playbook}
         data={character.data}
         onSave={onSave}
-        choose={choose}
+        level={character.level}
       />
     </div>
     <div className={styles.colFull}><SpecialPossessions /></div>
@@ -106,16 +102,6 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
   const headerRef = useRef<HTMLDivElement>(null);
   const playbookOption = PLAYBOOKS.find((p) => p.value === playbook);
   const character = g.characters.find((c) => c.playbook === playbook);
-
-  const handleSaveCharacterData = useCallback(
-    (data: Partial<CharacterData>) => updateCharacterData(character?.id ?? '', data),
-    [character?.id, updateCharacterData]
-  );
-
-  const handleSaveCharacterName = useCallback(
-    (name: string) => updateCharacterName(character?.id ?? '', name),
-    [character?.id, updateCharacterName]
-  );
 
   if (!playbookOption) {
     return (
@@ -152,14 +138,16 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
     ? `${characterName} — ${playbookLabel} — Hearthfire`
     : `${playbookLabel} — Hearthfire`;
 
-  const tabs = useMemo(() => [
+  const handleSaveCharacterData = (data: Partial<CharacterData>) => updateCharacterData(character.id, data);
+  const handleSaveCharacterName = (name: string) => updateCharacterName(character.id, name);
+
+  const tabs = [
     {
       label: 'PC Playbook',
       content: (
         <PCPlaybookTab
           character={character}
           onSave={handleSaveCharacterData}
-          choose={playbookOption.choose}
         />
       ),
     },
@@ -167,7 +155,7 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
       label: 'Inventory',
       content: null,
     },
-  ], [character, handleSaveCharacterData, playbookOption.choose]);
+  ];
 
   return (
     <main className={styles.page}>

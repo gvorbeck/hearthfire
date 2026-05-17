@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { PlaybookSection } from '../PlaybookSection';
 import { Collapse } from '@/components/primitives';
 import { Move } from '../Move';
@@ -40,10 +40,10 @@ interface MovesProps {
   playbook: PlaybookType;
   data: CharacterData | undefined;
   onSave: (data: Partial<CharacterData>) => Promise<void>;
-  choose?: number;
+  level: number;
 }
 
-export const Moves = ({ playbook, data, onSave, choose }: MovesProps) => {
+export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
   const typeMoves = PLAYBOOK_MOVES[playbook] ?? [];
 
   const [selected, setSelected] = useState<Record<string, boolean>>(
@@ -52,28 +52,38 @@ export const Moves = ({ playbook, data, onSave, choose }: MovesProps) => {
   const [uses, setUses] = useState<Record<string, number>>(
     () => data?.typeMoveUses ?? {}
   );
+  const [takes, setTakes] = useState<Record<string, number>>(
+    () => data?.typeMoveTakes ?? {}
+  );
 
   useEffect(() => {
     setSelected(data?.typeMoves ?? {});
     setUses(data?.typeMoveUses ?? {});
+    setTakes(data?.typeMoveTakes ?? {});
   }, [data]);
 
   const handleSelect = useCallback((id: string, value: boolean) => {
+    const prev = selected;
     const next = { ...selected, [id]: value };
     setSelected(next);
-    onSave({ typeMoves: next });
+    onSave({ typeMoves: next }).catch(() => setSelected(prev));
   }, [selected, onSave]);
 
   const handleUses = useCallback((id: string, count: number) => {
+    const prev = uses;
     const next = { ...uses, [id]: count };
     setUses(next);
-    onSave({ typeMoveUses: next });
+    onSave({ typeMoveUses: next }).catch(() => setUses(prev));
   }, [uses, onSave]);
 
-  const playbookLabel = useMemo(
-    () => PLAYBOOKS.find((p) => p.value === playbook)?.label ?? playbook,
-    [playbook]
-  );
+  const handleTakes = useCallback((id: string, count: number) => {
+    const prev = takes;
+    const next = { ...takes, [id]: count };
+    setTakes(next);
+    onSave({ typeMoveTakes: next }).catch(() => setTakes(prev));
+  }, [takes, onSave]);
+
+  const playbookLabel = PLAYBOOKS.find((p) => p.value === playbook)?.label ?? playbook;
 
   return (
     <PlaybookSection title="Moves">
@@ -115,25 +125,42 @@ export const Moves = ({ playbook, data, onSave, choose }: MovesProps) => {
           emptyText="No custom moves yet."
         />
 
-        {typeMoves.length > 0 && (
-          <Collapse
-            label={choose !== undefined ? `${playbookLabel} Moves (Choose ${choose})` : `${playbookLabel} Moves`}
-            defaultOpen
-          >
+        <Collapse
+          label={`${playbookLabel} Moves`}
+          defaultOpen
+        >
+          {typeMoves.length > 0 ? (
             <div className={styles.moveGrid}>
-              {typeMoves.map((move) => (
-                <Move
-                  key={move.id}
-                  move={move}
-                  selected={selected[move.id] ?? false}
-                  onSelectChange={(val) => handleSelect(move.id, val)}
-                  usesChecked={uses[move.id] ?? 0}
-                  onUsesChange={move.uses !== undefined ? (n) => handleUses(move.id, n) : undefined}
-                />
-              ))}
+              {typeMoves.map((move) => {
+                const isDisabled = move.startingMove === true;
+                const isLocked =
+                  !isDisabled && (
+                    (move.requiresLevel !== undefined && level < move.requiresLevel) ||
+                    (move.requires !== undefined && move.requires.some((reqId) => {
+                      const reqMove = typeMoves.find((m) => m.id === reqId);
+                      return !(reqMove?.startingMove || selected[reqId]);
+                    }))
+                  );
+                return (
+                  <Move
+                    key={move.id}
+                    move={move}
+                    selected={isDisabled ? true : (selected[move.id] ?? false)}
+                    onSelectChange={(val) => { if (!isDisabled) handleSelect(move.id, val); }}
+                    usesChecked={uses[move.id] ?? 0}
+                    onUsesChange={move.uses !== undefined ? (n) => handleUses(move.id, n) : undefined}
+                    takesChecked={takes[move.id] ?? 0}
+                    onTakesChange={move.takes !== undefined ? (n) => handleTakes(move.id, n) : undefined}
+                    disabled={isDisabled}
+                    locked={isLocked}
+                  />
+                );
+              })}
             </div>
-          </Collapse>
-        )}
+          ) : (
+            <p className={styles.empty}>No {playbookLabel} moves defined yet.</p>
+          )}
+        </Collapse>
       </div>
     </PlaybookSection>
   );

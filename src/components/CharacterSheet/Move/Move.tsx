@@ -26,7 +26,11 @@ export interface MoveDefinition {
   list2?: string[];
   citation?: string;
   uses?: number;
+  takes?: number;
   selectable?: boolean;
+  startingMove?: boolean;
+  requires?: string[];
+  requiresLevel?: number;
 }
 
 interface MoveProps {
@@ -35,7 +39,49 @@ interface MoveProps {
   onSelectChange?: (checked: boolean) => void;
   usesChecked?: number;
   onUsesChange?: (count: number) => void;
+  takesChecked?: number;
+  onTakesChange?: (count: number) => void;
+  disabled?: boolean;
+  locked?: boolean;
 }
+
+const TakeBoxes = ({ total, checked, onChange }: { total: number; checked: number; onChange: (n: number) => void }) => (
+  <div className={styles.takeBoxes}>
+    {Array.from({ length: total }, (_, i) => (
+      <Checkbox
+        key={i}
+        aria-label={`Take ${i + 1}`}
+        checked={!!(checked & (1 << i))}
+        onChange={() => onChange(checked ^ (1 << i))}
+      />
+    ))}
+  </div>
+);
+
+const MoveSelectGroup = ({
+  moveName, selected, onSelectChange, takes, takesChecked, onTakesChange, disabled,
+}: {
+  moveName: string; selected: boolean; onSelectChange: (checked: boolean) => void;
+  takes: number; takesChecked: number; onTakesChange: (n: number) => void; disabled?: boolean;
+}) => (
+  <div className={styles.takeBoxes}>
+    <Checkbox
+      aria-label={`Select ${moveName}`}
+      checked={selected}
+      onChange={(e) => onSelectChange(e.target.checked)}
+      disabled={disabled}
+    />
+    {Array.from({ length: takes }, (_, i) => (
+      <Checkbox
+        key={i}
+        aria-label={`Take ${i + 1}`}
+        checked={!!(takesChecked & (1 << i))}
+        onChange={() => onTakesChange(takesChecked ^ (1 << i))}
+        disabled={disabled}
+      />
+    ))}
+  </div>
+);
 
 const UseDots = ({ total, checked, onChange }: { total: number; checked: number; onChange: (n: number) => void }) => (
   <div className={styles.useDots} aria-label={`Uses: ${checked} of ${total}`}>
@@ -55,11 +101,13 @@ const UseDots = ({ total, checked, onChange }: { total: number; checked: number;
   </div>
 );
 
-export const Move = ({ move, selected, onSelectChange, usesChecked = 0, onUsesChange }: MoveProps) => {
+export const Move = ({ move, selected, onSelectChange, usesChecked = 0, onUsesChange, takesChecked = 0, onTakesChange, disabled, locked }: MoveProps) => {
   const uses = move.uses;
   const hasUses = uses !== undefined && onUsesChange !== undefined;
+  const takes = move.takes;
+  const hasTakes = takes !== undefined && onTakesChange !== undefined;
 
-  const moveCx = clsx(styles.move, selected && styles.moveSelected);
+  const moveCx = clsx(styles.move, selected && styles.moveSelected, locked && styles.moveLocked);
   const nameCx = clsx(styles.moveName, selected && styles.moveNameSelected);
 
   const nameEl = <span className={nameCx}>{move.name}</span>;
@@ -70,7 +118,20 @@ export const Move = ({ move, selected, onSelectChange, usesChecked = 0, onUsesCh
   return (
     <div className={moveCx}>
       <div className={styles.moveHeader}>
-        {move.selectable && onSelectChange !== undefined ? (
+        {move.selectable && onSelectChange !== undefined && hasTakes ? (
+          <div className={styles.moveHeaderLeft}>
+            <MoveSelectGroup
+              moveName={move.name}
+              selected={selected ?? false}
+              onSelectChange={onSelectChange}
+              takes={takes!}
+              takesChecked={takesChecked}
+              onTakesChange={onTakesChange}
+              disabled={disabled || locked}
+            />
+            {nameEl}
+          </div>
+        ) : move.selectable && onSelectChange !== undefined ? (
           <Checkbox
             name={`move-${move.id}`}
             value={move.id}
@@ -78,10 +139,21 @@ export const Move = ({ move, selected, onSelectChange, usesChecked = 0, onUsesCh
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSelectChange(e.target.checked)}
             label={nameEl}
             className={styles.moveCheckbox}
+            disabled={disabled || locked}
           />
         ) : (
-          nameEl
+          <>
+            {hasTakes && (
+              <TakeBoxes
+                total={takes!}
+                checked={takesChecked}
+                onChange={onTakesChange}
+              />
+            )}
+            {nameEl}
+          </>
         )}
+        {locked && <span className={styles.moveLockLabel}>Requires prerequisites</span>}
         {hasUses && (
           <UseDots
             total={uses}

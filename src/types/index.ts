@@ -32,6 +32,7 @@ export interface CharacterData {
   statLevel?: string;
   typeMoves?: Record<string, boolean>;
   typeMoveUses?: Record<string, number>;
+  typeMoveTakes?: Record<string, number>;
 }
 
 export interface Character {
