@@ -4,33 +4,22 @@ import { Checkbox, Input } from '@/components/primitives';
 import { UseDots } from '@/components/CharacterSheet/Move';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { PlaybookSection } from '../PlaybookSection';
-import type { Possession, PossessionSubItem } from '@/lib/specialPossessionsOptions';
+import type { Possession, PossessionSubItem, PlaybookSpecialPossessions } from '@/lib/specialPossessionsOptions';
 import type { CharacterData } from '@/types';
 import styles from './SpecialPossessions.module.css';
 
 const PICK_COUNT = 2;
 
-const stockCapacity = (level: number) => 3 + Math.floor(level / 2);
-
 const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
 
 interface SpecialPossessionsProps {
-  options?: Possession[];
+  config?: PlaybookSpecialPossessions;
   data?: CharacterData;
   onSave?: (data: Partial<CharacterData>) => Promise<void>;
-  sacredPouchStock?: number;
-  onStockChange?: (stock: number) => void;
   level?: number;
 }
 
-export const SpecialPossessions = ({
-  options,
-  data,
-  onSave,
-  sacredPouchStock,
-  onStockChange,
-  level = 1,
-}: SpecialPossessionsProps = {}) => {
+export const SpecialPossessions = ({ config, data, onSave, level = 1 }: SpecialPossessionsProps = {}) => {
   const [selected, setSelected] = useState<Record<string, boolean>>(() => data?.specialPossessions ?? {});
   const [uses, setUses] = useState<Record<string, number>>(() => data?.specialPossessionUses ?? {});
   const [customText, setCustomText] = useState<string>(() => data?.specialPossessionCustom ?? '');
@@ -64,6 +53,10 @@ export const SpecialPossessions = ({
     onSave?.({ specialPossessionUses: next }).catch(() => setUses(prev));
   }, [uses, onSave]);
 
+  const handleStock = useCallback((stockKey: Extract<keyof CharacterData, 'sacredPouchStock'>, stock: number) => {
+    onSave?.({ [stockKey]: stock });
+  }, [onSave]);
+
   const handleCustomChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setCustomText(value);
@@ -78,11 +71,7 @@ export const SpecialPossessions = ({
     onSave?.({ specialPossessionCustom: e.target.value });
   }, [onSave]);
 
-  if (!options?.length) return <PlaybookSection title="Special Possessions" />;
-
-  const hasSacredPouch = sacredPouchStock !== undefined;
-  const stock = sacredPouchStock ?? 0;
-  const capacity = stockCapacity(level);
+  if (!config?.items.length) return <PlaybookSection title="Special Possessions" />;
 
   const renderSubItem = (item: PossessionSubItem, possessionId: string, idx: number, checked: boolean): React.ReactNode => {
     if (typeof item === 'string') {
@@ -118,6 +107,31 @@ export const SpecialPossessions = ({
         </span>
       );
     }
+    if (p.stockKey) {
+      const stock = data?.[p.stockKey] ?? 0;
+      const capacity = p.stockCapacity?.(level) ?? 0;
+      return (
+        <span className={styles.labelBody}>
+          <span className={styles.labelText}>{parseInlineMarkdown(p.label)}</span>
+          <span className={styles.stockRow}>
+            <span className={styles.stockLabel}>Stock:</span>
+            {Array.from({ length: capacity }, (_, i) => {
+              const filled = i < stock;
+              const dotCx = clsx(styles.dot, filled && styles.dotFilled);
+              return (
+                <button
+                  key={i}
+                  type="button"
+                  className={dotCx}
+                  aria-label={filled ? `Clear stock ${i + 1}` : `Mark stock ${i + 1}`}
+                  onClick={() => handleStock(p.stockKey!, filled ? i : i + 1)}
+                />
+              );
+            })}
+          </span>
+        </span>
+      );
+    }
     if (p.uses !== undefined) {
       return (
         <span className={styles.labelWithUses}>
@@ -130,47 +144,19 @@ export const SpecialPossessions = ({
   };
 
   return (
-    <PlaybookSection title="Special Possessions" choose={PICK_COUNT} chooseNote={hasSacredPouch ? 'in addition to your sacred pouch' : undefined}>
+    <PlaybookSection title="Special Possessions" choose={PICK_COUNT} chooseNote={config.pickNote}>
       <div className={styles.list}>
-        {hasSacredPouch && (
-          <Checkbox
-            aria-label="Sacred pouch"
-            checked
-            aria-disabled="true"
-            readOnly
-            className={styles.checkbox}
-            label={
-              <span className={styles.labelBody}>
-                <span className={styles.labelText}>{parseInlineMarkdown('**Sacred pouch** (*magical*): see Sacred Pouch section.')}</span>
-                <span className={styles.stockRow}>
-                  <span className={styles.stockLabel}>Stock:</span>
-                  {Array.from({ length: capacity }, (_, i) => {
-                    const filled = i < stock;
-                    const dotCx = clsx(styles.dot, filled && styles.dotFilled);
-                    return (
-                      <button
-                        key={`stock-${i}`}
-                        type="button"
-                        className={dotCx}
-                        aria-label={filled ? `Clear stock ${i + 1}` : `Mark stock ${i + 1}`}
-                        onClick={() => onStockChange?.(filled ? i : i + 1)}
-                      />
-                    );
-                  })}
-                </span>
-              </span>
-            }
-          />
-        )}
-        {options.map((p) => {
-          const checked = selected[p.id] ?? false;
+        {config.items.map((p) => {
+          const checked = p.isAlwaysSelected ? true : (selected[p.id] ?? false);
           return (
             <div key={p.id} className={styles.possessionRow}>
               <Checkbox
                 aria-label={p.name}
                 checked={checked}
-                disabled={!checked && atMax}
-                onChange={(e) => handleToggle(p.id, e.target.checked)}
+                disabled={p.isAlwaysSelected || (!checked && atMax)}
+                aria-disabled={p.isAlwaysSelected ? 'true' : undefined}
+                readOnly={p.isAlwaysSelected}
+                onChange={p.isAlwaysSelected ? undefined : (e) => handleToggle(p.id, e.target.checked)}
                 className={styles.checkbox}
                 label={renderLabel(p, checked)}
               />
