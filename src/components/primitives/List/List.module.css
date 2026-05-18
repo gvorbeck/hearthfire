@@ -1,0 +1,82 @@
+/* ── Shared ──────────────────────────────────────────── */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.item {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  line-height: 1.45;
+}
+
+/* ── Bullet variant (☉ sun symbol) ──────────────────── */
+.bullet .item {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+.bullet .item::before {
+  content: '\2609';
+  color: var(--color-gold-500);
+  flex-shrink: 0;
+  font-size: var(--text-xs);
+  line-height: 1.6;
+}
+
+/* ── Dash variant ────────────────────────────────────── */
+.dash {
+  gap: var(--spacing-2);
+}
+
+.dash .item {
+  position: relative;
+  padding-left: var(--spacing-4);
+  color: var(--color-stone-200);
+  line-height: 1.55;
+  font-size: var(--text-sm);
+}
+
+.dash .item::before {
+  content: '–';
+  position: absolute;
+  left: 0;
+  color: var(--color-gold-500);
+  font-weight: 700;
+}
+
+/* ── Numbered variant ────────────────────────────────── */
+.numbered {
+  gap: var(--spacing-4);
+  padding-left: var(--spacing-5);
+  counter-reset: step-counter;
+}
+
+.numbered .item {
+  position: relative;
+  padding-left: var(--spacing-10);
+  counter-increment: step-counter;
+}
+
+.numbered .item::before {
+  content: counter(step-counter);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 20px;
+  height: 20px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-sm);
+  color: var(--color-gold-400);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-align: center;
+  line-height: 20px;
+}

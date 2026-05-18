@@ -3,17 +3,58 @@ import { useParams, Link, useLocation } from 'react-router-dom';
 import { PageMeta } from '@/components/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { DEFAULT_GAME_NAME, PLAYBOOKS } from '@/lib/constants';
-import { Button, Heading, Stack, Text } from '@/components/primitives';
+import { Button, Heading, Icon, Modal, Stack, Text } from '@/components/primitives';
 import { GameIdModal } from '@/components/GameIdModal/GameIdModal';
 import { AddCharacterModal } from '@/components/AddCharacterModal/AddCharacterModal';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
 import { PageHeader } from '@/components/PageHeader/PageHeader';
-import type { GameSession } from '@/types';
+import type { Character, GameSession } from '@/types';
 import styles from './Game.module.css';
 
 interface LocationState {
   isNew?: boolean;
 }
+
+interface RemoveCharacterModalProps {
+  character: Character | null;
+  onClose: () => void;
+  onConfirm: () => Promise<void>;
+}
+
+const RemoveCharacterModal = ({ character, onClose, onConfirm }: RemoveCharacterModalProps) => {
+  const [removing, setRemoving] = useState(false);
+
+  const handleConfirm = async () => {
+    setRemoving(true);
+    try {
+      await onConfirm();
+      setRemoving(false);
+      onClose();
+    } catch {
+      setRemoving(false);
+    }
+  };
+
+  const playbookOption = PLAYBOOKS.find((p) => p.value === character?.playbook);
+  const playbookLabel = `${playbookOption?.label ?? character?.playbook} Playbook`;
+  const characterName = character?.name?.trim();
+  const displayName = characterName ? `${characterName} (${playbookLabel})` : playbookLabel;
+
+  return (
+    <Modal open={character !== null} onClose={onClose} aria-labelledby="remove-char-title">
+      <Heading as="h2" size="sm" id="remove-char-title">Remove character?</Heading>
+      <Text size="sm" color="muted">
+        <strong>{displayName}</strong> will be permanently removed from this game. All character data will be lost and cannot be recovered.
+      </Text>
+      <div className={styles.modalActions}>
+        <Button variant="ghost" size="md" onClick={onClose} disabled={removing}>Cancel</Button>
+        <Button variant="primary" size="md" className={styles.removeBtn} onClick={handleConfirm} disabled={removing}>
+          {removing ? 'Removing…' : 'Remove character'}
+        </Button>
+      </div>
+    </Modal>
+  );
+};
 
 interface GameContentProps {
   g: GameSession;
@@ -25,6 +66,7 @@ interface GameContentProps {
   onOpenAddCharacter: () => void;
   onSaveTitle: (name: string) => Promise<void>;
   onAddCharacter: ReturnType<typeof useGame>['addCharacter'];
+  onRemoveCharacter: ReturnType<typeof useGame>['removeCharacter'];
 }
 
 const GameContent = ({
@@ -37,8 +79,16 @@ const GameContent = ({
   onOpenAddCharacter,
   onSaveTitle,
   onAddCharacter,
+  onRemoveCharacter,
 }: GameContentProps) => {
   const gameName = g.name || DEFAULT_GAME_NAME;
+  const [removingCharacter, setRemovingCharacter] = useState<Character | null>(null);
+
+  const handleCloseRemoveModal = () => setRemovingCharacter(null);
+  const handleConfirmRemove = () => {
+    if (removingCharacter) return onRemoveCharacter(removingCharacter.id);
+    return Promise.resolve();
+  };
 
   return (
     <>
@@ -52,6 +102,11 @@ const GameContent = ({
         onClose={onCloseAddCharacter}
         existingPlaybooks={g.characters.map((c) => c.playbook)}
         onAdd={onAddCharacter}
+      />
+      <RemoveCharacterModal
+        character={removingCharacter}
+        onClose={handleCloseRemoveModal}
+        onConfirm={handleConfirmRemove}
       />
       <main className={styles.page}>
         <PageHeader
@@ -72,9 +127,18 @@ const GameContent = ({
                   const characterName = character.name?.trim();
                   const buttonLabel = characterName ? `${characterName} — ${playbookLabel}` : playbookLabel;
                   return (
-                    <Link key={character.id} to={`/game/${id}/${character.playbook}`}>
-                      <Button variant="secondary" size="xl" fullWidth><span className={styles.characterBtnText}>{buttonLabel}</span></Button>
-                    </Link>
+                    <div key={character.id} className={styles.characterRow}>
+                      <Link to={`/game/${id}/${character.playbook}`} className={styles.characterLink}>
+                        <Button variant="secondary" size="xl" fullWidth className={styles.characterLinkBtn}><span className={styles.characterBtnText}>{buttonLabel}</span></Button>
+                      </Link>
+                      <button
+                        className={styles.removeCharacterBtn}
+                        aria-label={`Remove ${buttonLabel}`}
+                        onClick={() => setRemovingCharacter(character)}
+                      >
+                        <Icon name="trash" size="medium" />
+                      </button>
+                    </div>
                   );
                 })}
               </Stack>
@@ -108,7 +172,7 @@ const GameContent = ({
 export const Game = () => {
   const { id = '' } = useParams<{ id: string }>();
   const { state } = useLocation();
-  const { game, loading, error, updateGameName, addCharacter } = useGame(id);
+  const { game, loading, error, updateGameName, addCharacter, removeCharacter } = useGame(id);
   const [showIdModal, setShowIdModal] = useState((state as LocationState | null)?.isNew === true);
   const [showAddCharacter, setShowAddCharacter] = useState(false);
 
@@ -135,6 +199,7 @@ export const Game = () => {
           onOpenAddCharacter={handleOpenAddCharacter}
           onSaveTitle={updateGameName}
           onAddCharacter={addCharacter}
+          onRemoveCharacter={removeCharacter}
         />
       )}
     </GameGuard>

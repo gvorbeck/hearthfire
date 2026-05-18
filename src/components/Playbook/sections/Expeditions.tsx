@@ -1,5 +1,5 @@
-import { Heading, Text } from '@/components/primitives';
-import { SubList, PlaybookTable, PlaybookCallout } from '@/components/Playbook';
+import { Heading, Text, List } from '@/components/primitives';
+import { PlaybookTable, PlaybookCallout } from '@/components/Playbook';
 import styles from '@/pages/GmPlaybook/GmPlaybook.module.css';
 
 export const Expeditions = () => (
@@ -12,7 +12,7 @@ export const Expeditions = () => (
 
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Requirements</Heading>
-      <SubList items={[
+      <List variant="dash" items={[
         'You must first travel to ___, and from there to your destination',
         'You must wait until ___',
         'You need a knowledgeable guide/accurate map/detailed directions',
@@ -23,7 +23,7 @@ export const Expeditions = () => (
 
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Challenges</Heading>
-      <SubList items={[
+      <List variant="dash" items={[
         'You need to watch out for ___',
         'The way is perilous, plagued with danger',
         'You risk getting lost',
@@ -86,7 +86,7 @@ export const Expeditions = () => (
 
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">When they make camp</Heading>
-      <SubList items={[
+      <List variant="dash" items={[
         'How will you avoid attention/spot danger?',
         'How do you plan to keep warm?',
         'Do you start a fire? What do you use for fuel?',
@@ -109,7 +109,7 @@ export const Expeditions = () => (
       <Text><strong>If familiar, short, uneventful:</strong> gloss over it.</Text>
       <Text><strong>If unfamiliar:</strong> describe it, give impressions.</Text>
       <Text><strong>To create a sense of time passing:</strong> ask questions and/or have them Keep Company.</Text>
-      <SubList items={[
+      <List variant="dash" items={[
         'What\'s the most striking thing that you notice?',
         'What\'s the best/worst/most unexpected thing about this leg of the journey?',
         'What have you heard about this area?',
@@ -120,7 +120,7 @@ export const Expeditions = () => (
       ]} />
       <Text>Portray NPCs, add details, answer questions.</Text>
       <Text>Make a soft GM move:</Text>
-      <SubList items={[
+      <List variant="dash" items={[
         'Present a challenge from Chart a Course',
         'Present some other encounter',
         'Have an NPC/follower get into/cause trouble',
@@ -132,7 +132,7 @@ export const Expeditions = () => (
 
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Points of interest</Heading>
-      <SubList items={[
+      <List variant="dash" items={[
         'Landmarks not yet seen in play',
         'Where you plan to frame scenes, make moves',
         'Their destination',
@@ -140,7 +140,7 @@ export const Expeditions = () => (
       <Text><strong>If you want to build tension:</strong> frame the scene with the location in sight but at a distance. Otherwise, frame the scene with them already there.</Text>
       <Text><strong>If unfamiliar:</strong> describe, give impressions. If the PCs know or picked this place, ask them instead.</Text>
       <Text>On the first visit to a landmark, ask questions.</Text>
-      <SubList items={[
+      <List variant="dash" items={[
         'What\'s the most striking thing that you notice?',
         'What here tells you that this is a place where/of/that ___?',
         'What have you heard about this place?',

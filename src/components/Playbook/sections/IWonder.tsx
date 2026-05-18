@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import { Text } from '@/components/primitives';
-import { SubList, TextareaField } from '@/components/Playbook';
+import { Text, List } from '@/components/primitives';
+import { TextareaField } from '@/components/Playbook';
 import styles from '@/pages/GmPlaybook/GmPlaybook.module.css';
 
 interface IWonderProps {
@@ -12,7 +12,7 @@ export const IWonder = memo(({ value, onSave }: IWonderProps) => (
   <div>
     <div className={styles.contentRules}>
       <Text size="sm">Keep a running list of open questions that either…</Text>
-      <SubList items={[
+      <List variant="dash" items={[
         "you don't know how to answer yet, or",
         'you want to answer via play.',
       ]} />

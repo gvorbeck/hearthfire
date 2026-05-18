@@ -12,7 +12,7 @@
 
 .select {
   font-family: var(--font-sans);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   color: var(--text-primary);
   background-color: var(--surface-raised);
   border: 1px solid var(--border-subtle);

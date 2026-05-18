@@ -34,7 +34,7 @@
   cursor: pointer;
   color: var(--color-stone-300);
   font-family: var(--font-serif);
-  font-size: 1rem;
+  font-size: var(--text-md);
   font-weight: normal;
   text-align: left;
   gap: var(--spacing-4);

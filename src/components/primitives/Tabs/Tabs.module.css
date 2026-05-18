@@ -16,7 +16,7 @@
   cursor: pointer;
   color: var(--color-stone-400);
   font-family: var(--font-serif);
-  font-size: 0.9375rem;
+  font-size: var(--text-md);
   letter-spacing: 0.03em;
   margin-bottom: -1px;
   transition: color 0.15s ease, border-color 0.15s ease;

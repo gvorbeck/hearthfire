@@ -1,8 +1,8 @@
 import { memo } from 'react';
-import { SubList } from '@/components/Playbook';
+import { List } from '@/components/primitives';
 
 export const Principles = memo(() => (
-  <SubList items={[
+  <List variant="dash" items={[
     'Follow the rules',
     'Begin and end with the fiction',
     'Address the characters, not the players',

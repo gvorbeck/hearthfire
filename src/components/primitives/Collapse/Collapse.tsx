@@ -25,7 +25,7 @@ export const Collapse = ({ label, defaultOpen = false, children, className }: Co
         aria-controls={id}
       >
         <span className={styles.label}>{label}</span>
-        <Icon name="chevron-down" size="small" className={styles.chevron} />
+        <Icon name="chevron-down" size="small" className={styles.chevron} aria-hidden="true" />
       </button>
       <div id={id} className={styles.body} hidden={!open}>
         {children}

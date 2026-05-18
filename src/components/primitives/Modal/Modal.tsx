@@ -3,6 +3,15 @@ import { createPortal } from 'react-dom';
 import clsx from 'clsx';
 import styles from './Modal.module.css';
 
+const FOCUSABLE = [
+  'a[href]',
+  'button:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(', ');
+
 interface ModalProps {
   open: boolean;
   onClose: () => void;
@@ -14,20 +23,53 @@ interface ModalProps {
 export const Modal = ({ open, onClose, children, className, 'aria-labelledby': labelledBy }: ModalProps) => {
   const panelRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
+  const returnFocusRef = useRef<Element | null>(null);
+
   // keeps ref current so the keydown effect sees the latest onClose without re-registering the listener
   useEffect(() => { onCloseRef.current = onClose; });
 
   useEffect(() => {
     if (!open) return;
 
+    returnFocusRef.current = document.activeElement;
     panelRef.current?.focus();
 
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onCloseRef.current();
+      if (e.key === 'Escape') {
+        onCloseRef.current();
+        return;
+      }
+
+      if (e.key !== 'Tab') return;
+
+      const panel = panelRef.current;
+      if (!panel) return;
+      const focusable = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE));
+      if (focusable.length === 0) { e.preventDefault(); return; }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.shiftKey) {
+        if (document.activeElement === first || document.activeElement === panel) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last || document.activeElement === panel) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     };
 
     document.addEventListener('keydown', handleKey);
-    return () => document.removeEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('keydown', handleKey);
+      if (returnFocusRef.current instanceof HTMLElement) {
+        returnFocusRef.current.focus();
+      }
+    };
   }, [open]);
 
   if (!open) return null;

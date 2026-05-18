@@ -5,15 +5,15 @@
 }
 
 .sm {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
 }
 
 .md {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
 .lg {
-  font-size: 1rem;
+  font-size: var(--text-md);
 }
 
 .default {

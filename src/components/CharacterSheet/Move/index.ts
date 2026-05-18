@@ -1,2 +1,2 @@
-export { Move } from './Move';
+export { Move, UseDots } from './Move';
 export type { MoveDefinition } from './Move';

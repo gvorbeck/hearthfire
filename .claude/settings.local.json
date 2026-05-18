@@ -32,7 +32,14 @@
       "Bash(curl -s https://hearthfire.camp/assets/index-CaF0wbSk.js)",
       "Bash(curl -s -I https://hearthfire.camp/assets/index-B7Jm4Wjj.css)",
       "Bash(find ~/.claude -name \"code-review.md\" -o -name \"code-review\" 2>/dev/null | head -20)",
-      "Read(//Users/garrett.vorbeck/.claude/**)"
+      "Read(//Users/garrett.vorbeck/.claude/**)",
+      "Bash(git -C /Users/garrett.vorbeck/Sites/stonetop log --oneline --follow -- src/lib/parseInlineMarkdown.tsx src/lib/parseInlineMarkdown.ts)",
+      "Bash(git -C /Users/garrett.vorbeck/Sites/stonetop log --oneline --diff-filter=R --summary)",
+      "Bash(git -C /Users/garrett.vorbeck/Sites/stonetop log --all --oneline --name-status)",
+      "Bash(python3 -)",
+      "Bash(grep -n \"^$\" /Users/garrett.vorbeck/Sites/stonetop/src/components/CharacterSheet/playbooks/blessed/BlessedSpecialPossessions.tsx)",
+      "Bash(git -C /Users/garrett.vorbeck/Sites/stonetop diff HEAD --name-only)",
+      "Bash(git -C /Users/garrett.vorbeck/Sites/stonetop diff --cached --name-only)"
     ]
   }
 }

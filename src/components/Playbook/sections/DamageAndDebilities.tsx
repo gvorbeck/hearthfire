@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import { Heading, Text } from '@/components/primitives';
-import { SubList, PlaybookTable, PlaybookCallout } from '@/components/Playbook';
+import { Heading, Text, List } from '@/components/primitives';
+import { PlaybookTable, PlaybookCallout } from '@/components/Playbook';
 import styles from '@/pages/GmPlaybook/GmPlaybook.module.css';
 
 export const DamageAndDebilities = memo(() => (
@@ -17,7 +17,7 @@ export const DamageAndDebilities = memo(() => (
     </div>
     <div className={styles.subsection}>
       <Text>Inflict a debility when your GM move would leave a PC weakened, dazed, or miserable.</Text>
-      <SubList items={[
+      <List variant="dash" items={[
         'Weakened: fatigued, tired, sluggish, shaky. Disadvantage to STR and DEX.',
         'Dazed: out of it, befuddled, not thinking clearly. Disadvantage to INT and WIS.',
         'Miserable: distressed, grumpy, unwell, in pain. Disadvantage to CON and CHA.',
@@ -29,7 +29,7 @@ export const DamageAndDebilities = memo(() => (
     </PlaybookCallout>
     <div className={styles.subsection}>
       <Text>When they tend to a debility or problematic wound, additional requirements might include:</Text>
-      <SubList items={[
+      <List variant="dash" items={[
         'Knowing Things about how to treat this',
         'Defying Danger, the danger being… the pain / them thrashing as you work / the wound/condition getting worse / that ___ arrives/happens before you finish / drawing the attention of ___ / that you need to use up/use more ___',
         'Expending (more) supplies, whisky, etc.',

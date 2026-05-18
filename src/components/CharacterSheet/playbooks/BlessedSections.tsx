@@ -1,15 +1,21 @@
-import { BlessedBackground } from './blessed/BlessedBackground';
-import { BlessedInstinct } from './blessed/BlessedInstinct';
-import { BlessedAppearance } from './blessed/BlessedAppearance';
-import { BlessedPlaceOfOrigin } from './blessed/BlessedPlaceOfOrigin';
-import { PlaybookSection } from '../PlaybookSection';
+import { BlessedSacredPouch } from './blessed/BlessedSacredPouch';
+import { BlessedSpecialPossessions } from './blessed/BlessedSpecialPossessions';
+import { BlessedEarthMother } from './blessed/BlessedEarthMother';
+import { BlessedIntroductions } from './blessed/BlessedIntroductions';
 import styles from '../CharacterSheet.module.css';
+import type { CharacterData } from '@/types';
 
-export { BlessedBackground, BlessedInstinct, BlessedAppearance, BlessedPlaceOfOrigin };
+export { BlessedSpecialPossessions };
+export { BlessedIntroductions };
 
-export const BlessedSections = () => (
+interface BlessedSectionsProps {
+  data: CharacterData | undefined;
+  onSave: (data: Partial<CharacterData>) => Promise<void>;
+}
+
+export const BlessedSections = ({ data, onSave }: BlessedSectionsProps) => (
   <div className={styles.stack}>
-    <PlaybookSection title="Sacred Pouch" />
-    <PlaybookSection title="The Earth Mother" />
+    <BlessedSacredPouch data={data} onSave={onSave} />
+    <BlessedEarthMother data={data} onSave={onSave} />
   </div>
 );

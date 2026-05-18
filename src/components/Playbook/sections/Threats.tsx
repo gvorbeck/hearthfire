@@ -1,6 +1,5 @@
 import { memo } from 'react';
-import { Heading, Text } from '@/components/primitives';
-import { SubList } from '@/components/Playbook';
+import { Heading, Text, List } from '@/components/primitives';
 import styles from '@/pages/GmPlaybook/GmPlaybook.module.css';
 
 export const Threats = memo(() => (
@@ -8,7 +7,7 @@ export const Threats = memo(() => (
     <Text size="sm">Threats are the lingering problems that cause trouble for the PCs, the steading, the region, or even the world.</Text>
     <div className={styles.subsection}>
       <Text size="sm">Write up threats after the first session, based on what the players told you as they introduced their characters. Write new threats between sessions when…</Text>
-      <SubList items={[
+      <List variant="dash" items={[
         'the Seasons Change move results in a threat, and you choose to create one instead of make an existing one worse.',
         'you introduced a monster, NPC, or thing and you think it might cause trouble later.',
         'you expect the PCs to encounter the threat in an upcoming session.',
@@ -16,21 +15,21 @@ export const Threats = memo(() => (
     </div>
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Write up a threat</Heading>
-      <ol className={styles.stepList}>
-        <li><Text size="sm">Give it a name and pick its type.</Text></li>
-        <li><Text size="sm">Add it (and its type) to a threat tracker (Homefront, Nearby, or Distant).</Text></li>
-        <li><Text size="sm">Give it an instinct (if it doesn't already have one). How does it cause problems for others? Write it as "to __" (e.g., "to enrich himself").</Text></li>
-        <li><Text size="sm">Write a quick description, including related threats or NPCs.</Text></li>
-        <li><Text size="sm">If it has momentum: write its impending doom and 2–4 grim portents.</Text></li>
-        <li><Text size="sm">Optional: write some stakes questions.</Text></li>
-        <li><Text size="sm">Optional: pick or write 2–4 GM moves.</Text></li>
-        <li><Text size="sm">Optional: write custom player moves.</Text></li>
-      </ol>
+      <List variant="numbered" items={[
+        <Text size="sm">Give it a name and pick its type.</Text>,
+        <Text size="sm">Add it (and its type) to a threat tracker (Homefront, Nearby, or Distant).</Text>,
+        <Text size="sm">Give it an instinct (if it doesn't already have one). How does it cause problems for others? Write it as "to __" (e.g., "to enrich himself").</Text>,
+        <Text size="sm">Write a quick description, including related threats or NPCs.</Text>,
+        <Text size="sm">If it has momentum: write its impending doom and 2–4 grim portents.</Text>,
+        <Text size="sm">Optional: write some stakes questions.</Text>,
+        <Text size="sm">Optional: pick or write 2–4 GM moves.</Text>,
+        <Text size="sm">Optional: write custom player moves.</Text>,
+      ]} />
     </div>
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Update threats</Heading>
       <Text size="sm">Between sessions, review each threat. If…</Text>
-      <SubList items={[
+      <List variant="dash" items={[
         'it is no longer a threat, then cross it off.',
         'grim portents occurred, then mark them.',
         'the PCs foiled it or changed its course, then update its grim portents and impending doom appropriately.',
@@ -45,7 +44,7 @@ export const Threats = memo(() => (
       <div className={styles.threatMovesGrid}>
         <div>
           <Heading as="h4" size="sm" className={styles.threatType}>Affliction</Heading>
-          <SubList items={[
+          <List variant="dash" items={[
             'Worsen or quicken',
             'Spread to others/suck others in',
             'Mutate, take on a new form/aspect',
@@ -62,7 +61,7 @@ export const Threats = memo(() => (
         </div>
         <div>
           <Heading as="h4" size="sm" className={styles.threatType}>Beast</Heading>
-          <SubList items={[
+          <List variant="dash" items={[
             "Show up where it's not wanted",
             'Stalk or pursue prey',
             'Protect its home or family',
@@ -76,7 +75,7 @@ export const Threats = memo(() => (
         </div>
         <div>
           <Heading as="h4" size="sm" className={styles.threatType}>Institution</Heading>
-          <SubList items={[
+          <List variant="dash" items={[
             'Sway public opinion',
             'Put someone in their place',
             'Change a rule, law, or custom',
@@ -92,7 +91,7 @@ export const Threats = memo(() => (
         </div>
         <div>
           <Heading as="h4" size="sm" className={styles.threatType}>MacGuffin</Heading>
-          <SubList items={[
+          <List variant="dash" items={[
             'Reveal a secret',
             'Draw attention to itself',
             'Point to something else',
@@ -108,7 +107,7 @@ export const Threats = memo(() => (
         </div>
         <div>
           <Heading as="h4" size="sm" className={styles.threatType}>Magical entity</Heading>
-          <SubList items={[
+          <List variant="dash" items={[
             'Spy on someone, unseen/from afar',
             'Sense powerful longings/emotions',
             'Appear in glimpses, dreams, visions',
@@ -125,7 +124,7 @@ export const Threats = memo(() => (
         </div>
         <div>
           <Heading as="h4" size="sm" className={styles.threatType}>Rabble</Heading>
-          <SubList items={[
+          <List variant="dash" items={[
             'Grow or gather in numbers',
             'Claim territory or resources',
             "Fall under a (new) leader's sway",
@@ -141,7 +140,7 @@ export const Threats = memo(() => (
         </div>
         <div>
           <Heading as="h4" size="sm" className={styles.threatType}>Villain</Heading>
-          <SubList items={[
+          <List variant="dash" items={[
             'Grasp power, gain followers or allies',
             "Find someone's weakness",
             'Make an offer, with strings attached',
@@ -158,7 +157,7 @@ export const Threats = memo(() => (
         </div>
         <div>
           <Heading as="h4" size="sm" className={styles.threatType}>Wildcard</Heading>
-          <SubList items={[
+          <List variant="dash" items={[
             'Aggressively pursue their instinct',
             'Show their worth, or lack thereof',
             'Display the contents of their heart',

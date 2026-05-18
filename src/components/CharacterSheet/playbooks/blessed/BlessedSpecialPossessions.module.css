@@ -1,0 +1,97 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.possessionRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.checkbox {
+  min-width: 0;
+  align-items: flex-start;
+}
+
+.labelBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  min-width: 0;
+}
+
+.labelText {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.45;
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+
+.labelText strong {
+  color: var(--text-primary);
+}
+
+.labelWithUses {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  min-width: 0;
+}
+
+.stockRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.stockLabel {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-strong);
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.dot:hover {
+  border-color: var(--color-gold-400);
+}
+
+.dotFilled {
+  background: var(--color-gold-500);
+  border-color: var(--color-gold-500);
+}
+
+.dotFilled:hover {
+  background: var(--color-gold-400);
+  border-color: var(--color-gold-400);
+}
+
+.dot:focus-visible {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: 2px;
+}
+
+.customPlaceholder {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--text-tertiary, var(--text-secondary));
+  font-style: italic;
+}
+
+.customInputWrapper {
+  padding-left: calc(16px + var(--spacing-3));
+}

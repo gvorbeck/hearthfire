@@ -1,5 +1,5 @@
-import { Heading, Text } from '@/components/primitives';
-import { SubList, PlaybookTable, PlaybookCallout } from '@/components/Playbook';
+import { Heading, Text, List } from '@/components/primitives';
+import { PlaybookTable, PlaybookCallout } from '@/components/Playbook';
 import playbookStyles from '@/components/Playbook/Playbook.module.css';
 import styles from '@/pages/GmPlaybook/GmPlaybook.module.css';
 
@@ -13,7 +13,7 @@ export const Monsters = () => (
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">2. Name</Heading>
       <Text><strong>If the monster…</strong></Text>
-      <SubList items={[
+      <List variant="dash" items={[
         '… has a proper name, call it that.',
         '… is a known, mundane thing, then give it a short descriptive name in plain English',
         '… is a thing of rumor and legend, give a name from another language',
@@ -174,7 +174,7 @@ export const Monsters = () => (
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">7. Special qualities</Heading>
       <Text>Write one for each of the following it possesses:</Text>
-      <SubList items={[
+      <List variant="dash" items={[
         'An exceptional/limited sense',
         'A useful adaptation/defense',
         'A strange form or composition',
@@ -217,7 +217,7 @@ export const Monsters = () => (
       <Text>Write any of these that will help you portray the monster or use it in play.</Text>
       <div className={playbookStyles.paragraphs}>
         <Text><strong>Tactics:</strong> if/then or when/then statements, like…</Text>
-        <SubList items={[
+        <List variant="dash" items={[
           '"If the PCs make noise/draw attention: watch from afar, alert others, wait until night."',
           '"If the PCs talk in their presence: learn their voices, to mimic them later."',
           '"When night falls: lure someone away with a mimicked voice, kill them, take their stuff."',
@@ -230,7 +230,7 @@ export const Monsters = () => (
     <div className={styles.subsection}>
       <PlaybookCallout title="Monsters & followers">
         <Text>When you <strong><em>convert a monster into a follower</em></strong>:</Text>
-        <SubList items={[
+        <List variant="dash" items={[
           'Add any tags you deem appropriate',
           'Choose (or make up) a cost, and add a spot to record their Loyalty (max 3)',
           'Otherwise use it as-is.',

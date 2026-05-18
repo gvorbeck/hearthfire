@@ -20,6 +20,7 @@ export const Home = () => {
       navigate(`/game/${id}`, { state: { isNew: true } });
     } catch {
       setCreateError('Failed to create game. Please try again.');
+    } finally {
       setCreating(false);
     }
   };

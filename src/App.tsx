@@ -2,6 +2,8 @@ import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import styles from '@/App.module.css';
 
+const CURRENT_YEAR = new Date().getFullYear();
+
 const Home = lazy(() => import('@/pages/Home/Home').then((m) => ({ default: m.Home })));
 const Game = lazy(() => import('@/pages/Game/Game').then((m) => ({ default: m.Game })));
 const GmPlaybook = lazy(() => import('@/pages/GmPlaybook/GmPlaybook').then((m) => ({ default: m.GmPlaybook })));
@@ -21,7 +23,7 @@ export const App = () => (
       Stonetop is written by Jeremy Strandberg and published by Lampblack &amp; Brimstone.
       Text released under CC BY-SA 4.0. Some concepts derived from Dungeon World by Sage
       LaTorra &amp; Adam Koebel (CC BY).
-      <br />&copy; {new Date().getFullYear()}{' '}
+      <br />&copy; {CURRENT_YEAR}{' '}
       <a href="https://iamgarrett.com" target="_blank" rel="noreferrer">J. Garrett Vorbeck</a>
     </footer>
   </>

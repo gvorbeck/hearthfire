@@ -1,5 +1,5 @@
-import { Heading, Text } from '@/components/primitives';
-import { SubList, PlaybookTable } from '@/components/Playbook';
+import { Heading, Text, List } from '@/components/primitives';
+import { PlaybookTable } from '@/components/Playbook';
 import playbookStyles from '@/components/Playbook/Playbook.module.css';
 import styles from '@/pages/GmPlaybook/GmPlaybook.module.css';
 
@@ -13,7 +13,7 @@ export const Hazards = () => (
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">As GM moves</Heading>
       <Text>Write one or more GM moves that reflect some of the following, as makes sense for the hazard:</Text>
-      <SubList items={[
+      <List variant="dash" items={[
         'How its presence is foreshadowed or revealed',
         'How it harms or hinders',
         'How it escalates or gets worse',
@@ -34,7 +34,7 @@ export const Hazards = () => (
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">As player moves</Heading>
       <Text>Write a fictional trigger ("When you <strong><em>trigger the hazard</em></strong>, …") and resolution, using any combo of the following that makes sense:</Text>
-      <SubList items={[
+      <List variant="dash" items={[
         '___ happens (and ___ is bad)',
         'Pick X from a list',
         'Tell us ___',

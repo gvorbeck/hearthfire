@@ -1,5 +1,4 @@
-import { Heading, Text } from '@/components/primitives';
-import { SubList } from '@/components/Playbook';
+import { Heading, Text, List } from '@/components/primitives';
 import playbookStyles from '@/components/Playbook/Playbook.module.css';
 import styles from '@/pages/GmPlaybook/GmPlaybook.module.css';
 
@@ -8,7 +7,7 @@ export const Discoveries = () => (
     <div>
       <Heading as="h3" size="sm">Clues</Heading>
       <Text>Start with a revelation, what the PCs can learn. What could lead to that revelation?</Text>
-      <SubList items={[
+      <List variant="dash" items={[
         'Signs left in the environment (tracks, etc.)',
         'Physical remains (blood, bone, scat, etc.)',
         'Something out of place',
@@ -22,7 +21,7 @@ export const Discoveries = () => (
 
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Encounters</Heading>
-      <SubList items={[
+      <List variant="dash" items={[
         'Who/what is the encounter with?',
         'Where/when does it happen?',
         'What are they doing?',
@@ -35,7 +34,7 @@ export const Discoveries = () => (
 
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Opportunities</Heading>
-      <SubList items={[
+      <List variant="dash" items={[
         'Useful or valuable stuff',
         'Expendable resources',
         'A good spot to make camp/set a trap/etc.',

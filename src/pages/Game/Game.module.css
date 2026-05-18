@@ -66,6 +66,58 @@
   min-width: 0;
 }
 
+.characterRow {
+  display: flex;
+  align-items: stretch;
+  gap: var(--spacing-2);
+}
+
+.characterLink {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
+
+.characterLinkBtn {
+  flex: 1;
+}
+
+.removeCharacterBtn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2);
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--color-stone-500);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.removeCharacterBtn:hover {
+  background-color: color-mix(in srgb, var(--color-danger) 12%, transparent);
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-3);
+}
+
+.removeBtn {
+  background-color: var(--color-danger);
+  color: #fff;
+}
+
+.removeBtn:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--color-danger) 80%, #000);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--color-danger) 30%, transparent);
+}
+
 .placeholder {
   background-color: var(--surface-raised);
   border: 1px dashed var(--border-subtle);

@@ -55,7 +55,7 @@ export const PageHeader = ({ crumbs, title, titleLabel, subtitle, gameId, onSave
   };
 
   const copyGameId = () => {
-    navigator.clipboard.writeText(gameId);
+    navigator.clipboard.writeText(gameId).catch(() => {});
     setCopied(true);
     if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current);
     copiedTimerRef.current = setTimeout(() => setCopied(false), 2000);

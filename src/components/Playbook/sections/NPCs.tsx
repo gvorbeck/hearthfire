@@ -1,5 +1,5 @@
-import { Heading, Text } from '@/components/primitives';
-import { SubList, PlaybookCallout } from '@/components/Playbook';
+import { Heading, Text, List } from '@/components/primitives';
+import { PlaybookCallout } from '@/components/Playbook';
 import playbookStyles from '@/components/Playbook/Playbook.module.css';
 import styles from '@/pages/GmPlaybook/GmPlaybook.module.css';
 
@@ -29,7 +29,7 @@ export const NPCs = () => (
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Questions</Heading>
       <Text>For locals, or people the PCs know well:</Text>
-      <SubList items={[
+      <List variant="dash" items={[
         'Are you related to them? How?',
         'What\'s their family situation? (Married? Kids? Parents? Siblings? Grandparents/kids?)',
         'Who else are they close to? Who cares about them?',
@@ -42,7 +42,7 @@ export const NPCs = () => (
         'What do they seem to like/dislike?',
       ]} />
       <Text>For outsiders that the PCs know:</Text>
-      <SubList items={[
+      <List variant="dash" items={[
         'When and how did you first meet them?',
         'When did you last see them?',
         'What do you know of their family?',
@@ -52,7 +52,7 @@ export const NPCs = () => (
         'How have they changed since last you met?',
       ]} />
       <Text>For folks the PCs have heard of:</Text>
-      <SubList items={[
+      <List variant="dash" items={[
         'What are they known for?',
         'What\'s said to be their most notable feature?',
         'Who do you know who\'s actually met them?',
@@ -94,7 +94,7 @@ export const NPCs = () => (
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Connections <span className={playbookStyles.muted}>(optional)</span></Heading>
       <Text>Ask yourself some or all of the following:</Text>
-      <SubList items={[
+      <List variant="dash" items={[
         'What do they think of the PCs?',
         'Who are they related to? Friends with?',
         'Who are they loyal to, and why?',
@@ -105,7 +105,7 @@ export const NPCs = () => (
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Motivations <span className={playbookStyles.muted}>(optional)</span></Heading>
       <Text>Ask yourself some of the following:</Text>
-      <SubList items={[
+      <List variant="dash" items={[
         'What do they fear?',
         'What angers them?',
         'What do they long for?',
@@ -136,7 +136,7 @@ export const NPCs = () => (
         <Text>When you <strong><em>press or entice an NPC</em></strong>, say what you want them to do (or not do). If they <strong>have reason to resist</strong>, roll +CHA: <strong>on a 10+</strong>, they either do as you want or reveal the easiest way to convince them; <strong>on a 7-9</strong>, they reveal something you can do to convince them, though it'll likely be costly, tricky, or distasteful.</Text>
       </PlaybookCallout>
       <Text className={playbookStyles.spacerTop}>Things that might convince an NPC:</Text>
-      <SubList items={[
+      <List variant="dash" items={[
         'A promise/oath/vow',
         'A chance to do it safely/freely/discretely',
         'Appeasing or appealing to their ego/honor/conscience/fears',

@@ -1,3 +1,20 @@
+export interface ChoiceConfig {
+  min: number;
+  max: number;
+  levelGatedMax?: [number, number][];
+  items: { label: string; value: string; locked?: boolean }[];
+}
+
+export interface BackgroundOption {
+  value: string;
+  title: string;
+  content: string;
+  postContent?: string;
+  uses?: number;
+  choices?: ChoiceConfig;
+  freeText?: { key: string; label: string };
+}
+
 export type PlaybookType =
   | 'blessed'
   | 'fox'
@@ -12,6 +29,8 @@ export type PlaybookType =
 export interface CharacterData {
   background?: string;
   backgroundChoices?: string[];
+  backgroundFreeText?: Record<string, string>;
+  backgroundUses?: Record<string, number>;
   instinct?: string;
   instinctCustom?: string;
   appearance?: Record<string, string>;
@@ -32,6 +51,16 @@ export interface CharacterData {
   statLevel?: string;
   typeMoves?: Record<string, boolean>;
   typeMoveUses?: Record<string, number>;
+  typeMoveTakes?: Record<string, number>;
+  specialPossessions?: Record<string, boolean>;
+  specialPossessionUses?: Record<string, number>;
+  specialPossessionCustom?: string;
+  sacredPouchStock?: number;
+  sacredPouchIs?: Record<string, string>;
+  sacredPouchTrait?: string;
+  earthMotherShrine?: string;
+  earthMotherOfferings?: Record<string, boolean>;
+  introductionQuestions?: Record<string, boolean>;
 }
 
 export interface Character {

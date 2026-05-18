@@ -1,0 +1,37 @@
+.intro {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0 0 var(--spacing-4);
+  line-height: 1.5;
+}
+
+.intro strong {
+  color: var(--text-primary);
+}
+
+.questionList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-3);
+}
+
+.stepText {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.45;
+}
+
+.stepText strong {
+  color: var(--text-primary);
+}
+
+.questionText {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.45;
+}

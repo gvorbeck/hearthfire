@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import styles from './Checkbox.module.css';
 
 interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
-  label: React.ReactNode;
+  label?: React.ReactNode;
 }
 
 export const Checkbox = ({ label, className, ...props }: CheckboxProps) => {
