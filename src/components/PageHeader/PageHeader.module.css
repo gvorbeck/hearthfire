@@ -10,7 +10,7 @@
 
 .titleInput {
   font-family: var(--font-serif);
-  font-size: 2.75rem;
+  font-size: var(--text-display);
   font-weight: normal;
   color: var(--text-heading);
   background: transparent;

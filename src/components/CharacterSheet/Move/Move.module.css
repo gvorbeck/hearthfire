@@ -35,7 +35,7 @@
 /* ── Move name ───────────────────────────────────────── */
 .moveName {
   font-family: var(--font-serif);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   font-weight: 700;
   color: var(--text-primary);
   transition: color 0.15s ease;
@@ -48,7 +48,7 @@
 /* ── Trigger + body text ─────────────────────────────── */
 .moveTrigger {
   font-family: var(--font-serif);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   color: var(--text-secondary);
   margin: 0;
   line-height: 1.45;
@@ -62,7 +62,7 @@
 
 .moveBody {
   font-family: var(--font-serif);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   color: var(--text-secondary);
   margin: 0;
   line-height: 1.45;
@@ -84,7 +84,7 @@
 /* ── Locked (unmet prerequisites) ───────────────────── */
 .moveLockLabel {
   font-family: var(--font-serif);
-  font-size: 0.6875rem;
+  font-size: var(--text-xs);
   color: var(--text-tertiary, var(--text-secondary));
   font-style: italic;
   margin: 0;
@@ -93,7 +93,7 @@
 /* ── Citation ────────────────────────────────────────── */
 .moveCitation {
   font-family: var(--font-serif);
-  font-size: 0.6875rem;
+  font-size: var(--text-xs);
   color: var(--text-tertiary, var(--text-secondary));
   margin-top: var(--spacing-1);
   font-style: italic;

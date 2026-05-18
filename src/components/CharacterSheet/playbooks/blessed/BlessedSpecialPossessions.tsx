@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import clsx from 'clsx';
 import { Checkbox, Input } from '@/components/primitives';
 import { UseDots } from '@/components/CharacterSheet/Move';
-import { parseInlineMarkdown } from '@/lib/parseInlineMarkdown';
+import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { PlaybookSection } from '../../PlaybookSection';
 import type { CharacterData } from '@/types';
 import styles from './BlessedSpecialPossessions.module.css';
@@ -71,8 +71,6 @@ export const BlessedSpecialPossessions = ({
   onStockChange,
   level,
 }: BlessedSpecialPossessionsProps) => {
-
-
   const [selected, setSelected] = useState<Record<string, boolean>>(
     () => data?.specialPossessions ?? {}
   );

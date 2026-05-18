@@ -6,7 +6,7 @@
 
 .prose {
   font-family: var(--font-serif);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   color: var(--text-secondary);
   margin: 0;
   line-height: 1.5;
@@ -14,7 +14,7 @@
 
 .instruction {
   font-family: var(--font-sans);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   color: var(--text-tertiary);
   margin: 0;
   font-style: italic;
@@ -40,6 +40,6 @@
 
 .optionLabel {
   font-family: var(--font-sans);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   color: var(--text-primary);
 }

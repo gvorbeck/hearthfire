@@ -22,7 +22,7 @@
 
 .optionTitle {
   font-family: var(--font-sans);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -34,6 +34,27 @@
   flex-direction: column;
   gap: var(--spacing-3);
   padding-left: calc(16px + var(--spacing-3));
+}
+
+.optionContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  font-family: var(--font-serif);
+  font-size: var(--text-md);
+  color: var(--text-primary);
+}
+
+.optionContent p {
+  margin: 0;
+}
+
+.optionContent ul {
+  margin: 0;
+  padding-left: var(--spacing-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
 }
 
 .choices {

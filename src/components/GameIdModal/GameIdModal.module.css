@@ -11,7 +11,7 @@
 .idText {
   flex: 1;
   font-family: var(--font-sans);
-  font-size: 1rem;
+  font-size: var(--text-md);
   letter-spacing: 0.05em;
   word-break: break-all;
   color: var(--text-accent);

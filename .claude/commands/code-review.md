@@ -25,6 +25,7 @@ Design system: primitives in `src/components/primitives/` (Button, Text, Heading
 - CSS class names accessed as `styles.foo` instead of importing `styles` from the module
 - TypeScript `any` usage — strict mode is required throughout
 - Comments that describe *what* instead of *why* (naming, visible logic); only add comments when the WHY is genuinely non-obvious
+- Hardcoded `rem` values for `font-size` instead of type scale tokens — all font sizes must use `--text-xs` through `--text-3xl` from the Major Third scale defined in `src/index.css`; raw `rem` values are only acceptable for layout dimensions (widths, heights, spacing) and responsive `clamp()` display sizes
 
 ### Correctness & Bugs
 - Logic errors, off-by-one mistakes, incorrect conditionals

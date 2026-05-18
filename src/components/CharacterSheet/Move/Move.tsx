@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { Checkbox, Icon, List } from '@/components/primitives';
 import type { IconName } from '@/components/primitives';
-import { parseInlineMarkdown } from '@/lib/parseInlineMarkdown';
+import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import styles from './Move.module.css';
 
 export interface MoveDefinition {

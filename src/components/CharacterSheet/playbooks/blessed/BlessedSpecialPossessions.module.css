@@ -24,7 +24,7 @@
 
 .labelText {
   font-family: var(--font-serif);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   color: var(--text-secondary);
   line-height: 1.45;
   overflow-wrap: break-word;
@@ -50,7 +50,7 @@
 
 .stockLabel {
   font-family: var(--font-serif);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   color: var(--text-secondary);
 }
 
@@ -87,7 +87,7 @@
 
 .customPlaceholder {
   font-family: var(--font-serif);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   color: var(--text-tertiary, var(--text-secondary));
   font-style: italic;
 }

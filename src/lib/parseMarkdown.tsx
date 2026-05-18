@@ -1,5 +1,3 @@
-// Splits on **bold**, *italic*, and Stonetop roll result phrases.
-// AUTO_BOLD phrases are bolded without needing explicit ** markers.
 const INLINE_RE = /(\*\*[^*]+\*\*|\*[^*]+\*|on a 10\+|on a 7[-–]9|on a 6[-–]|either way)/i;
 const AUTO_BOLD_RE = /^(on a 10\+|on a 7[-–]9|on a 6[-–]|either way)$/i;
 
@@ -11,3 +9,21 @@ export const parseInlineMarkdown = (text: string): React.ReactNode[] =>
     if (AUTO_BOLD_RE.test(chunk)) return [...acc, <strong key={i}>{chunk}</strong>];
     return [...acc, chunk];
   }, []);
+
+export const parseMarkdown = (markdown: string): React.ReactNode[] => {
+  const blocks = markdown.trim().split(/\n\n+/);
+  return blocks.map((block, blockIndex) => {
+    const lines = block.split('\n');
+    const isList = lines.every((l) => l.startsWith('- '));
+    if (isList) {
+      return (
+        <ul key={blockIndex}>
+          {lines.map((l, i) => (
+            <li key={i}>{parseInlineMarkdown(l.replace(/^-\s+/, ''))}</li>
+          ))}
+        </ul>
+      );
+    }
+    return <p key={blockIndex}>{parseInlineMarkdown(block)}</p>;
+  });
+};

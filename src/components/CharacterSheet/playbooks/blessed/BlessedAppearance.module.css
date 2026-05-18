@@ -22,7 +22,7 @@
 
 .instruction {
   font-family: var(--font-sans);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   color: var(--text-tertiary);
   margin: 0;
   font-style: italic;
@@ -37,13 +37,13 @@
 
 .optionLabel {
   font-family: var(--font-sans);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   color: var(--text-primary);
 }
 
 .customPlaceholder {
   font-family: var(--font-sans);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   color: var(--text-tertiary);
   font-style: italic;
 }
@@ -54,7 +54,7 @@
 
 .customInput {
   font-family: var(--font-sans);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   color: var(--text-primary);
   background-color: var(--surface-raised);
   border: 1px solid var(--border-subtle);

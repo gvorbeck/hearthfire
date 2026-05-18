@@ -1,15 +1,15 @@
 export interface ChoiceConfig {
   min: number;
   max: number;
-  items: { label: React.ReactNode; value: string }[];
+  items: { label: string; value: string }[];
 }
 
 export interface BackgroundOption {
   value: string;
   title: string;
-  paragraphs: React.ReactNode[];
-  bullets?: React.ReactNode[];
+  content: string;
   choices?: ChoiceConfig;
+  freeText?: { key: string; label: string };
 }
 
 export type PlaybookType =
@@ -26,6 +26,7 @@ export type PlaybookType =
 export interface CharacterData {
   background?: string;
   backgroundChoices?: string[];
+  backgroundFreeText?: Record<string, string>;
   instinct?: string;
   instinctCustom?: string;
   appearance?: Record<string, string>;

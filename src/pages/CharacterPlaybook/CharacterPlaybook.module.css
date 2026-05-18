@@ -9,7 +9,7 @@
 .description {
   font-family: var(--font-serif);
   font-style: italic;
-  font-size: 1.125rem;
+  font-size: var(--text-lg);
   margin: var(--spacing-6) 0 0;
   line-height: 1.6;
   text-align: center;
