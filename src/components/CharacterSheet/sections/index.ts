@@ -1,5 +1,4 @@
 export { Background } from './Background';
-export { PlaybookBackground } from './PlaybookBackground';
 export type { BackgroundOption, ChoiceConfig } from '@/types';
 export { Instinct } from './Instinct';
 export { Appearance } from './Appearance';

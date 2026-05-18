@@ -1,4 +1,3 @@
-import { BlessedInstinct } from './blessed/BlessedInstinct';
 import { BlessedAppearance } from './blessed/BlessedAppearance';
 import { BlessedPlaceOfOrigin } from './blessed/BlessedPlaceOfOrigin';
 import { BlessedSacredPouch } from './blessed/BlessedSacredPouch';
@@ -8,7 +7,7 @@ import { BlessedIntroductions } from './blessed/BlessedIntroductions';
 import styles from '../CharacterSheet.module.css';
 import type { CharacterData } from '@/types';
 
-export { BlessedInstinct, BlessedAppearance, BlessedPlaceOfOrigin };
+export { BlessedAppearance, BlessedPlaceOfOrigin };
 export { BlessedSpecialPossessions };
 export { BlessedIntroductions };
 
