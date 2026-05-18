@@ -1,13 +1,16 @@
 export interface ChoiceConfig {
   min: number;
   max: number;
-  items: { label: string; value: string }[];
+  levelGatedMax?: [number, number][];
+  items: { label: string; value: string; locked?: boolean }[];
 }
 
 export interface BackgroundOption {
   value: string;
   title: string;
   content: string;
+  postContent?: string;
+  uses?: number;
   choices?: ChoiceConfig;
   freeText?: { key: string; label: string };
 }
@@ -27,6 +30,7 @@ export interface CharacterData {
   background?: string;
   backgroundChoices?: string[];
   backgroundFreeText?: Record<string, string>;
+  backgroundUses?: Record<string, number>;
   instinct?: string;
   instinctCustom?: string;
   appearance?: Record<string, string>;

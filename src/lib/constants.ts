@@ -41,42 +41,48 @@ export const PLAYBOOKS: PlaybookOption[] = [
   {
     value: "judge",
     label: "The Judge",
-    description: "",
+    description:
+      "Look here at this little town, this candleflame in the darkness. Its very existence is an act of courage and faith. And Aratis has charged you to keep it: to settle its disputes; to chronicle its tales; to defend it from darkness and ruin. Take up your hammer, Judge. Your town needs you.",
     hpMax: 20,
     damage: "d6",
   },
   {
     value: "lightbearer",
     label: "The Lightbearer",
-    description: "",
+    description:
+      "Imagine yourself and your kin in a cave lit by a single torch, entranced by shadow puppet stories. Imagine realizing there is a greater truth, and stepping out of the cave into the true Light of day. Would you not bring that Light back into the darkness, to set your people free?",
     hpMax: 18,
     damage: "d4",
   },
   {
     value: "marshal",
     label: "The Marshal",
-    description: "",
+    description:
+      "Hoping for peace isn't enough. Trouble always comes knocking. And that's why we need you: to run the drills, to man the towers, to take charge when things get bad. To be cold enough to sendyour neighbors to a sure death in order to keep Stonetop safe. That's the job, Marshal. You up for it?",
     hpMax: 20,
     damage: "d8",
   },
   {
     value: "ranger",
     label: "The Ranger",
-    description: "",
+    description:
+      "Your true home is out there. Away from the Old Roads, in the wild places, where you've facedstorm and beast alike. But unknown forces are at work beyond the Ringwall, and you fear for yourkith and kin. These are strange times. Guide them, ranger, and keep them safe when darkness falls.",
     hpMax: 18,
     damage: "d8",
   },
   {
     value: "seeker",
     label: "The Seeker",
-    description: "",
+    description:
+      "Look at us. Huddling behind our walls, hearing evil in every passing noise. Cowards, all. All, but you. You fear not the unknown. You plunge into it, searching. Grasping at what has been lost. What will you find, o Seeker? Signs of a bright new age? Or signs of our doom?",
     hpMax: 16,
     damage: "d6",
   },
   {
     value: "would-be-hero",
     label: "The Would-be Hero",
-    description: "",
+    description:
+      "Most people hope for a quiet life. They spend their days a-worrying: about a leaky roof, a sick child, their crops. But you aren't like most people—you're on a different path. A path to adventure! There's greatness in you. Let's hope you live long enough for everyone else to see it.",
     hpMax: 16,
     damage: "d6",
   },

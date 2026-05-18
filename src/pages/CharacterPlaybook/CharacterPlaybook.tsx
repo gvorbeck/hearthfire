@@ -19,13 +19,14 @@ const getCharacterLevel = (character: Character): number => {
 
 interface PlaybookSectionProps {
   character: Character;
+  level: number;
   onSave: (data: Partial<CharacterData>) => Promise<void>;
 }
 
-const BackgroundSection = ({ character, onSave }: PlaybookSectionProps) => {
+const BackgroundSection = ({ character, level, onSave }: PlaybookSectionProps) => {
   const options = BACKGROUND_OPTIONS[character.playbook];
   if (!options) return <Background />;
-  return <PlaybookBackground playbookKey={character.playbook} options={options} data={character.data} onSave={onSave} />;
+  return <PlaybookBackground playbookKey={character.playbook} options={options} level={level} data={character.data} onSave={onSave} />;
 };
 
 const InstinctSection = ({ character, onSave }: PlaybookSectionProps) => {
@@ -55,7 +56,7 @@ const StatsSection = ({ character, onSave }: PlaybookSectionProps) => {
   return <CharacterStats data={character.data} onSave={onSave} hpMax={playbookOption.hpMax} damage={playbookOption.damage} />;
 };
 
-const SpecialPossessionsSection = ({ character, onSave }: PlaybookSectionProps) => {
+const SpecialPossessionsSection = ({ character, level, onSave }: PlaybookSectionProps) => {
   switch (character.playbook) {
     case 'blessed': return (
       <BlessedSpecialPossessions
@@ -63,7 +64,7 @@ const SpecialPossessionsSection = ({ character, onSave }: PlaybookSectionProps) 
         onSave={onSave}
         sacredPouchStock={character.data?.sacredPouchStock ?? 0}
         onStockChange={(n) => onSave({ sacredPouchStock: n })}
-        level={getCharacterLevel(character)}
+        level={level}
       />
     );
     default: return <SpecialPossessions />;
@@ -84,38 +85,41 @@ const IntroductionsSection = ({ character, onSave }: PlaybookSectionProps) => {
   }
 };
 
-const PCPlaybookTab = ({ character, onSave }: PlaybookSectionProps) => (
-  <div className={styles.layout}>
-    <div className={styles.columns}>
-      <div className={styles.colLeft}>
-        <BackgroundSection character={character} onSave={onSave} />
+const PCPlaybookTab = ({ character, onSave }: Omit<PlaybookSectionProps, 'level'>) => {
+  const level = getCharacterLevel(character);
+  return (
+    <div className={styles.layout}>
+      <div className={styles.columns}>
+        <div className={styles.colLeft}>
+          <BackgroundSection character={character} level={level} onSave={onSave} />
+        </div>
+        <div className={styles.colRight}>
+          <InstinctSection character={character} level={level} onSave={onSave} />
+          <AppearanceSection character={character} level={level} onSave={onSave} />
+          <PlaceOfOriginSection character={character} level={level} onSave={onSave} />
+        </div>
       </div>
-      <div className={styles.colRight}>
-        <InstinctSection character={character} onSave={onSave} />
-        <AppearanceSection character={character} onSave={onSave} />
-        <PlaceOfOriginSection character={character} onSave={onSave} />
+      <div className={styles.colFull}><StatsSection character={character} level={level} onSave={onSave} /></div>
+      <div className={styles.colFull}>
+        <Moves
+          playbook={character.playbook}
+          data={character.data}
+          onSave={onSave}
+          level={level}
+        />
+      </div>
+      <div className={styles.colFull}><SpecialPossessionsSection character={character} level={level} onSave={onSave} /></div>
+      <div className={styles.columns}>
+        <div className={styles.colLeft}>
+          <TypeSpecificSections character={character} level={level} onSave={onSave} />
+        </div>
+        <div className={styles.colRight}>
+          <IntroductionsSection character={character} level={level} onSave={onSave} />
+        </div>
       </div>
     </div>
-    <div className={styles.colFull}><StatsSection character={character} onSave={onSave} /></div>
-    <div className={styles.colFull}>
-      <Moves
-        playbook={character.playbook}
-        data={character.data}
-        onSave={onSave}
-        level={getCharacterLevel(character)}
-      />
-    </div>
-    <div className={styles.colFull}><SpecialPossessionsSection character={character} onSave={onSave} /></div>
-    <div className={styles.columns}>
-      <div className={styles.colLeft}>
-        <TypeSpecificSections character={character} onSave={onSave} />
-      </div>
-      <div className={styles.colRight}>
-        <IntroductionsSection character={character} onSave={onSave} />
-      </div>
-    </div>
-  </div>
-);
+  );
+};
 
 interface ContentProps {
   g: GameSession;

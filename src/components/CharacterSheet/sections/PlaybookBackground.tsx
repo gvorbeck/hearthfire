@@ -1,26 +1,29 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { PlaybookSection } from '../PlaybookSection';
 import { BackgroundOptionItem } from './BackgroundOption';
-import type { BackgroundOption } from '@/types';
+import type { BackgroundOption, CharacterData } from '@/types';
 import styles from './Background.module.css';
-import type { CharacterData } from '@/types';
 
 interface PlaybookBackgroundProps {
   playbookKey: string;
   options: BackgroundOption[];
+  level: number;
   data: CharacterData | undefined;
   onSave: (data: Partial<CharacterData>) => Promise<void>;
 }
 
-export const PlaybookBackground = ({ playbookKey, options, data, onSave }: PlaybookBackgroundProps) => {
+export const PlaybookBackground = ({ playbookKey, options, level, data, onSave }: PlaybookBackgroundProps) => {
   const [selectedOption, setSelectedOption] = useState<string>(data?.background ?? '');
   const [selectedChoices, setSelectedChoices] = useState<string[]>(data?.backgroundChoices ?? []);
   const [freeText, setFreeText] = useState<Record<string, string>>(data?.backgroundFreeText ?? {});
+  const [backgroundUses, setBackgroundUses] = useState<Record<string, number>>(data?.backgroundUses ?? {});
   const choiceDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const freeTextDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Gives the debounced callbacks a current value without re-creating them on every render.
   const selectedOptionRef = useRef(selectedOption);
   selectedOptionRef.current = selectedOption;
+  const selectedChoicesRef = useRef(selectedChoices);
+  selectedChoicesRef.current = selectedChoices;
   const freeTextRef = useRef(freeText);
   freeTextRef.current = freeText;
 
@@ -28,7 +31,8 @@ export const PlaybookBackground = ({ playbookKey, options, data, onSave }: Playb
     if (data?.background !== undefined) setSelectedOption(data.background);
     if (data?.backgroundChoices !== undefined) setSelectedChoices(data.backgroundChoices);
     if (data?.backgroundFreeText !== undefined) setFreeText(data.backgroundFreeText);
-  }, [data?.background, data?.backgroundChoices, data?.backgroundFreeText]);
+    if (data?.backgroundUses !== undefined) setBackgroundUses(data.backgroundUses);
+  }, [data?.background, data?.backgroundChoices, data?.backgroundFreeText, data?.backgroundUses]);
 
   useEffect(() => () => {
     if (choiceDebounceRef.current) clearTimeout(choiceDebounceRef.current);
@@ -46,16 +50,16 @@ export const PlaybookBackground = ({ playbookKey, options, data, onSave }: Playb
   }, [onSave, selectedOption]);
 
   const handleChoicesChange = useCallback((choices: string[]) => {
-    const prev = selectedChoices;
     setSelectedChoices(choices);
     if (choiceDebounceRef.current) clearTimeout(choiceDebounceRef.current);
     // Debounce so rapid checkbox toggling costs one write instead of one per click.
     choiceDebounceRef.current = setTimeout(() => {
-      onSave({ background: selectedOptionRef.current, backgroundChoices: choices }).catch(() => {
+      const prev = selectedChoicesRef.current;
+      onSave({ background: selectedOptionRef.current, backgroundChoices: selectedChoicesRef.current }).catch(() => {
         setSelectedChoices(prev);
       });
     }, 1000);
-  }, [onSave, selectedChoices]);
+  }, [onSave]);
 
   const handleFreeTextChange = useCallback((key: string, value: string) => {
     const prev = freeTextRef.current;
@@ -67,6 +71,13 @@ export const PlaybookBackground = ({ playbookKey, options, data, onSave }: Playb
     }, 1000);
   }, [onSave]);
 
+  const handleUsesChange = useCallback((optValue: string, count: number) => {
+    const prev = backgroundUses;
+    const next = { ...backgroundUses, [optValue]: count };
+    setBackgroundUses(next);
+    onSave({ backgroundUses: next }).catch(() => setBackgroundUses(prev));
+  }, [backgroundUses, onSave]);
+
   return (
     <PlaybookSection title="Background" choose={1}>
       <div className={styles.options}>
@@ -75,11 +86,14 @@ export const PlaybookBackground = ({ playbookKey, options, data, onSave }: Playb
             key={opt.value}
             option={opt}
             groupName={`${playbookKey}-background`}
+            level={level}
             selected={selectedOption === opt.value}
             selectedChoices={selectedChoices}
+            usesChecked={backgroundUses[opt.value] ?? 0}
             freeTextValue={opt.freeText ? (freeText[opt.freeText.key] ?? '') : ''}
             onSelect={handleOptionChange}
             onChoicesChange={handleChoicesChange}
+            onUsesChange={handleUsesChange}
             onFreeTextChange={handleFreeTextChange}
           />
         ))}

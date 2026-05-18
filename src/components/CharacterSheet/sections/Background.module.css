@@ -20,6 +20,16 @@
   padding-top: 0;
 }
 
+.optionTitleRow {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.optionTitleRowUses {
+  margin-left: auto;
+}
+
 .optionTitle {
   font-family: var(--font-sans);
   font-size: var(--text-sm);
@@ -50,11 +60,26 @@
 }
 
 .optionContent ul {
+  list-style: none;
   margin: 0;
-  padding-left: var(--spacing-5);
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-1);
+}
+
+.optionContent li {
+  display: flex;
+  gap: var(--spacing-2);
+  line-height: 1.45;
+}
+
+.optionContent li::before {
+  content: '\2609';
+  color: var(--color-gold-500);
+  flex-shrink: 0;
+  font-size: var(--text-xs);
+  line-height: 1.6;
 }
 
 .choices {
