@@ -11,7 +11,8 @@ import { BACKGROUND_OPTIONS } from '@/lib/backgroundOptions';
 import { INSTINCT_OPTIONS } from '@/lib/instinctOptions';
 import { APPEARANCE_OPTIONS } from '@/lib/appearanceOptions';
 import { PLACE_OF_ORIGIN_OPTIONS } from '@/lib/placeOfOriginOptions';
-import { BlessedSections, BlessedSpecialPossessions, BlessedIntroductions } from '@/components/CharacterSheet/playbooks/BlessedSections';
+import { SPECIAL_POSSESSIONS_OPTIONS } from '@/lib/specialPossessionsOptions';
+import { BlessedSections, BlessedIntroductions } from '@/components/CharacterSheet/playbooks/BlessedSections';
 import type { Character, CharacterData, GameSession, PlaybookType } from '@/types';
 import styles from './CharacterPlaybook.module.css';
 
@@ -43,9 +44,14 @@ const PCPlaybookTab = ({ character, playbookOption, onSave }: { character: Chara
         <Moves playbook={playbook} data={data} onSave={onSave} level={level} />
       </div>
       <div className={styles.colFull}>
-        {playbook === 'blessed'
-          ? <BlessedSpecialPossessions data={data} onSave={onSave} sacredPouchStock={data?.sacredPouchStock ?? 0} onStockChange={(n) => onSave({ sacredPouchStock: n })} level={level} />
-          : <SpecialPossessions />}
+        <SpecialPossessions
+          options={SPECIAL_POSSESSIONS_OPTIONS[playbook]}
+          data={data}
+          onSave={onSave}
+          sacredPouchStock={playbook === 'blessed' ? (data?.sacredPouchStock ?? 0) : undefined}
+          onStockChange={playbook === 'blessed' ? (n: number) => onSave({ sacredPouchStock: n }) : undefined}
+          level={level}
+        />
       </div>
       <div className={styles.columns}>
         <div className={styles.colLeft}>
