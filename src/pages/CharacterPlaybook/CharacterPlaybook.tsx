@@ -44,14 +44,7 @@ const PCPlaybookTab = ({ character, playbookOption, onSave }: { character: Chara
         <Moves playbook={playbook} data={data} onSave={onSave} level={level} />
       </div>
       <div className={styles.colFull}>
-        <SpecialPossessions
-          options={SPECIAL_POSSESSIONS_OPTIONS[playbook]}
-          data={data}
-          onSave={onSave}
-          sacredPouchStock={playbook === 'blessed' ? (data?.sacredPouchStock ?? 0) : undefined}
-          onStockChange={playbook === 'blessed' ? (n: number) => onSave({ sacredPouchStock: n }) : undefined}
-          level={level}
-        />
+        <SpecialPossessions config={SPECIAL_POSSESSIONS_OPTIONS[playbook]} data={data} onSave={onSave} level={level} />
       </div>
       <div className={styles.columns}>
         <div className={styles.colLeft}>
