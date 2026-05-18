@@ -4,12 +4,14 @@ import { BlessedAppearance } from './blessed/BlessedAppearance';
 import { BlessedPlaceOfOrigin } from './blessed/BlessedPlaceOfOrigin';
 import { BlessedSacredPouch } from './blessed/BlessedSacredPouch';
 import { BlessedSpecialPossessions } from './blessed/BlessedSpecialPossessions';
-import { PlaybookSection } from '../PlaybookSection';
+import { BlessedEarthMother } from './blessed/BlessedEarthMother';
+import { BlessedIntroductions } from './blessed/BlessedIntroductions';
 import styles from '../CharacterSheet.module.css';
 import type { CharacterData } from '@/types';
 
 export { BlessedBackground, BlessedInstinct, BlessedAppearance, BlessedPlaceOfOrigin };
 export { BlessedSpecialPossessions };
+export { BlessedIntroductions };
 
 interface BlessedSectionsProps {
   data: CharacterData | undefined;
@@ -19,8 +21,6 @@ interface BlessedSectionsProps {
 export const BlessedSections = ({ data, onSave }: BlessedSectionsProps) => (
   <div className={styles.stack}>
     <BlessedSacredPouch data={data} onSave={onSave} />
-    <PlaybookSection title="The Earth Mother">
-      <p>Coming soon.</p>
-    </PlaybookSection>
+    <BlessedEarthMother data={data} onSave={onSave} />
   </div>
 );

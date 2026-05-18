@@ -7,7 +7,7 @@ import { Heading, Button, ScrollToTop, Tabs } from '@/components/primitives';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
 import { PageHeader } from '@/components/PageHeader/PageHeader';
 import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, CharacterStats, Moves, SpecialPossessions, Introductions } from '@/components/CharacterSheet/sections';
-import { BlessedBackground, BlessedInstinct, BlessedAppearance, BlessedPlaceOfOrigin, BlessedSections, BlessedSpecialPossessions } from '@/components/CharacterSheet/playbooks/BlessedSections';
+import { BlessedBackground, BlessedInstinct, BlessedAppearance, BlessedPlaceOfOrigin, BlessedSections, BlessedSpecialPossessions, BlessedIntroductions } from '@/components/CharacterSheet/playbooks/BlessedSections';
 import type { Character, CharacterData, GameSession, PlaybookType } from '@/types';
 import styles from './CharacterPlaybook.module.css';
 
@@ -77,6 +77,13 @@ const TypeSpecificSections = ({ character, onSave }: PlaybookSectionProps) => {
   }
 };
 
+const IntroductionsSection = ({ character, onSave }: PlaybookSectionProps) => {
+  switch (character.playbook) {
+    case 'blessed': return <BlessedIntroductions data={character.data} onSave={onSave} />;
+    default: return <Introductions />;
+  }
+};
+
 const PCPlaybookTab = ({ character, onSave }: PlaybookSectionProps) => (
   <div className={styles.layout}>
     <div className={styles.columns}>
@@ -104,7 +111,7 @@ const PCPlaybookTab = ({ character, onSave }: PlaybookSectionProps) => (
         <TypeSpecificSections character={character} onSave={onSave} />
       </div>
       <div className={styles.colRight}>
-        <Introductions />
+        <IntroductionsSection character={character} onSave={onSave} />
       </div>
     </div>
   </div>

@@ -39,6 +39,9 @@ export interface CharacterData {
   sacredPouchStock?: number;
   sacredPouchIs?: Record<string, string>;
   sacredPouchTrait?: string;
+  earthMotherShrine?: string;
+  earthMotherOfferings?: Record<string, boolean>;
+  introductionQuestions?: Record<string, boolean>;
 }
 
 export interface Character {
