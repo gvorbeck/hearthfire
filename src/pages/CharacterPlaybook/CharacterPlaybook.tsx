@@ -6,7 +6,7 @@ import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
 import { Heading, Button, ScrollToTop, Tabs } from '@/components/primitives';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
 import { PageHeader } from '@/components/PageHeader/PageHeader';
-import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, CharacterStats, Moves, SpecialPossessions, Introductions } from '@/components/CharacterSheet/sections';
+import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, Moves, SpecialPossessions, Introductions } from '@/components/CharacterSheet/sections';
 import { BACKGROUND_OPTIONS } from '@/lib/backgroundOptions';
 import { INSTINCT_OPTIONS } from '@/lib/instinctOptions';
 import { APPEARANCE_OPTIONS } from '@/lib/appearanceOptions';
@@ -48,8 +48,7 @@ const PlaceOfOriginSection = ({ character, onSave }: PlaybookSectionProps) => {
 
 const StatsSection = ({ character, onSave }: PlaybookSectionProps) => {
   const playbookOption = PLAYBOOKS.find((p) => p.value === character.playbook);
-  if (!playbookOption) return <Stats />;
-  return <CharacterStats data={character.data} onSave={onSave} hpMax={playbookOption.hpMax} damage={playbookOption.damage} />;
+  return <Stats data={character.data} onSave={onSave} hpMax={playbookOption?.hpMax} damage={playbookOption?.damage} />;
 };
 
 const SpecialPossessionsSection = ({ character, level, onSave }: PlaybookSectionProps) => {

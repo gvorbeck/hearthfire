@@ -59,7 +59,7 @@
   -moz-appearance: textfield;
 }
 
-.statInput:focus {
+.statInput:focus-visible {
   border-color: var(--border-accent);
   background-color: var(--surface-overlay);
 }
@@ -151,7 +151,7 @@
   -moz-appearance: textfield;
 }
 
-.infoInput:focus {
+.infoInput:focus-visible {
   border-color: var(--border-accent);
   background-color: var(--surface-overlay);
 }
