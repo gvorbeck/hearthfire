@@ -6,9 +6,9 @@ import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
 import { Heading, Button, ScrollToTop, Tabs } from '@/components/primitives';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
 import { PageHeader } from '@/components/PageHeader/PageHeader';
-import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, CharacterStats, Moves, SpecialPossessions, Introductions } from '@/components/CharacterSheet/sections';
-import { BlessedBackground, BlessedInstinct, BlessedAppearance, BlessedPlaceOfOrigin, BlessedSections, BlessedSpecialPossessions, BlessedIntroductions } from '@/components/CharacterSheet/playbooks/BlessedSections';
-import { FoxBackground } from '@/components/CharacterSheet/playbooks/fox/FoxBackground';
+import { Background, PlaybookBackground, Instinct, Appearance, PlaceOfOrigin, Stats, CharacterStats, Moves, SpecialPossessions, Introductions } from '@/components/CharacterSheet/sections';
+import { BACKGROUND_OPTIONS } from '@/lib/backgroundOptions';
+import { BlessedInstinct, BlessedAppearance, BlessedPlaceOfOrigin, BlessedSections, BlessedSpecialPossessions, BlessedIntroductions } from '@/components/CharacterSheet/playbooks/BlessedSections';
 import type { Character, CharacterData, GameSession, PlaybookType } from '@/types';
 import styles from './CharacterPlaybook.module.css';
 
@@ -23,11 +23,9 @@ interface PlaybookSectionProps {
 }
 
 const BackgroundSection = ({ character, onSave }: PlaybookSectionProps) => {
-  switch (character.playbook) {
-    case 'blessed': return <BlessedBackground data={character.data} onSave={onSave} />;
-    case 'fox': return <FoxBackground data={character.data} onSave={onSave} />;
-    default: return <Background />;
-  }
+  const options = BACKGROUND_OPTIONS[character.playbook];
+  if (!options) return <Background />;
+  return <PlaybookBackground playbookKey={character.playbook} options={options} data={character.data} onSave={onSave} />;
 };
 
 const InstinctSection = ({ character, onSave }: PlaybookSectionProps) => {

@@ -1,3 +1,17 @@
+export interface ChoiceConfig {
+  min: number;
+  max: number;
+  items: { label: React.ReactNode; value: string }[];
+}
+
+export interface BackgroundOption {
+  value: string;
+  title: string;
+  paragraphs: React.ReactNode[];
+  bullets?: React.ReactNode[];
+  choices?: ChoiceConfig;
+}
+
 export type PlaybookType =
   | 'blessed'
   | 'fox'
