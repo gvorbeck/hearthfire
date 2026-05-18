@@ -125,6 +125,16 @@
   color: var(--text-secondary);
 }
 
+.subItemSelectable {
+  list-style: none;
+  margin-left: calc(-1 * var(--spacing-4));
+}
+
+.subItemCheckbox {
+  min-width: 0;
+  align-items: flex-start;
+}
+
 .customPlaceholder {
   font-family: var(--font-serif);
   font-size: var(--text-sm);
@@ -133,5 +143,5 @@
 }
 
 .customInputWrapper {
-  padding-left: calc(16px + var(--spacing-3));
+  padding-left: calc(var(--checkbox-size, 16px) + var(--spacing-3));
 }
