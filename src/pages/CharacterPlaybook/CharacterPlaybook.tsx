@@ -9,7 +9,8 @@ import { PageHeader } from '@/components/PageHeader/PageHeader';
 import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, CharacterStats, Moves, SpecialPossessions, Introductions } from '@/components/CharacterSheet/sections';
 import { BACKGROUND_OPTIONS } from '@/lib/backgroundOptions';
 import { INSTINCT_OPTIONS } from '@/lib/instinctOptions';
-import { BlessedAppearance, BlessedPlaceOfOrigin, BlessedSections, BlessedSpecialPossessions, BlessedIntroductions } from '@/components/CharacterSheet/playbooks/BlessedSections';
+import { APPEARANCE_OPTIONS } from '@/lib/appearanceOptions';
+import { BlessedPlaceOfOrigin, BlessedSections, BlessedSpecialPossessions, BlessedIntroductions } from '@/components/CharacterSheet/playbooks/BlessedSections';
 import type { Character, CharacterData, GameSession, PlaybookType } from '@/types';
 import styles from './CharacterPlaybook.module.css';
 
@@ -35,10 +36,8 @@ const InstinctSection = ({ character, onSave }: PlaybookSectionProps) => {
 };
 
 const AppearanceSection = ({ character, onSave }: PlaybookSectionProps) => {
-  switch (character.playbook) {
-    case 'blessed': return <BlessedAppearance data={character.data} onSave={onSave} />;
-    default: return <Appearance />;
-  }
+  const rows = APPEARANCE_OPTIONS[character.playbook];
+  return <Appearance rows={rows} data={character.data} onSave={onSave} />;
 };
 
 const PlaceOfOriginSection = ({ character, onSave }: PlaybookSectionProps) => {
