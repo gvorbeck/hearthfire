@@ -87,6 +87,26 @@
   opacity: 0.5;
 }
 
+.warning {
+  width: 100%;
+  max-width: 600px;
+  background-color: color-mix(in srgb, var(--color-ember-400) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-ember-400) 40%, transparent);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-3) var(--spacing-4);
+  text-align: center;
+}
+
+.warningLink {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.warningLink:hover {
+  opacity: 0.8;
+}
+
 .cardBody {
   display: flex;
   flex-direction: column;

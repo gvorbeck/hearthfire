@@ -46,6 +46,21 @@ export const Home = () => {
         title="Hearthfire — Stonetop Party Tracker"
         description="Track your Stonetop TTRPG campaign — manage characters, GM playbook, and game sessions."
       />
+      <div className={styles.warning} role="alert">
+        <Text size="sm">
+          <strong>Under Construction</strong> — This app is incomplete and not yet fully usable.
+          Follow progress on{' '}
+          <a
+            href="https://github.com/gvorbeck/hearthfire"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.warningLink}
+          >
+            GitHub
+          </a>
+          .
+        </Text>
+      </div>
       <div className={styles.hero}>
         <Text className={styles.eyebrow}>Party Tracker</Text>
         <Heading as="h1" size="xl" className={styles.wordmark}>Hearthfire</Heading>

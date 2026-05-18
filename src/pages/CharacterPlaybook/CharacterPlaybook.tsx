@@ -11,7 +11,8 @@ import { BACKGROUND_OPTIONS } from '@/lib/backgroundOptions';
 import { INSTINCT_OPTIONS } from '@/lib/instinctOptions';
 import { APPEARANCE_OPTIONS } from '@/lib/appearanceOptions';
 import { PLACE_OF_ORIGIN_OPTIONS } from '@/lib/placeOfOriginOptions';
-import { BlessedSections, BlessedSpecialPossessions, BlessedIntroductions } from '@/components/CharacterSheet/playbooks/BlessedSections';
+import { SPECIAL_POSSESSIONS_OPTIONS } from '@/lib/specialPossessionsOptions';
+import { BlessedSections, BlessedIntroductions } from '@/components/CharacterSheet/playbooks/BlessedSections';
 import type { Character, CharacterData, GameSession, PlaybookType } from '@/types';
 import styles from './CharacterPlaybook.module.css';
 
@@ -20,109 +21,51 @@ const getCharacterLevel = (character: Character): number => {
   return isNaN(parsed) ? character.level : parsed;
 };
 
-interface PlaybookSectionProps {
-  character: Character;
-  level: number;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
-}
-
-const BackgroundSection = ({ character, level, onSave }: PlaybookSectionProps) => {
-  const options = BACKGROUND_OPTIONS[character.playbook];
-  return <Background playbookKey={character.playbook} options={options} level={level} data={character.data} onSave={onSave} />;
-};
-
-const InstinctSection = ({ character, onSave }: PlaybookSectionProps) => {
-  const options = INSTINCT_OPTIONS[character.playbook];
-  return <Instinct playbookKey={character.playbook} options={options} data={character.data} onSave={onSave} />;
-};
-
-const AppearanceSection = ({ character, onSave }: PlaybookSectionProps) => {
-  const rows = APPEARANCE_OPTIONS[character.playbook];
-  return <Appearance rows={rows} data={character.data} onSave={onSave} />;
-};
-
-const PlaceOfOriginSection = ({ character, onSave }: PlaybookSectionProps) => {
-  const options = PLACE_OF_ORIGIN_OPTIONS[character.playbook];
-  return <PlaceOfOrigin options={options} data={character.data} onSave={onSave} />;
-};
-
-const StatsSection = ({ character, onSave }: PlaybookSectionProps) => {
-  const playbookOption = PLAYBOOKS.find((p) => p.value === character.playbook);
-  return <Stats data={character.data} onSave={onSave} hpMax={playbookOption?.hpMax} damage={playbookOption?.damage} />;
-};
-
-const SpecialPossessionsSection = ({ character, level, onSave }: PlaybookSectionProps) => {
-  switch (character.playbook) {
-    case 'blessed': return (
-      <BlessedSpecialPossessions
-        data={character.data}
-        onSave={onSave}
-        sacredPouchStock={character.data?.sacredPouchStock ?? 0}
-        onStockChange={(n) => onSave({ sacredPouchStock: n })}
-        level={level}
-      />
-    );
-    default: return <SpecialPossessions />;
-  }
-};
-
-const TypeSpecificSections = ({ character, onSave }: PlaybookSectionProps) => {
-  switch (character.playbook) {
-    case 'blessed': return <BlessedSections data={character.data} onSave={onSave} />;
-    default: return null;
-  }
-};
-
-const IntroductionsSection = ({ character, onSave }: PlaybookSectionProps) => {
-  switch (character.playbook) {
-    case 'blessed': return <BlessedIntroductions data={character.data} onSave={onSave} />;
-    default: return <Introductions />;
-  }
-};
-
-const PCPlaybookTab = ({ character, onSave }: Omit<PlaybookSectionProps, 'level'>) => {
+const PCPlaybookTab = ({ character, playbookOption, onSave }: { character: Character; playbookOption: (typeof PLAYBOOKS)[number]; onSave: (data: Partial<CharacterData>) => Promise<void> }) => {
   const level = getCharacterLevel(character);
+  const { playbook, data } = character;
+
   return (
     <div className={styles.layout}>
       <div className={styles.columns}>
         <div className={styles.colLeft}>
-          <BackgroundSection character={character} level={level} onSave={onSave} />
+          <Background playbookKey={playbook} options={BACKGROUND_OPTIONS[playbook]} level={level} data={data} onSave={onSave} />
         </div>
         <div className={styles.colRight}>
-          <InstinctSection character={character} level={level} onSave={onSave} />
-          <AppearanceSection character={character} level={level} onSave={onSave} />
-          <PlaceOfOriginSection character={character} level={level} onSave={onSave} />
+          <Instinct playbookKey={playbook} options={INSTINCT_OPTIONS[playbook]} data={data} onSave={onSave} />
+          <Appearance rows={APPEARANCE_OPTIONS[playbook]} data={data} onSave={onSave} />
+          <PlaceOfOrigin options={PLACE_OF_ORIGIN_OPTIONS[playbook]} data={data} onSave={onSave} />
         </div>
       </div>
-      <div className={styles.colFull}><StatsSection character={character} level={level} onSave={onSave} /></div>
       <div className={styles.colFull}>
-        <Moves
-          playbook={character.playbook}
-          data={character.data}
+        <Stats data={data} onSave={onSave} hpMax={playbookOption?.hpMax} damage={playbookOption?.damage} />
+      </div>
+      <div className={styles.colFull}>
+        <Moves playbook={playbook} data={data} onSave={onSave} level={level} />
+      </div>
+      <div className={styles.colFull}>
+        <SpecialPossessions
+          options={SPECIAL_POSSESSIONS_OPTIONS[playbook]}
+          data={data}
           onSave={onSave}
+          sacredPouchStock={playbook === 'blessed' ? (data?.sacredPouchStock ?? 0) : undefined}
+          onStockChange={playbook === 'blessed' ? (n: number) => onSave({ sacredPouchStock: n }) : undefined}
           level={level}
         />
       </div>
-      <div className={styles.colFull}><SpecialPossessionsSection character={character} level={level} onSave={onSave} /></div>
       <div className={styles.columns}>
         <div className={styles.colLeft}>
-          <TypeSpecificSections character={character} level={level} onSave={onSave} />
+          {playbook === 'blessed' && <BlessedSections data={data} onSave={onSave} />}
         </div>
         <div className={styles.colRight}>
-          <IntroductionsSection character={character} level={level} onSave={onSave} />
+          {playbook === 'blessed'
+            ? <BlessedIntroductions data={data} onSave={onSave} />
+            : <Introductions />}
         </div>
       </div>
     </div>
   );
 };
-
-interface ContentProps {
-  g: GameSession;
-  id: string;
-  playbook: PlaybookType;
-  updateCharacterName: (characterId: string, name: string) => Promise<void>;
-  updateCharacterData: (characterId: string, data: Partial<CharacterData>) => Promise<void>;
-}
 
 interface SheetProps {
   character: Character;
@@ -133,7 +76,7 @@ interface SheetProps {
   updateCharacterData: (characterId: string, data: Partial<CharacterData>) => Promise<void>;
 }
 
-// Separate component so hooks are always called unconditionally (no early returns above them).
+// Separate component so hooks always run before the early-return guards in CharacterPlaybookContent.
 const CharacterSheet = ({ character, playbookOption, id, gameName, updateCharacterName, updateCharacterData }: SheetProps) => {
   const headerRef = useRef<HTMLDivElement>(null);
 
@@ -150,25 +93,25 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, updateCharact
   const characterName = character.name?.trim();
   const playbookLabel = `${playbookOption.label} Playbook`;
 
+  const pageTitle = characterName
+    ? `${characterName} — ${playbookLabel} — Hearthfire`
+    : `${playbookLabel} — Hearthfire`;
+
   const crumbs = useMemo(() => [
     { label: gameName, to: `/game/${id}` },
     { label: playbookLabel },
   ], [gameName, id, playbookLabel]);
 
-  const pageTitle = characterName
-    ? `${characterName} — ${playbookLabel} — Hearthfire`
-    : `${playbookLabel} — Hearthfire`;
-
   const tabs = useMemo(() => [
     {
       label: 'PC Playbook',
-      content: <PCPlaybookTab character={character} onSave={handleSaveCharacterData} />,
+      content: <PCPlaybookTab character={character} playbookOption={playbookOption} onSave={handleSaveCharacterData} />,
     },
     {
       label: 'Inventory',
       content: null,
     },
-  ], [character, handleSaveCharacterData]);
+  ], [character, playbookOption, handleSaveCharacterData]);
 
   return (
     <main className={styles.page}>
@@ -190,16 +133,18 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, updateCharact
       {playbookOption.description && (
         <p className={styles.description}>{playbookOption.description}</p>
       )}
-      <Tabs
-        aria-label="Character sections"
-        className={styles.tabs}
-        tabs={tabs}
-      />
+      <Tabs aria-label="Character sections" className={styles.tabs} tabs={tabs} />
     </main>
   );
 };
 
-const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, updateCharacterData }: ContentProps) => {
+const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, updateCharacterData }: {
+  g: GameSession;
+  id: string;
+  playbook: PlaybookType;
+  updateCharacterName: (characterId: string, name: string) => Promise<void>;
+  updateCharacterData: (characterId: string, data: Partial<CharacterData>) => Promise<void>;
+}) => {
   const playbookOption = PLAYBOOKS.find((p) => p.value === playbook);
   const character = g.characters.find((c) => c.playbook === playbook);
 
@@ -207,9 +152,7 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
     return (
       <main className={styles.centered}>
         <Heading as="h2" size="md">Playbook not found</Heading>
-        <Link to={`/game/${id}`}>
-          <Button variant="secondary">Back to Game</Button>
-        </Link>
+        <Link to={`/game/${id}`}><Button variant="secondary">Back to Game</Button></Link>
       </main>
     );
   }
@@ -218,9 +161,7 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
     return (
       <main className={styles.centered}>
         <Heading as="h2" size="md">Character not found</Heading>
-        <Link to={`/game/${id}`}>
-          <Button variant="secondary">Back to Game</Button>
-        </Link>
+        <Link to={`/game/${id}`}><Button variant="secondary">Back to Game</Button></Link>
       </main>
     );
   }
