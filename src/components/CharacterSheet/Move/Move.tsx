@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { Checkbox, Icon } from '@/components/primitives';
+import { Checkbox, Icon, List } from '@/components/primitives';
 import type { IconName } from '@/components/primitives';
 import { parseInlineMarkdown } from '@/lib/parseInlineMarkdown';
 import styles from './Move.module.css';
@@ -175,21 +175,13 @@ export const Move = ({ move, selected, onSelectChange, usesChecked = 0, onUsesCh
         );
       })}
       {move.list && (
-        <ul className={styles.moveList}>
-          {move.list.map((item, i) => (
-            <li key={`${i}-${item}`} className={styles.moveListItem}>{parseInlineMarkdown(item)}</li>
-          ))}
-        </ul>
+        <List variant="bullet" items={move.list.map((item) => parseInlineMarkdown(item))} />
       )}
       {footerParagraphs.map((p, i) => (
         <p key={i} className={styles.moveBody}>{parseInlineMarkdown(p)}</p>
       ))}
       {move.list2 && (
-        <ul className={styles.moveList}>
-          {move.list2.map((item, i) => (
-            <li key={`${i}-${item}`} className={styles.moveListItem}>{parseInlineMarkdown(item)}</li>
-          ))}
-        </ul>
+        <List variant="bullet" items={move.list2.map((item) => parseInlineMarkdown(item))} />
       )}
       {move.citation && <p className={styles.moveCitation}>{move.citation}</p>}
     </div>

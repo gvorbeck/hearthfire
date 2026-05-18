@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Checkbox } from '@/components/primitives';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Checkbox, List } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import type { CharacterData } from '@/types';
 import styles from './BlessedIntroductions.module.css';
@@ -32,12 +32,69 @@ export const BlessedIntroductions = ({ data, onSave }: BlessedIntroductionsProps
     if (data?.introductionQuestions !== undefined) setQuestions(data.introductionQuestions);
   }, [data?.introductionQuestions]);
 
-  const handleQuestion = (id: string, checked: boolean) => {
+  const handleQuestion = useCallback((id: string, checked: boolean) => {
     const prev = questions;
     const next = { ...questions, [id]: checked };
     setQuestions(next);
     onSave({ introductionQuestions: next }).catch(() => setQuestions(prev));
-  };
+  }, [questions, onSave]);
+
+  const items = useMemo(() => [
+    <p className={styles.stepText}>
+      On your first turn, <strong>introduce yourself</strong> by name, pronouns, background,
+      origin, and appearance.
+    </p>,
+    <p className={styles.stepText}>
+      On your second turn, <strong>describe your special possessions</strong> and how you
+      contribute to the village (beyond working the fields).
+    </p>,
+    <p className={styles.stepText}>
+      On your third turn, <strong>describe your sacred pouch</strong> and its remarkable
+      trait. Then, <strong>tell us about Danu&apos;s shrine</strong> in Stonetop and how she
+      is worshipped.
+    </p>,
+    <>
+      <p className={styles.stepText}>
+        On your next turn, <strong>answer one of the following</strong>, naming one or more
+        NPCs who live in Stonetop.
+      </p>
+      <div className={styles.questionList}>
+        {STEP4_QUESTIONS.map(({ id, text }) => (
+          <Checkbox
+            key={id}
+            checked={questions[id] ?? false}
+            onChange={(e) => handleQuestion(id, e.target.checked)}
+            label={<span className={styles.questionText}>{text}</span>}
+          />
+        ))}
+      </div>
+    </>,
+    <p className={styles.stepText}>
+      Go around again. Answer another question from 4, or pass. When everyone has passed, go on.
+    </p>,
+    <>
+      <p className={styles.stepText}>
+        On your next turn, <strong>ask your fellow PCs one of these</strong>. When others ask
+        you, answer as you like.
+      </p>
+      <div className={styles.questionList}>
+        {STEP6_QUESTIONS.map(({ id, text }) => (
+          <Checkbox
+            key={id}
+            checked={questions[id] ?? false}
+            onChange={(e) => handleQuestion(id, e.target.checked)}
+            label={<span className={styles.questionText}>{text}</span>}
+          />
+        ))}
+      </div>
+    </>,
+    <p className={styles.stepText}>
+      Go around again. Ask another question from 6, or pass. When everyone has passed, go on.
+    </p>,
+    <p className={styles.stepText}>
+      Add your home to the steading playbook. When everyone is done, let spring break forth!
+    </p>,
+  ], [questions, handleQuestion]);
 
   return (
     <PlaybookSection title="Introductions">
@@ -46,74 +103,7 @@ export const BlessedIntroductions = ({ data, onSave }: BlessedIntroductionsProps
         characters. When <strong>someone reveals something and you want to know more</strong>, ask
         them about it. When <strong>someone asks you a question</strong>, answer it truthfully.
       </p>
-      <ol className={styles.stepList}>
-        <li>
-          <p className={styles.stepText}>
-            On your first turn, <strong>introduce yourself</strong> by name, pronouns, background,
-            origin, and appearance.
-          </p>
-        </li>
-        <li>
-          <p className={styles.stepText}>
-            On your second turn, <strong>describe your special possessions</strong> and how you
-            contribute to the village (beyond working the fields).
-          </p>
-        </li>
-        <li>
-          <p className={styles.stepText}>
-            On your third turn, <strong>describe your sacred pouch</strong> and its remarkable
-            trait. Then, <strong>tell us about Danu&apos;s shrine</strong> in Stonetop and how she
-            is worshipped.
-          </p>
-        </li>
-        <li>
-          <p className={styles.stepText}>
-            On your next turn, <strong>answer one of the following</strong>, naming one or more
-            NPCs who live in Stonetop.
-          </p>
-          <div className={styles.questionList}>
-            {STEP4_QUESTIONS.map(({ id, text }) => (
-              <Checkbox
-                key={id}
-                checked={questions[id] ?? false}
-                onChange={(e) => handleQuestion(id, e.target.checked)}
-                label={<span className={styles.questionText}>{text}</span>}
-              />
-            ))}
-          </div>
-        </li>
-        <li>
-          <p className={styles.stepText}>
-            Go around again. Answer another question from 4, or pass. When everyone has passed, go on.
-          </p>
-        </li>
-        <li>
-          <p className={styles.stepText}>
-            On your next turn, <strong>ask your fellow PCs one of these</strong>. When others ask
-            you, answer as you like.
-          </p>
-          <div className={styles.questionList}>
-            {STEP6_QUESTIONS.map(({ id, text }) => (
-              <Checkbox
-                key={id}
-                checked={questions[id] ?? false}
-                onChange={(e) => handleQuestion(id, e.target.checked)}
-                label={<span className={styles.questionText}>{text}</span>}
-              />
-            ))}
-          </div>
-        </li>
-        <li>
-          <p className={styles.stepText}>
-            Go around again. Ask another question from 6, or pass. When everyone has passed, go on.
-          </p>
-        </li>
-        <li>
-          <p className={styles.stepText}>
-            Add your home to the steading playbook. When everyone is done, let spring break forth!
-          </p>
-        </li>
-      </ol>
+      <List variant="numbered" items={items} />
     </PlaybookSection>
   );
 };

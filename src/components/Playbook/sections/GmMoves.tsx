@@ -1,11 +1,10 @@
 import { memo } from 'react';
-import { Heading } from '@/components/primitives';
-import { SubList } from '@/components/Playbook';
+import { Heading, List } from '@/components/primitives';
 import styles from '@/pages/GmPlaybook/GmPlaybook.module.css';
 
 export const GmMoves = memo(() => (
   <div>
-    <SubList items={[
+    <List variant="dash" items={[
       'Announce trouble (future or offscreen)',
       'Reveal an unwelcome truth',
       'Ask a provocative question',
@@ -22,7 +21,7 @@ export const GmMoves = memo(() => (
     ]} />
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Exploration</Heading>
-      <SubList items={[
+      <List variant="dash" items={[
         'Provide a choice of paths',
         'Hint at more than meets the eye',
         'Offer riches at a price',
@@ -34,7 +33,7 @@ export const GmMoves = memo(() => (
     </div>
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Homefront</Heading>
-      <SubList items={[
+      <List variant="dash" items={[
         'Introduce someone interesting',
         'Reveal simmering tensions',
         'Present a want or need',

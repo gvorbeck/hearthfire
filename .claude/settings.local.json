@@ -35,7 +35,8 @@
       "Read(//Users/garrett.vorbeck/.claude/**)",
       "Bash(git -C /Users/garrett.vorbeck/Sites/stonetop log --oneline --follow -- src/lib/parseInlineMarkdown.tsx src/lib/parseInlineMarkdown.ts)",
       "Bash(git -C /Users/garrett.vorbeck/Sites/stonetop log --oneline --diff-filter=R --summary)",
-      "Bash(git -C /Users/garrett.vorbeck/Sites/stonetop log --all --oneline --name-status)"
+      "Bash(git -C /Users/garrett.vorbeck/Sites/stonetop log --all --oneline --name-status)",
+      "Bash(python3 -)"
     ]
   }
 }

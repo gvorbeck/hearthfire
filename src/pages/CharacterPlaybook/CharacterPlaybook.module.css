@@ -6,6 +6,15 @@
   width: 100%;
 }
 
+.description {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.125rem;
+  margin: var(--spacing-6) 0 0;
+  line-height: 1.6;
+  text-align: center;
+}
+
 .tabs {
   margin-top: var(--spacing-8);
 }

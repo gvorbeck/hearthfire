@@ -8,6 +8,7 @@ import { GameGuard } from '@/components/GameGuard/GameGuard';
 import { PageHeader } from '@/components/PageHeader/PageHeader';
 import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, CharacterStats, Moves, SpecialPossessions, Introductions } from '@/components/CharacterSheet/sections';
 import { BlessedBackground, BlessedInstinct, BlessedAppearance, BlessedPlaceOfOrigin, BlessedSections, BlessedSpecialPossessions, BlessedIntroductions } from '@/components/CharacterSheet/playbooks/BlessedSections';
+import { FoxBackground } from '@/components/CharacterSheet/playbooks/fox/FoxBackground';
 import type { Character, CharacterData, GameSession, PlaybookType } from '@/types';
 import styles from './CharacterPlaybook.module.css';
 
@@ -24,6 +25,7 @@ interface PlaybookSectionProps {
 const BackgroundSection = ({ character, onSave }: PlaybookSectionProps) => {
   switch (character.playbook) {
     case 'blessed': return <BlessedBackground data={character.data} onSave={onSave} />;
+    case 'fox': return <FoxBackground data={character.data} onSave={onSave} />;
     default: return <Background />;
   }
 };
@@ -188,6 +190,9 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, updateCharact
           onSaveTitle={handleSaveCharacterName}
         />
       </div>
+      {playbookOption.description && (
+        <p className={styles.description}>{playbookOption.description}</p>
+      )}
       <Tabs
         aria-label="Character sections"
         className={styles.tabs}

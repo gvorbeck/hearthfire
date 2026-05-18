@@ -68,33 +68,6 @@
   line-height: 1.45;
 }
 
-/* ── Bullet list ─────────────────────────────────────── */
-.moveList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-1);
-}
-
-.moveListItem {
-  font-family: var(--font-serif);
-  font-size: 0.8125rem;
-  color: var(--text-secondary);
-  line-height: 1.45;
-  display: flex;
-  gap: var(--spacing-2);
-}
-
-.moveListItem::before {
-  content: '\2609';
-  color: var(--color-gold-500);
-  flex-shrink: 0;
-  font-size: 0.75rem;
-  line-height: 1.6;
-}
-
 /* ── Body with icon ──────────────────────────────────── */
 .moveBodyWithIcon {
   display: flex;

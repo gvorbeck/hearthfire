@@ -62,31 +62,6 @@
   margin-bottom: var(--spacing-3);
 }
 
-.nodeList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-1);
-}
-
-.nodeList li {
-  font-size: 0.8125rem;
-  color: var(--color-stone-200);
-  line-height: 1.5;
-  padding-left: var(--spacing-4);
-  position: relative;
-}
-
-.nodeList li::before {
-  content: '–';
-  position: absolute;
-  left: 0;
-  color: var(--color-gold-500);
-  font-weight: 700;
-}
-
 /* ── Exit arrows ────────────────────────────────────── */
 .nodeExits {
   display: flex;

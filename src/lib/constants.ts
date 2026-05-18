@@ -26,7 +26,7 @@ export const PLAYBOOKS: PlaybookOption[] = [
     value: "fox",
     label: "The Fox",
     description:
-      "The elders tell a story about Fox, who knows lots of tricks, and Hedgehog, who knows one: how tocurl up into a ball when there's danger. Fox can't eat Hedgehog when he's all curled up, so in the storyFox goes hungry. But you're not that Fox, and this is no story. You want that Hedgehog? Go get a knife.",
+      "The elders tell a story about Fox, who knows lots of tricks, and Hedgehog, who knows one: how to curl up into a ball when there's danger. Fox can't eat Hedgehog when he's all curled up, so in the story Fox goes hungry. But you're not that Fox, and this is no story. You want that Hedgehog? Go get a knife.",
     hpMax: 16,
     damage: "d8",
   },

@@ -1,3 +1,4 @@
+import { List } from '@/components/primitives';
 import styles from './FlowOfPlay.module.css';
 
 const NodeLabel = ({ id }: { id: string }) => (
@@ -18,12 +19,7 @@ export const FlowOfPlay = () => (
         <NodeLabel id="A" />
         <div className={styles.nodeTitle}>First Adventure</div>
         <div className={styles.nodeSubtitle}>(Book I, page 251)</div>
-        <ul className={styles.nodeList}>
-          <li>Setup questions</li>
-          <li>Set the scene (at home)</li>
-          <li>Drop your hook</li>
-          <li>See how folks react</li>
-        </ul>
+        <List variant="dash" items={['Setup questions', 'Set the scene (at home)', 'Drop your hook', 'See how folks react']} />
         <div className={styles.nodeExits}>
           <span className={styles.exit}>PCs take the hook → <GoTo node="B" /></span>
           <span className={styles.exitDashed}>PCs ignore the hook → <GoTo node="E" /></span>
@@ -34,11 +30,7 @@ export const FlowOfPlay = () => (
         <NodeLabel id="B" />
         <div className={styles.nodeTitle}>Expedition</div>
         <div className={styles.nodeSubtitle}>(Book I, page 301)</div>
-        <ul className={styles.nodeList}>
-          <li>Preparations</li>
-          <li>Legs of travel/points of interest</li>
-          <li>Challenges, surprises, resolution</li>
-        </ul>
+        <List variant="dash" items={['Preparations', 'Legs of travel/points of interest', 'Challenges, surprises, resolution']} />
         <div className={styles.nodeExits}>
           <span className={styles.exit}><GoTo node="C" /></span>
         </div>
@@ -48,12 +40,7 @@ export const FlowOfPlay = () => (
         <NodeLabel id="C" />
         <div className={styles.nodeTitle}>Aftermath</div>
         <div className={styles.nodeSubtitle}>(Book I, page 490)</div>
-        <ul className={styles.nodeList}>
-          <li>Determine what&rsquo;s happened</li>
-          <li>Play out the return/post-crisis</li>
-          <li>See what follows</li>
-          <li>Transition to downtime</li>
-        </ul>
+        <List variant="dash" items={["Determine what's happened", 'Play out the return/post-crisis', 'See what follows', 'Transition to downtime']} />
         <div className={styles.nodeExits}>
           <span className={styles.exit}><GoTo node="E" /></span>
         </div>
@@ -63,11 +50,7 @@ export const FlowOfPlay = () => (
         <NodeLabel id="D" />
         <div className={styles.nodeTitle}>Crisis</div>
         <div className={styles.nodeSubtitle}>(Book I, page 499)</div>
-        <ul className={styles.nodeList}>
-          <li>Trouble erupts at home</li>
-          <li>Play it out, see what happens</li>
-          <li>Quite possibly Meet With Disaster</li>
-        </ul>
+        <List variant="dash" items={['Trouble erupts at home', 'Play it out, see what happens', 'Quite possibly Meet With Disaster']} />
         <div className={styles.nodeExits}>
           <span className={styles.exit}>PCs stay home → <GoTo node="C" /></span>
           <span className={styles.exit}>PCs head out in response → <GoTo node="B" /></span>
@@ -78,12 +61,7 @@ export const FlowOfPlay = () => (
         <NodeLabel id="E" />
         <div className={styles.nodeTitle}>Downtime</div>
         <div className={styles.nodeSubtitle}>(Book I, page 496)</div>
-        <ul className={styles.nodeList}>
-          <li>Zoom out, deal with logistics</li>
-          <li>Establish goals and intentions</li>
-          <li>Play out situations as needed</li>
-          <li>Show the passing of time</li>
-        </ul>
+        <List variant="dash" items={['Zoom out, deal with logistics', 'Establish goals and intentions', 'Play out situations as needed', 'Show the passing of time']} />
         <div className={styles.nodeExits}>
           <span className={styles.exit}>As a hard GM move → <GoTo node="D" /></span>
           <span className={styles.exit}>Opportunity, threat(s), or requirement → <GoTo node="B" /></span>
@@ -95,12 +73,7 @@ export const FlowOfPlay = () => (
         <NodeLabel id="F" />
         <div className={styles.nodeTitle}>Seasons Change</div>
         <div className={styles.nodeSubtitle}>(Book I, page 516)</div>
-        <ul className={styles.nodeList}>
-          <li>Zoom out, deal with logistics</li>
-          <li>Establish goals and intentions</li>
-          <li>Play out situations as needed</li>
-          <li>Show the passing of time</li>
-        </ul>
+        <List variant="dash" items={['Zoom out, deal with logistics', 'Establish goals and intentions', 'Play out situations as needed', 'Show the passing of time']} />
         <div className={styles.nodeExits}>
           <span className={styles.exit}>Threat(s) → <GoTo node="D" /></span>
           <span className={styles.exit}>Opportunity or threat(s) → <GoTo node="B" /></span>
