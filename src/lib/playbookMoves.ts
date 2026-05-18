@@ -185,3 +185,11 @@ export const PLAYBOOK_MOVES: Partial<Record<PlaybookType, MoveDefinition[]>> = {
     },
   ],
 };
+
+export const BACKGROUND_FORCED_MOVES: Partial<Record<PlaybookType, Record<string, string[]>>> = {
+  blessed: {
+    initiate: ['blessed-rites-of-the-land'],
+    'raised-by-wolves': ['blessed-trackless-step'],
+    vessel: ['blessed-danus-grasp'],
+  },
+};

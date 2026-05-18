@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PlaybookSection } from '../PlaybookSection';
 import { Collapse } from '@/components/primitives';
 import { Move } from '../Move';
@@ -9,7 +9,7 @@ import { FOLLOWER_MOVES } from '@/lib/followerMoves';
 import { EXPEDITION_MOVES } from '@/lib/expeditionMoves';
 import { HOMEFRONT_MOVES } from '@/lib/homefrontMoves';
 import { CUSTOM_MOVES } from '@/lib/customMoves';
-import { PLAYBOOK_MOVES } from '@/lib/playbookMoves';
+import { PLAYBOOK_MOVES, BACKGROUND_FORCED_MOVES } from '@/lib/playbookMoves';
 import { PLAYBOOKS } from '@/lib/constants';
 import type { CharacterData, PlaybookType } from '@/types';
 import styles from './Moves.module.css';
@@ -71,6 +71,10 @@ interface MovesProps {
 
 export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
   const typeMoves = PLAYBOOK_MOVES[playbook] ?? [];
+  const forcedMoveIds = useMemo(
+    () => new Set(data?.background ? (BACKGROUND_FORCED_MOVES[playbook]?.[data.background] ?? []) : []),
+    [playbook, data?.background]
+  );
 
   const [selected, setSelected] = useState<Record<string, boolean>>(
     () => data?.typeMoves ?? {}
@@ -89,11 +93,12 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
   }, [data?.typeMoves, data?.typeMoveUses, data?.typeMoveTakes]);
 
   const handleSelect = useCallback((id: string, value: boolean) => {
+    if (forcedMoveIds.has(id)) return;
     const prev = selected;
     const next = { ...selected, [id]: value };
     setSelected(next);
     onSave({ typeMoves: next }).catch(() => setSelected(prev));
-  }, [selected, onSave]);
+  }, [forcedMoveIds, selected, onSave]);
 
   const handleUses = useCallback((id: string, count: number) => {
     const prev = uses;
@@ -161,14 +166,18 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
           {typeMoves.length > 0 ? (
             <div className={styles.moveGrid}>
               {typeMoves.map((move) => {
-                const isDisabled = move.startingMove === true;
-                const lockReason = !isDisabled ? getLockReason(move, typeMoves, level, selected) : undefined;
+                const isStarting = move.startingMove === true;
+                const isForced = forcedMoveIds.has(move.id);
+                const isDisabled = isStarting || isForced;
+                const lockReason = isForced
+                  ? 'Required by your background'
+                  : (!isDisabled ? getLockReason(move, typeMoves, level, selected) : undefined);
                 return (
                   <Move
                     key={move.id}
                     move={move}
                     selected={isDisabled ? true : (selected[move.id] ?? false)}
-                    onSelectChange={(val) => { if (!isDisabled) handleSelect(move.id, val); }}
+                    onSelectChange={(val) => handleSelect(move.id, val)}
                     usesChecked={uses[move.id] ?? 0}
                     onUsesChange={move.uses !== undefined ? (n) => handleUses(move.id, n) : undefined}
                     takesChecked={takes[move.id] ?? 0}
