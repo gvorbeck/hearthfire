@@ -10,7 +10,8 @@ import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, CharacterStats,
 import { BACKGROUND_OPTIONS } from '@/lib/backgroundOptions';
 import { INSTINCT_OPTIONS } from '@/lib/instinctOptions';
 import { APPEARANCE_OPTIONS } from '@/lib/appearanceOptions';
-import { BlessedPlaceOfOrigin, BlessedSections, BlessedSpecialPossessions, BlessedIntroductions } from '@/components/CharacterSheet/playbooks/BlessedSections';
+import { PLACE_OF_ORIGIN_OPTIONS } from '@/lib/placeOfOriginOptions';
+import { BlessedSections, BlessedSpecialPossessions, BlessedIntroductions } from '@/components/CharacterSheet/playbooks/BlessedSections';
 import type { Character, CharacterData, GameSession, PlaybookType } from '@/types';
 import styles from './CharacterPlaybook.module.css';
 
@@ -41,10 +42,8 @@ const AppearanceSection = ({ character, onSave }: PlaybookSectionProps) => {
 };
 
 const PlaceOfOriginSection = ({ character, onSave }: PlaybookSectionProps) => {
-  switch (character.playbook) {
-    case 'blessed': return <BlessedPlaceOfOrigin data={character.data} onSave={onSave} />;
-    default: return <PlaceOfOrigin />;
-  }
+  const options = PLACE_OF_ORIGIN_OPTIONS[character.playbook];
+  return <PlaceOfOrigin options={options} data={character.data} onSave={onSave} />;
 };
 
 const StatsSection = ({ character, onSave }: PlaybookSectionProps) => {

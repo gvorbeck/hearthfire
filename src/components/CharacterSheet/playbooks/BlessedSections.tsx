@@ -1,4 +1,3 @@
-import { BlessedPlaceOfOrigin } from './blessed/BlessedPlaceOfOrigin';
 import { BlessedSacredPouch } from './blessed/BlessedSacredPouch';
 import { BlessedSpecialPossessions } from './blessed/BlessedSpecialPossessions';
 import { BlessedEarthMother } from './blessed/BlessedEarthMother';
@@ -6,7 +5,6 @@ import { BlessedIntroductions } from './blessed/BlessedIntroductions';
 import styles from '../CharacterSheet.module.css';
 import type { CharacterData } from '@/types';
 
-export { BlessedPlaceOfOrigin };
 export { BlessedSpecialPossessions };
 export { BlessedIntroductions };
 
