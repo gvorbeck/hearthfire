@@ -27,22 +27,22 @@ export const PlaybookSection = ({
 }: PlaybookSectionProps) => {
   const showCollapse = collapsible && !warn;
   const chevronCx = clsx(styles.collapseChevron, !isCollapsed && styles.collapseChevronOpen);
+  const chooseCx = clsx(styles.sectionTitleChoose, !warn && styles.sectionTitleChooseHidden);
+  const warnCx = clsx(styles.sectionTitleWarn, !warn && styles.sectionTitleWarnHidden);
 
   return (
     <section className={styles.section}>
       <div className={styles.sectionHeader}>
         <Heading as="h3" size="label" className={styles.sectionTitle}>
           {title}
-          {warn && (choose !== undefined || chooseNote) && (
-            <span className={styles.sectionTitleChoose}>
+          {(choose !== undefined || chooseNote) && (
+            <span className={chooseCx}>
               {choose !== undefined ? `(Choose ${choose}${chooseNote ? `, ${chooseNote}` : ''})` : `(${chooseNote})`}
             </span>
           )}
-          {warn && (
-            <Tooltip text={WARN_TEXT} side="top" className={styles.sectionTitleWarn}>
-              <Icon name="warning" size="small" aria-hidden={true} />
-            </Tooltip>
-          )}
+          <Tooltip text={WARN_TEXT} side="top" noTabStop={!warn} className={warnCx}>
+            <Icon name="warning" size="small" aria-hidden={true} />
+          </Tooltip>
         </Heading>
         {showCollapse && (
           <button

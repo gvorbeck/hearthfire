@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { Checkbox, Input, Radio, UseDots } from '@/components/primitives';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { PlaybookSection } from '../PlaybookSection';
-import type { Possession, PossessionSubItem } from '@/lib/specialPossessionsOptions';
+import type { Possession, PossessionSubItem, PlaybookSpecialPossessions } from '@/lib/specialPossessionsOptions';
 import type { CharacterData } from '@/types';
 import styles from './SpecialPossessions.module.css';
 
@@ -12,7 +12,7 @@ const PICK_COUNT = 2;
 const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
 
 interface SpecialPossessionsProps {
-  config?: { pickNote?: string; items: Possession[] };
+  config?: PlaybookSpecialPossessions;
   data?: CharacterData;
   onSave?: (data: Partial<CharacterData>) => Promise<void>;
   level?: number;
@@ -183,6 +183,8 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1 }: SpecialP
   const [selected, setSelected] = useState<Record<string, boolean>>(() => data?.specialPossessions ?? {});
   const [uses, setUses] = useState<Record<string, number>>(() => data?.specialPossessionUses ?? {});
   const [customText, setCustomText] = useState<string>(() => data?.specialPossessionCustom ?? '');
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const hasInitializedCollapse = useRef(false);
 
   const customTextRef = useRef(customText);
   customTextRef.current = customText;
@@ -196,9 +198,16 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1 }: SpecialP
 
   useEffect(() => () => { if (customDebounceRef.current) clearTimeout(customDebounceRef.current); }, []);
 
-  const topLevelIds = new Set(config?.items.map(p => p.id) ?? []);
-  const selectedCount = Object.entries(selected).filter(([k, v]) => v && topLevelIds.has(k)).length;
-  const atMax = selectedCount >= PICK_COUNT;
+  useEffect(() => {
+    if (!config?.items.length) return;
+    const topIds = new Set(config.items.map(p => p.id));
+    const count = Object.entries(selected).filter(([k, v]) => v && topIds.has(k)).length;
+    const pc = config.pickCount ?? PICK_COUNT;
+    if (count >= pc && !hasInitializedCollapse.current) {
+      hasInitializedCollapse.current = true;
+      setIsCollapsed(true);
+    }
+  }, [selected, config]);
 
   const handleToggle = useCallback((id: string, checked: boolean) => {
     setSelected(prev => {
@@ -253,6 +262,8 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1 }: SpecialP
     };
   }, [config?.items, data, level, handleStock]);
 
+  const handleToggleCollapse = useCallback(() => setIsCollapsed((v) => !v), []);
+
   const handleCustomChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setCustomText(value);
@@ -269,10 +280,28 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1 }: SpecialP
 
   if (!config?.items.length) return <PlaybookSection title="Special Possessions" />;
 
+  const topLevelIds = new Set(config.items.map(p => p.id));
+  const pickCount = config.pickCount ?? PICK_COUNT;
+  const selectedCount = Object.entries(selected).filter(([k, v]) => v && topLevelIds.has(k)).length;
+  const atMax = selectedCount >= pickCount;
+  const warn = selectedCount < pickCount;
+  const isComplete = !warn;
+  const visibleItems = isCollapsed && isComplete
+    ? config.items.filter((p) => p.isAlwaysSelected || selected[p.id])
+    : config.items;
+
   return (
-    <PlaybookSection title="Special Possessions" choose={PICK_COUNT} chooseNote={config.pickNote}>
+    <PlaybookSection
+      title="Special Possessions"
+      choose={pickCount}
+      chooseNote={config.pickNote}
+      warn={warn}
+      collapsible={isComplete}
+      isCollapsed={isCollapsed}
+      onToggleCollapse={handleToggleCollapse}
+    >
       <div className={styles.list}>
-        {config.items.map((p) => {
+        {visibleItems.map((p) => {
           const checked = p.isAlwaysSelected ? true : (selected[p.id] ?? false);
           return (
             <div key={p.id} className={styles.possessionRow}>

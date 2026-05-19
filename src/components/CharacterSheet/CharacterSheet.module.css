@@ -69,6 +69,15 @@
   transform: rotate(180deg);
 }
 
+.sectionTitleWarnHidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.sectionTitleChooseHidden {
+  visibility: hidden;
+}
+
 .sectionTitleChoose {
   font-size: var(--text-2xs);
   font-weight: 400;
