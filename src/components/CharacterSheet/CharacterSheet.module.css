@@ -9,7 +9,19 @@
   gap: var(--spacing-3);
 }
 
+/* Flex row containing the heading and the optional collapse toggle.
+   sectionTitleWarn and collapseToggle are mutually exclusive — only one
+   ever renders at a time — so both use margin-left: auto safely. */
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding-bottom: var(--spacing-3);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
 .sectionTitle {
+  flex: 1;
   display: flex;
   align-items: baseline;
   gap: var(--spacing-2);
@@ -19,8 +31,42 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--color-stone-400);
-  padding-bottom: var(--spacing-3);
-  border-bottom: 1px solid var(--border-subtle);
+}
+
+.sectionTitleWarn {
+  margin-left: auto;
+  color: var(--color-gold-300);
+  flex-shrink: 0;
+}
+
+.collapseToggle {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-stone-400);
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+.collapseToggle:hover {
+  color: var(--text-primary);
+}
+
+.collapseToggle:focus-visible {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.collapseChevron {
+  transition: transform 150ms ease;
+}
+
+.collapseChevronOpen {
+  transform: rotate(180deg);
 }
 
 .sectionTitleChoose {

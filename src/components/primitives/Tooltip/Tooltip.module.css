@@ -1,0 +1,115 @@
+.wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.tooltip {
+  position: absolute;
+  z-index: 100;
+  width: max-content;
+  max-width: 220px;
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-overlay);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  pointer-events: none;
+  /* opacity:0 not display:none — JS measures offsetWidth/offsetHeight while hidden to compute clamped position before reveal */
+  opacity: 0;
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  white-space: normal;
+}
+
+/* Positioning per side */
+.top {
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(calc(-50% + var(--nudge-x, 0px))) translateY(4px);
+}
+
+.top.visible {
+  opacity: 1;
+  transform: translateX(calc(-50% + var(--nudge-x, 0px))) translateY(0);
+}
+
+.bottom {
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(calc(-50% + var(--nudge-x, 0px))) translateY(-4px);
+}
+
+.bottom.visible {
+  opacity: 1;
+  transform: translateX(calc(-50% + var(--nudge-x, 0px))) translateY(0);
+}
+
+.left {
+  right: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%) translateX(4px);
+}
+
+.left.visible {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+.right {
+  left: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%) translateX(-4px);
+}
+
+.right.visible {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* Arrow */
+.arrow {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: var(--surface-overlay);
+  border: 1px solid var(--border-strong);
+  transform: rotate(45deg);
+}
+
+.top .arrow {
+  bottom: -4px;
+  left: var(--arrow-offset, 50%);
+  margin-left: -3px;
+  border-top: none;
+  border-left: none;
+}
+
+.bottom .arrow {
+  top: -4px;
+  left: var(--arrow-offset, 50%);
+  margin-left: -3px;
+  border-bottom: none;
+  border-right: none;
+}
+
+.left .arrow {
+  right: -4px;
+  top: 50%;
+  margin-top: -3px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.right .arrow {
+  left: -4px;
+  top: 50%;
+  margin-top: -3px;
+  border-right: none;
+  border-top: none;
+}

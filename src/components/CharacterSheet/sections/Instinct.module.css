@@ -47,3 +47,9 @@
   color: var(--text-tertiary, var(--text-secondary));
   font-style: italic;
 }
+
+.customTextarea {
+  resize: none;
+  min-height: unset;
+  overflow: hidden;
+}

@@ -51,7 +51,10 @@ export interface CharacterData {
   statLevel?: string;
   typeMoves?: Record<string, boolean>;
   typeMoveUses?: Record<string, number>;
+  typeMoveUses2?: Record<string, number>;
   typeMoveTakes?: Record<string, number>;
+  typeMoveCheckList?: Record<string, Record<string, boolean>>;
+  typeMoveCheckListLevels?: Record<string, Record<string, number>>;
   specialPossessions?: Record<string, boolean>;
   specialPossessionUses?: Record<string, number>;
   specialPossessionCustom?: string;

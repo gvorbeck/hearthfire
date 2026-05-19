@@ -107,3 +107,17 @@
   flex-shrink: 0;
 }
 
+/* ── Uses group (single or dual with pipe separator) ─── */
+.usesGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  flex-shrink: 0;
+}
+
+.usesSeparator {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary, var(--text-secondary));
+  user-select: none;
+}
+
