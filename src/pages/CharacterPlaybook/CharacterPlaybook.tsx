@@ -25,6 +25,8 @@ import { WouldBeHeroSections } from '@/components/CharacterSheet/playbooks/Would
 import type { Character, CharacterData, GameSession, PlaybookType } from '@/types';
 import styles from './CharacterPlaybook.module.css';
 
+const WOULD_BE_HERO_SCORE_INSTRUCTION = 'Assign these scores: 1, 0, 0, 0, 0, -1. When a debility is marked, you roll with disadvantage.';
+
 const getCharacterLevel = (character: Character): number => {
   const parsed = parseInt(character.data?.statLevel ?? '', 10);
   return isNaN(parsed) ? character.level : parsed;
@@ -47,7 +49,13 @@ const PCPlaybookTab = ({ character, playbookOption, onSave }: { character: Chara
         </div>
       </div>
       <div className={styles.colFull}>
-        <Stats data={data} onSave={onSave} hpMax={playbookOption?.hpMax} damage={playbookOption?.damage} />
+        <Stats
+          data={data}
+          onSave={onSave}
+          hpMax={playbookOption?.hpMax}
+          damage={playbookOption?.damage}
+          scoreInstruction={playbook === 'would-be-hero' ? WOULD_BE_HERO_SCORE_INSTRUCTION : undefined}
+        />
       </div>
       <div className={styles.colFull}>
         <Moves playbook={playbook} data={data} onSave={onSave} level={level} />

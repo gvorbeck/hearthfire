@@ -3,6 +3,7 @@
   font-size: var(--text-sm);
   color: var(--text-secondary);
   margin-bottom: var(--spacing-4);
+  text-align: center;
 }
 
 .statsSection {
@@ -28,7 +29,7 @@
 
 .statLabel {
   font-family: var(--font-serif);
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   color: var(--text-primary);
   white-space: nowrap;
 }
@@ -41,7 +42,7 @@
   border: 2px solid var(--border-strong);
   border-radius: var(--radius-md);
   color: var(--text-primary);
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: var(--text-2xl);
   font-weight: 700;
   text-align: center;
@@ -66,7 +67,7 @@
 
 .statAbbr {
   font-family: var(--font-serif);
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   color: var(--text-secondary);
 }
 
@@ -105,7 +106,7 @@
 
 .debilityLabel {
   font-family: var(--font-serif);
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   font-style: italic;
   color: var(--text-secondary);
 }
@@ -133,7 +134,7 @@
   border: 2px solid var(--border-strong);
   border-radius: var(--radius-md);
   color: var(--text-primary);
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: var(--text-xl);
   font-weight: 700;
   text-align: center;
@@ -166,14 +167,14 @@
   border: 2px solid var(--border-strong);
   border-radius: var(--radius-md);
   color: var(--text-primary);
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: var(--text-xl);
   font-weight: 700;
 }
 
 .infoLabel {
   font-family: var(--font-serif);
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   color: var(--text-secondary);
   white-space: nowrap;
 }

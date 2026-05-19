@@ -17,6 +17,8 @@ export const Appearance = ({ rows, data, onSave }: AppearanceProps = {}) => {
   const [selected, setSelected] = useState<Record<string, string>>(data?.appearance ?? {});
   const [isCustom, setIsCustom] = useState<boolean>(Boolean(data?.appearanceCustom));
   const [customText, setCustomText] = useState<string>(data?.appearanceCustom ?? '');
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const hasInitializedCollapse = useRef(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onSaveRef = useRef(onSave);
   const selectedRef = useRef(selected);
@@ -34,6 +36,16 @@ export const Appearance = ({ rows, data, onSave }: AppearanceProps = {}) => {
   }, [data?.appearance, data?.appearanceCustom]);
 
   useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
+
+  useEffect(() => {
+    const appearance = data?.appearance ?? {};
+    const allRowsFilled = rows ? rows.every((_, i) => Boolean(appearance[String(i)])) : false;
+    const complete = Boolean(data?.appearanceCustom) || allRowsFilled;
+    if (complete && !hasInitializedCollapse.current) {
+      hasInitializedCollapse.current = true;
+      setIsCollapsed(true);
+    }
+  }, [data?.appearance, data?.appearanceCustom, rows]);
 
   const flushSave = useCallback((nextSelected: Record<string, string>, nextCustom: string) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -77,59 +89,74 @@ export const Appearance = ({ rows, data, onSave }: AppearanceProps = {}) => {
     onSaveRef.current?.({ appearance: selectedRef.current, appearanceCustom: e.target.value });
   }, []);
 
+  const handleToggleCollapse = useCallback(() => setIsCollapsed((v) => !v), []);
+
   if (!rows) return <PlaybookSection title="Appearance" />;
 
-  const warn = !isCustom && Object.keys(selected).length < rows.length;
+  const warn = !isCustom && rows.some((_, i) => !selected[String(i)]);
+  const isComplete = !warn;
+
+  const summary = isCustom
+    ? (customText.trim() || null)
+    : rows.map((_, i) => selected[String(i)]).filter(Boolean).join(' • ');
 
   return (
-    <PlaybookSection title="Appearance" warn={warn}>
-      <div className={styles.rows}>
-        {rows.map((options, rowIndex) => (
-          <div key={rowIndex} className={styles.row}>
-            {rowIndex === 0 && (
-              <p className={styles.instruction}>Choose 1 on each line, or make something up:</p>
-            )}
-            <div className={styles.options}>
-              {options.map((opt) => (
-                <Radio
-                  key={opt}
-                  name={`appearance-row-${rowIndex}`}
-                  value={opt}
-                  data-row={rowIndex}
-                  checked={selected[String(rowIndex)] === opt}
-                  disabled={isCustom}
-                  onChange={handleSelect}
-                  label={<span className={styles.optionLabel}>{opt}</span>}
-                />
-              ))}
+    <PlaybookSection
+      title="Appearance"
+      chooseNote="1 on each line, or make something up"
+      warn={warn}
+      collapsible={isComplete}
+      isCollapsed={isCollapsed}
+      onToggleCollapse={handleToggleCollapse}
+    >
+      {isCollapsed && isComplete ? (
+        <p className={styles.summary}>{summary}</p>
+      ) : (
+        <div className={styles.rows}>
+          {rows.map((options, rowIndex) => (
+            <div key={rowIndex} className={styles.row}>
+              <div className={styles.options}>
+                {options.map((opt) => (
+                  <Radio
+                    key={opt}
+                    name={`appearance-row-${rowIndex}`}
+                    value={opt}
+                    data-row={rowIndex}
+                    checked={selected[String(rowIndex)] === opt}
+                    disabled={isCustom}
+                    onChange={handleSelect}
+                    label={<span className={styles.optionLabel}>{opt}</span>}
+                  />
+                ))}
+              </div>
             </div>
+          ))}
+          <div className={styles.row}>
+            <Checkbox
+              className={styles.customCheckbox}
+              name="appearance-custom"
+              value="custom"
+              checked={isCustom}
+              onChange={handleCustomToggle}
+              label={
+                isCustom ? (
+                  <input
+                    className={styles.customInput}
+                    value={customText}
+                    placeholder="Describe your appearance…"
+                    aria-label="Custom appearance"
+                    onChange={handleCustomChange}
+                    onBlur={handleCustomBlur}
+                    onClick={stopPropagation}
+                  />
+                ) : (
+                  <span className={styles.customLabel}>Custom</span>
+                )
+              }
+            />
           </div>
-        ))}
-        <div className={styles.row}>
-          <Checkbox
-            className={styles.customCheckbox}
-            name="appearance-custom"
-            value="custom"
-            checked={isCustom}
-            onChange={handleCustomToggle}
-            label={
-              isCustom ? (
-                <input
-                  className={styles.customInput}
-                  value={customText}
-                  placeholder="Describe your appearance…"
-                  aria-label="Custom appearance"
-                  onChange={handleCustomChange}
-                  onBlur={handleCustomBlur}
-                  onClick={stopPropagation}
-                />
-              ) : (
-                <span className={styles.customPlaceholder}>or make something up</span>
-              )
-            }
-          />
         </div>
-      </div>
+      )}
     </PlaybookSection>
   );
 };

@@ -33,9 +33,9 @@ export const PlaybookSection = ({
       <div className={styles.sectionHeader}>
         <Heading as="h3" size="label" className={styles.sectionTitle}>
           {title}
-          {choose !== undefined && (
+          {warn && (choose !== undefined || chooseNote) && (
             <span className={styles.sectionTitleChoose}>
-              (Choose {choose}{chooseNote ? `, ${chooseNote}` : ''})
+              {choose !== undefined ? `(Choose ${choose}${chooseNote ? `, ${chooseNote}` : ''})` : `(${chooseNote})`}
             </span>
           )}
           {warn && (

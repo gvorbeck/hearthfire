@@ -17,6 +17,8 @@ export const Background = ({ playbookKey, options, level, data, onSave }: Backgr
   const [selectedChoices, setSelectedChoices] = useState<string[]>(data?.backgroundChoices ?? []);
   const [freeText, setFreeText] = useState<Record<string, string>>(data?.backgroundFreeText ?? {});
   const [backgroundUses, setBackgroundUses] = useState<Record<string, number>>(data?.backgroundUses ?? {});
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const hasInitializedCollapse = useRef(false);
   const choiceDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const freeTextDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const selectedOptionRef = useRef(selectedOption);
@@ -33,18 +35,29 @@ export const Background = ({ playbookKey, options, level, data, onSave }: Backgr
     if (data?.backgroundUses !== undefined) setBackgroundUses(data.backgroundUses);
   }, [data?.background, data?.backgroundChoices, data?.backgroundFreeText, data?.backgroundUses]);
 
+  useEffect(() => {
+    if (data?.background && !hasInitializedCollapse.current) {
+      hasInitializedCollapse.current = true;
+      setIsCollapsed(true);
+    }
+  }, [data?.background]);
+
   useEffect(() => () => {
     if (choiceDebounceRef.current) clearTimeout(choiceDebounceRef.current);
     if (freeTextDebounceRef.current) clearTimeout(freeTextDebounceRef.current);
   }, []);
+
+  const handleToggleCollapse = useCallback(() => setIsCollapsed((v) => !v), []);
 
   const handleOptionChange = useCallback((value: string) => {
     const prev = selectedOption;
     if (choiceDebounceRef.current) clearTimeout(choiceDebounceRef.current);
     setSelectedOption(value);
     setSelectedChoices([]);
+    setIsCollapsed(true);
     onSave?.({ background: value, backgroundChoices: [] }).catch(() => {
       setSelectedOption(prev);
+      setIsCollapsed(false);
     });
   }, [onSave, selectedOption]);
 
@@ -80,11 +93,21 @@ export const Background = ({ playbookKey, options, level, data, onSave }: Backgr
   if (!options) return <PlaybookSection title="Background" />;
 
   const warn = !selectedOption;
+  const visibleOptions = isCollapsed && selectedOption
+    ? options.filter((opt) => opt.value === selectedOption)
+    : options;
 
   return (
-    <PlaybookSection title="Background" choose={1} warn={warn}>
+    <PlaybookSection
+      title="Background"
+      choose={1}
+      warn={warn}
+      collapsible={!!selectedOption}
+      isCollapsed={isCollapsed}
+      onToggleCollapse={handleToggleCollapse}
+    >
       <div className={styles.options}>
-        {options.map((opt) => (
+        {visibleOptions.map((opt) => (
           <BackgroundOptionItem
             key={opt.value}
             option={opt}

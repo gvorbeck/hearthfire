@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, memo } from 'react';
+import { useState, useRef, useEffect, useCallback, memo } from 'react';
 import { Radio } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
 import type { PlaceOfOriginOptions } from '@/lib/placeOfOriginOptions';
@@ -39,36 +39,68 @@ interface PlaceOfOriginProps {
 
 export const PlaceOfOrigin = ({ options, data, onSave }: PlaceOfOriginProps = {}) => {
   const [selected, setSelected] = useState<string>(data?.placeOfOrigin ?? '');
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const hasInitializedCollapse = useRef(false);
 
   useEffect(() => {
     if (data?.placeOfOrigin !== undefined) setSelected(data.placeOfOrigin);
   }, [data?.placeOfOrigin]);
 
+  useEffect(() => {
+    if (data?.placeOfOrigin && !hasInitializedCollapse.current) {
+      hasInitializedCollapse.current = true;
+      setIsCollapsed(true);
+    }
+  }, [data?.placeOfOrigin]);
+
   const handleSelect = useCallback((value: string) => {
+    const prev = selected;
     setSelected(value);
-    onSave?.({ placeOfOrigin: value });
-  }, [onSave]);
+    setIsCollapsed(true);
+    onSave?.({ placeOfOrigin: value }).catch(() => {
+      setSelected(prev);
+      setIsCollapsed(false);
+    });
+  }, [onSave, selected]);
+
+  const handleToggleCollapse = useCallback(() => setIsCollapsed((v) => !v), []);
 
   if (!options?.length) return <PlaybookSection title="Place of Origin" />;
 
   const warn = !selected;
+  const selectedOption = options.find((opt) => opt.value === selected);
 
   return (
-    <PlaybookSection title="Place of Origin" choose={1} warn={warn}>
-      <p className={styles.instruction}>
-        Stonetop is your home, or close enough, but where are you (or your family) from originally?
-        Pick an origin, then choose a matching name or make up your own — edit it in the header above.
-      </p>
-      <div className={styles.options}>
-        {options.map((opt) => (
-          <OriginOption
-            key={opt.value}
-            opt={opt}
-            isSelected={selected === opt.value}
-            onSelect={handleSelect}
-          />
-        ))}
-      </div>
+    <PlaybookSection
+      title="Place of Origin"
+      choose={1}
+      warn={warn}
+      collapsible={!!selected}
+      isCollapsed={isCollapsed}
+      onToggleCollapse={handleToggleCollapse}
+    >
+      {isCollapsed && selectedOption ? (
+        <p className={styles.summary}>
+          <span className={styles.optionTitle}>{selectedOption.label}</span>
+        </p>
+      ) : (
+        <>
+          <p className={styles.instruction}>
+            Stonetop is your home, or close enough, but where are you (or your family) from originally?
+            Pick an origin, then choose a matching name or make up your own — edit it in the header above.
+          </p>
+          <div className={styles.options}>
+            {options.map((opt) => (
+              <OriginOption
+                key={opt.value}
+                opt={opt}
+                isSelected={selected === opt.value}
+                onSelect={handleSelect}
+              />
+            ))}
+          </div>
+        </>
+      )}
     </PlaybookSection>
   );
 };

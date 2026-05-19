@@ -1,3 +1,7 @@
+.summary {
+  margin: var(--spacing-2) 0 0;
+}
+
 .instruction {
   font-family: var(--font-sans);
   font-size: var(--text-sm);
