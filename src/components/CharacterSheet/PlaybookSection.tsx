@@ -2,13 +2,14 @@ import clsx from 'clsx';
 import { Heading, Icon, Tooltip } from '@/components/primitives';
 import styles from './CharacterSheet.module.css';
 
-const WARN_TEXT = 'This section has unresolved choices — select an option to complete it.';
+const DEFAULT_WARN_TEXT = 'This section has unresolved choices — select an option to complete it.';
 
 interface PlaybookSectionProps {
   title: string;
   choose?: number;
   chooseNote?: string;
   warn?: boolean;
+  warnText?: string;
   collapsible?: boolean;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
@@ -20,6 +21,7 @@ export const PlaybookSection = ({
   choose,
   chooseNote,
   warn,
+  warnText = DEFAULT_WARN_TEXT,
   collapsible,
   isCollapsed,
   onToggleCollapse,
@@ -40,7 +42,7 @@ export const PlaybookSection = ({
               {choose !== undefined ? `(Choose ${choose}${chooseNote ? `, ${chooseNote}` : ''})` : `(${chooseNote})`}
             </span>
           )}
-          <Tooltip text={WARN_TEXT} side="top" noTabStop={!warn} className={warnCx}>
+          <Tooltip text={warnText} side="top" noTabStop={!warn} className={warnCx}>
             <Icon name="warning" size="small" aria-hidden={true} />
           </Tooltip>
         </Heading>

@@ -27,6 +27,8 @@ export const App = () => (
       LaTorra &amp; Adam Koebel (CC BY).
       <br />&copy; {CURRENT_YEAR}{' '}
       <a href="https://iamgarrett.com" target="_blank" rel="noreferrer">J. Garrett Vorbeck</a>
+      {' · '}
+      <a href="https://github.com/gvorbeck/hearthfire" target="_blank" rel="noreferrer">GitHub</a>
     </footer>
   </>
 );

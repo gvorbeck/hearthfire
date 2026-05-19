@@ -8,13 +8,14 @@ import styles from './Stats.module.css';
 interface StatBoxProps {
   label: string;
   abbr: string;
+  statKey: keyof StatsState;
   value: string;
-  onChange: (val: string) => void;
+  onChange: (key: keyof StatsState, val: string) => void;
   onBlur: () => void;
 }
 
-const StatBox = memo(({ label, abbr, value, onChange, onBlur }: StatBoxProps) => {
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value), [onChange]);
+const StatBox = memo(({ label, abbr, statKey, value, onChange, onBlur }: StatBoxProps) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onChange(statKey, e.target.value), [onChange, statKey]);
   return (
     <div className={styles.statBox}>
       <label className={styles.statLabel} htmlFor={`stat-${abbr}`}>{label}</label>
@@ -34,15 +35,18 @@ const StatBox = memo(({ label, abbr, value, onChange, onBlur }: StatBoxProps) =>
 
 interface InfoBoxProps {
   label: string;
+  statKey?: keyof StatsState;
   value: string;
   isStatic?: boolean;
   min?: number;
-  onChange?: (val: string) => void;
+  onChange?: (key: keyof StatsState, val: string) => void;
   onBlur?: () => void;
 }
 
-const InfoBox = memo(({ label, value, isStatic, min, onChange, onBlur }: InfoBoxProps) => {
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onChange?.(e.target.value), [onChange]);
+const InfoBox = memo(({ label, statKey, value, isStatic, min, onChange, onBlur }: InfoBoxProps) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    if (statKey) onChange?.(statKey, e.target.value);
+  }, [onChange, statKey]);
   return (
     <div className={styles.infoBox}>
       {isStatic ? (
@@ -65,12 +69,14 @@ const InfoBox = memo(({ label, value, isStatic, min, onChange, onBlur }: InfoBox
 
 interface DebilityRowProps {
   label: string;
+  debilityKey: keyof DebilitiesState;
   checked: boolean;
-  onChange: (checked: boolean) => void;
+  onChange: (key: keyof DebilitiesState, checked: boolean) => void;
 }
 
-const DebilityRow = ({ label, checked, onChange }: DebilityRowProps) => {
+const DebilityRow = memo(({ label, debilityKey, checked, onChange }: DebilityRowProps) => {
   const braceCx = clsx(styles.debilityBrace, checked && styles.debilityBraceActive);
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onChange(debilityKey, e.target.checked), [onChange, debilityKey]);
   return (
     <div className={styles.debility}>
       <div className={braceCx} />
@@ -78,12 +84,12 @@ const DebilityRow = ({ label, checked, onChange }: DebilityRowProps) => {
         name={`debility-${label}`}
         value={label}
         checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
+        onChange={handleChange}
         label={<span className={styles.debilityLabel}>{label}</span>}
       />
     </div>
   );
-};
+});
 
 type StatsState = {
   statStr: string; statDex: string; statInt: string; statWis: string;
@@ -142,6 +148,8 @@ const STAT_GROUPS = [
 ] as const;
 
 const DEFAULT_SCORE_INSTRUCTION = 'Assign these scores: 2, 1, 1, 0, 0, -1. When a debility is marked, you roll with disadvantage.';
+
+const REQUIRED_STAT_KEYS: (keyof StatsState)[] = ['statStr', 'statDex', 'statInt', 'statWis', 'statCon', 'statCha', 'statHp', 'statArmor', 'statXp'];
 
 interface StatsProps {
   data?: CharacterData;
@@ -207,10 +215,11 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
 
   if (!data || hpMax === undefined) return <PlaybookSection title="Stats" />;
 
+  const warn = REQUIRED_STAT_KEYS.some((k) => stats[k] === '');
   const hpLabel = `HP (max ${hpMax})`;
 
   return (
-    <PlaybookSection title="Stats">
+    <PlaybookSection title="Stats" warn={warn} warnText="All stat fields must be filled in before play.">
       <p className={styles.statsInstruction}>{scoreInstruction}</p>
       <div className={styles.statsSection}>
         <div className={styles.statRow}>
@@ -222,26 +231,28 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
                     key={f.key}
                     label={f.label}
                     abbr={f.abbr}
+                    statKey={f.key}
                     value={stats[f.key]}
-                    onChange={(val) => handleStatChange(f.key, val)}
+                    onChange={handleStatChange}
                     onBlur={flush}
                   />
                 ))}
               </div>
               <DebilityRow
                 label={group.debilityLabel}
+                debilityKey={group.debilityKey}
                 checked={debilities[group.debilityKey]}
-                onChange={(c) => handleDebilityChange(group.debilityKey, c)}
+                onChange={handleDebilityChange}
               />
             </div>
           ))}
         </div>
         <div className={styles.infoRow}>
           <InfoBox label="Damage" value={damage} isStatic />
-          <InfoBox label={hpLabel} value={stats.statHp} onChange={(val) => handleStatChange('statHp', val)} onBlur={flush} />
-          <InfoBox label="Armor" value={stats.statArmor} onChange={(val) => handleStatChange('statArmor', val)} onBlur={flush} />
-          <InfoBox label="XP" value={stats.statXp} onChange={(val) => handleStatChange('statXp', val)} onBlur={flush} />
-          <InfoBox label="Level" value={stats.statLevel} min={1} onChange={(val) => handleStatChange('statLevel', val)} onBlur={flush} />
+          <InfoBox label={hpLabel} statKey="statHp" value={stats.statHp} onChange={handleStatChange} onBlur={flush} />
+          <InfoBox label="Armor" statKey="statArmor" value={stats.statArmor} onChange={handleStatChange} onBlur={flush} />
+          <InfoBox label="XP" statKey="statXp" value={stats.statXp} onChange={handleStatChange} onBlur={flush} />
+          <InfoBox label="Level" statKey="statLevel" value={stats.statLevel} min={1} onChange={handleStatChange} onBlur={flush} />
         </div>
       </div>
     </PlaybookSection>

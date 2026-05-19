@@ -25,6 +25,7 @@
   opacity: 0;
   transition: opacity 0.12s ease, transform 0.12s ease;
   white-space: normal;
+  text-align: center;
 }
 
 /* Positioning per side */
