@@ -79,8 +79,10 @@ export const Appearance = ({ rows, data, onSave }: AppearanceProps = {}) => {
 
   if (!rows) return <PlaybookSection title="Appearance" />;
 
+  const warn = !isCustom && Object.keys(selected).length < rows.length;
+
   return (
-    <PlaybookSection title="Appearance">
+    <PlaybookSection title="Appearance" warn={warn}>
       <div className={styles.rows}>
         {rows.map((options, rowIndex) => (
           <div key={rowIndex} className={styles.row}>

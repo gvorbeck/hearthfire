@@ -51,8 +51,10 @@ export const PlaceOfOrigin = ({ options, data, onSave }: PlaceOfOriginProps = {}
 
   if (!options?.length) return <PlaybookSection title="Place of Origin" />;
 
+  const warn = !selected;
+
   return (
-    <PlaybookSection title="Place of Origin" choose={1}>
+    <PlaybookSection title="Place of Origin" choose={1} warn={warn}>
       <p className={styles.instruction}>
         Stonetop is your home, or close enough, but where are you (or your family) from originally?
         Pick an origin, then choose a matching name or make up your own — edit it in the header above.

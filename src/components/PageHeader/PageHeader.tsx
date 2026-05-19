@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
-import { Heading, Text, Icon, RuleDivider } from '@/components/primitives';
+import { useState, useRef, useEffect, useId } from 'react';
+import { Heading, Text, Icon, RuleDivider, Tooltip } from '@/components/primitives';
 import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
 import type { Crumb } from '@/components/Breadcrumb/Breadcrumb';
 import styles from './PageHeader.module.css';
@@ -20,6 +20,8 @@ export const PageHeader = ({ crumbs, title, titleLabel, subtitle, gameId, onSave
   const [copied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const copiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const editTooltipId = useId();
+  const copyTooltipId = useId();
 
   useEffect(() => {
     if (editing) inputRef.current?.select();
@@ -61,6 +63,8 @@ export const PageHeader = ({ crumbs, title, titleLabel, subtitle, gameId, onSave
     copiedTimerRef.current = setTimeout(() => setCopied(false), 2000);
   };
 
+  const copyLabel = copied ? 'Copied!' : 'Copy game ID';
+
   return (
     <div className={styles.header}>
       <Breadcrumb crumbs={crumbs} />
@@ -78,9 +82,16 @@ export const PageHeader = ({ crumbs, title, titleLabel, subtitle, gameId, onSave
         ) : (
           <>
             <Heading as="h1" size="xl">{title}</Heading>
-            <button className={styles.editBtn} onClick={startEditing} aria-label={titleLabel}>
-              <Icon name="pencil" size="small" />
-            </button>
+            <Tooltip text="Edit name" side="top" noTabStop tooltipId={editTooltipId}>
+              <button
+                className={styles.editBtn}
+                onClick={startEditing}
+                aria-label={titleLabel}
+                aria-describedby={editTooltipId}
+              >
+                <Icon name="pencil" size="small" aria-hidden />
+              </button>
+            </Tooltip>
           </>
         )}
       </div>
@@ -90,9 +101,16 @@ export const PageHeader = ({ crumbs, title, titleLabel, subtitle, gameId, onSave
         <Text color="muted" size="sm">
           Game ID: <Text as="span" color="accent" size="sm">{gameId}</Text>
         </Text>
-        <button className={styles.copyBtn} onClick={copyGameId} aria-label="Copy game ID">
-          <Icon name={copied ? 'check' : 'copy'} size="small" />
-        </button>
+        <Tooltip text={copyLabel} side="top" noTabStop tooltipId={copyTooltipId}>
+          <button
+            className={styles.copyBtn}
+            onClick={copyGameId}
+            aria-label={copyLabel}
+            aria-describedby={copyTooltipId}
+          >
+            <Icon name={copied ? 'check' : 'copy'} size="small" aria-hidden />
+          </button>
+        </Tooltip>
       </div>
       <RuleDivider className={styles.rule} />
     </div>

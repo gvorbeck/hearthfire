@@ -79,8 +79,10 @@ export const Background = ({ playbookKey, options, level, data, onSave }: Backgr
 
   if (!options) return <PlaybookSection title="Background" />;
 
+  const warn = !selectedOption;
+
   return (
-    <PlaybookSection title="Background" choose={1}>
+    <PlaybookSection title="Background" choose={1} warn={warn}>
       <div className={styles.options}>
         {options.map((opt) => (
           <BackgroundOptionItem
