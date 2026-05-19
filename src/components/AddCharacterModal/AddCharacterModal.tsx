@@ -37,7 +37,7 @@ export const AddCharacterModal = ({
   const handleAdd = () => {
     if (!playbook) return;
     const selectedLabel = PLAYBOOKS.find((p) => p.value === playbook)?.label ?? playbook;
-    const character = { id: crypto.randomUUID(), name: selectedLabel, playbook, level: 1 };
+    const character = { id: crypto.randomUUID(), name: selectedLabel, playbook, level: 1, data: { statLevel: '1' } };
     onAdd(character)
       .then(handleClose)
       .catch(() => setAddError('Failed to add character. Please try again.'));

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import clsx from 'clsx';
 import { Checkbox } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
@@ -13,20 +13,24 @@ interface StatBoxProps {
   onBlur: () => void;
 }
 
-const StatBox = ({ label, abbr, value, onChange, onBlur }: StatBoxProps) => (
-  <div className={styles.statBox}>
-    <label className={styles.statLabel} htmlFor={`stat-${abbr}`}>{label}</label>
-    <input
-      id={`stat-${abbr}`}
-      className={styles.statInput}
-      type="number"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      onBlur={onBlur}
-    />
-    <span className={styles.statAbbr}>({abbr})</span>
-  </div>
-);
+const StatBox = memo(({ label, abbr, value, onChange, onBlur }: StatBoxProps) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value), [onChange]);
+  return (
+    <div className={styles.statBox}>
+      <label className={styles.statLabel} htmlFor={`stat-${abbr}`}>{label}</label>
+      <input
+        id={`stat-${abbr}`}
+        className={styles.statInput}
+        type="number"
+        value={value}
+        max={3}
+        onChange={handleChange}
+        onBlur={onBlur}
+      />
+      <span className={styles.statAbbr}>({abbr})</span>
+    </div>
+  );
+});
 
 interface InfoBoxProps {
   label: string;
@@ -37,24 +41,27 @@ interface InfoBoxProps {
   onBlur?: () => void;
 }
 
-const InfoBox = ({ label, value, isStatic, min, onChange, onBlur }: InfoBoxProps) => (
-  <div className={styles.infoBox}>
-    {isStatic ? (
-      <span className={styles.infoStatic}>{value}</span>
-    ) : (
-      <input
-        className={styles.infoInput}
-        type="number"
-        value={value}
-        min={min}
-        aria-label={label}
-        onChange={onChange ? (e) => onChange(e.target.value) : undefined}
-        onBlur={onBlur}
-      />
-    )}
-    <span className={styles.infoLabel}>{label}</span>
-  </div>
-);
+const InfoBox = memo(({ label, value, isStatic, min, onChange, onBlur }: InfoBoxProps) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onChange?.(e.target.value), [onChange]);
+  return (
+    <div className={styles.infoBox}>
+      {isStatic ? (
+        <span className={styles.infoStatic}>{value}</span>
+      ) : (
+        <input
+          className={styles.infoInput}
+          type="number"
+          value={value}
+          min={min}
+          aria-label={label}
+          onChange={handleChange}
+          onBlur={onBlur}
+        />
+      )}
+      <span className={styles.infoLabel}>{label}</span>
+    </div>
+  );
+});
 
 interface DebilityRowProps {
   label: string;
@@ -98,7 +105,7 @@ const statsFromData = (data: CharacterData | undefined): StatsState => ({
   statHp: data?.statHp ?? '',
   statArmor: data?.statArmor ?? '',
   statXp: data?.statXp ?? '',
-  statLevel: data?.statLevel ?? '',
+  statLevel: data?.statLevel || '1',
 });
 
 const debilitiesFromData = (data: CharacterData | undefined): DebilitiesState => ({
@@ -134,7 +141,7 @@ const STAT_GROUPS = [
   },
 ] as const;
 
-const DEFAULT_SCORE_INSTRUCTION = 'Assign these scores: +2, +1, +1, +0, +0, -1. When a debility is marked, you roll with disadvantage.';
+const DEFAULT_SCORE_INSTRUCTION = 'Assign these scores: 2, 1, 1, 0, 0, -1. When a debility is marked, you roll with disadvantage.';
 
 interface StatsProps {
   data?: CharacterData;

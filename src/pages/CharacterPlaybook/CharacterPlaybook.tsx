@@ -25,7 +25,7 @@ import { WouldBeHeroSections } from '@/components/CharacterSheet/playbooks/Would
 import type { Character, CharacterData, GameSession, PlaybookType } from '@/types';
 import styles from './CharacterPlaybook.module.css';
 
-const WOULD_BE_HERO_SCORE_INSTRUCTION = 'Assign these scores: +1, +0, +0, +0, +0, -1. When a debility is marked, you roll with disadvantage.';
+const WOULD_BE_HERO_SCORE_INSTRUCTION = 'Assign these scores: 1, 0, 0, 0, 0, -1. When a debility is marked, you roll with disadvantage.';
 
 const getCharacterLevel = (character: Character): number => {
   const parsed = parseInt(character.data?.statLevel ?? '', 10);
