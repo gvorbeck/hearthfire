@@ -51,7 +51,7 @@
   flex-direction: column;
   gap: var(--spacing-3);
   font-family: var(--font-serif);
-  font-size: var(--text-md);
+  font-size: var(--text-sm);
   color: var(--text-primary);
 }
 

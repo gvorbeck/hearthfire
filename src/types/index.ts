@@ -61,6 +61,19 @@ export interface CharacterData {
   earthMotherShrine?: string;
   earthMotherOfferings?: Record<string, boolean>;
   introductionQuestions?: Record<string, boolean>;
+  foxTallTales?: Record<string, boolean>;
+  heavyViolence?: Record<string, boolean>;
+  judgeChronicle?: Record<string, boolean>;
+  judgeLawkeeper?: Record<string, boolean>;
+  lightbearerPraiseTheDay?: Record<string, boolean>;
+  marshalWarStories?: Record<string, boolean>;
+  marshalWarStoriesAnswers?: Record<string, string>;
+  rangerSomethingWicked?: Record<string, boolean>;
+  rangerSomethingWickedAnswers?: Record<string, string>;
+  seekerCollection?: Record<string, boolean>;
+  seekerCollectionAnswers?: Record<string, string>;
+  wouldBeHeroFearAnger?: Record<string, boolean>;
+  wouldBeHeroFearAngerAnswers?: Record<string, string>;
 }
 
 export interface Character {

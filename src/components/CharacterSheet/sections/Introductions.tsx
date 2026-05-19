@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Checkbox, List } from '@/components/primitives';
+import { CheckboxGroup, List } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
 import type { CharacterData } from '@/types';
 import styles from './Introductions.module.css';
@@ -56,14 +56,11 @@ export const Introductions = ({ config, data, onSave }: IntroductionsProps = {})
           NPCs who live in Stonetop.
         </p>
         <div className={styles.questionList}>
-          {step4Questions.map(({ id, text }) => (
-            <Checkbox
-              key={id}
-              checked={questions[id] ?? false}
-              onChange={(e) => handleQuestion(id, e.target.checked)}
-              label={<span className={styles.questionText}>{text}</span>}
-            />
-          ))}
+          <CheckboxGroup
+            items={step4Questions.map(({ id, text }) => ({ id, label: <span className={styles.questionText}>{text}</span> }))}
+            checked={questions}
+            onChange={handleQuestion}
+          />
         </div>
       </div>,
       <p key="step-5" className={styles.stepText}>
@@ -75,14 +72,11 @@ export const Introductions = ({ config, data, onSave }: IntroductionsProps = {})
           you, answer as you like.
         </p>
         <div className={styles.questionList}>
-          {step6Questions.map(({ id, text }) => (
-            <Checkbox
-              key={id}
-              checked={questions[id] ?? false}
-              onChange={(e) => handleQuestion(id, e.target.checked)}
-              label={<span className={styles.questionText}>{text}</span>}
-            />
-          ))}
+          <CheckboxGroup
+            items={step6Questions.map(({ id, text }) => ({ id, label: <span className={styles.questionText}>{text}</span> }))}
+            checked={questions}
+            onChange={handleQuestion}
+          />
         </div>
       </div>,
       <p key="step-7" className={styles.stepText}>
