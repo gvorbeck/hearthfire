@@ -76,6 +76,12 @@ const CUSTOM: Possession = {
   label: '(discuss with GM)',
 };
 
+const HUSBANDRY_TOOLS: Possession = {
+  id: 'husbandry-tools',
+  name: 'Husbandry tools',
+  label: '**Husbandry tools**: brushes, muzzles, collars, feed, ◇ whips, ◇ bridles, etc. Gain advantage to Persuade domestic beasts (livestock, dogs, etc.).',
+};
+
 export const SPECIAL_POSSESSIONS_OPTIONS: Partial<Record<PlaybookType, PlaybookSpecialPossessions>> = {
   blessed: {
     pickNote: 'in addition to your sacred pouch',
@@ -88,7 +94,7 @@ export const SPECIAL_POSSESSIONS_OPTIONS: Partial<Record<PlaybookType, PlaybookS
         stockCapacity: (level) => 3 + Math.floor(level / 2),
         label: '**Sacred pouch** (*magical*): see Sacred Pouch section.',
       },
-      { ...APIARY, label: '**Apiary**: beeswax, candles (*close*, *area*, lasts ~1 hr), honey, ◇ bee smokers, ◇ hat & veils, etc.' },
+      APIARY,
       {
         id: 'collected-offerings',
         name: 'Collected offerings',
@@ -118,11 +124,7 @@ export const SPECIAL_POSSESSIONS_OPTIONS: Partial<Record<PlaybookType, PlaybookS
     items: [
       DISTILLERY,
       CHIRURGEONS_TOOLS,
-      {
-        id: 'husbandry-tools',
-        name: 'Husbandry tools',
-        label: '**Husbandry tools**: brushes, muzzles, collars, feed, ◇ whips, ◇ bridles, etc. Gain advantage to Persuade domestic beasts (livestock, dogs, etc.).',
-      },
+      HUSBANDRY_TOOLS,
       SMITHY,
       {
         id: 'stoneworkers-tools',
@@ -277,6 +279,46 @@ export const SPECIAL_POSSESSIONS_OPTIONS: Partial<Record<PlaybookType, PlaybookS
         id: 'trade-contacts',
         name: 'Trade contacts',
         label: '**Trade contacts**: small amounts of salt, glass, silk, spice, medicinal herbs, pigments, ivory, etc.',
+      },
+      CUSTOM,
+    ],
+  },
+  ranger: {
+    pickNote: 'in addition to your composite bow',
+    items: [
+      {
+        id: 'composite-bow',
+        name: 'Composite bow',
+        isAlwaysSelected: true,
+        uses: 2,
+        usesLabel: 'low ammo / all out',
+        label: '**Composite bow** (*far*, +1 damage, x piercing)',
+      },
+      DISTILLERY,
+      {
+        id: 'hideouts',
+        name: 'Hideouts',
+        uses: 3,
+        usesLabel: 'uses',
+        label: '**Hideouts**: expend a use to have a well-stocked, safe shelter nearby; GM can veto.',
+      },
+      HUSBANDRY_TOOLS,
+      {
+        id: 'hounds',
+        name: 'Hounds',
+        label: '**Hounds**, 2–3 followers (*trackers*, *keen-nosed*, *fast*); HP 6; Damage d6 (*hand*, *grabby*); Instinct: to give chase; Cost: training.',
+      },
+      {
+        id: 'lay-of-the-land',
+        name: 'Lay of the land',
+        uses: 3,
+        usesLabel: 'uses',
+        label: '**Lay of the land**: expend a use to know where to find ___, without having to Know Things; GM can veto.',
+      },
+      {
+        id: 'trapping-gear',
+        name: 'Trapping gear',
+        label: '**Trapping gear**: snares, pelts, musk, bait, etc. When you ***Forage***, get +1 use of provisions.',
       },
       CUSTOM,
     ],
