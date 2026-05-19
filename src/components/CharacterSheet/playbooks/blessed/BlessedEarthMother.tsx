@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Checkbox, Radio } from '@/components/primitives';
+import { CheckboxGroup, Radio } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import type { CharacterData } from '@/types';
 import styles from './BlessedEarthMother.module.css';
@@ -26,6 +26,8 @@ interface BlessedEarthMotherProps {
   data: CharacterData | undefined;
   onSave: (data: Partial<CharacterData>) => Promise<void>;
 }
+
+const OFFERING_ITEMS = OFFERING_OPTIONS.map((opt) => ({ id: opt, label: opt }));
 
 export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) => {
   const [shrine, setShrine] = useState<string>(data?.earthMotherShrine ?? '');
@@ -55,9 +57,6 @@ export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) =>
     [offerings, onSave]
   );
 
-  const offeringCount = Object.values(offerings).filter(Boolean).length;
-  const atMax = offeringCount >= 3;
-
   return (
     <PlaybookSection title="The Earth Mother">
       <div className={styles.body}>
@@ -81,23 +80,15 @@ export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) =>
 
         <hr className={styles.divider} />
 
-        <p className={styles.prose}>What do the folk of Stonetop leave as offerings?</p>
-        <p className={styles.instruction}>(choose 2–3)</p>
-        <div className={styles.offeringsGrid}>
-          {OFFERING_OPTIONS.map((opt) => {
-            const checked = offerings[opt] ?? false;
-            return (
-              <Checkbox
-                key={opt}
-                aria-label={opt}
-                checked={checked}
-                disabled={!checked && atMax}
-                onChange={(e) => handleOffering(opt, e.target.checked)}
-                label={<span className={styles.optionLabel}>{opt}</span>}
-              />
-            );
-          })}
-        </div>
+        <CheckboxGroup
+          label="What do the folk of Stonetop leave as offerings?"
+          pickNote="(choose 2–3)"
+          items={OFFERING_ITEMS}
+          checked={offerings}
+          onChange={handleOffering}
+          max={3}
+          columns={2}
+        />
       </div>
     </PlaybookSection>
   );

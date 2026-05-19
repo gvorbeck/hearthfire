@@ -1,5 +1,6 @@
-import { memo, useCallback } from 'react';
-import { Radio, Checkbox, Text, Input, UseDots } from '@/components/primitives';
+import { memo, useCallback, useMemo } from 'react';
+import { Radio, CheckboxGroup, Text, Input, UseDots } from '@/components/primitives';
+import type { CheckboxGroupItem } from '@/components/primitives';
 import { parseMarkdown, parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { BackgroundOption, ChoiceConfig } from '@/types';
 import styles from './Background.module.css';
@@ -14,7 +15,6 @@ const resolveMax = (choices: ChoiceConfig, level: number): number => {
 };
 
 interface BoundedCheckboxListProps {
-  groupName: string;
   choices: ChoiceConfig;
   level: number;
   disabled: boolean;
@@ -22,36 +22,41 @@ interface BoundedCheckboxListProps {
   onSave: (choices: string[]) => void;
 }
 
-const BoundedCheckboxList = ({ groupName, choices, level, disabled, selected, onSave }: BoundedCheckboxListProps) => {
+const BoundedCheckboxList = ({ choices, level, disabled, selected, onSave }: BoundedCheckboxListProps) => {
   const lockedValues = choices.items.filter((c) => c.locked).map((c) => c.value);
-  const userSelected = selected.filter((v) => !lockedValues.includes(v));
   const effectiveMax = resolveMax(choices, level);
-  const atMax = userSelected.length >= effectiveMax;
 
-  const handleItemChange = useCallback((value: string, checked: boolean) => {
-    const next = checked
+  const items = useMemo<CheckboxGroupItem[]>(() =>
+    choices.items.map((c) => ({
+      id: c.value,
+      label: <Text as="span" size="md">{parseInlineMarkdown(c.label)}</Text>,
+      disabled: disabled || c.locked,
+    })),
+    [choices.items, disabled]
+  );
+
+  const checked = useMemo<Record<string, boolean>>(() =>
+    Object.fromEntries(choices.items.map((c) => [c.value, c.locked || selected.includes(c.value)])),
+    [choices.items, selected]
+  );
+
+  const handleChange = useCallback((value: string, isChecked: boolean) => {
+    if (choices.items.find((c) => c.value === value)?.locked) return;
+    const next = isChecked
       ? [...selected, value]
       : selected.filter((v) => v !== value);
     onSave(next);
-  }, [selected, onSave]);
+  }, [choices.items, selected, onSave]);
 
   return (
     <div className={styles.choices}>
-      {choices.items.map((c) => {
-        const isChecked = c.locked || selected.includes(c.value);
-        return (
-          <Checkbox
-            key={c.value}
-            name={groupName}
-            value={c.value}
-            checked={isChecked}
-            disabled={disabled || c.locked || (!isChecked && atMax)}
-            readOnly={c.locked}
-            onChange={c.locked ? undefined : (e) => handleItemChange(c.value, e.target.checked)}
-            label={<Text as="span" size="md">{parseInlineMarkdown(c.label)}</Text>}
-          />
-        );
-      })}
+      <CheckboxGroup
+        items={items}
+        checked={checked}
+        onChange={handleChange}
+        max={effectiveMax + lockedValues.length}
+        disabled={disabled}
+      />
     </div>
   );
 };
@@ -111,7 +116,6 @@ export const BackgroundOptionItem = memo(({
       </div>
       {option.choices && (
         <BoundedCheckboxList
-          groupName={`${groupName}-choices-${option.value}`}
           choices={option.choices}
           level={level}
           disabled={!selected}

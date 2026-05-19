@@ -14,6 +14,14 @@ import { PLACE_OF_ORIGIN_OPTIONS } from '@/lib/placeOfOriginOptions';
 import { SPECIAL_POSSESSIONS_OPTIONS } from '@/lib/specialPossessionsOptions';
 import { INTRODUCTIONS_OPTIONS } from '@/lib/introductionsOptions';
 import { BlessedSections } from '@/components/CharacterSheet/playbooks/BlessedSections';
+import { FoxSections } from '@/components/CharacterSheet/playbooks/FoxSections';
+import { HeavySections } from '@/components/CharacterSheet/playbooks/HeavySections';
+import { JudgeSections } from '@/components/CharacterSheet/playbooks/JudgeSections';
+import { LightbearerSections } from '@/components/CharacterSheet/playbooks/LightbearerSections';
+import { MarshalSections } from '@/components/CharacterSheet/playbooks/MarshalSections';
+import { RangerSections } from '@/components/CharacterSheet/playbooks/RangerSections';
+import { SeekerSections } from '@/components/CharacterSheet/playbooks/SeekerSections';
+import { WouldBeHeroSections } from '@/components/CharacterSheet/playbooks/WouldBeHeroSections';
 import type { Character, CharacterData, GameSession, PlaybookType } from '@/types';
 import styles from './CharacterPlaybook.module.css';
 
@@ -50,6 +58,14 @@ const PCPlaybookTab = ({ character, playbookOption, onSave }: { character: Chara
       <div className={styles.columns}>
         <div className={styles.colLeft}>
           {playbook === 'blessed' && <BlessedSections data={data} onSave={onSave} />}
+          {playbook === 'fox' && <FoxSections data={data} onSave={onSave} />}
+          {playbook === 'heavy' && <HeavySections data={data} onSave={onSave} />}
+          {playbook === 'judge' && <JudgeSections data={data} onSave={onSave} />}
+          {playbook === 'lightbearer' && <LightbearerSections data={data} onSave={onSave} />}
+          {playbook === 'marshal' && <MarshalSections data={data} onSave={onSave} />}
+          {playbook === 'ranger' && <RangerSections data={data} onSave={onSave} />}
+          {playbook === 'seeker' && <SeekerSections data={data} onSave={onSave} />}
+          {playbook === 'would-be-hero' && <WouldBeHeroSections data={data} onSave={onSave} />}
         </div>
         <div className={styles.colRight}>
           <Introductions config={INTRODUCTIONS_OPTIONS[playbook]} data={data} onSave={onSave} />

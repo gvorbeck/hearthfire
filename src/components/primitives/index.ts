@@ -15,3 +15,5 @@ export { ScrollToTop } from './ScrollToTop/ScrollToTop';
 export { Tabs } from './Tabs/Tabs';
 export { List } from './List/List';
 export { UseDots } from './UseDots/UseDots';
+export { CheckboxGroup } from './CheckboxGroup/CheckboxGroup';
+export type { CheckboxGroupItem } from './CheckboxGroup/CheckboxGroup';
