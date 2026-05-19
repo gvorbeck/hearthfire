@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { PlaybookSection } from '../PlaybookSection';
 import { Collapse } from '@/components/primitives';
 import { Move } from '../Move';
@@ -38,6 +38,7 @@ const getLockReason = (
 
 const PLAYBOOK_HELPER_TEXT: Partial<Record<PlaybookType, string>> = {
   blessed: 'You start with Spirit Tongue, Call the Spirits, 1 from your Background, and 1 of your choice.',
+  'would-be-hero': 'You start with Anger is a Gift, Potential for Greatness, and 2 other moves of your choice.',
 };
 
 interface MoveSectionProps {
@@ -70,7 +71,7 @@ interface MovesProps {
 }
 
 export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
-  const typeMoves = PLAYBOOK_MOVES[playbook] ?? [];
+  const typeMoves = useMemo(() => PLAYBOOK_MOVES[playbook] ?? [], [playbook]);
   const forcedMoveIds = useMemo(
     () => new Set(data?.background ? (BACKGROUND_FORCED_MOVES[playbook]?.[data.background] ?? []) : []),
     [playbook, data?.background]
@@ -82,37 +83,65 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
   const [uses, setUses] = useState<Record<string, number>>(
     () => data?.typeMoveUses ?? {}
   );
+  const [uses2, setUses2] = useState<Record<string, number>>(
+    () => data?.typeMoveUses2 ?? {}
+  );
   const [takes, setTakes] = useState<Record<string, number>>(
     () => data?.typeMoveTakes ?? {}
   );
+  const [checkLists, setCheckLists] = useState<Record<string, Record<string, boolean>>>(
+    () => data?.typeMoveCheckList ?? {}
+  );
 
+  // Known limitation: Firestore's onSnapshot delivers a new object reference on every update, so
+  // this effect fires whenever the parent re-renders with fresh data and overwrites any in-flight
+  // optimistic state that hasn't confirmed yet. The window is small (one round-trip) and all five
+  // state fields share the same pattern, so we accept it rather than adding complexity.
   useEffect(() => {
     setSelected(data?.typeMoves ?? {});
     setUses(data?.typeMoveUses ?? {});
+    setUses2(data?.typeMoveUses2 ?? {});
     setTakes(data?.typeMoveTakes ?? {});
-  }, [data?.typeMoves, data?.typeMoveUses, data?.typeMoveTakes]);
+    setCheckLists(data?.typeMoveCheckList ?? {});
+  }, [data?.typeMoves, data?.typeMoveUses, data?.typeMoveUses2, data?.typeMoveTakes, data?.typeMoveCheckList]);
 
-  const handleSelect = useCallback((id: string, value: boolean) => {
+  const handleSelect = (id: string, value: boolean) => {
     if (forcedMoveIds.has(id)) return;
+    const lockReason = getLockReason(typeMoves.find((m) => m.id === id)!, typeMoves, level, selected);
+    if (lockReason) return;
     const prev = selected;
     const next = { ...selected, [id]: value };
     setSelected(next);
     onSave({ typeMoves: next }).catch(() => setSelected(prev));
-  }, [forcedMoveIds, selected, onSave]);
+  };
 
-  const handleUses = useCallback((id: string, count: number) => {
+  const handleUses = (id: string, count: number) => {
     const prev = uses;
     const next = { ...uses, [id]: count };
     setUses(next);
     onSave({ typeMoveUses: next }).catch(() => setUses(prev));
-  }, [uses, onSave]);
+  };
 
-  const handleTakes = useCallback((id: string, count: number) => {
+  const handleUses2 = (id: string, count: number) => {
+    const prev = uses2;
+    const next = { ...uses2, [id]: count };
+    setUses2(next);
+    onSave({ typeMoveUses2: next }).catch(() => setUses2(prev));
+  };
+
+  const handleTakes = (id: string, count: number) => {
     const prev = takes;
     const next = { ...takes, [id]: count };
     setTakes(next);
     onSave({ typeMoveTakes: next }).catch(() => setTakes(prev));
-  }, [takes, onSave]);
+  };
+
+  const handleCheckList = (id: string, itemId: string, checked: boolean) => {
+    const prev = checkLists;
+    const next = { ...checkLists, [id]: { ...checkLists[id], [itemId]: checked } };
+    setCheckLists(next);
+    onSave({ typeMoveCheckList: next }).catch(() => setCheckLists(prev));
+  };
 
   const playbookLabel = PLAYBOOKS.find((p) => p.value === playbook)?.label ?? playbook;
 
@@ -180,6 +209,10 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
                     onSelectChange={(val) => handleSelect(move.id, val)}
                     usesChecked={uses[move.id] ?? 0}
                     onUsesChange={move.uses !== undefined ? (n) => handleUses(move.id, n) : undefined}
+                    usesChecked2={uses2[move.id] ?? 0}
+                    onUsesChange2={move.uses2 !== undefined ? (n) => handleUses2(move.id, n) : undefined}
+                    checkListChecked={checkLists[move.id] ?? {}}
+                    onCheckListChange={move.checkList !== undefined ? (itemId, checked) => handleCheckList(move.id, itemId, checked) : undefined}
                     takesChecked={takes[move.id] ?? 0}
                     onTakesChange={move.takes !== undefined ? (n) => handleTakes(move.id, n) : undefined}
                     disabled={isDisabled}

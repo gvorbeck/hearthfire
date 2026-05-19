@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { Checkbox, Icon, List, UseDots } from '@/components/primitives';
+import { Checkbox, CheckboxGroup, Icon, List, UseDots } from '@/components/primitives';
 import type { IconName } from '@/components/primitives';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import styles from './Move.module.css';
@@ -12,10 +12,16 @@ export interface MoveDefinition {
   body?: string | string[];
   bodyIcons?: readonly IconName[];
   list?: string[];
+  checkList?: string[];
+  checkListIds?: string[];
   footer?: string | string[];
   list2?: string[];
   citation?: string;
   uses?: number;
+  // uses2 tracks a second independent hold on the same move (e.g. Up With People: the current
+  // player's Rapport dots vs. the other player's dot). Both groups are stored on this character's
+  // document as a convenience; the other player is expected to track their own copy independently.
+  uses2?: number;
   takes?: number;
   selectable?: boolean;
   startingMove?: boolean;
@@ -29,6 +35,10 @@ interface MoveProps {
   onSelectChange?: (checked: boolean) => void;
   usesChecked?: number;
   onUsesChange?: (count: number) => void;
+  usesChecked2?: number;
+  onUsesChange2?: (count: number) => void;
+  checkListChecked?: Record<string, boolean>;
+  onCheckListChange?: (id: string, checked: boolean) => void;
   takesChecked?: number;
   onTakesChange?: (count: number) => void;
   disabled?: boolean;
@@ -67,18 +77,27 @@ const MoveSelectGroup = ({
         aria-label={`Take ${i + 1}`}
         checked={!!(takesChecked & (1 << i))}
         onChange={() => onTakesChange(takesChecked ^ (1 << i))}
-        disabled={disabled}
+        disabled={disabled || !selected}
       />
     ))}
   </div>
 );
 
-export const Move = ({ move, selected, onSelectChange, usesChecked = 0, onUsesChange, takesChecked = 0, onTakesChange, disabled, lockReason }: MoveProps) => {
+export const Move = ({
+  move, selected, onSelectChange,
+  usesChecked = 0, onUsesChange,
+  usesChecked2 = 0, onUsesChange2,
+  checkListChecked, onCheckListChange,
+  takesChecked = 0, onTakesChange,
+  disabled, lockReason,
+}: MoveProps) => {
   const locked = !!lockReason;
-  const uses = move.uses;
-  const hasUses = uses !== undefined && onUsesChange !== undefined;
-  const takes = move.takes;
-  const hasTakes = takes !== undefined && onTakesChange !== undefined;
+  const usesTotal = move.uses;
+  const hasUses = usesTotal !== undefined && onUsesChange !== undefined;
+  const uses2Total = move.uses2;
+  const hasUses2 = uses2Total !== undefined && onUsesChange2 !== undefined;
+  const takesTotal = move.takes;
+  const hasTakes = takesTotal !== undefined && onTakesChange !== undefined;
 
   const moveCx = clsx(styles.move, selected && styles.moveSelected);
   const nameCx = clsx(styles.moveName, selected && styles.moveNameSelected);
@@ -97,7 +116,7 @@ export const Move = ({ move, selected, onSelectChange, usesChecked = 0, onUsesCh
               moveName={move.name}
               selected={selected ?? false}
               onSelectChange={onSelectChange}
-              takes={takes!}
+              takes={takesTotal!}
               takesChecked={takesChecked}
               onTakesChange={onTakesChange}
               disabled={disabled || locked}
@@ -118,7 +137,7 @@ export const Move = ({ move, selected, onSelectChange, usesChecked = 0, onUsesCh
           <>
             {hasTakes && (
               <TakeBoxes
-                total={takes!}
+                total={takesTotal!}
                 checked={takesChecked}
                 onChange={onTakesChange}
               />
@@ -126,13 +145,26 @@ export const Move = ({ move, selected, onSelectChange, usesChecked = 0, onUsesCh
             {nameEl}
           </>
         )}
-        {hasUses && (
-          <UseDots
-            total={uses}
-            checked={usesChecked}
-            onChange={onUsesChange}
-            disabled={disabled || locked || !selected}
-          />
+        {(hasUses || hasUses2) && (
+          <div className={styles.usesGroup}>
+            {hasUses && (
+              <UseDots
+                total={usesTotal!}
+                checked={usesChecked}
+                onChange={onUsesChange!}
+                disabled={disabled || locked || !selected}
+              />
+            )}
+            {hasUses && hasUses2 && <span className={styles.usesSeparator} aria-hidden="true">|</span>}
+            {hasUses2 && (
+              <UseDots
+                total={uses2Total!}
+                checked={usesChecked2}
+                onChange={onUsesChange2!}
+                disabled={disabled || locked || !selected}
+              />
+            )}
+          </div>
         )}
       </div>
       {lockReason && <p className={styles.moveLockLabel}>{lockReason}</p>}
@@ -147,19 +179,30 @@ export const Move = ({ move, selected, onSelectChange, usesChecked = 0, onUsesCh
       {bodyParagraphs.map((p, i) => {
         const icon = move.bodyIcons?.[i];
         return icon ? (
-          <div key={i} className={styles.moveBodyWithIcon}>
+          <div key={`${move.id}-body-${i}`} className={styles.moveBodyWithIcon}>
             <Icon name={icon} size="small" className={styles.moveBodyIcon} aria-hidden="true" />
             <p className={styles.moveBody}>{parseInlineMarkdown(p)}</p>
           </div>
         ) : (
-          <p key={i} className={styles.moveBody}>{parseInlineMarkdown(p)}</p>
+          <p key={`${move.id}-body-${i}`} className={styles.moveBody}>{parseInlineMarkdown(p)}</p>
         );
       })}
       {move.list && (
         <List variant="bullet" items={move.list.map((item) => parseInlineMarkdown(item))} />
       )}
+      {move.checkList && onCheckListChange && (
+        <CheckboxGroup
+          items={move.checkList.map((label, i) => ({
+            id: move.checkListIds?.[i] ?? `${move.id}-cl-${i}`,
+            label: parseInlineMarkdown(label),
+          }))}
+          checked={checkListChecked ?? {}}
+          onChange={onCheckListChange}
+          disabled={disabled || locked || !selected}
+        />
+      )}
       {footerParagraphs.map((p, i) => (
-        <p key={i} className={styles.moveBody}>{parseInlineMarkdown(p)}</p>
+        <p key={`${move.id}-footer-${i}`} className={styles.moveBody}>{parseInlineMarkdown(p)}</p>
       ))}
       {move.list2 && (
         <List variant="bullet" items={move.list2.map((item) => parseInlineMarkdown(item))} />
