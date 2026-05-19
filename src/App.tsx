@@ -8,6 +8,7 @@ const Home = lazy(() => import('@/pages/Home/Home').then((m) => ({ default: m.Ho
 const Game = lazy(() => import('@/pages/Game/Game').then((m) => ({ default: m.Game })));
 const GmPlaybook = lazy(() => import('@/pages/GmPlaybook/GmPlaybook').then((m) => ({ default: m.GmPlaybook })));
 const CharacterPlaybook = lazy(() => import('@/pages/CharacterPlaybook/CharacterPlaybook').then((m) => ({ default: m.CharacterPlaybook })));
+const NotFound = lazy(() => import('@/pages/NotFound/NotFound').then((m) => ({ default: m.NotFound })));
 
 export const App = () => (
   <>
@@ -17,6 +18,7 @@ export const App = () => (
         <Route path="/game/:id" element={<Game />} />
         <Route path="/game/:id/gm" element={<GmPlaybook />} />
         <Route path="/game/:id/:playbook" element={<CharacterPlaybook />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
     <footer className={styles.footer}>

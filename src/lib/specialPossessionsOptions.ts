@@ -18,6 +18,7 @@ export type Possession = {
 };
 
 export type PlaybookSpecialPossessions = {
+  pickCount?: number;
   pickNote?: string;
   items: Possession[];
 };
@@ -231,6 +232,7 @@ export const SPECIAL_POSSESSIONS_OPTIONS: Partial<Record<PlaybookType, PlaybookS
     ],
   },
   judge: {
+    pickCount: 1,
     pickNote: "in addition to your symbol of authority and scribe's kit",
     items: [
       {

@@ -40,7 +40,8 @@
       "Bash(grep -n \"^$\" /Users/garrett.vorbeck/Sites/stonetop/src/components/CharacterSheet/playbooks/blessed/BlessedSpecialPossessions.tsx)",
       "Bash(git -C /Users/garrett.vorbeck/Sites/stonetop diff HEAD --name-only)",
       "Bash(git -C /Users/garrett.vorbeck/Sites/stonetop diff --cached --name-only)",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(grep -r \"--color-\" /Users/garrett.vorbeck/Sites/stonetop/src --include=\"*.css\" --include=\"*.module.css\" -l)"
     ]
   }
 }
