@@ -82,6 +82,32 @@ const HUSBANDRY_TOOLS: Possession = {
   label: '**Husbandry tools**: brushes, muzzles, collars, feed, ◇ whips, ◇ bridles, etc. Gain advantage to Persuade domestic beasts (livestock, dogs, etc.).',
 };
 
+const BOOKS_AND_SCROLLS: Possession = {
+  id: 'books-and-scrolls',
+  name: 'Books & scrolls',
+  uses: 5,
+  usesLabel: 'uses',
+  label: '**Books & scrolls**: expend a use to consult your collection and turn a Know Things roll you just made into a 10+.',
+};
+
+const TRADE_CONTACTS: Possession = {
+  id: 'trade-contacts',
+  name: 'Trade contacts',
+  label: '**Trade contacts**: small amounts of salt, glass, silk, spice, medicinal herbs, pigments, ivory, etc.',
+};
+
+const STONEWORKERS_TOOLS: Possession = {
+  id: 'stoneworkers-tools',
+  name: "Stoneworker's tools",
+  label: "**Stoneworker's tools**: chisels, drills, ◇ prybars, ◇ spikes, ◇ block & tackles, wheelbarrow, etc.",
+};
+
+const TANNERY: Possession = {
+  id: 'tannery',
+  name: 'Tannery',
+  label: '**Tannery** (or access to it): lime, acid, salts, thick gloves, ◇ a boiled leather cuirass (1 armor), etc.',
+};
+
 export const SPECIAL_POSSESSIONS_OPTIONS: Partial<Record<PlaybookType, PlaybookSpecialPossessions>> = {
   blessed: {
     pickNote: 'in addition to your sacred pouch',
@@ -126,11 +152,7 @@ export const SPECIAL_POSSESSIONS_OPTIONS: Partial<Record<PlaybookType, PlaybookS
       CHIRURGEONS_TOOLS,
       HUSBANDRY_TOOLS,
       SMITHY,
-      {
-        id: 'stoneworkers-tools',
-        name: "Stoneworker's tools",
-        label: "**Stoneworker's tools**: chisels, drills, ◇ prybars, ◇ spikes, ◇ block & tackles, wheelbarrow, etc.",
-      },
+      STONEWORKERS_TOOLS,
       {
         id: 'weapons-of-war',
         name: 'Weapons of war',
@@ -176,13 +198,7 @@ export const SPECIAL_POSSESSIONS_OPTIONS: Partial<Record<PlaybookType, PlaybookS
   lightbearer: {
     items: [
       APIARY,
-      {
-        id: 'books-and-scrolls',
-        name: 'Books & scrolls',
-        uses: 5,
-        usesLabel: 'uses',
-        label: '**Books & scrolls**: expend a use to consult your collection and turn a Know Things roll you just made into a 10+.',
-      },
+      BOOKS_AND_SCROLLS,
       {
         id: 'chandlery',
         name: 'Chandlery',
@@ -270,16 +286,8 @@ export const SPECIAL_POSSESSIONS_OPTIONS: Partial<Record<PlaybookType, PlaybookS
         label: "**Mummer's kit**: juggling balls, whirlybird seeds, motley, ribbons, bells, ◇ puppets, ◇ a fiddle, etc.",
       },
       SCRIBES_TOOLS,
-      {
-        id: 'tannery',
-        name: 'Tannery',
-        label: '**Tannery** (or access to it): lime, acid, salts, thick gloves, ◇ a boiled leather cuirass (1 armor), etc.',
-      },
-      {
-        id: 'trade-contacts',
-        name: 'Trade contacts',
-        label: '**Trade contacts**: small amounts of salt, glass, silk, spice, medicinal herbs, pigments, ivory, etc.',
-      },
+      TANNERY,
+      TRADE_CONTACTS,
       CUSTOM,
     ],
   },
@@ -320,6 +328,65 @@ export const SPECIAL_POSSESSIONS_OPTIONS: Partial<Record<PlaybookType, PlaybookS
         name: 'Trapping gear',
         label: '**Trapping gear**: snares, pelts, musk, bait, etc. When you ***Forage***, get +1 use of provisions.',
       },
+      CUSTOM,
+    ],
+  },
+  seeker: {
+    pickNote: "in addition to your scribe's tools",
+    items: [
+      { ...SCRIBES_TOOLS, isAlwaysSelected: true },
+      BOOKS_AND_SCROLLS,
+      DISTILLERY,
+      ENGINEERS_TOOLS,
+      {
+        id: 'laboratory',
+        name: 'Laboratory',
+        label: '**Laboratory**: chemics, reagents, vials, measures, ◇ scales, ◇ decanters, etc. Every season, produce d4-1 uses of ◇ naphtha (*thrown*, *area*, *dangerous*, ignores armor).',
+      },
+      {
+        id: 'paraphernalia',
+        name: 'Paraphernalia',
+        label: '**Paraphernalia**: crystals, incense, talismans, blood, bone, horn, eye of newt, ◇ braziers, ◇◇ a cauldron, etc.',
+      },
+      TRADE_CONTACTS,
+      CUSTOM,
+    ],
+  },
+  'would-be-hero': {
+    items: [
+      {
+        id: 'heap-of-expectations',
+        name: 'A heap of expectations',
+        label: '**A heap of expectations**: of little use',
+      },
+      {
+        id: 'good-dog',
+        name: 'A good dog',
+        selectOneSubItem: true,
+        label: '**A good dog**, follower (pick 1):',
+        subItems: [
+          { id: 'retriever', label: '**retriever**', selectable: true },
+          { id: 'herder', label: '**herder**', selectable: true },
+        ],
+      },
+      HUSBANDRY_TOOLS,
+      SMITHY,
+      STONEWORKERS_TOOLS,
+      {
+        id: 'personal-token',
+        name: 'Personal token, fraught with meaning',
+        selectOneSubItem: true,
+        label: '**Personal token, fraught with meaning** (pick 1):',
+        subItems: [
+          { id: 'shield', label: '◇◇ A shield, bearing ___\'s crest', selectable: true },
+          { id: 'wool-cloak', label: '◇ A wool cloak, woven just for you by ___', selectable: true },
+          { id: 'letter', label: 'A letter, spattered with tears & blood', selectable: true },
+          { id: 'flute', label: 'A flute, a gift from someone you loved', selectable: true },
+          { id: 'locket', label: 'A fine locket, holding a strand of hair', selectable: true },
+          { id: 'tinderbox', label: 'A tinderbox, lovingly engraved', selectable: true },
+        ],
+      },
+      TANNERY,
       CUSTOM,
     ],
   },
