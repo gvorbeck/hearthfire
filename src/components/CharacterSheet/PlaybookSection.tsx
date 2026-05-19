@@ -33,7 +33,7 @@ export const PlaybookSection = ({
       <div className={styles.sectionHeader}>
         <Heading as="h3" size="label" className={styles.sectionTitle}>
           {title}
-          {choose !== undefined && (
+          {choose !== undefined && warn && (
             <span className={styles.sectionTitleChoose}>
               (Choose {choose}{chooseNote ? `, ${chooseNote}` : ''})
             </span>

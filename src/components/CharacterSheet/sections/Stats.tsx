@@ -134,14 +134,17 @@ const STAT_GROUPS = [
   },
 ] as const;
 
+const DEFAULT_SCORE_INSTRUCTION = 'Assign these scores: +2, +1, +1, +0, +0, -1. When a debility is marked, you roll with disadvantage.';
+
 interface StatsProps {
   data?: CharacterData;
   onSave?: (data: Partial<CharacterData>) => Promise<void>;
   hpMax?: number;
   damage?: string;
+  scoreInstruction?: string;
 }
 
-export const Stats = ({ data, onSave, hpMax, damage = 'd6' }: StatsProps = {}) => {
+export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = DEFAULT_SCORE_INSTRUCTION }: StatsProps = {}) => {
   const [stats, setStats] = useState<StatsState>(() => statsFromData(data));
   const [debilities, setDebilities] = useState<DebilitiesState>(() => debilitiesFromData(data));
 
@@ -201,7 +204,7 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6' }: StatsProps = {}) =
 
   return (
     <PlaybookSection title="Stats">
-      <p className={styles.statsInstruction}>Assign these scores: +2, +1, +1, +0, +0, -1. When a debility is marked, you roll with disadvantage.</p>
+      <p className={styles.statsInstruction}>{scoreInstruction}</p>
       <div className={styles.statsSection}>
         <div className={styles.statRow}>
           {STAT_GROUPS.map((group) => (
