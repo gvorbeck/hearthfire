@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { PlaybookSection } from '../PlaybookSection';
 import { Collapse } from '@/components/primitives';
+import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { Move } from '../Move';
 import type { MoveDefinition } from '../Move';
 import { BASIC_MOVES } from '@/lib/basicMoves';
@@ -40,18 +41,19 @@ const PLAYBOOK_HELPER_TEXT: Partial<Record<PlaybookType, string>> = {
   blessed: 'You start with Spirit Tongue, Call the Spirits, 1 from your Background, and 1 of your choice.',
   'would-be-hero': 'You start with Anger is a Gift, Potential for Greatness, and 2 other moves of your choice.',
   seeker: 'You start with Well Versed, Work With What You\'ve Got, plus 1 from your Background.',
+  ranger: 'You start with Home on the Range, any moves from your Background, plus 1 of your choice.',
 };
 
 interface MoveSectionProps {
   label: string;
-  helperText: React.ReactNode;
+  helperText: string;
   moves: MoveDefinition[];
   emptyText: string;
 }
 
 const MoveSection = ({ label, helperText, moves, emptyText }: MoveSectionProps) => (
   <Collapse label={label}>
-    <p className={styles.helperText}>{helperText}</p>
+    <p className={styles.helperText}>{parseInlineMarkdown(helperText)}</p>
     {moves.length > 0 ? (
       <div className={styles.moveGrid}>
         {moves.map((move) => (
@@ -184,7 +186,7 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
         />
         <MoveSection
           label="Follower Moves"
-          helperText={<>These moves apply when you interact with your <strong>followers</strong> (page 64).</>}
+          helperText="These moves apply when you interact with your **followers** (page 64)."
           moves={FOLLOWER_MOVES}
           emptyText="No follower moves yet."
         />

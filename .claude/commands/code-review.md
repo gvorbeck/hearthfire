@@ -26,6 +26,8 @@ Design system: primitives in `src/components/primitives/` (Button, Text, Heading
 - TypeScript `any` usage — strict mode is required throughout
 - Comments that describe *what* instead of *why* (naming, visible logic); only add comments when the WHY is genuinely non-obvious
 - Hardcoded `rem` values for `font-size` instead of type scale tokens — all font sizes must use `--text-xs` through `--text-3xl` from the Major Third scale defined in `src/index.css`; raw `rem` values are only acceptable for layout dimensions (widths, heights, spacing) and responsive `clamp()` display sizes
+- Game text written as JSX fragments instead of plain strings — all move/possession text with bold, italic, or inline icons must be written as a plain string and rendered through `parseInlineMarkdown` in `src/lib/parseMarkdown.tsx`
+- `◊` or `◈` rendered as raw Unicode characters instead of icons — `◊` maps to `empty-provisions` (diamond outline), `◈` maps to `filled-provisions` (diamond with checkmark); both are handled automatically by `parseInlineMarkdown`
 
 ### Correctness & Bugs
 - Logic errors, off-by-one mistakes, incorrect conditionals
