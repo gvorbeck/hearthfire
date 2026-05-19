@@ -57,7 +57,7 @@
 
 .chevron {
   flex-shrink: 0;
-  color: var(--color-stone-500);
+  color: var(--text-secondary);
   transition: transform 0.2s ease, color 0.15s ease;
 }
 

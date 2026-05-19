@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { Checkbox, Icon, List } from '@/components/primitives';
+import { Checkbox, Icon, List, UseDots } from '@/components/primitives';
 import type { IconName } from '@/components/primitives';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import styles from './Move.module.css';
@@ -70,25 +70,6 @@ const MoveSelectGroup = ({
         disabled={disabled}
       />
     ))}
-  </div>
-);
-
-export const UseDots = ({ total, checked, onChange, disabled }: { total: number; checked: number; onChange: (n: number) => void; disabled?: boolean }) => (
-  <div className={styles.useDots} aria-label={`Uses: ${checked} of ${total}`}>
-    {Array.from({ length: total }, (_, i) => {
-      const filled = i < checked;
-      const dotCx = clsx(styles.useDot, filled && styles.useDotFilled);
-      return (
-        <button
-          key={i}
-          type="button"
-          className={dotCx}
-          aria-label={filled ? `Clear use ${i + 1}` : `Mark use ${i + 1}`}
-          onClick={() => onChange(filled ? i : i + 1)}
-          disabled={disabled}
-        />
-      );
-    })}
   </div>
 );
 

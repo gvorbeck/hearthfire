@@ -174,7 +174,7 @@
 
 .contentFieldNote {
   font-size: var(--text-xs);
-  color: var(--color-stone-500);
+  color: var(--text-secondary);
 }
 
 .contentFieldStatus {

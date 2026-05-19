@@ -12,7 +12,8 @@ import { INSTINCT_OPTIONS } from '@/lib/instinctOptions';
 import { APPEARANCE_OPTIONS } from '@/lib/appearanceOptions';
 import { PLACE_OF_ORIGIN_OPTIONS } from '@/lib/placeOfOriginOptions';
 import { SPECIAL_POSSESSIONS_OPTIONS } from '@/lib/specialPossessionsOptions';
-import { BlessedSections, BlessedIntroductions } from '@/components/CharacterSheet/playbooks/BlessedSections';
+import { INTRODUCTIONS_OPTIONS } from '@/lib/introductionsOptions';
+import { BlessedSections } from '@/components/CharacterSheet/playbooks/BlessedSections';
 import type { Character, CharacterData, GameSession, PlaybookType } from '@/types';
 import styles from './CharacterPlaybook.module.css';
 
@@ -51,9 +52,7 @@ const PCPlaybookTab = ({ character, playbookOption, onSave }: { character: Chara
           {playbook === 'blessed' && <BlessedSections data={data} onSave={onSave} />}
         </div>
         <div className={styles.colRight}>
-          {playbook === 'blessed'
-            ? <BlessedIntroductions data={data} onSave={onSave} />
-            : <Introductions />}
+          <Introductions config={INTRODUCTIONS_OPTIONS[playbook]} data={data} onSave={onSave} />
         </div>
       </div>
     </div>
