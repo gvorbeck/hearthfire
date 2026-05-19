@@ -41,7 +41,15 @@
       "Bash(git -C /Users/garrett.vorbeck/Sites/stonetop diff HEAD --name-only)",
       "Bash(git -C /Users/garrett.vorbeck/Sites/stonetop diff --cached --name-only)",
       "Bash(node -e ' *)",
-      "Bash(grep -r \"--color-\" /Users/garrett.vorbeck/Sites/stonetop/src --include=\"*.css\" --include=\"*.module.css\" -l)"
+      "Bash(grep -r \"--color-\" /Users/garrett.vorbeck/Sites/stonetop/src --include=\"*.css\" --include=\"*.module.css\" -l)",
+      "Bash(firebase projects:list)",
+      "Bash(gcloud iam *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git checkout *)",
+      "Bash(git merge *)",
+      "Bash(git push *)",
+      "Bash(git stash *)"
     ]
   }
 }
