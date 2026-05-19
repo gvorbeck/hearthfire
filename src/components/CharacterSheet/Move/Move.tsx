@@ -39,6 +39,7 @@ interface MoveProps {
   usesChecked2?: number;
   onUsesChange2?: (count: number) => void;
   checkListChecked?: Record<string, boolean>;
+  checkListForcedIds?: string[];
   onCheckListChange?: (id: string, checked: boolean) => void;
   checkListLevels?: Record<string, number>;
   onCheckListLevelChange?: (id: string, level: number | null) => void;
@@ -63,10 +64,10 @@ const TakeBoxes = ({ total, checked, onChange }: { total: number; checked: numbe
 );
 
 const MoveSelectGroup = ({
-  moveName, selected, onSelectChange, takes, takesChecked, onTakesChange, disabled,
+  moveName, selected, onSelectChange, takes, takesChecked, onTakesChange, disabled, locked,
 }: {
   moveName: string; selected: boolean; onSelectChange: (checked: boolean) => void;
-  takes: number; takesChecked: number; onTakesChange: (n: number) => void; disabled?: boolean;
+  takes: number; takesChecked: number; onTakesChange: (n: number) => void; disabled?: boolean; locked?: boolean;
 }) => (
   <div className={styles.takeBoxes}>
     <Checkbox
@@ -81,7 +82,7 @@ const MoveSelectGroup = ({
         aria-label={`Take ${i + 1}`}
         checked={!!(takesChecked & (1 << i))}
         onChange={() => onTakesChange(takesChecked ^ (1 << i))}
-        disabled={disabled || !selected}
+        disabled={locked || (!disabled && !selected)}
       />
     ))}
   </div>
@@ -91,7 +92,7 @@ export const Move = ({
   move, selected, onSelectChange,
   usesChecked = 0, onUsesChange,
   usesChecked2 = 0, onUsesChange2,
-  checkListChecked, onCheckListChange,
+  checkListChecked, checkListForcedIds, onCheckListChange,
   checkListLevels, onCheckListLevelChange,
   currentLevel,
   takesChecked = 0, onTakesChange,
@@ -124,15 +125,21 @@ export const Move = ({
     ? Object.fromEntries(Object.keys(levels).map((k) => [k, true]))
     : (checkListChecked ?? {});
 
+  const forcedIdSet = new Set(checkListForcedIds ?? []);
+  const effectiveCheckedWithForced: Record<string, boolean> = forcedIdSet.size > 0
+    ? { ...effectiveChecked, ...Object.fromEntries(Array.from(forcedIdSet, (id) => [id, true])) }
+    : effectiveChecked;
+
   const checkListItems = move.checkList?.map((label, i) => {
     const id = move.checkListIds?.[i] ?? `${move.id}-cl-${i}`;
-    const isChecked = effectiveChecked[id] ?? false;
+    const isForced = forcedIdSet.has(id);
+    const isChecked = effectiveCheckedWithForced[id] ?? false;
     const recordedLevel = cl !== null ? (levels[id] ?? null) : null;
     const displayLabel = cl !== null
       ? <>{parseInlineMarkdown(label.replace('___', recordedLevel !== null ? String(recordedLevel) : '___'))}</>
       : parseInlineMarkdown(label);
     // Prevents re-marking a slot or double-marking within the same level.
-    const itemDisabled = cl !== null && (isChecked || levelUsedThisTurn);
+    const itemDisabled = isForced || (cl !== null && (isChecked || levelUsedThisTurn));
     return { id, label: displayLabel, disabled: itemDisabled };
   });
 
@@ -149,6 +156,7 @@ export const Move = ({
               takesChecked={takesChecked}
               onTakesChange={onTakesChange}
               disabled={disabled || locked}
+              locked={locked}
             />
             {nameEl}
           </div>
@@ -181,7 +189,7 @@ export const Move = ({
                 total={usesTotal!}
                 checked={usesChecked}
                 onChange={onUsesChange!}
-                disabled={locked || !selected}
+                disabled={locked || (!disabled && !selected)}
               />
             )}
             {hasUses && hasUses2 && <span className={styles.usesSeparator} aria-hidden="true">|</span>}
@@ -190,7 +198,7 @@ export const Move = ({
                 total={uses2Total!}
                 checked={usesChecked2}
                 onChange={onUsesChange2!}
-                disabled={locked || !selected}
+                disabled={locked || (!disabled && !selected)}
               />
             )}
           </div>
@@ -222,7 +230,7 @@ export const Move = ({
       {checkListItems && (
         <CheckboxGroup
           items={checkListItems}
-          checked={effectiveChecked}
+          checked={effectiveCheckedWithForced}
           onChange={(id, checked) => {
             if (cl !== null) {
               onCheckListLevelChange!(id, checked ? cl : null);
@@ -230,7 +238,7 @@ export const Move = ({
               onCheckListChange?.(id, checked);
             }
           }}
-          disabled={locked || !selected}
+          disabled={locked || (!disabled && !selected)}
         />
       )}
       {footerParagraphs.map((p, i) => (

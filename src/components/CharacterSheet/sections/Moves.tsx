@@ -9,7 +9,7 @@ import { FOLLOWER_MOVES } from '@/lib/followerMoves';
 import { EXPEDITION_MOVES } from '@/lib/expeditionMoves';
 import { HOMEFRONT_MOVES } from '@/lib/homefrontMoves';
 import { CUSTOM_MOVES } from '@/lib/customMoves';
-import { PLAYBOOK_MOVES, BACKGROUND_FORCED_MOVES } from '@/lib/playbookMoves';
+import { PLAYBOOK_MOVES, BACKGROUND_FORCED_MOVES, BACKGROUND_FORCED_CHECKLIST } from '@/lib/playbookMoves';
 import { PLAYBOOKS } from '@/lib/constants';
 import type { CharacterData, PlaybookType } from '@/types';
 import styles from './Moves.module.css';
@@ -39,6 +39,7 @@ const getLockReason = (
 const PLAYBOOK_HELPER_TEXT: Partial<Record<PlaybookType, string>> = {
   blessed: 'You start with Spirit Tongue, Call the Spirits, 1 from your Background, and 1 of your choice.',
   'would-be-hero': 'You start with Anger is a Gift, Potential for Greatness, and 2 other moves of your choice.',
+  seeker: 'You start with Well Versed, Work With What You\'ve Got, plus 1 from your Background.',
 };
 
 interface MoveSectionProps {
@@ -74,6 +75,10 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
   const typeMoves = useMemo(() => PLAYBOOK_MOVES[playbook] ?? [], [playbook]);
   const forcedMoveIds = useMemo(
     () => new Set(data?.background ? (BACKGROUND_FORCED_MOVES[playbook]?.[data.background] ?? []) : []),
+    [playbook, data?.background]
+  );
+  const forcedCheckList = useMemo(
+    () => data?.background ? (BACKGROUND_FORCED_CHECKLIST[playbook]?.[data.background] ?? {}) : {},
     [playbook, data?.background]
   );
 
@@ -229,6 +234,7 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
                     usesChecked2={uses2[move.id] ?? 0}
                     onUsesChange2={move.uses2 !== undefined ? (n) => handleUses2(move.id, n) : undefined}
                     checkListChecked={checkLists[move.id] ?? {}}
+                    checkListForcedIds={forcedCheckList[move.id]}
                     onCheckListChange={move.checkList !== undefined && !move.checkListLeveled ? (itemId, checked) => handleCheckList(move.id, itemId, checked) : undefined}
                     checkListLevels={checkListLevels[move.id] ?? {}}
                     onCheckListLevelChange={move.checkListLeveled ? (itemId, lvl) => handleCheckListLevel(move.id, itemId, lvl) : undefined}
