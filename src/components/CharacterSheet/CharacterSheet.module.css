@@ -28,7 +28,7 @@
   font-weight: 400;
   letter-spacing: 0.05em;
   text-transform: none;
-  color: var(--color-stone-500);
+  color: var(--text-secondary);
 }
 
 .stack {

@@ -20,7 +20,7 @@
 
 .empty {
   font-size: var(--text-sm);
-  color: var(--color-stone-500);
+  color: var(--text-secondary);
   margin: 0;
 }
 

@@ -30,7 +30,7 @@
   border: none;
   padding: var(--spacing-1);
   cursor: pointer;
-  color: var(--color-stone-500);
+  color: var(--text-secondary);
   border-radius: var(--radius-md);
   transition: color 0.15s ease;
 }
@@ -66,7 +66,7 @@
   border: none;
   padding: 0;
   cursor: pointer;
-  color: var(--color-stone-500);
+  color: var(--text-secondary);
   border-radius: var(--radius-md);
   transition: color 0.15s ease;
   overflow: visible;
