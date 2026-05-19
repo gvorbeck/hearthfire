@@ -43,6 +43,8 @@ const PLAYBOOK_HELPER_TEXT: Partial<Record<PlaybookType, string>> = {
   seeker: 'You start with Well Versed, Work With What You\'ve Got, plus 1 from your Background.',
   ranger: 'You start with Home on the Range, any moves from your Background, plus 1 of your choice.',
   marshal: 'You start with Crew, Logistics, any moves from your Background, and 1 move of your choice.',
+  judge: 'You start with Censure, Chronicler of Stonetop, plus 2 more of your choice.',
+  lightbearer: 'You start with Consecrated Flame and Invoke the Sun God, plus 1 more of your choice.',
 };
 
 interface MoveSectionProps {
@@ -170,6 +172,18 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
 
   const playbookLabel = PLAYBOOKS.find((p) => p.value === playbook)?.label ?? playbook;
 
+  const withMeta = typeMoves.map((move) => {
+    const isStarting = move.startingMove === true;
+    const isForced = forcedMoveIds.has(move.id);
+    const isDisabled = isStarting || isForced;
+    const isSelected = isDisabled || (selected[move.id] ?? false);
+    return { move, isDisabled, isSelected, isForced };
+  });
+  const sortedTypeMoves = [
+    ...withMeta.filter((m) => m.isSelected).sort((a, b) => a.move.name.localeCompare(b.move.name)),
+    ...withMeta.filter((m) => !m.isSelected).sort((a, b) => a.move.name.localeCompare(b.move.name)),
+  ];
+
   return (
     <PlaybookSection title="Moves">
       <div className={styles.collapseStack}>
@@ -217,12 +231,9 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
           {PLAYBOOK_HELPER_TEXT[playbook] && (
             <p className={styles.helperText}>{PLAYBOOK_HELPER_TEXT[playbook]}</p>
           )}
-          {typeMoves.length > 0 ? (
+          {sortedTypeMoves.length > 0 ? (
             <div className={styles.moveGrid}>
-              {typeMoves.map((move) => {
-                const isStarting = move.startingMove === true;
-                const isForced = forcedMoveIds.has(move.id);
-                const isDisabled = isStarting || isForced;
+              {sortedTypeMoves.map(({ move, isDisabled, isForced }) => {
                 const lockReason = isForced
                   ? 'Required by your background'
                   : (!isDisabled ? getLockReason(move, typeMoves, level, selected) : undefined);
