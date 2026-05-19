@@ -89,8 +89,12 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
   const [takes, setTakes] = useState<Record<string, number>>(
     () => data?.typeMoveTakes ?? {}
   );
+  // Only used for non-leveled checklists; leveled moves use checkListLevels as their sole store.
   const [checkLists, setCheckLists] = useState<Record<string, Record<string, boolean>>>(
     () => data?.typeMoveCheckList ?? {}
+  );
+  const [checkListLevels, setCheckListLevels] = useState<Record<string, Record<string, number>>>(
+    () => data?.typeMoveCheckListLevels ?? {}
   );
 
   // Known limitation: Firestore's onSnapshot delivers a new object reference on every update, so
@@ -103,11 +107,14 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
     setUses2(data?.typeMoveUses2 ?? {});
     setTakes(data?.typeMoveTakes ?? {});
     setCheckLists(data?.typeMoveCheckList ?? {});
-  }, [data?.typeMoves, data?.typeMoveUses, data?.typeMoveUses2, data?.typeMoveTakes, data?.typeMoveCheckList]);
+    setCheckListLevels(data?.typeMoveCheckListLevels ?? {});
+  }, [data?.typeMoves, data?.typeMoveUses, data?.typeMoveUses2, data?.typeMoveTakes, data?.typeMoveCheckList, data?.typeMoveCheckListLevels]);
 
   const handleSelect = (id: string, value: boolean) => {
     if (forcedMoveIds.has(id)) return;
-    const lockReason = getLockReason(typeMoves.find((m) => m.id === id)!, typeMoves, level, selected);
+    const move = typeMoves.find((m) => m.id === id);
+    if (!move) return;
+    const lockReason = getLockReason(move, typeMoves, level, selected);
     if (lockReason) return;
     const prev = selected;
     const next = { ...selected, [id]: value };
@@ -141,6 +148,16 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
     const next = { ...checkLists, [id]: { ...checkLists[id], [itemId]: checked } };
     setCheckLists(next);
     onSave({ typeMoveCheckList: next }).catch(() => setCheckLists(prev));
+  };
+
+  const handleCheckListLevel = (id: string, itemId: string, level: number | null) => {
+    const prev = checkListLevels;
+    const prevItem = checkListLevels[id] ?? {};
+    const { [itemId]: _removed, ...rest } = prevItem;
+    const nextItem = level !== null ? { ...prevItem, [itemId]: level } : rest;
+    const next = { ...checkListLevels, [id]: nextItem };
+    setCheckListLevels(next);
+    onSave({ typeMoveCheckListLevels: next }).catch(() => setCheckListLevels(prev));
   };
 
   const playbookLabel = PLAYBOOKS.find((p) => p.value === playbook)?.label ?? playbook;
@@ -212,7 +229,10 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
                     usesChecked2={uses2[move.id] ?? 0}
                     onUsesChange2={move.uses2 !== undefined ? (n) => handleUses2(move.id, n) : undefined}
                     checkListChecked={checkLists[move.id] ?? {}}
-                    onCheckListChange={move.checkList !== undefined ? (itemId, checked) => handleCheckList(move.id, itemId, checked) : undefined}
+                    onCheckListChange={move.checkList !== undefined && !move.checkListLeveled ? (itemId, checked) => handleCheckList(move.id, itemId, checked) : undefined}
+                    checkListLevels={checkListLevels[move.id] ?? {}}
+                    onCheckListLevelChange={move.checkListLeveled ? (itemId, lvl) => handleCheckListLevel(move.id, itemId, lvl) : undefined}
+                    currentLevel={level}
                     takesChecked={takes[move.id] ?? 0}
                     onTakesChange={move.takes !== undefined ? (n) => handleTakes(move.id, n) : undefined}
                     disabled={isDisabled}

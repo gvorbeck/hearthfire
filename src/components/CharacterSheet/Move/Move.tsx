@@ -14,6 +14,7 @@ export interface MoveDefinition {
   list?: string[];
   checkList?: string[];
   checkListIds?: string[];
+  checkListLeveled?: boolean;
   footer?: string | string[];
   list2?: string[];
   citation?: string;
@@ -39,6 +40,9 @@ interface MoveProps {
   onUsesChange2?: (count: number) => void;
   checkListChecked?: Record<string, boolean>;
   onCheckListChange?: (id: string, checked: boolean) => void;
+  checkListLevels?: Record<string, number>;
+  onCheckListLevelChange?: (id: string, level: number | null) => void;
+  currentLevel?: number;
   takesChecked?: number;
   onTakesChange?: (count: number) => void;
   disabled?: boolean;
@@ -88,6 +92,8 @@ export const Move = ({
   usesChecked = 0, onUsesChange,
   usesChecked2 = 0, onUsesChange2,
   checkListChecked, onCheckListChange,
+  checkListLevels, onCheckListLevelChange,
+  currentLevel,
   takesChecked = 0, onTakesChange,
   disabled, lockReason,
 }: MoveProps) => {
@@ -106,6 +112,29 @@ export const Move = ({
 
   const bodyParagraphs = move.body ? (Array.isArray(move.body) ? move.body : [move.body]) : [];
   const footerParagraphs = move.footer ? (Array.isArray(move.footer) ? move.footer : [move.footer]) : [];
+
+  // Leveled checklist: currentLevel is narrowed here so downstream code never needs assertions.
+  const cl = move.checkListLeveled && onCheckListLevelChange !== undefined && currentLevel !== undefined
+    ? currentLevel
+    : null;
+  const levels = checkListLevels ?? {};
+  // An entry in levels means the item was marked, regardless of the stored value.
+  const levelUsedThisTurn = cl !== null && Object.values(levels).includes(cl);
+  const effectiveChecked: Record<string, boolean> = cl !== null
+    ? Object.fromEntries(Object.keys(levels).map((k) => [k, true]))
+    : (checkListChecked ?? {});
+
+  const checkListItems = move.checkList?.map((label, i) => {
+    const id = move.checkListIds?.[i] ?? `${move.id}-cl-${i}`;
+    const isChecked = effectiveChecked[id] ?? false;
+    const recordedLevel = cl !== null ? (levels[id] ?? null) : null;
+    const displayLabel = cl !== null
+      ? <>{parseInlineMarkdown(label.replace('___', recordedLevel !== null ? String(recordedLevel) : '___'))}</>
+      : parseInlineMarkdown(label);
+    // Prevents re-marking a slot or double-marking within the same level.
+    const itemDisabled = cl !== null && (isChecked || levelUsedThisTurn);
+    return { id, label: displayLabel, disabled: itemDisabled };
+  });
 
   return (
     <div className={moveCx}>
@@ -152,7 +181,7 @@ export const Move = ({
                 total={usesTotal!}
                 checked={usesChecked}
                 onChange={onUsesChange!}
-                disabled={disabled || locked || !selected}
+                disabled={locked || !selected}
               />
             )}
             {hasUses && hasUses2 && <span className={styles.usesSeparator} aria-hidden="true">|</span>}
@@ -161,7 +190,7 @@ export const Move = ({
                 total={uses2Total!}
                 checked={usesChecked2}
                 onChange={onUsesChange2!}
-                disabled={disabled || locked || !selected}
+                disabled={locked || !selected}
               />
             )}
           </div>
@@ -190,15 +219,18 @@ export const Move = ({
       {move.list && (
         <List variant="bullet" items={move.list.map((item) => parseInlineMarkdown(item))} />
       )}
-      {move.checkList && onCheckListChange && (
+      {checkListItems && (
         <CheckboxGroup
-          items={move.checkList.map((label, i) => ({
-            id: move.checkListIds?.[i] ?? `${move.id}-cl-${i}`,
-            label: parseInlineMarkdown(label),
-          }))}
-          checked={checkListChecked ?? {}}
-          onChange={onCheckListChange}
-          disabled={disabled || locked || !selected}
+          items={checkListItems}
+          checked={effectiveChecked}
+          onChange={(id, checked) => {
+            if (cl !== null) {
+              onCheckListLevelChange!(id, checked ? cl : null);
+            } else {
+              onCheckListChange?.(id, checked);
+            }
+          }}
+          disabled={locked || !selected}
         />
       )}
       {footerParagraphs.map((p, i) => (

@@ -34,6 +34,7 @@ export const PLAYBOOK_MOVES: Partial<Record<PlaybookType, MoveDefinition[]>> = {
         'Increase your damage die to a d8 (at level ___)',
       ],
       checkListIds: ['pfg-stat-1', 'pfg-stat-2', 'pfg-stat-3', 'pfg-stat-4', 'pfg-hp', 'pfg-damage'],
+      checkListLeveled: true,
     },
     {
       id: 'wbh-speak-truth-to-power',
