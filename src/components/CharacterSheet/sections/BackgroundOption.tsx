@@ -1,6 +1,5 @@
 import { memo, useCallback } from 'react';
-import { Radio, Checkbox, Text, Input } from '@/components/primitives';
-import { UseDots } from '@/components/CharacterSheet/Move';
+import { Radio, Checkbox, Text, Input, UseDots } from '@/components/primitives';
 import { parseMarkdown, parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { BackgroundOption, ChoiceConfig } from '@/types';
 import styles from './Background.module.css';

@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import clsx from 'clsx';
-import { Checkbox, Input, Radio } from '@/components/primitives';
-import { UseDots } from '@/components/CharacterSheet/Move';
+import { Checkbox, Input, Radio, UseDots } from '@/components/primitives';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { PlaybookSection } from '../PlaybookSection';
 import type { Possession, PossessionSubItem } from '@/lib/specialPossessionsOptions';
@@ -243,19 +242,12 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1 }: SpecialP
       node: (
         <span className={styles.stockRow}>
           <span className={styles.stockLabel}>Stock:</span>
-          {Array.from({ length: capacity }, (_, i) => {
-            const filled = i < stock;
-            const dotCx = clsx(styles.dot, filled && styles.dotFilled);
-            return (
-              <button
-                key={i}
-                type="button"
-                className={dotCx}
-                aria-label={filled ? `Clear stock ${i + 1}` : `Mark stock ${i + 1}`}
-                onClick={() => handleStock(stockItem.stockKey!, filled ? i : i + 1)}
-              />
-            );
-          })}
+          <UseDots
+            total={capacity}
+            checked={stock}
+            onChange={(n) => handleStock(stockItem.stockKey!, n)}
+            label={`Stock: ${stock} of ${capacity}`}
+          />
         </span>
       ),
     };
