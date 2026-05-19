@@ -6,6 +6,11 @@
   color: var(--text-secondary);
   border-top: 1px solid var(--border-subtle);
   letter-spacing: 0.03em;
+  line-height: 1.8;
+}
+
+.footer a {
+  color: var(--color-gold-300);
 }
 
 .footer a:hover {
