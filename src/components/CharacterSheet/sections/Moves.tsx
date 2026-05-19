@@ -42,6 +42,7 @@ const PLAYBOOK_HELPER_TEXT: Partial<Record<PlaybookType, string>> = {
   'would-be-hero': 'You start with Anger is a Gift, Potential for Greatness, and 2 other moves of your choice.',
   seeker: 'You start with Well Versed, Work With What You\'ve Got, plus 1 from your Background.',
   ranger: 'You start with Home on the Range, any moves from your Background, plus 1 of your choice.',
+  marshal: 'You start with Crew, Logistics, any moves from your Background, and 1 move of your choice.',
 };
 
 interface MoveSectionProps {
