@@ -1783,6 +1783,15 @@ export const BACKGROUND_FORCED_MOVES: Partial<Record<PlaybookType, Record<string
     'raised-by-wolves': ['blessed-trackless-step'],
     vessel: ['blessed-danus-grasp'],
   },
+  marshal: {
+    scion: ['marshal-veteran-crew'],
+    luminary: ['marshal-we-happy-few'],
+  },
+  ranger: {
+    'mighty-hunter': ['ranger-expert-tracker', 'ranger-stalker'],
+    'wide-wanderer': ['ranger-mental-map'],
+    'beast-bonded': ['ranger-animal-companion'],
+  },
   seeker: {
     patriot: ['seeker-lets-make-a-deal'],
     antiquarian: ['seeker-polyglot'],
