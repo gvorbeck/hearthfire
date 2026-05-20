@@ -23,7 +23,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-6);
-  margin-top: var(--spacing-6);
 }
 
 .columns {
@@ -57,4 +56,16 @@
   justify-content: center;
   gap: var(--spacing-4);
   padding: var(--spacing-16) var(--spacing-4);
+}
+
+.insertOptions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.insertActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-3);
 }
