@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { CheckboxGroup } from '@/components/primitives';
+import { useState, useEffect, useCallback } from 'react';
+import { Checkbox, CheckboxGroup } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import type { CharacterData } from '@/types';
 import styles from '../playbookSection.module.css';
+import localStyles from './FoxTallTales.module.css';
 
 const LOCATION_ITEMS = [
   { id: 'tales-lost-great-wood', label: 'the Great Wood' },
@@ -64,24 +65,8 @@ export const FoxTallTales = ({ data, onSave }: FoxTallTalesProps) => {
     onSave({ foxTallTales: next }).catch(() => setChecked(prev));
   }, [checked, onSave]);
 
-  const taleItems = useMemo(() => TALE_ITEMS.map((item) => {
-    if (item.id !== 'tales-lost') return item;
-    return {
-      ...item,
-      label: (
-        <>
-          … got lost in (choose 1):
-          <CheckboxGroup
-            items={LOCATION_ITEMS}
-            checked={checked}
-            onChange={handleChange}
-            max={1}
-            disabled={!(checked['tales-lost'] ?? false)}
-          />
-        </>
-      ),
-    };
-  }), [checked, handleChange]);
+  const lostChecked = checked['tales-lost'] ?? false;
+  const taleItemsWithoutLost = TALE_ITEMS.filter((item) => item.id !== 'tales-lost');
 
   return (
     <PlaybookSection title="Tall Tales">
@@ -90,12 +75,32 @@ export const FoxTallTales = ({ data, onSave }: FoxTallTalesProps) => {
         the following to come up with a couple of your more memorable adventures, and write them
         down in the space at the bottom of this column.
       </p>
-      <CheckboxGroup
-        label="There was that time that you… (choose 1 per tale)"
-        items={taleItems}
-        checked={checked}
-        onChange={handleChange}
-      />
+      <div className={localStyles.taleGroup}>
+        <p className={localStyles.groupLabel}>There was that time that you… (choose 1 per tale)</p>
+        <div className={localStyles.list}>
+          <div className={localStyles.lostRow}>
+            <Checkbox
+              checked={lostChecked}
+              onChange={(e) => handleChange('tales-lost', e.target.checked)}
+              label="… got lost in (choose 1):"
+            />
+            <div className={localStyles.locationSub}>
+              <CheckboxGroup
+                items={LOCATION_ITEMS}
+                checked={checked}
+                onChange={handleChange}
+                max={1}
+                disabled={!lostChecked}
+              />
+            </div>
+          </div>
+          <CheckboxGroup
+            items={taleItemsWithoutLost}
+            checked={checked}
+            onChange={handleChange}
+          />
+        </div>
+      </div>
       <hr className={styles.divider} />
       <CheckboxGroup
         label="And you ended up… (choose 1 or 2 per tale)"

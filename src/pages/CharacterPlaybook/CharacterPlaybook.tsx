@@ -1,9 +1,9 @@
-import { useRef, useCallback, useMemo } from 'react';
+import { useRef, useCallback, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PageMeta } from '@/components/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
-import { Heading, Button, ScrollToTop, Tabs } from '@/components/primitives';
+import { Heading, Button, ScrollToTop, Tabs, Modal } from '@/components/primitives';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
 import { PageHeader } from '@/components/PageHeader/PageHeader';
 import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, Moves, SpecialPossessions, Introductions } from '@/components/CharacterSheet/sections';
@@ -95,6 +95,10 @@ interface SheetProps {
 // Separate component so hooks always run before the early-return guards in CharacterPlaybookContent.
 const CharacterSheet = ({ character, playbookOption, id, gameName, updateCharacterName, updateCharacterData }: SheetProps) => {
   const headerRef = useRef<HTMLDivElement>(null);
+  const [addTabOpen, setAddTabOpen] = useState(false);
+
+  const handleAddTab = useCallback(() => setAddTabOpen(true), []);
+  const handleCloseAddTab = useCallback(() => setAddTabOpen(false), []);
 
   const handleSaveCharacterData = useCallback(
     (data: Partial<CharacterData>) => updateCharacterData(character.id, data),
@@ -149,7 +153,10 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, updateCharact
       {playbookOption.description && (
         <p className={styles.description}>{playbookOption.description}</p>
       )}
-      <Tabs aria-label="Character sections" className={styles.tabs} tabs={tabs} />
+      <Tabs aria-label="Character sections" className={styles.tabs} tabs={tabs} onAdd={handleAddTab} />
+      <Modal open={addTabOpen} onClose={handleCloseAddTab}>
+        <Button variant="secondary" onClick={handleCloseAddTab}>Close</Button>
+      </Modal>
     </main>
   );
 };

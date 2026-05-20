@@ -27,6 +27,7 @@ export const UseDots = ({ total, checked, onChange, disabled, label }: UseDotsPr
   return (
     <div role="group" className={styles.useDots} aria-label={label ?? `Uses: ${checked} of ${total}`}>
       {dots}
+      {label && <span className={styles.useDotsLabel} aria-hidden="true">{label}</span>}
     </div>
   );
 };

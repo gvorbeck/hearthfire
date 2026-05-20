@@ -21,10 +21,10 @@ const getLockReason = (
   level: number,
   selected: Record<string, boolean>,
 ): string | undefined => {
-  if (move.excludes !== undefined) {
+  if (level <= 1 && move.excludes !== undefined) {
     for (const exId of move.excludes) {
       const exMove = typeMoves.find((m) => m.id === exId);
-      if (exMove && (exMove.startingMove || selected[exId])) {
+      if (exMove && selected[exId]) {
         return `Conflicts with ${exMove.name}`;
       }
     }
@@ -54,6 +54,7 @@ const PLAYBOOK_HELPER_TEXT: Partial<Record<PlaybookType, string>> = {
   judge: 'You start with Censure, Chronicler of Stonetop, plus 2 more of your choice.',
   lightbearer: 'You start with Consecrated Flame and Invoke the Sun God, plus 1 more of your choice.',
   heavy: 'You start with Dangerous, Hard to Kill, and either Armored OR Uncanny Reflexes.',
+  fox: 'You start with Ambush OR Skill at Arms; Danger Sense OR Perceptive; and 1 of your choice.',
 };
 
 interface MoveSectionProps {
@@ -238,7 +239,7 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
           defaultOpen
         >
           {PLAYBOOK_HELPER_TEXT[playbook] && (
-            <p className={styles.helperText}>{PLAYBOOK_HELPER_TEXT[playbook]}</p>
+            <p className={styles.helperText}>{parseInlineMarkdown(PLAYBOOK_HELPER_TEXT[playbook]!)}</p>
           )}
           {sortedTypeMoves.length > 0 ? (
             <div className={styles.moveGrid}>
