@@ -28,6 +28,7 @@ export interface MoveDefinition {
   startingMove?: boolean;
   requires?: string[];
   requiresLevel?: number;
+  excludes?: string[];
 }
 
 interface MoveProps {

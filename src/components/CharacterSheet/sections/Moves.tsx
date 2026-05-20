@@ -21,6 +21,14 @@ const getLockReason = (
   level: number,
   selected: Record<string, boolean>,
 ): string | undefined => {
+  if (move.excludes !== undefined) {
+    for (const exId of move.excludes) {
+      const exMove = typeMoves.find((m) => m.id === exId);
+      if (exMove && (exMove.startingMove || selected[exId])) {
+        return `Conflicts with ${exMove.name}`;
+      }
+    }
+  }
   const parts: string[] = [];
   if (move.requiresLevel !== undefined && level < move.requiresLevel) {
     parts.push(`Level ${move.requiresLevel}+`);
@@ -45,6 +53,7 @@ const PLAYBOOK_HELPER_TEXT: Partial<Record<PlaybookType, string>> = {
   marshal: 'You start with Crew, Logistics, any moves from your Background, and 1 move of your choice.',
   judge: 'You start with Censure, Chronicler of Stonetop, plus 2 more of your choice.',
   lightbearer: 'You start with Consecrated Flame and Invoke the Sun God, plus 1 more of your choice.',
+  heavy: 'You start with Dangerous, Hard to Kill, and either Armored OR Uncanny Reflexes.',
 };
 
 interface MoveSectionProps {
