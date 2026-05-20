@@ -18,14 +18,14 @@ A digital companion for [Stonetop](https://www.kickstarter.com/projects/19561016
 
 ## Tech Stack
 
-| Layer     | Technology                   |
-| --------- | ---------------------------- |
-| Framework | React 18 + TypeScript        |
-| Build     | Vite                         |
-| Routing   | React Router v6              |
-| Database  | Firebase Firestore           |
-| Styling   | CSS Modules + clsx           |
-| Hosting   | GitHub Pages (custom domain) |
+| Layer     | Technology                       |
+| --------- | -------------------------------- |
+| Framework | React 18 + TypeScript            |
+| Build     | Vite                             |
+| Routing   | React Router v6                  |
+| Database  | Firebase Firestore               |
+| Styling   | CSS Modules + clsx               |
+| Hosting   | Firebase Hosting (custom domain) |
 
 ---
 
@@ -132,20 +132,23 @@ Access is unrestricted by user account — anyone with a game ID can read and wr
 
 ## Deployment
 
-The app is a static SPA and can be hosted anywhere that serves static files. For GitHub Pages with a custom domain:
-
-1. Set the `base` in `vite.config.ts` if needed
-2. Run `npm run build`
-3. Push the `dist/` contents to your `gh-pages` branch (or configure GitHub Actions)
-4. Add your custom domain in the repo's Pages settings and configure your DNS
+The app deploys automatically to Firebase Hosting via GitHub Actions on every push to `main`. No manual steps required — the workflow builds the project, injects Firebase env vars from repository secrets, and deploys to the live channel.
 
 ---
 
 ## Roadmap
 
-- [ ] All 9 playbooks — full content coverage
-- [ ] Playbook inserts (Inventory, Animal Companion, Crew, Invocations, Initiates of Danu)
-- [ ] Death-state playbooks (Ghost, Revenant, Thrall)
+- [x] All 9 playbooks — full content coverage
+- [ ] Playbook inserts
+  - [ ] Inventory
+  - [ ] Animal Companion
+  - [ ] Crew
+  - [ ] Invocations
+  - [x] Initiates of Danu
+- [ ] Death-state playbooks
+  - [ ] Ghost
+  - [ ] Revenant
+  - [ ] Thrall
 - [ ] Steading Playbook
 - [ ] Arcana reference sheets
 
