@@ -68,7 +68,8 @@
       "Bash(dig A hearthfire.camp +short)",
       "Bash(dig AAAA hearthfire.camp +short)",
       "Bash(dig CNAME hearthfire.camp +short)",
-      "Bash(dig TXT hearthfire.camp @1.1.1.1 +short)"
+      "Bash(dig TXT hearthfire.camp @1.1.1.1 +short)",
+      "Bash(xargs ls)"
     ]
   }
 }

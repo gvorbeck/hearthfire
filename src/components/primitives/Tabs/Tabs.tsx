@@ -11,19 +11,31 @@ interface Tab {
 interface TabsProps {
   tabs: Tab[];
   defaultIndex?: number;
+  activeIndex?: number;
+  onActiveChange?: (index: number) => void;
   className?: string;
   'aria-label': string;
   onAdd?: () => void;
 }
 
-export const Tabs = ({ tabs, defaultIndex = 0, className, 'aria-label': ariaLabel, onAdd }: TabsProps) => {
-  const [active, setActive] = useState(defaultIndex);
+export const Tabs = ({ tabs, defaultIndex = 0, activeIndex, onActiveChange, className, 'aria-label': ariaLabel, onAdd }: TabsProps) => {
+  const [internalActive, setInternalActive] = useState(defaultIndex);
+  const active = activeIndex ?? internalActive;
+  const setActive = useCallback((i: number) => {
+    setInternalActive(i);
+    onActiveChange?.(i);
+  }, [onActiveChange]);
   const id = useId();
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const cx = clsx(styles.root, className);
 
-  const handleKeyDown = useCallback((e: KeyboardEvent<HTMLButtonElement>, i: number) => {
+  const handleClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    setActive(Number(e.currentTarget.dataset.index));
+  }, [setActive]);
+
+  const handleKeyDown = useCallback((e: KeyboardEvent<HTMLButtonElement>) => {
+    const i = Number(e.currentTarget.dataset.index);
     if (e.key === 'ArrowRight') {
       const next = (i + 1) % tabs.length;
       setActive(next);
@@ -33,7 +45,7 @@ export const Tabs = ({ tabs, defaultIndex = 0, className, 'aria-label': ariaLabe
       setActive(prev);
       tabRefs.current[prev]?.focus();
     }
-  }, [tabs.length]);
+  }, [tabs.length, setActive]);
 
   return (
     <div className={cx}>
@@ -63,8 +75,9 @@ export const Tabs = ({ tabs, defaultIndex = 0, className, 'aria-label': ariaLabe
                 aria-selected={active === i}
                 tabIndex={active === i ? 0 : -1}
                 className={tabCx}
-                onClick={() => setActive(i)}
-                onKeyDown={(e) => handleKeyDown(e, i)}
+                data-index={i}
+                onClick={handleClick}
+                onKeyDown={handleKeyDown}
               >
                 {tab.label}
               </button>

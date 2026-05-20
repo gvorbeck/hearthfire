@@ -77,6 +77,11 @@ export interface CharacterData {
   seekerCollectionAnswers?: Record<string, string>;
   wouldBeHeroFearAnger?: Record<string, boolean>;
   wouldBeHeroFearAngerAnswers?: Record<string, string>;
+  inserts?: string[];
+  initiateHp?: Record<string, string>;
+  initiateLoyalty?: Record<string, number>;
+  initiatePicks?: Record<string, Record<string, string>>;
+  initiateRites?: Record<string, string>;
 }
 
 export interface Character {

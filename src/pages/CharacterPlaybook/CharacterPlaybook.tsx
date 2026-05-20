@@ -1,9 +1,9 @@
-import { useRef, useCallback, useMemo, useState } from 'react';
+import React, { useRef, useCallback, useMemo, useState, useId } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PageMeta } from '@/components/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
-import { Heading, Button, ScrollToTop, Tabs, Modal } from '@/components/primitives';
+import { Heading, Button, ScrollToTop, Tabs, Modal, Radio } from '@/components/primitives';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
 import { PageHeader } from '@/components/PageHeader/PageHeader';
 import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, Moves, SpecialPossessions, Introductions } from '@/components/CharacterSheet/sections';
@@ -14,6 +14,7 @@ import { PLACE_OF_ORIGIN_OPTIONS } from '@/lib/placeOfOriginOptions';
 import { SPECIAL_POSSESSIONS_OPTIONS } from '@/lib/specialPossessionsOptions';
 import { INTRODUCTIONS_OPTIONS } from '@/lib/introductionsOptions';
 import { BlessedSections } from '@/components/CharacterSheet/playbooks/BlessedSections';
+import { BlessedInitiatesOfDanu } from '@/components/CharacterSheet/playbooks/blessed/BlessedInitiatesOfDanu';
 import { FoxSections } from '@/components/CharacterSheet/playbooks/FoxSections';
 import { HeavySections } from '@/components/CharacterSheet/playbooks/HeavySections';
 import { JudgeSections } from '@/components/CharacterSheet/playbooks/JudgeSections';
@@ -92,12 +93,62 @@ interface SheetProps {
   updateCharacterData: (characterId: string, data: Partial<CharacterData>) => Promise<void>;
 }
 
-// Separate component so hooks always run before the early-return guards in CharacterPlaybookContent.
+type PlaybookTab = { id: string; label: string; content: React.ReactNode };
+
+const getPlaybookTabs = (playbook: PlaybookType, data: CharacterData | undefined): PlaybookTab[] => {
+  const tabs: PlaybookTab[] = [];
+  if (playbook === 'lightbearer') tabs.push({ id: 'invocations', label: 'Invocations', content: null });
+  if (playbook === 'ranger') tabs.push({ id: 'animal-companion', label: 'Animal Companion', content: null });
+  if (playbook === 'marshal') tabs.push({ id: 'crew', label: 'Crew', content: null });
+  if (playbook === 'blessed' && data?.background === 'initiate') tabs.push({ id: 'initiates-of-danu', label: 'Initiates of Danu', content: null });
+  return tabs;
+};
+
+const INSERT_OPTIONS = ['Revenant', 'Ghost', 'Thrall'] as const;
+type InsertOption = typeof INSERT_OPTIONS[number];
+
+const AddInsertModal = ({ open, onClose, onAdd }: { open: boolean; onClose: () => void; onAdd: (insert: InsertOption) => void }) => {
+  const headingId = useId();
+  const [selected, setSelected] = useState<InsertOption>(INSERT_OPTIONS[0]);
+
+  const handleSelectChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSelected(e.currentTarget.value as InsertOption);
+  }, []);
+
+  const handleAdd = useCallback(() => {
+    onAdd(selected);
+  }, [onAdd, selected]);
+
+  return (
+    <Modal open={open} onClose={onClose} aria-labelledby={headingId}>
+      <Heading as="h2" size="md" id={headingId}>Add an Insert</Heading>
+      <div className={styles.insertOptions}>
+        {INSERT_OPTIONS.map((opt) => (
+          <Radio
+            key={opt}
+            name="insert-option"
+            value={opt}
+            label={opt}
+            checked={selected === opt}
+            onChange={handleSelectChange}
+          />
+        ))}
+      </div>
+      <div className={styles.insertActions}>
+        <Button variant="secondary" onClick={onClose}>Cancel</Button>
+        <Button variant="primary" onClick={handleAdd}>Add</Button>
+      </div>
+    </Modal>
+  );
+};
+
+// Hooks must run unconditionally — split from CharacterPlaybookContent to avoid running hooks after early-return guards.
 const CharacterSheet = ({ character, playbookOption, id, gameName, updateCharacterName, updateCharacterData }: SheetProps) => {
   const headerRef = useRef<HTMLDivElement>(null);
   const [addTabOpen, setAddTabOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
 
-  const handleAddTab = useCallback(() => setAddTabOpen(true), []);
+  const handleOpenAddTab = useCallback(() => setAddTabOpen(true), []);
   const handleCloseAddTab = useCallback(() => setAddTabOpen(false), []);
 
   const handleSaveCharacterData = useCallback(
@@ -109,6 +160,19 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, updateCharact
     (name: string) => updateCharacterName(character.id, name),
     [updateCharacterName, character.id]
   );
+
+  const handleAddInsert = useCallback(async (insert: InsertOption) => {
+    const current = character.data?.inserts ?? [];
+    if (current.includes(insert)) {
+      setAddTabOpen(false);
+      return;
+    }
+    const next = [...current, insert];
+    const fixedTabCount = 2 + getPlaybookTabs(character.playbook, character.data).length;
+    await handleSaveCharacterData({ inserts: next });
+    setActiveIndex(fixedTabCount + next.length - 1);
+    setAddTabOpen(false);
+  }, [character.data, character.playbook, handleSaveCharacterData]);
 
   const characterName = character.name?.trim();
   const playbookLabel = `${playbookOption.label} Playbook`;
@@ -122,6 +186,11 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, updateCharact
     { label: playbookLabel },
   ], [gameName, id, playbookLabel]);
 
+  const playbookTabs = useMemo(() =>
+    getPlaybookTabs(character.playbook, character.data),
+    [character.playbook, character.data]
+  );
+
   const tabs = useMemo(() => [
     {
       label: 'PC Playbook',
@@ -131,7 +200,14 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, updateCharact
       label: 'Inventory',
       content: null,
     },
-  ], [character, playbookOption, handleSaveCharacterData]);
+    ...playbookTabs.map(({ id, label, content }) => ({
+      label,
+      content: id === 'initiates-of-danu'
+        ? <BlessedInitiatesOfDanu data={character.data} onSave={handleSaveCharacterData} />
+        : content,
+    })),
+    ...(character.data?.inserts ?? []).map((label) => ({ label, content: null })),
+  ], [character, playbookOption, handleSaveCharacterData, playbookTabs]);
 
   return (
     <main className={styles.page}>
@@ -153,10 +229,15 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, updateCharact
       {playbookOption.description && (
         <p className={styles.description}>{playbookOption.description}</p>
       )}
-      <Tabs aria-label="Character sections" className={styles.tabs} tabs={tabs} onAdd={handleAddTab} />
-      <Modal open={addTabOpen} onClose={handleCloseAddTab}>
-        <Button variant="secondary" onClick={handleCloseAddTab}>Close</Button>
-      </Modal>
+      <Tabs
+        aria-label="Character sections"
+        className={styles.tabs}
+        tabs={tabs}
+        activeIndex={activeIndex}
+        onActiveChange={setActiveIndex}
+        onAdd={handleOpenAddTab}
+      />
+      <AddInsertModal open={addTabOpen} onClose={handleCloseAddTab} onAdd={handleAddInsert} />
     </main>
   );
 };

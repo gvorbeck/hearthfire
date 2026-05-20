@@ -66,6 +66,10 @@
   outline-offset: -2px;
 }
 
+.panel {
+  padding-top: var(--spacing-6);
+}
+
 .panel[hidden] {
   display: none;
 }
