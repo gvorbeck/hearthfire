@@ -101,16 +101,16 @@ type DebilitiesState = {
   debilityWeakened: boolean; debilityDazed: boolean; debilityMiserable: boolean;
 };
 
-const statsFromData = (data: CharacterData | undefined): StatsState => ({
+const statsFromData = (data: CharacterData | undefined, hpMax?: number): StatsState => ({
   statStr: data?.statStr ?? '',
   statDex: data?.statDex ?? '',
   statInt: data?.statInt ?? '',
   statWis: data?.statWis ?? '',
   statCon: data?.statCon ?? '',
   statCha: data?.statCha ?? '',
-  statHp: data?.statHp ?? '',
+  statHp: data?.statHp ?? (hpMax !== undefined ? String(hpMax) : ''),
   statArmor: data?.statArmor ?? '',
-  statXp: data?.statXp ?? '',
+  statXp: data?.statXp ?? '0',
   statLevel: data?.statLevel || '1',
 });
 
@@ -160,7 +160,7 @@ interface StatsProps {
 }
 
 export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = DEFAULT_SCORE_INSTRUCTION }: StatsProps = {}) => {
-  const [stats, setStats] = useState<StatsState>(() => statsFromData(data));
+  const [stats, setStats] = useState<StatsState>(() => statsFromData(data, hpMax));
   const [debilities, setDebilities] = useState<DebilitiesState>(() => debilitiesFromData(data));
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -173,12 +173,18 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
   debilitiesRef.current = debilities;
 
   useEffect(() => {
-    setStats(statsFromData(data));
+    setStats(statsFromData(data, hpMax));
     setDebilities(debilitiesFromData(data));
+    if (!data) return;
+    const patch: Partial<CharacterData> = {};
+    if (hpMax !== undefined && !data.statHp) patch.statHp = String(hpMax);
+    if (!data.statXp) patch.statXp = '0';
+    if (Object.keys(patch).length > 0) onSaveRef.current?.(patch);
   }, [
     data?.statStr, data?.statDex, data?.statInt, data?.statWis, data?.statCon, data?.statCha,
     data?.statHp, data?.statArmor, data?.statXp, data?.statLevel,
     data?.debilityWeakened, data?.debilityDazed, data?.debilityMiserable,
+    hpMax,
   ]);
 
   useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
