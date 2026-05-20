@@ -7,7 +7,7 @@ import { Heading, Button, ScrollToTop, Tabs, Modal, Radio } from '@/components/p
 import { GameGuard } from '@/components/GameGuard/GameGuard';
 import { PageHeader } from '@/components/PageHeader/PageHeader';
 import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, Moves, SpecialPossessions, Introductions } from '@/components/CharacterSheet/sections';
-import { BACKGROUND_OPTIONS } from '@/lib/backgroundOptions';
+import { BACKGROUND_OPTIONS, FOX_LIFE_OF_CRIME_BACKGROUND } from '@/lib/backgroundOptions';
 import { INSTINCT_OPTIONS } from '@/lib/instinctOptions';
 import { APPEARANCE_OPTIONS } from '@/lib/appearanceOptions';
 import { PLACE_OF_ORIGIN_OPTIONS } from '@/lib/placeOfOriginOptions';
@@ -37,6 +37,10 @@ const PCPlaybookTab = ({ character, playbookOption, onSave }: { character: Chara
   const level = getCharacterLevel(character);
   const { playbook, data } = character;
 
+  const foxChooseOverride = playbook === 'fox' && data?.background === FOX_LIFE_OF_CRIME_BACKGROUND
+    ? { count: 3, note: '+1 from A Life of Crime' }
+    : undefined;
+
   return (
     <div className={styles.layout}>
       <div className={styles.columns}>
@@ -62,7 +66,7 @@ const PCPlaybookTab = ({ character, playbookOption, onSave }: { character: Chara
         <Moves playbook={playbook} data={data} onSave={onSave} level={level} />
       </div>
       <div className={styles.colFull}>
-        <SpecialPossessions config={SPECIAL_POSSESSIONS_OPTIONS[playbook]} data={data} onSave={onSave} level={level} />
+        <SpecialPossessions config={SPECIAL_POSSESSIONS_OPTIONS[playbook]} data={data} onSave={onSave} level={level} chooseOverride={foxChooseOverride} />
       </div>
       <div className={styles.columns}>
         <div className={styles.colLeft}>

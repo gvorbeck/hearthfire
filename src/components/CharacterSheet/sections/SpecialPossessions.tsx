@@ -11,11 +11,14 @@ const PICK_COUNT = 2;
 
 const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
 
+type ChooseOverride = { count: number; note?: string };
+
 interface SpecialPossessionsProps {
   config?: PlaybookSpecialPossessions;
   data?: CharacterData;
   onSave?: (data: Partial<CharacterData>) => Promise<void>;
   level?: number;
+  chooseOverride?: ChooseOverride;
 }
 
 const subItemKey = (possessionId: string, item: PossessionSubItem, idx: number): string => {
@@ -179,7 +182,7 @@ const PossessionLabel = ({ p, checked, selected, uses, onToggle, onRadioSelect, 
   return heading;
 };
 
-export const SpecialPossessions = ({ config, data, onSave, level = 1 }: SpecialPossessionsProps = {}) => {
+export const SpecialPossessions = ({ config, data, onSave, level = 1, chooseOverride }: SpecialPossessionsProps = {}) => {
   const [selected, setSelected] = useState<Record<string, boolean>>(() => data?.specialPossessions ?? {});
   const [uses, setUses] = useState<Record<string, number>>(() => data?.specialPossessionUses ?? {});
   const [customText, setCustomText] = useState<string>(() => data?.specialPossessionCustom ?? '');
@@ -281,10 +284,11 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1 }: SpecialP
   if (!config?.items.length) return <PlaybookSection title="Special Possessions" />;
 
   const topLevelIds = new Set(config.items.map(p => p.id));
-  const pickCount = config.pickCount ?? PICK_COUNT;
+  const basePick = config.pickCount ?? PICK_COUNT;
+  const pickCount = chooseOverride?.count ?? basePick;
   const selectedCount = Object.entries(selected).filter(([k, v]) => v && topLevelIds.has(k)).length;
-  const atMax = selectedCount >= pickCount;
-  const warn = selectedCount < pickCount;
+  const atMax = selectedCount >= basePick;
+  const warn = selectedCount < basePick;
   const isComplete = !warn;
   const visibleItems = isCollapsed && isComplete
     ? config.items.filter((p) => p.isAlwaysSelected || selected[p.id])
@@ -294,7 +298,7 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1 }: SpecialP
     <PlaybookSection
       title="Special Possessions"
       choose={pickCount}
-      chooseNote={config.pickNote}
+      chooseNote={chooseOverride?.note ?? config.pickNote}
       warn={warn}
       collapsible={isComplete}
       isCollapsed={isCollapsed}

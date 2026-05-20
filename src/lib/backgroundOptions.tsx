@@ -1,5 +1,7 @@
 import type { BackgroundOption, PlaybookType } from '@/types';
 
+export const FOX_LIFE_OF_CRIME_BACKGROUND = 'a-life-of-crime';
+
 export const BACKGROUND_OPTIONS: Partial<Record<PlaybookType, BackgroundOption[]>> = {
   blessed: [
     {
