@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { CheckboxGroup } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
+import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import type { CharacterData } from '@/types';
 import styles from '../playbookSection.module.css';
 
@@ -26,20 +27,22 @@ interface JudgeLawkeeperProps {
 }
 
 export const JudgeLawkeeper = ({ data, onSave }: JudgeLawkeeperProps) => {
+  const features = resolvePlaybookFeatures(data);
   const [checked, setChecked] = useState<Record<string, boolean>>(
-    () => data?.judgeLawkeeper ?? {}
+    () => features.judgeLawkeeper ?? {}
   );
 
   useEffect(() => {
-    if (data?.judgeLawkeeper !== undefined) setChecked(data.judgeLawkeeper);
-  }, [data?.judgeLawkeeper]);
+    const f = resolvePlaybookFeatures(data);
+    if (f.judgeLawkeeper !== undefined) setChecked(f.judgeLawkeeper);
+  }, [data]);
 
   const handleChange = useCallback((id: string, value: boolean) => {
     const prev = checked;
     const next = { ...checked, [id]: value };
     setChecked(next);
-    onSave({ judgeLawkeeper: next }).catch(() => setChecked(prev));
-  }, [checked, onSave]);
+    onSave(featurePatch(data, { judgeLawkeeper: next })).catch(() => setChecked(prev));
+  }, [checked, onSave, data]);
 
   return (
     <PlaybookSection title="The Lawkeeper">

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { CheckboxGroup } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
+import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import type { CharacterData } from '@/types';
 import styles from '../playbookSection.module.css';
 
@@ -39,20 +40,22 @@ interface HeavyViolenceProps {
 }
 
 export const HeavyViolence = ({ data, onSave }: HeavyViolenceProps) => {
+  const features = resolvePlaybookFeatures(data);
   const [checked, setChecked] = useState<Record<string, boolean>>(
-    () => data?.heavyViolence ?? {}
+    () => features.heavyViolence ?? {}
   );
 
   useEffect(() => {
-    if (data?.heavyViolence !== undefined) setChecked(data.heavyViolence);
-  }, [data?.heavyViolence]);
+    const f = resolvePlaybookFeatures(data);
+    if (f.heavyViolence !== undefined) setChecked(f.heavyViolence);
+  }, [data]);
 
   const handleChange = useCallback((id: string, value: boolean) => {
     const prev = checked;
     const next = { ...checked, [id]: value };
     setChecked(next);
-    onSave({ heavyViolence: next }).catch(() => setChecked(prev));
-  }, [checked, onSave]);
+    onSave(featurePatch(data, { heavyViolence: next })).catch(() => setChecked(prev));
+  }, [checked, onSave, data]);
 
   return (
     <PlaybookSection title="A History of Violence">

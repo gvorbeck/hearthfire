@@ -70,7 +70,11 @@
       "Bash(dig CNAME hearthfire.camp +short)",
       "Bash(dig TXT hearthfire.camp @1.1.1.1 +short)",
       "Bash(xargs ls)",
-      "Bash(xargs basename -a)"
+      "Bash(xargs basename -a)",
+      "Bash(cat)",
+      "Bash(bash /tmp/check_playbook_duplication.sh)",
+      "Bash(bash /tmp/final_analysis.sh)",
+      "Bash(grep -n \"^export\\\\|^const.*=\\\\s*{$\\\\|^  '[a-z]\" /Users/garrett.vorbeck/Sites/stonetop/src/lib/playbookMoves.ts)"
     ]
   }
 }

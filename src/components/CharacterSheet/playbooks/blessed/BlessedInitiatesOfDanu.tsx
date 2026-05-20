@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, memo } from 'react';
+import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import { Radio, UseDots, CheckboxGroup } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
@@ -135,26 +136,19 @@ const InitiateSection = memo(({
 }: InitiateSectionProps) => {
   const ritesChecked = Object.fromEntries(config.rites.map((r) => [r, rites === r]));
 
-  const handleHpChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    onHpChange(e.target.value);
-  }, [onHpChange]);
+  const handleHpChange = (e: React.ChangeEvent<HTMLInputElement>) => onHpChange(e.target.value);
 
-  const handlePickChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePickChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     onPickChange(e.currentTarget.dataset.lineKey!, e.currentTarget.value);
-  }, [onPickChange]);
 
-  const handleRitesChange = useCallback((id: string, checked: boolean) => {
-    onRitesChange(checked ? id : '');
-  }, [onRitesChange]);
+  const handleRitesChange = (id: string, checked: boolean) => onRitesChange(checked ? id : '');
 
-  const handlePronounTextChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePronounTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onPickChange('pronoun', '___');
     onPickChange('pronoun_text', e.target.value);
-  }, [onPickChange]);
+  };
 
-  const handlePronounFocus = useCallback(() => {
-    onPickChange('pronoun', '___');
-  }, [onPickChange]);
+  const handlePronounFocus = () => onPickChange('pronoun', '___');
 
   return (
     <PlaybookSection title={config.name}>
@@ -282,21 +276,25 @@ interface BlessedInitiatesOfDanuProps {
 }
 
 export const BlessedInitiatesOfDanu = ({ data, onSave }: BlessedInitiatesOfDanuProps) => {
-  const [hp, setHp] = useState<Record<string, string>>(() => data?.initiateHp ?? {});
-  const [loyalty, setLoyalty] = useState<Record<string, number>>(() => data?.initiateLoyalty ?? {});
-  const [picks, setPicks] = useState<Record<string, Record<string, string>>>(() => data?.initiatePicks ?? {});
-  const [rites, setRites] = useState<Record<string, string>>(() => data?.initiateRites ?? {});
+  const features = resolvePlaybookFeatures(data);
+  const [hp, setHp] = useState<Record<string, string>>(() => features.initiateHp ?? {});
+  const [loyalty, setLoyalty] = useState<Record<string, number>>(() => features.initiateLoyalty ?? {});
+  const [picks, setPicks] = useState<Record<string, Record<string, string>>>(() => features.initiatePicks ?? {});
+  const [rites, setRites] = useState<Record<string, string>>(() => features.initiateRites ?? {});
 
   useEffect(() => {
-    if (data?.initiateHp !== undefined) setHp(data.initiateHp);
-    if (data?.initiateLoyalty !== undefined) setLoyalty(data.initiateLoyalty);
-    if (data?.initiatePicks !== undefined) setPicks(data.initiatePicks);
-    if (data?.initiateRites !== undefined) setRites(data.initiateRites);
-  }, [data?.initiateHp, data?.initiateLoyalty, data?.initiatePicks, data?.initiateRites]);
+    const f = resolvePlaybookFeatures(data);
+    if (f.initiateHp !== undefined) setHp(f.initiateHp);
+    if (f.initiateLoyalty !== undefined) setLoyalty(f.initiateLoyalty);
+    if (f.initiatePicks !== undefined) setPicks(f.initiatePicks);
+    if (f.initiateRites !== undefined) setRites(f.initiateRites);
+  }, [data]);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onSaveRef = useRef(onSave);
+  const dataRef = useRef(data);
   onSaveRef.current = onSave;
+  dataRef.current = data;
 
   useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
 
@@ -304,7 +302,7 @@ export const BlessedInitiatesOfDanu = ({ data, onSave }: BlessedInitiatesOfDanuP
     setHp((prev) => {
       const next = { ...prev, [initiateValue]: value };
       if (debounceRef.current) clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => onSaveRef.current({ initiateHp: next }), 1000);
+      debounceRef.current = setTimeout(() => onSaveRef.current(featurePatch(dataRef.current, { initiateHp: next })), 1000);
       return next;
     });
   }, []);
@@ -312,7 +310,7 @@ export const BlessedInitiatesOfDanu = ({ data, onSave }: BlessedInitiatesOfDanuP
   const handleLoyaltyChange = useCallback((initiateValue: string, n: number) => {
     setLoyalty((prev) => {
       const next = { ...prev, [initiateValue]: n };
-      onSaveRef.current({ initiateLoyalty: next });
+      onSaveRef.current(featurePatch(dataRef.current, { initiateLoyalty: next }));
       return next;
     });
   }, []);
@@ -320,7 +318,7 @@ export const BlessedInitiatesOfDanu = ({ data, onSave }: BlessedInitiatesOfDanuP
   const handlePickChange = useCallback((initiateValue: string, lineKey: string, option: string) => {
     setPicks((prev) => {
       const next = { ...prev, [initiateValue]: { ...(prev[initiateValue] ?? {}), [lineKey]: option } };
-      onSaveRef.current({ initiatePicks: next });
+      onSaveRef.current(featurePatch(dataRef.current, { initiatePicks: next }));
       return next;
     });
   }, []);
@@ -328,7 +326,7 @@ export const BlessedInitiatesOfDanu = ({ data, onSave }: BlessedInitiatesOfDanuP
   const handleRitesChange = useCallback((initiateValue: string, value: string) => {
     setRites((prev) => {
       const next = { ...prev, [initiateValue]: value };
-      onSaveRef.current({ initiateRites: next });
+      onSaveRef.current(featurePatch(dataRef.current, { initiateRites: next }));
       return next;
     });
   }, []);
