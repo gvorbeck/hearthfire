@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { CheckboxGroup, Radio } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
+import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import type { CharacterData } from '@/types';
 import styles from './BlessedEarthMother.module.css';
 
@@ -30,21 +31,23 @@ interface BlessedEarthMotherProps {
 const OFFERING_ITEMS = OFFERING_OPTIONS.map((opt) => ({ id: opt, label: opt }));
 
 export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) => {
-  const [shrine, setShrine] = useState<string>(data?.earthMotherShrine ?? '');
-  const [offerings, setOfferings] = useState<Record<string, boolean>>(data?.earthMotherOfferings ?? {});
+  const features = resolvePlaybookFeatures(data);
+  const [shrine, setShrine] = useState<string>(features.earthMotherShrine ?? '');
+  const [offerings, setOfferings] = useState<Record<string, boolean>>(features.earthMotherOfferings ?? {});
 
   useEffect(() => {
-    if (data?.earthMotherShrine !== undefined) setShrine(data.earthMotherShrine);
-    if (data?.earthMotherOfferings !== undefined) setOfferings(data.earthMotherOfferings);
-  }, [data?.earthMotherShrine, data?.earthMotherOfferings]);
+    const f = resolvePlaybookFeatures(data);
+    if (f.earthMotherShrine !== undefined) setShrine(f.earthMotherShrine);
+    if (f.earthMotherOfferings !== undefined) setOfferings(f.earthMotherOfferings);
+  }, [data]);
 
   const handleShrine = useCallback(
     (value: string) => {
       const prev = shrine;
       setShrine(value);
-      onSave({ earthMotherShrine: value }).catch(() => setShrine(prev));
+      onSave(featurePatch(data, { earthMotherShrine: value })).catch(() => setShrine(prev));
     },
-    [shrine, onSave]
+    [shrine, onSave, data]
   );
 
   const handleOffering = useCallback(
@@ -52,9 +55,9 @@ export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) =>
       const prev = offerings;
       const next = { ...offerings, [id]: checked };
       setOfferings(next);
-      onSave({ earthMotherOfferings: next }).catch(() => setOfferings(prev));
+      onSave(featurePatch(data, { earthMotherOfferings: next })).catch(() => setOfferings(prev));
     },
-    [offerings, onSave]
+    [offerings, onSave, data]
   );
 
   return (

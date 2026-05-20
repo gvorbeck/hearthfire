@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Checkbox, CheckboxGroup } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
+import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import type { CharacterData } from '@/types';
 import styles from '../playbookSection.module.css';
 import localStyles from './FoxTallTales.module.css';
@@ -50,20 +51,22 @@ interface FoxTallTalesProps {
 }
 
 export const FoxTallTales = ({ data, onSave }: FoxTallTalesProps) => {
+  const features = resolvePlaybookFeatures(data);
   const [checked, setChecked] = useState<Record<string, boolean>>(
-    () => data?.foxTallTales ?? {}
+    () => features.foxTallTales ?? {}
   );
 
   useEffect(() => {
-    if (data?.foxTallTales !== undefined) setChecked(data.foxTallTales);
-  }, [data?.foxTallTales]);
+    const f = resolvePlaybookFeatures(data);
+    if (f.foxTallTales !== undefined) setChecked(f.foxTallTales);
+  }, [data]);
 
   const handleChange = useCallback((id: string, value: boolean) => {
     const prev = checked;
     const next = { ...checked, [id]: value };
     setChecked(next);
-    onSave({ foxTallTales: next }).catch(() => setChecked(prev));
-  }, [checked, onSave]);
+    onSave(featurePatch(data, { foxTallTales: next })).catch(() => setChecked(prev));
+  }, [checked, onSave, data]);
 
   const lostChecked = checked['tales-lost'] ?? false;
   const taleItemsWithoutLost = TALE_ITEMS.filter((item) => item.id !== 'tales-lost');

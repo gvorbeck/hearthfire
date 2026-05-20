@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { CheckboxGroup } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { AnswerPrompts } from '../AnswerPrompts';
+import { useDebouncedAnswers } from '@/hooks/useDebouncedAnswers';
+import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import type { CharacterData } from '@/types';
 import styles from '../playbookSection.module.css';
 
@@ -25,39 +27,35 @@ interface SeekerCollectionProps {
 }
 
 export const SeekerCollection = ({ data, onSave }: SeekerCollectionProps) => {
+  const dataRef = useRef(data);
+  dataRef.current = data;
+
+  const features = resolvePlaybookFeatures(data);
   const [checked, setChecked] = useState<Record<string, boolean>>(
-    () => data?.seekerCollection ?? {}
+    () => features.seekerCollection ?? {}
   );
-  const [answers, setAnswers] = useState<Record<string, string>>(
-    () => data?.seekerCollectionAnswers ?? {}
+  const buildPatch = useCallback(
+    (a: Record<string, string>) => featurePatch(dataRef.current, { seekerCollectionAnswers: a }),
+    [],
+  );
+  const { answers, setAnswers, handleAnswer } = useDebouncedAnswers(
+    features.seekerCollectionAnswers,
+    onSave,
+    buildPatch,
   );
 
   useEffect(() => {
-    if (data?.seekerCollection !== undefined) setChecked(data.seekerCollection);
-    if (data?.seekerCollectionAnswers !== undefined) setAnswers(data.seekerCollectionAnswers);
-  }, [data?.seekerCollection, data?.seekerCollectionAnswers]);
+    const f = resolvePlaybookFeatures(data);
+    if (f.seekerCollection !== undefined) setChecked(f.seekerCollection);
+    if (f.seekerCollectionAnswers !== undefined) setAnswers(f.seekerCollectionAnswers);
+  }, [data, setAnswers]);
 
   const handleCheck = useCallback((id: string, value: boolean) => {
     const prev = checked;
     const next = { ...checked, [id]: value };
     setChecked(next);
-    onSave({ seekerCollection: next }).catch(() => setChecked(prev));
+    onSave(featurePatch(dataRef.current, { seekerCollection: next })).catch(() => setChecked(prev));
   }, [checked, onSave]);
-
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const onSaveRef = useRef(onSave);
-  const answersRef = useRef(answers);
-  onSaveRef.current = onSave;
-  answersRef.current = answers;
-
-  useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
-
-  const handleAnswer = useCallback((key: string, value: string) => {
-    const next = { ...answersRef.current, [key]: value };
-    setAnswers(next);
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => onSaveRef.current({ seekerCollectionAnswers: next }), 1000);
-  }, []);
 
   return (
     <PlaybookSection title="Collection">

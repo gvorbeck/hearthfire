@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { CheckboxGroup } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
+import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import type { CharacterData } from '@/types';
 import styles from '../playbookSection.module.css';
 
@@ -28,20 +29,22 @@ interface JudgeChronicleProps {
 }
 
 export const JudgeChronicle = ({ data, onSave }: JudgeChronicleProps) => {
+  const features = resolvePlaybookFeatures(data);
   const [checked, setChecked] = useState<Record<string, boolean>>(
-    () => data?.judgeChronicle ?? {}
+    () => features.judgeChronicle ?? {}
   );
 
   useEffect(() => {
-    if (data?.judgeChronicle !== undefined) setChecked(data.judgeChronicle);
-  }, [data?.judgeChronicle]);
+    const f = resolvePlaybookFeatures(data);
+    if (f.judgeChronicle !== undefined) setChecked(f.judgeChronicle);
+  }, [data]);
 
   const handleChange = useCallback((id: string, value: boolean) => {
     const prev = checked;
     const next = { ...checked, [id]: value };
     setChecked(next);
-    onSave({ judgeChronicle: next }).catch(() => setChecked(prev));
-  }, [checked, onSave]);
+    onSave(featurePatch(data, { judgeChronicle: next })).catch(() => setChecked(prev));
+  }, [checked, onSave, data]);
 
   return (
     <PlaybookSection title="The Chronicle">

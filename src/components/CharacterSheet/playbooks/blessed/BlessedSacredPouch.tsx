@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Radio } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
+import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import type { CharacterData } from '@/types';
 import styles from './BlessedSacredPouch.module.css';
 
@@ -28,31 +29,33 @@ interface BlessedSacredPouchProps {
 }
 
 export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) => {
-  const [is, setIs] = useState<Record<string, string>>(data?.sacredPouchIs ?? {});
-  const [trait, setTrait] = useState<string>(data?.sacredPouchTrait ?? '');
+  const features = resolvePlaybookFeatures(data);
+  const [is, setIs] = useState<Record<string, string>>(features.sacredPouchIs ?? {});
+  const [trait, setTrait] = useState<string>(features.sacredPouchTrait ?? '');
 
   useEffect(() => {
-    if (data?.sacredPouchIs !== undefined) setIs(data.sacredPouchIs);
-    if (data?.sacredPouchTrait !== undefined) setTrait(data.sacredPouchTrait);
-  }, [data?.sacredPouchIs, data?.sacredPouchTrait]);
+    const f = resolvePlaybookFeatures(data);
+    if (f.sacredPouchIs !== undefined) setIs(f.sacredPouchIs);
+    if (f.sacredPouchTrait !== undefined) setTrait(f.sacredPouchTrait);
+  }, [data]);
 
   const handleIs = useCallback(
     (key: string, value: string) => {
       const prev = is;
       const next = { ...is, [key]: value };
       setIs(next);
-      onSave({ sacredPouchIs: next }).catch(() => setIs(prev));
+      onSave(featurePatch(data, { sacredPouchIs: next })).catch(() => setIs(prev));
     },
-    [is, onSave]
+    [is, onSave, data]
   );
 
   const handleTrait = useCallback(
     (value: string) => {
       const prev = trait;
       setTrait(value);
-      onSave({ sacredPouchTrait: value }).catch(() => setTrait(prev));
+      onSave(featurePatch(data, { sacredPouchTrait: value })).catch(() => setTrait(prev));
     },
-    [trait, onSave]
+    [trait, onSave, data]
   );
 
   return (

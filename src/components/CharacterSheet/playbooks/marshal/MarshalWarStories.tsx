@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { CheckboxGroup } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { AnswerPrompts } from '../AnswerPrompts';
+import { useDebouncedAnswers } from '@/hooks/useDebouncedAnswers';
+import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import type { CharacterData } from '@/types';
 import styles from '../playbookSection.module.css';
 
@@ -31,39 +33,35 @@ interface MarshalWarStoriesProps {
 }
 
 export const MarshalWarStories = ({ data, onSave }: MarshalWarStoriesProps) => {
+  const dataRef = useRef(data);
+  dataRef.current = data;
+
+  const features = resolvePlaybookFeatures(data);
   const [checked, setChecked] = useState<Record<string, boolean>>(
-    () => data?.marshalWarStories ?? {}
+    () => features.marshalWarStories ?? {}
   );
-  const [answers, setAnswers] = useState<Record<string, string>>(
-    () => data?.marshalWarStoriesAnswers ?? {}
+  const buildPatch = useCallback(
+    (a: Record<string, string>) => featurePatch(dataRef.current, { marshalWarStoriesAnswers: a }),
+    [],
+  );
+  const { answers, setAnswers, handleAnswer } = useDebouncedAnswers(
+    features.marshalWarStoriesAnswers,
+    onSave,
+    buildPatch,
   );
 
   useEffect(() => {
-    if (data?.marshalWarStories !== undefined) setChecked(data.marshalWarStories);
-    if (data?.marshalWarStoriesAnswers !== undefined) setAnswers(data.marshalWarStoriesAnswers);
-  }, [data?.marshalWarStories, data?.marshalWarStoriesAnswers]);
+    const f = resolvePlaybookFeatures(data);
+    if (f.marshalWarStories !== undefined) setChecked(f.marshalWarStories);
+    if (f.marshalWarStoriesAnswers !== undefined) setAnswers(f.marshalWarStoriesAnswers);
+  }, [data, setAnswers]);
 
   const handleCheck = useCallback((id: string, value: boolean) => {
     const prev = checked;
     const next = { ...checked, [id]: value };
     setChecked(next);
-    onSave({ marshalWarStories: next }).catch(() => setChecked(prev));
+    onSave(featurePatch(dataRef.current, { marshalWarStories: next })).catch(() => setChecked(prev));
   }, [checked, onSave]);
-
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const onSaveRef = useRef(onSave);
-  const answersRef = useRef(answers);
-  onSaveRef.current = onSave;
-  answersRef.current = answers;
-
-  useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
-
-  const handleAnswer = useCallback((key: string, value: string) => {
-    const next = { ...answersRef.current, [key]: value };
-    setAnswers(next);
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => onSaveRef.current({ marshalWarStoriesAnswers: next }), 1000);
-  }, []);
 
   return (
     <PlaybookSection title="War Stories">

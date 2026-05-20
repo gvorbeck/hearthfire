@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { CheckboxGroup } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { AnswerPrompts } from '../AnswerPrompts';
+import { useDebouncedAnswers } from '@/hooks/useDebouncedAnswers';
+import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import type { CharacterData } from '@/types';
 import styles from '../playbookSection.module.css';
 
@@ -29,39 +31,35 @@ interface RangerSomethingWickedProps {
 }
 
 export const RangerSomethingWicked = ({ data, onSave }: RangerSomethingWickedProps) => {
+  const dataRef = useRef(data);
+  dataRef.current = data;
+
+  const features = resolvePlaybookFeatures(data);
   const [checked, setChecked] = useState<Record<string, boolean>>(
-    () => data?.rangerSomethingWicked ?? {}
+    () => features.rangerSomethingWicked ?? {}
   );
-  const [answers, setAnswers] = useState<Record<string, string>>(
-    () => data?.rangerSomethingWickedAnswers ?? {}
+  const buildPatch = useCallback(
+    (a: Record<string, string>) => featurePatch(dataRef.current, { rangerSomethingWickedAnswers: a }),
+    [],
+  );
+  const { answers, setAnswers, handleAnswer } = useDebouncedAnswers(
+    features.rangerSomethingWickedAnswers,
+    onSave,
+    buildPatch,
   );
 
   useEffect(() => {
-    if (data?.rangerSomethingWicked !== undefined) setChecked(data.rangerSomethingWicked);
-    if (data?.rangerSomethingWickedAnswers !== undefined) setAnswers(data.rangerSomethingWickedAnswers);
-  }, [data?.rangerSomethingWicked, data?.rangerSomethingWickedAnswers]);
+    const f = resolvePlaybookFeatures(data);
+    if (f.rangerSomethingWicked !== undefined) setChecked(f.rangerSomethingWicked);
+    if (f.rangerSomethingWickedAnswers !== undefined) setAnswers(f.rangerSomethingWickedAnswers);
+  }, [data, setAnswers]);
 
   const handleCheck = useCallback((id: string, value: boolean) => {
     const prev = checked;
     const next = { ...checked, [id]: value };
     setChecked(next);
-    onSave({ rangerSomethingWicked: next }).catch(() => setChecked(prev));
+    onSave(featurePatch(dataRef.current, { rangerSomethingWicked: next })).catch(() => setChecked(prev));
   }, [checked, onSave]);
-
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const onSaveRef = useRef(onSave);
-  const answersRef = useRef(answers);
-  onSaveRef.current = onSave;
-  answersRef.current = answers;
-
-  useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
-
-  const handleAnswer = useCallback((key: string, value: string) => {
-    const next = { ...answersRef.current, [key]: value };
-    setAnswers(next);
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => onSaveRef.current({ rangerSomethingWickedAnswers: next }), 1000);
-  }, []);
 
   return (
     <PlaybookSection title="Something Wicked This Way Comes">
