@@ -49,7 +49,26 @@
       "Bash(git checkout *)",
       "Bash(git merge *)",
       "Bash(git push *)",
-      "Bash(git stash *)"
+      "Bash(git stash *)",
+      "Bash(dig hearthfire.camp A +short)",
+      "Bash(dig hearthfire.camp TXT +short)",
+      "Bash(dig hearthfire.camp NS +short)",
+      "Bash(whois hearthfire.camp)",
+      "Bash(dig hearthfire.camp A @nse1.squarespacedns.com +short)",
+      "Bash(dig hearthfire.camp TXT @nse1.squarespacedns.com +short)",
+      "Bash(dig hearthfire.camp TXT +short @8.8.8.8)",
+      "Bash(dig hearthfire.camp TXT +short @1.1.1.1)",
+      "Bash(firebase hosting:sites:list --project stonetop-d76fb)",
+      "Bash(firebase hosting:channel:list --project stonetop-d76fb)",
+      "Bash(firebase hosting:domain:get hearthfire.camp --project stonetop-d76fb)",
+      "Bash(firebase --version)",
+      "Bash(firebase help *)",
+      "Bash(dig TXT hearthfire.camp +short)",
+      "Bash(dig TXT hearthfire.camp @8.8.8.8 +short)",
+      "Bash(dig A hearthfire.camp +short)",
+      "Bash(dig AAAA hearthfire.camp +short)",
+      "Bash(dig CNAME hearthfire.camp +short)",
+      "Bash(dig TXT hearthfire.camp @1.1.1.1 +short)"
     ]
   }
 }
