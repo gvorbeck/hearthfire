@@ -1,5 +1,6 @@
-import { useState, useId, useRef, type ReactNode, type KeyboardEvent } from 'react';
+import { useState, useId, useRef, useCallback, type ReactNode, type KeyboardEvent } from 'react';
 import clsx from 'clsx';
+import { Tooltip } from '../Tooltip/Tooltip';
 import styles from './Tabs.module.css';
 
 interface Tab {
@@ -12,16 +13,17 @@ interface TabsProps {
   defaultIndex?: number;
   className?: string;
   'aria-label': string;
+  onAdd?: () => void;
 }
 
-export const Tabs = ({ tabs, defaultIndex = 0, className, 'aria-label': ariaLabel }: TabsProps) => {
+export const Tabs = ({ tabs, defaultIndex = 0, className, 'aria-label': ariaLabel, onAdd }: TabsProps) => {
   const [active, setActive] = useState(defaultIndex);
   const id = useId();
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const cx = clsx(styles.root, className);
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLButtonElement>, i: number) => {
+  const handleKeyDown = useCallback((e: KeyboardEvent<HTMLButtonElement>, i: number) => {
     if (e.key === 'ArrowRight') {
       const next = (i + 1) % tabs.length;
       setActive(next);
@@ -31,30 +33,44 @@ export const Tabs = ({ tabs, defaultIndex = 0, className, 'aria-label': ariaLabe
       setActive(prev);
       tabRefs.current[prev]?.focus();
     }
-  };
+  }, [tabs.length]);
 
   return (
     <div className={cx}>
-      <div className={styles.tablist} role="tablist" aria-label={ariaLabel}>
-        {tabs.map((tab, i) => {
-          const tabCx = clsx(styles.tab, active === i && styles.active);
-          return (
+      <div className={styles.tablistRow}>
+        {onAdd && (
+          <Tooltip text="Add an insert" side="bottom" noTabStop>
             <button
-              key={tab.label}
-              ref={(el) => { tabRefs.current[i] = el; }}
-              role="tab"
-              id={`${id}-tab-${i}`}
-              aria-controls={`${id}-panel-${i}`}
-              aria-selected={active === i}
-              tabIndex={active === i ? 0 : -1}
-              className={tabCx}
-              onClick={() => setActive(i)}
-              onKeyDown={(e) => handleKeyDown(e, i)}
+              type="button"
+              className={styles.addTab}
+              onClick={onAdd}
+              aria-label="Add an insert"
             >
-              {tab.label}
+              +
             </button>
-          );
-        })}
+          </Tooltip>
+        )}
+        <div className={styles.tablist} role="tablist" aria-label={ariaLabel}>
+          {tabs.map((tab, i) => {
+            const tabCx = clsx(styles.tab, active === i && styles.active);
+            return (
+              <button
+                key={tab.label}
+                ref={(el) => { tabRefs.current[i] = el; }}
+                role="tab"
+                id={`${id}-tab-${i}`}
+                aria-controls={`${id}-panel-${i}`}
+                aria-selected={active === i}
+                tabIndex={active === i ? 0 : -1}
+                className={tabCx}
+                onClick={() => setActive(i)}
+                onKeyDown={(e) => handleKeyDown(e, i)}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
       {tabs.map((tab, i) => (
         <div

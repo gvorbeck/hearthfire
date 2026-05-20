@@ -3,9 +3,39 @@
   flex-direction: column;
 }
 
+.tablistRow {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
 .tablist {
   display: flex;
-  border-bottom: 1px solid var(--border-subtle);
+  flex: 1;
+}
+
+.addTab {
+  background: none;
+  border: 1px solid var(--color-gold-400);
+  border-radius: 3px;
+  padding: var(--spacing-1) var(--spacing-3);
+  cursor: pointer;
+  color: var(--color-gold-400);
+  font-size: var(--text-md);
+  line-height: 1;
+  align-self: center;
+  margin-right: var(--spacing-2);
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.addTab:hover {
+  color: var(--text-accent);
+  border-color: var(--text-accent);
+}
+
+.addTab:focus-visible {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: 2px;
 }
 
 .tab {
