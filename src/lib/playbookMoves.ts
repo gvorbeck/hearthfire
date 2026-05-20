@@ -1,6 +1,20 @@
 import type { MoveDefinition } from "@/components/CharacterSheet/Move";
 import type { PlaybookType } from "@/types";
 
+const IMPROVED_STAT_BASE: Omit<MoveDefinition, 'id'> = {
+  name: 'Improved Stat',
+  selectable: true,
+  takes: 2,
+  body: 'Each time you take this move, increase one of your stats by 1 (to a max of +2).',
+};
+
+const SUPERIOR_STAT_BASE: Omit<MoveDefinition, 'id'> = {
+  name: 'Superior Stat',
+  selectable: true,
+  requiresLevel: 6,
+  body: 'Increase one of your stats by +1 (to a max of +3).',
+};
+
 export const PLAYBOOK_MOVES: Partial<Record<PlaybookType, MoveDefinition[]>> = {
   'would-be-hero': [
     {
@@ -69,11 +83,8 @@ export const PLAYBOOK_MOVES: Partial<Record<PlaybookType, MoveDefinition[]>> = {
       triggerOverride: 'When you **use I Get Knocked Down**, you have advantage on your next roll against whatever dealt the damage and your next blow against them does +1d4 damage.',
     },
     {
+      ...IMPROVED_STAT_BASE,
       id: 'wbh-improved-stat',
-      name: 'Improved Stat',
-      selectable: true,
-      takes: 2,
-      body: 'Each time you take this move, increase one of your stats by 1 (to a max of +2).',
     },
     {
       id: 'wbh-in-over-your-head',
@@ -170,10 +181,8 @@ export const PLAYBOOK_MOVES: Partial<Record<PlaybookType, MoveDefinition[]>> = {
       footer: 'When you **Defend**, you can spend 1 Readiness to lock eyes with an attacker; they have disadvantage on damage rolls against you and your ward for the rest of the fight.',
     },
     {
+      ...SUPERIOR_STAT_BASE,
       id: 'wbh-superior-stat',
-      name: 'Superior Stat',
-      selectable: true,
-      requiresLevel: 6,
       body: 'Requires all 6 marks in Potential for Greatness. Increase one of your stats by +1 (to a max of +3).',
     },
     {
@@ -254,11 +263,8 @@ export const PLAYBOOK_MOVES: Partial<Record<PlaybookType, MoveDefinition[]>> = {
       triggerOverride: 'When you **Persuade by talking sense or warning against foolishness**, you have advantage.',
     },
     {
+      ...IMPROVED_STAT_BASE,
       id: 'blessed-improved-stat',
-      name: 'Improved Stat',
-      selectable: true,
-      takes: 2,
-      body: 'Each time you take this move, increase one of your stats by 1 (to a max of +2).',
     },
     {
       id: 'blessed-into-the-lions-den',
@@ -329,11 +335,8 @@ export const PLAYBOOK_MOVES: Partial<Record<PlaybookType, MoveDefinition[]>> = {
       ],
     },
     {
+      ...SUPERIOR_STAT_BASE,
       id: 'blessed-superior-stat',
-      name: 'Superior Stat',
-      selectable: true,
-      requiresLevel: 6,
-      body: 'Increase one of your stats by +1 (to a max of +3).',
     },
     {
       id: 'blessed-trackless-step',
@@ -447,11 +450,8 @@ export const PLAYBOOK_MOVES: Partial<Record<PlaybookType, MoveDefinition[]>> = {
       triggerOverride: 'When you **inspect a work of artifice or magic for a fatal flaw**, roll +INT: **on a 7+**, the GM will reveal the best way to destroy/sabotage it; **on a 10+**, you or an ally also gain advantage to act on the info.',
     },
     {
+      ...IMPROVED_STAT_BASE,
       id: 'seeker-improved-stat',
-      name: 'Improved Stat',
-      selectable: true,
-      takes: 2,
-      body: 'Each time you take this move, increase one of your stats by 1 (to a max of +2).',
     },
     {
       id: 'seeker-initiate-of-the-secret-arts',
@@ -549,11 +549,8 @@ export const PLAYBOOK_MOVES: Partial<Record<PlaybookType, MoveDefinition[]>> = {
       triggerOverride: "When you **wish to use an arcanum's move or option without having unlocked it**, ask the GM what fool risk(s) it requires and/or what consequence(s) you'll incur. If you go for it, roll +INT: **on a 7+**, you get it to work this once — trigger the move or use the option as if you'd unlocked it; and **on a 10+**, also mark one step towards unlocking the arcanum's mysteries.",
     },
     {
+      ...SUPERIOR_STAT_BASE,
       id: 'seeker-superior-stat',
-      name: 'Superior Stat',
-      selectable: true,
-      requiresLevel: 6,
-      body: 'Increase one of your stats by +1 (to a max of +3).',
     },
     {
       id: 'seeker-mind-over-magic',
@@ -661,11 +658,8 @@ export const PLAYBOOK_MOVES: Partial<Record<PlaybookType, MoveDefinition[]>> = {
       triggerOverride: 'When you **attack something you know to be tainted by chaos**, deal +1d6 damage.',
     },
     {
+      ...IMPROVED_STAT_BASE,
       id: 'judge-improved-stat',
-      name: 'Improved Stat',
-      selectable: true,
-      takes: 2,
-      body: 'Each time you take this move, increase one of your stats by 1 (to a max of +2).',
     },
     {
       id: 'judge-knowledge-is-power',
@@ -765,11 +759,8 @@ export const PLAYBOOK_MOVES: Partial<Record<PlaybookType, MoveDefinition[]>> = {
       triggerOverride: 'When you **Defend with a shield**, you can spend 1 Readiness to intercept a magical force and redirect it to a different target (or none).',
     },
     {
+      ...SUPERIOR_STAT_BASE,
       id: 'judge-superior-stat',
-      name: 'Superior Stat',
-      selectable: true,
-      requiresLevel: 6,
-      body: 'Increase one of your stats by +1 (to a max of +3).',
     },
     {
       id: 'judge-the-tower-eternal',
@@ -842,11 +833,8 @@ export const PLAYBOOK_MOVES: Partial<Record<PlaybookType, MoveDefinition[]>> = {
       ],
     },
     {
+      ...IMPROVED_STAT_BASE,
       id: 'lb-improved-stat',
-      name: 'Improved Stat',
-      selectable: true,
-      takes: 2,
-      body: 'Each time you take this move, increase one of your stats by 1 (to a max of +2).',
     },
     {
       id: 'lb-invoke-the-sun-god',
@@ -946,11 +934,8 @@ export const PLAYBOOK_MOVES: Partial<Record<PlaybookType, MoveDefinition[]>> = {
       triggerOverride: 'When you **consecrate a flame**, it burns brighter than normal. A rushlight or candle illuminates to *reach* range, an oil lamp, lantern, or torch out to *near* range, and a bullseye lantern out to *far* range.',
     },
     {
+      ...SUPERIOR_STAT_BASE,
       id: 'lb-superior-stat',
-      name: 'Superior Stat',
-      selectable: true,
-      requiresLevel: 6,
-      body: 'Increase one of your stats by +1 (to a max of +3).',
     },
     {
       id: 'lb-wielder-of-the-white-flame',
@@ -1006,11 +991,8 @@ export const PLAYBOOK_MOVES: Partial<Record<PlaybookType, MoveDefinition[]>> = {
       triggerOverride: 'When you **lead your crew into battle**, hold 2 Presence. Spend Presence in lieu of your crew\'s Loyalty or as Readiness (as if you Defended them).',
     },
     {
+      ...IMPROVED_STAT_BASE,
       id: 'marshal-improved-stat',
-      name: 'Improved Stat',
-      selectable: true,
-      takes: 2,
-      body: 'Each time you take this move, increase one of your stats by 1 (to a max of +2).',
     },
     {
       id: 'marshal-logistics',
@@ -1161,11 +1143,8 @@ export const PLAYBOOK_MOVES: Partial<Record<PlaybookType, MoveDefinition[]>> = {
       triggerOverride: 'When you **stand ready to fight alongside like-minded allies**, anything capable of fear recognizes you as a serious threat and treats you accordingly.',
     },
     {
+      ...SUPERIOR_STAT_BASE,
       id: 'marshal-superior-stat',
-      name: 'Superior Stat',
-      selectable: true,
-      requiresLevel: 6,
-      body: 'Increase one of your stats by +1 (to a max of +3).',
     },
   ],
   ranger: [
@@ -1234,11 +1213,8 @@ export const PLAYBOOK_MOVES: Partial<Record<PlaybookType, MoveDefinition[]>> = {
       triggerOverride: 'When ***a journey requires you to Defy Danger or Struggle as One***, treat a 6- as a 7-9.',
     },
     {
+      ...IMPROVED_STAT_BASE,
       id: 'ranger-improved-stat',
-      name: 'Improved Stat',
-      selectable: true,
-      takes: 2,
-      body: 'Each time you take this move, increase one of your stats by 1 (to a max of +2).',
     },
     {
       id: 'ranger-mental-map',
@@ -1368,11 +1344,8 @@ export const PLAYBOOK_MOVES: Partial<Record<PlaybookType, MoveDefinition[]>> = {
       triggerOverride: 'When you **strike at a weak spot of a** ***large*** **or** ***huge*** **creature**, you deal another +2 damage (+4 total).',
     },
     {
+      ...SUPERIOR_STAT_BASE,
       id: 'ranger-superior-stat',
-      name: 'Superior Stat',
-      selectable: true,
-      requiresLevel: 6,
-      body: 'Increase one of your stats by +1 (to a max of +3).',
     },
     {
       id: 'ranger-trailblazer',
@@ -1463,12 +1436,9 @@ export const PLAYBOOK_MOVES: Partial<Record<PlaybookType, MoveDefinition[]>> = {
       triggerOverride: 'When you **Defend**, hold 1 extra Readiness. Even on a 6-, hold 1 Readiness (plus whatever the GM says).',
     },
     {
+      ...IMPROVED_STAT_BASE,
       id: 'heavy-improved-stat',
-      name: 'Improved Stat',
-      selectable: true,
       requiresLevel: 2,
-      takes: 2,
-      body: 'Each time you take this move, increase one of your stats by 1 (to a max of +2).',
     },
     {
       id: 'heavy-intimidating',
@@ -1603,11 +1573,206 @@ export const PLAYBOOK_MOVES: Partial<Record<PlaybookType, MoveDefinition[]>> = {
       triggerOverride: 'When you **Defy Danger (or Struggle as One) by keeping calm and carrying on**, treat a 6- as a 7-9.',
     },
     {
+      ...SUPERIOR_STAT_BASE,
       id: 'heavy-superior-stat',
-      name: 'Superior Stat',
+    },
+  ],
+  fox: [
+    {
+      id: 'fox-ambush',
+      name: 'Ambush',
+      selectable: true,
+      excludes: ['fox-skill-at-arms'],
+      triggerOverride: 'When you ***get the drop on a nearby foe***, you can deal your damage or opt to roll +DEX: **on a 10+**, deal your damage and pick 2; **on a 7-9**, deal damage and pick 1:',
+      list: [
+        'Deal +1d4 damage',
+        'Stop them from making noise/raising an alarm',
+        'Slip away before they can react',
+        'Create an opportunity; you or an ally gains advantage on the next move to act on it',
+      ],
+    },
+    {
+      id: 'fox-all-in-the-wrist',
+      name: 'All In The Wrist',
+      selectable: true,
+      uses: 1,
+      usesLabel: 'a few left',
+      uses2: 1,
+      uses2Label: 'out',
+      body: 'Any knife or dagger gets the *thrown* tag in your hands. Also, you keep a few iron throwing blades (*near*) on you; they don\'t take up space in your inventory. Reset your ammo whenever you Outfit.',
+    },
+    {
+      id: 'fox-burgle',
+      name: 'Burgle',
+      selectable: true,
+      triggerOverride: 'When you ***sneak off on your own into a dangerous place***, roll +INT: **on a 7+**, you make it back, and the GM says where you got to and what you learned. Then, **on a 10+**, also pick 2; **on a 7-9**, also pick 1:',
+      list: [
+        'You got away clean, rousing no suspicion',
+        'You swiped something valuable (GM\'s choice)',
+        'You set something up to exploit on your return',
+        'Ask a Seek Insight question about what you saw',
+      ],
+      footer: '**On a 6-**, you either make it back but with trouble in tow, or you\'re missing in action (your call).',
+    },
+    {
+      id: 'fox-catlike',
+      name: 'Catlike',
+      selectable: true,
+      triggerOverride: 'When you ***carry a light load and act with care***, you move silently. When you ***hide in shadows or darkness***, you remain unseen until you draw attention to yourself, move positions, or attack.',
+    },
+    {
+      id: 'fox-dabbler',
+      name: 'Dabbler',
+      selectable: true,
+      requiresLevel: 2,
+      body: 'Each time you take this move, choose a move from the Heavy, Marshal, Ranger, or Seeker playbooks for which you otherwise qualify. (You can\'t take Improved Stat or Superior Stat.)',
+    },
+    {
+      id: 'fox-danger-sense',
+      name: 'Danger Sense',
+      selectable: true,
+      excludes: ['fox-perceptive'],
+      triggerOverride: 'You can always ask the GM, "Is there an ambush or trap here?" If they say "yes," roll +INT: **on a 10+**, ask the GM both of the questions below; **on a 7-9**, ask 1; **either way**, gain advantage on your next roll to act on the answer(s).',
+      list: [
+        'What will trigger the ambush or trap?',
+        'What will happen once it\'s triggered?',
+      ],
+      footer: '**On a 6-**, don\'t mark XP; you know there\'s a trap or ambush, but nothing bad happens just yet.',
+    },
+    {
+      id: 'fox-free-running',
+      name: 'Free Running',
+      selectable: true,
+      triggerOverride: 'When you ***carry a light load and move with speed and grace***, gain advantage on any move to surmount or bypass a physical obstacle.',
+    },
+    {
+      ...IMPROVED_STAT_BASE,
+      id: 'fox-improved-stat',
+      takes: 3,
+    },
+    {
+      id: 'fox-irresistible',
+      name: 'Irresistible',
+      selectable: true,
+      triggerOverride: 'When you ***interact with someone***, you can ask their player if they find you attractive and get an honest answer (usually "yes").',
+      footer: 'When you **Persuade by using your considerable charms as leverage**, you have advantage.',
+    },
+    {
+      id: 'fox-laugh-at-danger',
+      name: 'Laugh at Danger',
+      selectable: true,
+      triggerOverride: 'When you ***are about to roll +CON and you make a joke about the adversity you face***, you can roll +CHA instead.',
+    },
+    {
+      id: 'fox-light-fingers',
+      name: 'Light Fingers',
+      selectable: true,
+      triggerOverride: 'When you ***perform sleight of hand on an unwary mark***, you succeed and no one\'s the wiser. If you\'re being watched, roll +DEX: **on a 10+**, you succeed and no one\'s the wiser; **on a 7-9**, you succeed OR no one\'s the wiser (your choice).',
+    },
+    {
+      id: 'fox-perceptive',
+      name: 'Perceptive',
+      selectable: true,
+      excludes: ['fox-danger-sense'],
+      triggerOverride: 'When you **Seek Insight**, you may ask 1 additional question. Even on a 6-, you can ask 1 question (though you might not like how you learn the answer).',
+    },
+    {
+      id: 'fox-rapier-wit',
+      name: 'Rapier Wit',
+      selectable: true,
+      triggerOverride: 'When you ***pierce an NPC\'s pride with a well-placed quip***, they must do 1 (their choice):',
+      list: [
+        'Attack, doing +1d4 damage if they hit but giving you advantage on your next roll against them',
+        'Stoop to your level and respond in kind',
+        'Spend a few moments fuming, sputtering, or controlling their temper',
+      ],
+    },
+    {
+      id: 'fox-silver-tongued',
+      name: 'Silver Tongued',
+      selectable: true,
+      uses: 3,
+      triggerOverride: 'When you ***use words to avoid suspicion or trouble***, roll +CHA: **on a 10+**, hold 3 Nerve; **on a 7-9**, hold 1 Nerve. You may spend Nerve, 1-for-1, to:',
+      list: [
+        'Move about or maneuver unchallenged',
+        'Withstand direct scrutiny or questioning',
+        'Direct suspicion or attention elsewhere',
+      ],
+    },
+    {
+      id: 'fox-skill-at-arms',
+      name: 'Skill at Arms',
+      selectable: true,
+      excludes: ['fox-ambush'],
+      triggerOverride: 'When you ***wield a weapon with speed and grace***, roll +DEX to Clash (instead of +STR).',
+    },
+    {
+      id: 'fox-under-your-skin',
+      name: 'Under Your Skin',
+      selectable: true,
+      triggerOverride: 'When you ***engage an NPC in conversation***, you can ask the GM 1 of these and get an honest answer:',
+      list: [
+        'What are they expecting me to do?',
+        'What, in general, are they trying to hide?',
+        'What do they want to happen?',
+      ],
+    },
+    {
+      id: 'fox-parry-riposte',
+      name: 'Parry & Riposte',
+      selectable: true,
+      requires: ['fox-skill-at-arms'],
+      triggerOverride: 'When you **Defend** ***with a weapon that you can wield quickly***, you can spend 1 Readiness to both halve an attack\'s effects/damage and strike back at the attacker (deal your damage with disadvantage), instead of spending 1 Readiness for each.',
+    },
+    {
+      id: 'fox-battle-dancer',
+      name: 'Battle Dancer',
       selectable: true,
       requiresLevel: 6,
-      body: 'Increase one of your stats by +1 (to a max of +3).',
+      requires: ['fox-skill-at-arms'],
+      triggerOverride: 'When you **roll +DEX to Clash**, **on a 12+** you deal your damage, avoid your enemy\'s attack, and impress/embarrass/overawe your foes.',
+    },
+    {
+      id: 'fox-cheap-shot',
+      name: 'Cheap Shot',
+      selectable: true,
+      requiresLevel: 6,
+      requires: ['fox-ambush'],
+      triggerOverride: 'When you **Ambush with a hand weapon**, you have advantage on your damage roll.',
+    },
+    {
+      id: 'fox-eye-on-the-door',
+      name: 'Eye on the Door',
+      selectable: true,
+      requiresLevel: 6,
+      triggerOverride: 'When you ***and your allies need to get out of here***, name your escape route and roll +INT: **on a 10+**, you\'re gone; **on a 7-9**, you can stay or go, but if you go, it costs you—the GM will tell you what (or who) you leave behind or take with you.',
+    },
+    {
+      id: 'fox-pants-on-fire',
+      name: 'Pants on Fire',
+      selectable: true,
+      requiresLevel: 6,
+      triggerOverride: 'When you **Defy Danger, Persuade, or Interfere by being deceitful**, you have advantage.',
+      footer: 'When another move (like Seek Insight) allows a player to ask you a question, you can opt not to answer.',
+    },
+    {
+      id: 'fox-second-intent',
+      name: 'Second Intent',
+      selectable: true,
+      requiresLevel: 6,
+      requires: ['fox-parry-riposte', 'fox-ambush'],
+      triggerOverride: 'When you **Defend and spend 1 Readiness to Parry & Riposte**, also pick 1 option from the Ambush list.',
+    },
+    {
+      id: 'fox-slippery',
+      name: 'Slippery',
+      selectable: true,
+      requiresLevel: 6,
+      triggerOverride: 'When you ***try to escape being caught or controlled***, treat a 6- as a 7-9. On a 12+, say how you turn the tables or use the circumstances to your advantage.',
+    },
+    {
+      ...SUPERIOR_STAT_BASE,
+      id: 'fox-superior-stat',
     },
   ],
 };

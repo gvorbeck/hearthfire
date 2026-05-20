@@ -19,10 +19,12 @@ export interface MoveDefinition {
   list2?: string[];
   citation?: string;
   uses?: number;
+  usesLabel?: string;
   // uses2 tracks a second independent hold on the same move (e.g. Up With People: the current
   // player's Rapport dots vs. the other player's dot). Both groups are stored on this character's
   // document as a convenience; the other player is expected to track their own copy independently.
   uses2?: number;
+  uses2Label?: string;
   takes?: number;
   selectable?: boolean;
   startingMove?: boolean;
@@ -191,6 +193,7 @@ export const Move = ({
                 checked={usesChecked}
                 onChange={onUsesChange!}
                 disabled={locked || (!disabled && !selected)}
+                label={move.usesLabel}
               />
             )}
             {hasUses && hasUses2 && <span className={styles.usesSeparator} aria-hidden="true">|</span>}
@@ -200,6 +203,7 @@ export const Move = ({
                 checked={usesChecked2}
                 onChange={onUsesChange2!}
                 disabled={locked || (!disabled && !selected)}
+                label={move.uses2Label}
               />
             )}
           </div>
