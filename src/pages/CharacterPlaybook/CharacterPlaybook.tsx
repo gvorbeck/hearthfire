@@ -24,6 +24,7 @@ import { JudgeLawkeeper } from '@/components/CharacterSheet/playbooks/judge/Judg
 import { LightbearerPraiseTheDay } from '@/components/CharacterSheet/playbooks/lightbearer/LightbearerPraiseTheDay';
 import { LightbearerInvocations } from '@/components/CharacterSheet/playbooks/lightbearer/LightbearerInvocations';
 import { MarshalWarStories } from '@/components/CharacterSheet/playbooks/marshal/MarshalWarStories';
+import { MarshalCrew } from '@/components/CharacterSheet/playbooks/marshal/MarshalCrew';
 import { RangerSomethingWicked } from '@/components/CharacterSheet/playbooks/ranger/RangerSomethingWicked';
 import { SeekerCollection } from '@/components/CharacterSheet/playbooks/seeker/SeekerCollection';
 import { WouldBeHeroFearAnger } from '@/components/CharacterSheet/playbooks/would-be-hero/WouldBeHeroFearAnger';
@@ -251,7 +252,9 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, updateCharact
         ? <BlessedInitiatesOfDanu data={character.data} onSave={handleSaveCharacterData} />
         : id === 'invocations'
           ? <LightbearerInvocations data={character.data} onSave={handleSaveCharacterData} />
-          : content,
+          : id === 'crew'
+            ? <MarshalCrew data={character.data} onSave={handleSaveCharacterData} />
+            : content,
     })),
     ...(character.data?.inserts ?? []).map((label) => ({ label, content: null })),
   ], [character, playbookOption, handleSaveCharacterData, playbookTabs, showInvocationsBadge]);

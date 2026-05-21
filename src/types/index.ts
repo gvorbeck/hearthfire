@@ -40,6 +40,17 @@ export interface PlaybookFeatures {
   lightbearerInvocationsBadgeDismissedAt?: number;
   marshalWarStories?: Record<string, boolean>;
   marshalWarStoriesAnswers?: Record<string, string>;
+  crewHp?: string;
+  crewArmor?: string;
+  crewTags?: Record<string, boolean>;
+  crewTagsCustom?: string[];
+  crewInstinct?: string;
+  crewInstinctCustom?: string;
+  crewCost?: string;
+  crewCostCustom?: string;
+  crewLoyalty?: number;
+  crewInventoryUses?: Record<string, number>;
+  crewIndividuals?: { name: string; tag: string; traits: string }[];
   rangerSomethingWicked?: Record<string, boolean>;
   rangerSomethingWickedAnswers?: Record<string, string>;
   seekerCollection?: Record<string, boolean>;
