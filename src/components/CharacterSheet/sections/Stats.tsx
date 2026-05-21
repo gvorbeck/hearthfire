@@ -15,7 +15,12 @@ interface StatBoxProps {
 }
 
 const StatBox = memo(({ label, abbr, statKey, value, onChange, onBlur }: StatBoxProps) => {
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onChange(statKey, e.target.value), [onChange, statKey]);
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    if (raw === '' || raw === '-') { onChange(statKey, raw); return; }
+    const n = parseInt(raw, 10);
+    if (!isNaN(n)) onChange(statKey, String(Math.min(n, 3)));
+  }, [onChange, statKey]);
   return (
     <div className={styles.statBox}>
       <label className={styles.statLabel} htmlFor={`stat-${abbr}`}>{label}</label>
@@ -27,6 +32,7 @@ const StatBox = memo(({ label, abbr, statKey, value, onChange, onBlur }: StatBox
         max={3}
         onChange={handleChange}
         onBlur={onBlur}
+        onWheel={(e) => e.currentTarget.blur()}
       />
       <span className={styles.statAbbr}>({abbr})</span>
     </div>
@@ -60,6 +66,7 @@ const InfoBox = memo(({ label, statKey, value, isStatic, min, onChange, onBlur }
           aria-label={label}
           onChange={handleChange}
           onBlur={onBlur}
+          onWheel={(e) => e.currentTarget.blur()}
         />
       )}
       <span className={styles.infoLabel}>{label}</span>
