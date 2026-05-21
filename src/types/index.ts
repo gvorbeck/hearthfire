@@ -36,6 +36,8 @@ export interface PlaybookFeatures {
   judgeChronicle?: Record<string, boolean>;
   judgeLawkeeper?: Record<string, boolean>;
   lightbearerPraiseTheDay?: Record<string, boolean>;
+  lightbearerInvocations?: Record<string, boolean>;
+  lightbearerInvocationsBadgeDismissedAt?: number;
   marshalWarStories?: Record<string, boolean>;
   marshalWarStoriesAnswers?: Record<string, string>;
   rangerSomethingWicked?: Record<string, boolean>;

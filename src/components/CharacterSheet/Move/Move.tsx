@@ -112,7 +112,7 @@ export const Move = ({
   const moveCx = clsx(styles.move, selected && styles.moveSelected);
   const nameCx = clsx(styles.moveName, selected && styles.moveNameSelected);
 
-  const nameEl = <span className={nameCx}>{move.name}</span>;
+  const nameEl = <span className={nameCx}>{parseInlineMarkdown(move.name)}</span>;
 
   const bodyParagraphs = move.body ? (Array.isArray(move.body) ? move.body : [move.body]) : [];
   const footerParagraphs = move.footer ? (Array.isArray(move.footer) ? move.footer : [move.footer]) : [];

@@ -66,6 +66,19 @@
   outline-offset: -2px;
 }
 
+.tabBadge {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-gold-400);
+  margin-left: var(--spacing-2);
+  vertical-align: middle;
+  flex-shrink: 0;
+  box-shadow: 0 0 4px 1px color-mix(in srgb, var(--color-gold-400) 60%, transparent),
+              0 0 10px 2px color-mix(in srgb, var(--color-gold-400) 30%, transparent);
+}
+
 .panel {
   padding-top: var(--spacing-6);
 }

@@ -78,7 +78,8 @@
       "Bash(npx tsx *)",
       "Bash(npm list *)",
       "Bash(GOOGLE_APPLICATION_CREDENTIALS=./service-account.json npx tsx --tsconfig scripts/tsconfig.json -e ' *)",
-      "Bash(GOOGLE_APPLICATION_CREDENTIALS=./service-account.json node --require tsx/cjs -e ' *)"
+      "Bash(GOOGLE_APPLICATION_CREDENTIALS=./service-account.json node --require tsx/cjs -e ' *)",
+      "Bash(git log *)"
     ]
   }
 }

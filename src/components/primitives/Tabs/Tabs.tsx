@@ -6,6 +6,8 @@ import styles from './Tabs.module.css';
 interface Tab {
   label: string;
   content: ReactNode;
+  badge?: ReactNode;
+  badgeTooltip?: string;
 }
 
 interface TabsProps {
@@ -17,6 +19,8 @@ interface TabsProps {
   'aria-label': string;
   onAdd?: () => void;
 }
+
+export const tabBadgeClass = styles.tabBadge;
 
 export const Tabs = ({ tabs, defaultIndex = 0, activeIndex, onActiveChange, className, 'aria-label': ariaLabel, onAdd }: TabsProps) => {
   const [internalActive, setInternalActive] = useState(defaultIndex);
@@ -65,7 +69,8 @@ export const Tabs = ({ tabs, defaultIndex = 0, activeIndex, onActiveChange, clas
         <div className={styles.tablist} role="tablist" aria-label={ariaLabel}>
           {tabs.map((tab, i) => {
             const tabCx = clsx(styles.tab, active === i && styles.active);
-            return (
+            const tooltipId = tab.badgeTooltip ? `${id}-tab-${i}-tooltip` : undefined;
+            const btn = (
               <button
                 key={tab.label}
                 ref={(el) => { tabRefs.current[i] = el; }}
@@ -73,6 +78,7 @@ export const Tabs = ({ tabs, defaultIndex = 0, activeIndex, onActiveChange, clas
                 id={`${id}-tab-${i}`}
                 aria-controls={`${id}-panel-${i}`}
                 aria-selected={active === i}
+                aria-describedby={tooltipId}
                 tabIndex={active === i ? 0 : -1}
                 className={tabCx}
                 data-index={i}
@@ -80,8 +86,14 @@ export const Tabs = ({ tabs, defaultIndex = 0, activeIndex, onActiveChange, clas
                 onKeyDown={handleKeyDown}
               >
                 {tab.label}
+                {tab.badge}
               </button>
             );
+            return tab.badgeTooltip ? (
+              <Tooltip key={tab.label} text={tab.badgeTooltip} side="bottom" noTabStop tooltipId={tooltipId}>
+                {btn}
+              </Tooltip>
+            ) : btn;
           })}
         </div>
       </div>

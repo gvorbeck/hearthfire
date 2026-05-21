@@ -12,7 +12,7 @@ export { RuleDivider } from './RuleDivider/RuleDivider';
 export { Stack } from './Stack/Stack';
 export { Text } from './Text/Text';
 export { ScrollToTop } from './ScrollToTop/ScrollToTop';
-export { Tabs } from './Tabs/Tabs';
+export { Tabs, tabBadgeClass } from './Tabs/Tabs';
 export { List } from './List/List';
 export { UseDots } from './UseDots/UseDots';
 export { CheckboxGroup } from './CheckboxGroup/CheckboxGroup';

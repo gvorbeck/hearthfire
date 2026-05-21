@@ -38,9 +38,8 @@ export const AddCharacterModal = ({
     if (!playbook) return;
     const selectedLabel = PLAYBOOKS.find((p) => p.value === playbook)?.label ?? playbook;
     const character = { id: crypto.randomUUID(), name: selectedLabel, playbook, level: 1, data: { statLevel: '1' } };
-    onAdd(character)
-      .then(handleClose)
-      .catch(() => setAddError('Failed to add character. Please try again.'));
+    handleClose();
+    onAdd(character).catch(() => setAddError('Failed to add character. Please try again.'));
   };
 
   const availablePlaybooks = PLAYBOOKS.filter((p) => !existingPlaybooks.includes(p.value));
@@ -64,7 +63,7 @@ export const AddCharacterModal = ({
         placeholder="Choose a playbook…"
       />
       {selectedPlaybook && (
-        <Text size="sm" color="muted" className={styles.description}>
+        <Text size="md" color="muted" className={styles.description}>
           {selectedPlaybook.description}
         </Text>
       )}
