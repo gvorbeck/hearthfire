@@ -221,15 +221,11 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, updateCharact
     knownInvocations < invocationsAllowed &&
     dismissedAt !== level;
 
-  const invocationsBadge = showInvocationsBadge
-    ? <span className={tabBadgeClass} aria-label="New Invocation available" />
-    : null;
-
-  const invocationsTabIndex = 2 + playbookTabs.findIndex(({ id }) => id === 'invocations');
+  const invocationsTabIndex = playbookTabs.findIndex(({ id }) => id === 'invocations');
 
   const handleActiveChange = useCallback((i: number) => {
     setActiveIndex(i);
-    if (showInvocationsBadge && i === invocationsTabIndex) {
+    if (showInvocationsBadge && invocationsTabIndex !== -1 && i === 2 + invocationsTabIndex) {
       handleSaveCharacterData(featurePatch(character.data, { lightbearerInvocationsBadgeDismissedAt: level }));
     }
   }, [showInvocationsBadge, invocationsTabIndex, handleSaveCharacterData, character.data, level]);
@@ -245,8 +241,12 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, updateCharact
     },
     ...playbookTabs.map(({ id, label, content }) => ({
       label,
-      badge: id === 'invocations' ? invocationsBadge : undefined,
-      badgeTooltip: id === 'invocations' && invocationsBadge ? 'A new Invocation can be selected' : undefined,
+      badge: id === 'invocations' && showInvocationsBadge
+        ? <span className={tabBadgeClass} aria-label="New Invocation available" />
+        : undefined,
+      badgeTooltip: id === 'invocations' && showInvocationsBadge
+        ? 'A new Invocation can be selected'
+        : undefined,
       content: id === 'initiates-of-danu'
         ? <BlessedInitiatesOfDanu data={character.data} onSave={handleSaveCharacterData} />
         : id === 'invocations'
@@ -254,7 +254,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, updateCharact
           : content,
     })),
     ...(character.data?.inserts ?? []).map((label) => ({ label, content: null })),
-  ], [character, playbookOption, handleSaveCharacterData, playbookTabs, invocationsBadge]);
+  ], [character, playbookOption, handleSaveCharacterData, playbookTabs, showInvocationsBadge]);
 
   return (
     <main className={styles.page}>

@@ -1,8 +1,15 @@
 .intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-4);
+}
+
+.intro p {
   font-family: var(--font-serif);
   font-size: var(--text-sm);
   color: var(--text-secondary);
-  margin: 0 0 var(--spacing-4);
+  margin: 0;
   line-height: 1.5;
 }
 

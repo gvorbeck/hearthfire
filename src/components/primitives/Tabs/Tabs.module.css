@@ -79,6 +79,77 @@
               0 0 10px 2px color-mix(in srgb, var(--color-gold-400) 30%, transparent);
 }
 
+/* ── Per-tab tooltip (rendered inside button, anchored via position:relative) ── */
+.tabTooltip {
+  position: absolute;
+  z-index: 100;
+  width: max-content;
+  max-width: 220px;
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-overlay);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  white-space: normal;
+  text-align: center;
+}
+
+.tabTooltip.bottom {
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(calc(-50% + var(--nudge-x, 0px))) translateY(-4px);
+}
+
+.tabTooltip.bottom.tabTooltipVisible {
+  opacity: 1;
+  transform: translateX(calc(-50% + var(--nudge-x, 0px))) translateY(0);
+}
+
+.tabTooltip.top {
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(calc(-50% + var(--nudge-x, 0px))) translateY(4px);
+}
+
+.tabTooltip.top.tabTooltipVisible {
+  opacity: 1;
+  transform: translateX(calc(-50% + var(--nudge-x, 0px))) translateY(0);
+}
+
+.tabTooltipArrow {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: var(--surface-overlay);
+  border: 1px solid var(--border-strong);
+  transform: rotate(45deg);
+}
+
+.tabTooltip.bottom .tabTooltipArrow {
+  top: -4px;
+  left: var(--arrow-offset, 50%);
+  margin-left: -3px;
+  border-bottom: none;
+  border-right: none;
+}
+
+.tabTooltip.top .tabTooltipArrow {
+  bottom: -4px;
+  left: var(--arrow-offset, 50%);
+  margin-left: -3px;
+  border-top: none;
+  border-left: none;
+}
+
 .panel {
   padding-top: var(--spacing-6);
 }
