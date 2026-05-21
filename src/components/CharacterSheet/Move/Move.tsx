@@ -117,14 +117,12 @@ export const Move = ({
   const bodyParagraphs = move.body ? (Array.isArray(move.body) ? move.body : [move.body]) : [];
   const footerParagraphs = move.footer ? (Array.isArray(move.footer) ? move.footer : [move.footer]) : [];
 
-  // Leveled checklist: currentLevel is narrowed here so downstream code never needs assertions.
-  const cl = move.checkListLeveled && onCheckListLevelChange !== undefined && currentLevel !== undefined
+  const checkedLevel = move.checkListLeveled && onCheckListLevelChange !== undefined && currentLevel !== undefined
     ? currentLevel
     : null;
   const levels = checkListLevels ?? {};
-  // An entry in levels means the item was marked, regardless of the stored value.
-  const levelUsedThisTurn = cl !== null && Object.values(levels).includes(cl);
-  const effectiveChecked: Record<string, boolean> = cl !== null
+  const marksUsed = checkedLevel !== null ? Object.keys(levels).length : 0;
+  const effectiveChecked: Record<string, boolean> = checkedLevel !== null
     ? Object.fromEntries(Object.keys(levels).map((k) => [k, true]))
     : (checkListChecked ?? {});
 
@@ -137,12 +135,11 @@ export const Move = ({
     const id = move.checkListIds?.[i] ?? `${move.id}-cl-${i}`;
     const isForced = forcedIdSet.has(id);
     const isChecked = effectiveCheckedWithForced[id] ?? false;
-    const recordedLevel = cl !== null ? (levels[id] ?? null) : null;
-    const displayLabel = cl !== null
+    const recordedLevel = checkedLevel !== null ? (levels[id] ?? null) : null;
+    const displayLabel = checkedLevel !== null
       ? <>{parseInlineMarkdown(label.replace('___', recordedLevel !== null ? String(recordedLevel) : '___'))}</>
       : parseInlineMarkdown(label);
-    // Prevents re-marking a slot or double-marking within the same level.
-    const itemDisabled = isForced || (cl !== null && (isChecked || levelUsedThisTurn));
+    const itemDisabled = isForced || (checkedLevel !== null && !isChecked && marksUsed >= checkedLevel);
     return { id, label: displayLabel, disabled: itemDisabled };
   });
 
@@ -237,8 +234,8 @@ export const Move = ({
           items={checkListItems}
           checked={effectiveCheckedWithForced}
           onChange={(id, checked) => {
-            if (cl !== null) {
-              onCheckListLevelChange!(id, checked ? cl : null);
+            if (checkedLevel !== null) {
+              onCheckListLevelChange!(id, checked ? checkedLevel : null);
             } else {
               onCheckListChange?.(id, checked);
             }
