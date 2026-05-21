@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { SiteBanner } from '@/components/primitives';
 import styles from '@/App.module.css';
 
 const CURRENT_YEAR = new Date().getFullYear();
@@ -12,6 +13,10 @@ const NotFound = lazy(() => import('@/pages/NotFound/NotFound').then((m) => ({ d
 
 export const App = () => (
   <>
+    <SiteBanner>
+      <strong>Under Construction</strong> — This app is a work in progress. Data may be lost or reset before June 2026.{' '}
+      Found a bug? <a href="https://github.com/gvorbeck/hearthfire/issues" target="_blank" rel="noopener noreferrer">Open an issue on GitHub.</a>
+    </SiteBanner>
     <Suspense fallback={null}>
       <Routes>
         <Route path="/" element={<Home />} />

@@ -74,7 +74,11 @@
       "Bash(cat)",
       "Bash(bash /tmp/check_playbook_duplication.sh)",
       "Bash(bash /tmp/final_analysis.sh)",
-      "Bash(grep -n \"^export\\\\|^const.*=\\\\s*{$\\\\|^  '[a-z]\" /Users/garrett.vorbeck/Sites/stonetop/src/lib/playbookMoves.ts)"
+      "Bash(grep -n \"^export\\\\|^const.*=\\\\s*{$\\\\|^  '[a-z]\" /Users/garrett.vorbeck/Sites/stonetop/src/lib/playbookMoves.ts)",
+      "Bash(npx tsx *)",
+      "Bash(npm list *)",
+      "Bash(GOOGLE_APPLICATION_CREDENTIALS=./service-account.json npx tsx --tsconfig scripts/tsconfig.json -e ' *)",
+      "Bash(GOOGLE_APPLICATION_CREDENTIALS=./service-account.json node --require tsx/cjs -e ' *)"
     ]
   }
 }

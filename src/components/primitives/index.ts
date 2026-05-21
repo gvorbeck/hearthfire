@@ -18,3 +18,4 @@ export { UseDots } from './UseDots/UseDots';
 export { CheckboxGroup } from './CheckboxGroup/CheckboxGroup';
 export type { CheckboxGroupItem } from './CheckboxGroup/CheckboxGroup';
 export { Tooltip } from './Tooltip/Tooltip';
+export { SiteBanner } from './SiteBanner/SiteBanner';
