@@ -84,6 +84,13 @@
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.6);
+
+  /* Breakpoints — reference values only; CSS custom properties cannot be used inside @media conditions.
+     Copy the raw px value into each media query and note the token name as a comment. */
+  --bp-sm: 640px;   /* large phone landscape */
+  --bp-md: 768px;   /* tablet portrait */
+  --bp-lg: 1024px;  /* tablet landscape / small desktop */
+  --bp-xl: 1280px;  /* desktop */
 }
 
 *,

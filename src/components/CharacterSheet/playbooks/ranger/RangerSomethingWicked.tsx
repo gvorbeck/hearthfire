@@ -1,9 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
 import { CheckboxGroup } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { AnswerPrompts } from '../AnswerPrompts';
-import { useDebouncedAnswers } from '@/hooks/useDebouncedAnswers';
-import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
+import { usePlaybookCheckedWithAnswers } from '@/hooks/usePlaybookChecked';
 import type { CharacterData } from '@/types';
 import styles from '../playbookSection.module.css';
 
@@ -31,35 +29,9 @@ interface RangerSomethingWickedProps {
 }
 
 export const RangerSomethingWicked = ({ data, onSave }: RangerSomethingWickedProps) => {
-  const dataRef = useRef(data);
-  dataRef.current = data;
-
-  const features = resolvePlaybookFeatures(data);
-  const [checked, setChecked] = useState<Record<string, boolean>>(
-    () => features.rangerSomethingWicked ?? {}
+  const { checked, handleChange: handleCheck, answers, handleAnswer } = usePlaybookCheckedWithAnswers(
+    data, onSave, 'rangerSomethingWicked', 'rangerSomethingWickedAnswers',
   );
-  const buildPatch = useCallback(
-    (a: Record<string, string>) => featurePatch(dataRef.current, { rangerSomethingWickedAnswers: a }),
-    [],
-  );
-  const { answers, setAnswers, handleAnswer } = useDebouncedAnswers(
-    features.rangerSomethingWickedAnswers,
-    onSave,
-    buildPatch,
-  );
-
-  useEffect(() => {
-    const f = resolvePlaybookFeatures(data);
-    if (f.rangerSomethingWicked !== undefined) setChecked(f.rangerSomethingWicked);
-    if (f.rangerSomethingWickedAnswers !== undefined) setAnswers(f.rangerSomethingWickedAnswers);
-  }, [data, setAnswers]);
-
-  const handleCheck = useCallback((id: string, value: boolean) => {
-    const prev = checked;
-    const next = { ...checked, [id]: value };
-    setChecked(next);
-    onSave(featurePatch(dataRef.current, { rangerSomethingWicked: next })).catch(() => setChecked(prev));
-  }, [checked, onSave]);
 
   return (
     <PlaybookSection title="Something Wicked This Way Comes">

@@ -1,7 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
 import { CheckboxGroup } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
-import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
+import { usePlaybookChecked } from '@/hooks/usePlaybookChecked';
 import type { CharacterData } from '@/types';
 import styles from '../playbookSection.module.css';
 
@@ -56,22 +55,7 @@ interface LightbearerPraiseTheDayProps {
 }
 
 export const LightbearerPraiseTheDay = ({ data, onSave }: LightbearerPraiseTheDayProps) => {
-  const features = resolvePlaybookFeatures(data);
-  const [checked, setChecked] = useState<Record<string, boolean>>(
-    () => features.lightbearerPraiseTheDay ?? {}
-  );
-
-  useEffect(() => {
-    const f = resolvePlaybookFeatures(data);
-    if (f.lightbearerPraiseTheDay !== undefined) setChecked(f.lightbearerPraiseTheDay);
-  }, [data]);
-
-  const handleChange = useCallback((id: string, value: boolean) => {
-    const prev = checked;
-    const next = { ...checked, [id]: value };
-    setChecked(next);
-    onSave(featurePatch(data, { lightbearerPraiseTheDay: next })).catch(() => setChecked(prev));
-  }, [checked, onSave, data]);
+  const { checked, handleChange } = usePlaybookChecked(data, onSave, 'lightbearerPraiseTheDay');
 
   return (
     <PlaybookSection title="Praise the Day">

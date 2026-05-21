@@ -1,9 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
 import { CheckboxGroup } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { AnswerPrompts } from '../AnswerPrompts';
-import { useDebouncedAnswers } from '@/hooks/useDebouncedAnswers';
-import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
+import { usePlaybookCheckedWithAnswers } from '@/hooks/usePlaybookChecked';
 import type { CharacterData } from '@/types';
 import styles from '../playbookSection.module.css';
 
@@ -27,35 +25,9 @@ interface SeekerCollectionProps {
 }
 
 export const SeekerCollection = ({ data, onSave }: SeekerCollectionProps) => {
-  const dataRef = useRef(data);
-  dataRef.current = data;
-
-  const features = resolvePlaybookFeatures(data);
-  const [checked, setChecked] = useState<Record<string, boolean>>(
-    () => features.seekerCollection ?? {}
+  const { checked, handleChange: handleCheck, answers, handleAnswer } = usePlaybookCheckedWithAnswers(
+    data, onSave, 'seekerCollection', 'seekerCollectionAnswers',
   );
-  const buildPatch = useCallback(
-    (a: Record<string, string>) => featurePatch(dataRef.current, { seekerCollectionAnswers: a }),
-    [],
-  );
-  const { answers, setAnswers, handleAnswer } = useDebouncedAnswers(
-    features.seekerCollectionAnswers,
-    onSave,
-    buildPatch,
-  );
-
-  useEffect(() => {
-    const f = resolvePlaybookFeatures(data);
-    if (f.seekerCollection !== undefined) setChecked(f.seekerCollection);
-    if (f.seekerCollectionAnswers !== undefined) setAnswers(f.seekerCollectionAnswers);
-  }, [data, setAnswers]);
-
-  const handleCheck = useCallback((id: string, value: boolean) => {
-    const prev = checked;
-    const next = { ...checked, [id]: value };
-    setChecked(next);
-    onSave(featurePatch(dataRef.current, { seekerCollection: next })).catch(() => setChecked(prev));
-  }, [checked, onSave]);
 
   return (
     <PlaybookSection title="Collection">

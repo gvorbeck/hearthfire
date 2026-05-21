@@ -13,18 +13,35 @@ import { APPEARANCE_OPTIONS } from '@/lib/appearanceOptions';
 import { PLACE_OF_ORIGIN_OPTIONS } from '@/lib/placeOfOriginOptions';
 import { SPECIAL_POSSESSIONS_OPTIONS } from '@/lib/specialPossessionsOptions';
 import { INTRODUCTIONS_OPTIONS } from '@/lib/introductionsOptions';
-import { BlessedSections } from '@/components/CharacterSheet/playbooks/BlessedSections';
 import { BlessedInitiatesOfDanu } from '@/components/CharacterSheet/playbooks/blessed/BlessedInitiatesOfDanu';
-import { FoxSections } from '@/components/CharacterSheet/playbooks/FoxSections';
-import { HeavySections } from '@/components/CharacterSheet/playbooks/HeavySections';
-import { JudgeSections } from '@/components/CharacterSheet/playbooks/JudgeSections';
-import { LightbearerSections } from '@/components/CharacterSheet/playbooks/LightbearerSections';
-import { MarshalSections } from '@/components/CharacterSheet/playbooks/MarshalSections';
-import { RangerSections } from '@/components/CharacterSheet/playbooks/RangerSections';
-import { SeekerSections } from '@/components/CharacterSheet/playbooks/SeekerSections';
-import { WouldBeHeroSections } from '@/components/CharacterSheet/playbooks/WouldBeHeroSections';
+import { BlessedSacredPouch } from '@/components/CharacterSheet/playbooks/blessed/BlessedSacredPouch';
+import { BlessedEarthMother } from '@/components/CharacterSheet/playbooks/blessed/BlessedEarthMother';
+import { FoxTallTales } from '@/components/CharacterSheet/playbooks/fox/FoxTallTales';
+import { HeavyViolence } from '@/components/CharacterSheet/playbooks/heavy/HeavyViolence';
+import { JudgeChronicle } from '@/components/CharacterSheet/playbooks/judge/JudgeChronicle';
+import { JudgeLawkeeper } from '@/components/CharacterSheet/playbooks/judge/JudgeLawkeeper';
+import { LightbearerPraiseTheDay } from '@/components/CharacterSheet/playbooks/lightbearer/LightbearerPraiseTheDay';
+import { MarshalWarStories } from '@/components/CharacterSheet/playbooks/marshal/MarshalWarStories';
+import { RangerSomethingWicked } from '@/components/CharacterSheet/playbooks/ranger/RangerSomethingWicked';
+import { SeekerCollection } from '@/components/CharacterSheet/playbooks/seeker/SeekerCollection';
+import { WouldBeHeroFearAnger } from '@/components/CharacterSheet/playbooks/would-be-hero/WouldBeHeroFearAnger';
+import charSheetStyles from '@/components/CharacterSheet/CharacterSheet.module.css';
 import type { Character, CharacterData, GameSession, PlaybookType } from '@/types';
 import styles from './CharacterPlaybook.module.css';
+
+type PlaybookSectionComponent = React.ComponentType<{ data: CharacterData | undefined; onSave: (data: Partial<CharacterData>) => Promise<void> }>;
+
+const PLAYBOOK_SECTIONS: Partial<Record<PlaybookType, PlaybookSectionComponent[]>> = {
+  blessed: [BlessedSacredPouch, BlessedEarthMother],
+  fox: [FoxTallTales],
+  heavy: [HeavyViolence],
+  judge: [JudgeChronicle, JudgeLawkeeper],
+  lightbearer: [LightbearerPraiseTheDay],
+  marshal: [MarshalWarStories],
+  ranger: [RangerSomethingWicked],
+  seeker: [SeekerCollection],
+  'would-be-hero': [WouldBeHeroFearAnger],
+};
 
 const WOULD_BE_HERO_SCORE_INSTRUCTION = 'Assign these scores: 1, 0, 0, 0, 0, -1. When a debility is marked, you roll with disadvantage.';
 
@@ -45,6 +62,13 @@ const PCPlaybookTab = ({ character, playbookOption, onSave }: { character: Chara
     <div className={styles.layout}>
       <div className={styles.columns}>
         <div className={styles.colLeft}>
+          <Stats
+            data={data}
+            onSave={onSave}
+            hpMax={playbookOption?.hpMax}
+            damage={playbookOption?.damage}
+            scoreInstruction={playbook === 'would-be-hero' ? WOULD_BE_HERO_SCORE_INSTRUCTION : undefined}
+          />
           <Background playbookKey={playbook} options={BACKGROUND_OPTIONS[playbook]} level={level} data={data} onSave={onSave} />
         </div>
         <div className={styles.colRight}>
@@ -54,15 +78,6 @@ const PCPlaybookTab = ({ character, playbookOption, onSave }: { character: Chara
         </div>
       </div>
       <div className={styles.colFull}>
-        <Stats
-          data={data}
-          onSave={onSave}
-          hpMax={playbookOption?.hpMax}
-          damage={playbookOption?.damage}
-          scoreInstruction={playbook === 'would-be-hero' ? WOULD_BE_HERO_SCORE_INSTRUCTION : undefined}
-        />
-      </div>
-      <div className={styles.colFull}>
         <Moves playbook={playbook} data={data} onSave={onSave} level={level} />
       </div>
       <div className={styles.colFull}>
@@ -70,15 +85,13 @@ const PCPlaybookTab = ({ character, playbookOption, onSave }: { character: Chara
       </div>
       <div className={styles.columns}>
         <div className={styles.colLeft}>
-          {playbook === 'blessed' && <BlessedSections data={data} onSave={onSave} />}
-          {playbook === 'fox' && <FoxSections data={data} onSave={onSave} />}
-          {playbook === 'heavy' && <HeavySections data={data} onSave={onSave} />}
-          {playbook === 'judge' && <JudgeSections data={data} onSave={onSave} />}
-          {playbook === 'lightbearer' && <LightbearerSections data={data} onSave={onSave} />}
-          {playbook === 'marshal' && <MarshalSections data={data} onSave={onSave} />}
-          {playbook === 'ranger' && <RangerSections data={data} onSave={onSave} />}
-          {playbook === 'seeker' && <SeekerSections data={data} onSave={onSave} />}
-          {playbook === 'would-be-hero' && <WouldBeHeroSections data={data} onSave={onSave} />}
+          {PLAYBOOK_SECTIONS[playbook] && (
+            <div className={charSheetStyles.stack}>
+              {PLAYBOOK_SECTIONS[playbook]!.map((Section) => (
+                <Section key={Section.name} data={data} onSave={onSave} />
+              ))}
+            </div>
+          )}
         </div>
         <div className={styles.colRight}>
           <Introductions config={INTRODUCTIONS_OPTIONS[playbook]} data={data} onSave={onSave} />
