@@ -33,7 +33,9 @@ export const useGame = (gameId: string): UseGameResult => {
         if (!snapshot.exists()) {
           setGame(null);
         } else {
-          setGame({ characters: [], ...snapshot.data(), id: snapshot.id } as unknown as GameSession);
+          const raw = snapshot.data();
+          const characters = Array.isArray(raw?.characters) ? raw.characters.filter(Boolean) : [];
+          setGame({ ...raw, characters, id: snapshot.id } as unknown as GameSession);
         }
         setLoading(false);
         setError(null);

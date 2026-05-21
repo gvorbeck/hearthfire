@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useId, useCallback, useMemo } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { PageMeta } from '@/components/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
@@ -22,6 +22,7 @@ interface RemoveCharacterModalProps {
 }
 
 const RemoveCharacterModal = ({ character, onClose, onConfirm }: RemoveCharacterModalProps) => {
+  const headingId = useId();
   const [removing, setRemoving] = useState(false);
 
   const handleConfirm = async () => {
@@ -41,8 +42,8 @@ const RemoveCharacterModal = ({ character, onClose, onConfirm }: RemoveCharacter
   const displayName = characterName ? `${characterName} (${playbookLabel})` : playbookLabel;
 
   return (
-    <Modal open={character !== null} onClose={onClose} aria-labelledby="remove-char-title">
-      <Heading as="h2" size="sm" id="remove-char-title">Remove character?</Heading>
+    <Modal open={character !== null} onClose={onClose} aria-labelledby={headingId}>
+      <Heading as="h2" size="sm" id={headingId}>Remove character?</Heading>
       <Text size="sm" color="muted">
         <strong>{displayName}</strong> will be permanently removed from this game. All character data will be lost and cannot be recovered.
       </Text>
@@ -84,11 +85,13 @@ const GameContent = ({
   const gameName = g.name || DEFAULT_GAME_NAME;
   const [removingCharacter, setRemovingCharacter] = useState<Character | null>(null);
 
-  const handleCloseRemoveModal = () => setRemovingCharacter(null);
-  const handleConfirmRemove = () => {
-    if (removingCharacter) return onRemoveCharacter(removingCharacter.id);
-    return Promise.resolve();
-  };
+  const handleCloseRemoveModal = useCallback(() => setRemovingCharacter(null), []);
+  const handleConfirmRemove = useCallback(
+    () => onRemoveCharacter(removingCharacter!.id),
+    [onRemoveCharacter, removingCharacter],
+  );
+
+  const existingPlaybooks = useMemo(() => g.characters.map((c) => c.playbook), [g.characters]);
 
   return (
     <>
@@ -100,7 +103,7 @@ const GameContent = ({
       <AddCharacterModal
         open={showAddCharacter}
         onClose={onCloseAddCharacter}
-        existingPlaybooks={g.characters.map((c) => c.playbook)}
+        existingPlaybooks={existingPlaybooks}
         onAdd={onAddCharacter}
       />
       <RemoveCharacterModal

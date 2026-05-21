@@ -86,28 +86,6 @@ export interface CharacterData {
   introductionQuestions?: Record<string, boolean>;
   inserts?: string[];
   playbookFeatures?: PlaybookFeatures;
-  // Keep until all documents have been re-saved with the nested shape.
-  sacredPouchIs?: Record<string, string>;
-  sacredPouchTrait?: string;
-  earthMotherShrine?: string;
-  earthMotherOfferings?: Record<string, boolean>;
-  foxTallTales?: Record<string, boolean>;
-  heavyViolence?: Record<string, boolean>;
-  judgeChronicle?: Record<string, boolean>;
-  judgeLawkeeper?: Record<string, boolean>;
-  lightbearerPraiseTheDay?: Record<string, boolean>;
-  marshalWarStories?: Record<string, boolean>;
-  marshalWarStoriesAnswers?: Record<string, string>;
-  rangerSomethingWicked?: Record<string, boolean>;
-  rangerSomethingWickedAnswers?: Record<string, string>;
-  seekerCollection?: Record<string, boolean>;
-  seekerCollectionAnswers?: Record<string, string>;
-  wouldBeHeroFearAnger?: Record<string, boolean>;
-  wouldBeHeroFearAngerAnswers?: Record<string, string>;
-  initiateHp?: Record<string, string>;
-  initiateLoyalty?: Record<string, number>;
-  initiatePicks?: Record<string, Record<string, string>>;
-  initiateRites?: Record<string, string>;
 }
 
 export interface Character {

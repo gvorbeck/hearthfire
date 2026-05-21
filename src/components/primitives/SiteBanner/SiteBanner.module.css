@@ -1,0 +1,17 @@
+.banner {
+  width: 100%;
+  background-color: color-mix(in srgb, var(--color-ember-400) 12%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-ember-400) 40%, transparent);
+  padding: var(--spacing-3) var(--spacing-6);
+  text-align: center;
+}
+
+.banner a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.banner a:hover {
+  opacity: 0.8;
+}

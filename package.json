@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "migrate:dry": "GOOGLE_APPLICATION_CREDENTIALS=./service-account.json tsx --tsconfig scripts/tsconfig.json scripts/migrate-playbook-features.ts",
+    "migrate:write": "GOOGLE_APPLICATION_CREDENTIALS=./service-account.json tsx --tsconfig scripts/tsconfig.json scripts/migrate-playbook-features.ts --write",
+    "recover:dry": "GOOGLE_APPLICATION_CREDENTIALS=./service-account.json tsx --tsconfig scripts/tsconfig.json scripts/recover-characters-array.ts",
+    "recover:write": "GOOGLE_APPLICATION_CREDENTIALS=./service-account.json tsx --tsconfig scripts/tsconfig.json scripts/recover-characters-array.ts --write"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -20,6 +24,8 @@
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
+    "firebase-admin": "^13.10.0",
+    "tsx": "^4.22.3",
     "typescript": "^5.5.4",
     "vite": "^5.4.8"
   }

@@ -1,32 +1,26 @@
 import type { CharacterData, PlaybookFeatures } from '@/types';
 
-// playbookFeatures wins — written on every save, flat fields are the pre-migration fallback.
-export const resolvePlaybookFeatures = (data: CharacterData | undefined): PlaybookFeatures => {
-  const flat: PlaybookFeatures = {
-    sacredPouchIs: data?.sacredPouchIs,
-    sacredPouchTrait: data?.sacredPouchTrait,
-    earthMotherShrine: data?.earthMotherShrine,
-    earthMotherOfferings: data?.earthMotherOfferings,
-    foxTallTales: data?.foxTallTales,
-    heavyViolence: data?.heavyViolence,
-    judgeChronicle: data?.judgeChronicle,
-    judgeLawkeeper: data?.judgeLawkeeper,
-    lightbearerPraiseTheDay: data?.lightbearerPraiseTheDay,
-    marshalWarStories: data?.marshalWarStories,
-    marshalWarStoriesAnswers: data?.marshalWarStoriesAnswers,
-    rangerSomethingWicked: data?.rangerSomethingWicked,
-    rangerSomethingWickedAnswers: data?.rangerSomethingWickedAnswers,
-    seekerCollection: data?.seekerCollection,
-    seekerCollectionAnswers: data?.seekerCollectionAnswers,
-    wouldBeHeroFearAnger: data?.wouldBeHeroFearAnger,
-    wouldBeHeroFearAngerAnswers: data?.wouldBeHeroFearAngerAnswers,
-    initiateHp: data?.initiateHp,
-    initiateLoyalty: data?.initiateLoyalty,
-    initiatePicks: data?.initiatePicks,
-    initiateRites: data?.initiateRites,
-  };
-  return { ...flat, ...data?.playbookFeatures };
+const isPlainObject = (v: unknown): v is Record<string, unknown> =>
+  v !== null && typeof v === 'object' && !Array.isArray(v);
+
+// Validates that playbookFeatures from Firestore is a plain object and that
+// each present value is a primitive or plain object. Silently drops malformed
+// shapes so a corrupt document cannot crash the app.
+const safeFeatures = (raw: unknown): PlaybookFeatures => {
+  if (!isPlainObject(raw)) return {};
+  const safe: PlaybookFeatures = {};
+  for (const key of Object.keys(raw) as (keyof PlaybookFeatures)[]) {
+    const val = raw[key];
+    if (val === undefined || val === null) continue;
+    if (typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean' || isPlainObject(val)) {
+      (safe as Record<string, unknown>)[key] = val;
+    }
+  }
+  return safe;
 };
+
+export const resolvePlaybookFeatures = (data: CharacterData | undefined): PlaybookFeatures =>
+  safeFeatures(data?.playbookFeatures);
 
 export const featurePatch = (
   data: CharacterData | undefined,
