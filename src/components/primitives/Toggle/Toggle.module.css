@@ -1,0 +1,75 @@
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  cursor: pointer;
+  user-select: none;
+  font-size: var(--text-sm);
+}
+
+.input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.track {
+  flex-shrink: 0;
+  position: relative;
+  width: 32px;
+  height: 18px;
+  border-radius: 9px;
+  border: 1.5px solid var(--border-strong);
+  background: var(--surface-raised);
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--border-strong);
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.input:checked + .track {
+  border-color: var(--color-gold-500);
+  background: color-mix(in srgb, var(--color-gold-500) 15%, transparent);
+}
+
+.input:checked + .track .thumb {
+  transform: translateX(14px);
+  background: var(--color-gold-400);
+}
+
+.input:focus-visible + .track {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: 2px;
+}
+
+.label:hover .track {
+  border-color: var(--color-gold-400);
+}
+
+.label:hover .thumb {
+  background: var(--color-gold-400);
+}
+
+.input:disabled + .track {
+  opacity: 0.5;
+  border-color: var(--border-subtle);
+}
+
+.input:disabled + .track .thumb {
+  background: var(--border-subtle);
+}
+
+.label:has(.input:disabled) {
+  cursor: not-allowed;
+}

@@ -8,9 +8,10 @@ interface CollapseProps {
   defaultOpen?: boolean;
   children: ReactNode;
   className?: string;
+  action?: ReactNode;
 }
 
-export const Collapse = ({ label, defaultOpen = false, children, className }: CollapseProps) => {
+export const Collapse = ({ label, defaultOpen = false, children, className, action }: CollapseProps) => {
   const [open, setOpen] = useState(defaultOpen);
   const id = useId();
   const cx = clsx(styles.root, open && styles.open, className);
@@ -25,6 +26,15 @@ export const Collapse = ({ label, defaultOpen = false, children, className }: Co
         aria-controls={id}
       >
         <span className={styles.label}>{label}</span>
+        {action && (
+          <div
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+            className={styles.action}
+          >
+            {action}
+          </div>
+        )}
         <Icon name="chevron-down" size="small" className={styles.chevron} aria-hidden="true" />
       </button>
       <div id={id} className={styles.body} hidden={!open}>

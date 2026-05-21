@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { PlaybookSection } from '../PlaybookSection';
-import { Collapse } from '@/components/primitives';
+import { Collapse, Toggle } from '@/components/primitives';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { Move } from '../Move';
 import type { MoveDefinition } from '../Move';
@@ -116,6 +116,7 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
   const [checkListLevels, setCheckListLevels] = useState<Record<string, Record<string, number>>>(
     () => data?.typeMoveCheckListLevels ?? {}
   );
+  const [hideUnselected, setHideUnselected] = useState(false);
 
   // Known limitation: Firestore's onSnapshot delivers a new object reference on every update, so
   // this effect fires whenever the parent re-renders with fresh data and overwrites any in-flight
@@ -193,6 +194,7 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
     ...withMeta.filter((m) => m.isSelected).sort((a, b) => a.move.name.localeCompare(b.move.name)),
     ...withMeta.filter((m) => !m.isSelected).sort((a, b) => a.move.name.localeCompare(b.move.name)),
   ];
+  const visibleTypeMoves = hideUnselected ? sortedTypeMoves.filter((m) => m.isSelected) : sortedTypeMoves;
 
   return (
     <PlaybookSection title="Moves">
@@ -237,13 +239,20 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
         <Collapse
           label={`${playbookLabel} Moves`}
           defaultOpen
+          action={
+            <Toggle
+              label="Selected only"
+              checked={hideUnselected}
+              onChange={(e) => setHideUnselected(e.target.checked)}
+            />
+          }
         >
           {PLAYBOOK_HELPER_TEXT[playbook] && (
             <p className={styles.helperText}>{parseInlineMarkdown(PLAYBOOK_HELPER_TEXT[playbook]!)}</p>
           )}
-          {sortedTypeMoves.length > 0 ? (
+          {visibleTypeMoves.length > 0 ? (
             <div className={styles.moveGrid}>
-              {sortedTypeMoves.map(({ move, isDisabled, isForced }) => {
+              {visibleTypeMoves.map(({ move, isDisabled, isForced }) => {
                 const lockReason = isForced
                   ? 'Required by your background'
                   : (!isDisabled ? getLockReason(move, typeMoves, level, selected) : undefined);
@@ -272,7 +281,11 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
               })}
             </div>
           ) : (
-            <p className={styles.empty}>No {playbookLabel} moves defined yet.</p>
+            <p className={styles.empty}>
+              {sortedTypeMoves.length === 0
+                ? `No moves for ${playbookLabel} have been defined yet.`
+                : 'No moves selected.'}
+            </p>
           )}
         </Collapse>
       </div>
