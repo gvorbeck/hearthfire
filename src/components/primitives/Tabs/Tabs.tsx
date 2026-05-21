@@ -1,11 +1,13 @@
 import { useState, useId, useRef, useCallback, type ReactNode, type KeyboardEvent } from 'react';
 import clsx from 'clsx';
-import { Tooltip } from '../Tooltip/Tooltip';
+import { useTooltip } from '../Tooltip/useTooltip';
 import styles from './Tabs.module.css';
 
 interface Tab {
   label: string;
   content: ReactNode;
+  badge?: ReactNode;
+  badgeTooltip?: string;
 }
 
 interface TabsProps {
@@ -18,6 +20,67 @@ interface TabsProps {
   onAdd?: () => void;
 }
 
+export const tabBadgeClass = styles.tabBadge;
+
+// Renders a single tab button, conditionally wiring tooltip behavior directly
+// onto the button so no wrapper element interrupts role="tablist".
+const TabButton = ({
+  tab, index, baseId, isActive, onActivate, onKeyDown, buttonRef,
+}: {
+  tab: Tab;
+  index: number;
+  baseId: string;
+  isActive: boolean;
+  onActivate: (index: number) => void;
+  onKeyDown: (e: KeyboardEvent<HTMLButtonElement>, index: number) => void;
+  buttonRef: (el: HTMLButtonElement | null) => void;
+}) => {
+  const tooltip = useTooltip({ side: 'bottom', tooltipId: tab.badgeTooltip ? `${baseId}-tab-${index}-tooltip` : undefined });
+  const cx = clsx(styles.tab, isActive && styles.active);
+
+  const handleClick = useCallback(() => onActivate(index), [onActivate, index]);
+  const handleKeyDown = useCallback((e: KeyboardEvent<HTMLButtonElement>) => onKeyDown(e, index), [onKeyDown, index]);
+
+  return (
+    <button
+      ref={(el) => {
+        buttonRef(el);
+        (tooltip.anchorRef as React.MutableRefObject<HTMLElement | null>).current = el;
+      }}
+      role="tab"
+      id={`${baseId}-tab-${index}`}
+      aria-controls={`${baseId}-panel-${index}`}
+      aria-selected={isActive}
+      aria-describedby={tab.badgeTooltip ? tooltip.tooltipId : undefined}
+      tabIndex={isActive ? 0 : -1}
+      className={cx}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      {...(tab.badgeTooltip ? tooltip.anchorProps : {})}
+      style={{ position: 'relative' }}
+    >
+      {tab.label}
+      {tab.badge}
+      {tab.badgeTooltip && (() => {
+        const tipCx = clsx(styles.tabTooltip, styles[tooltip.resolvedSide], tooltip.visible && styles.tabTooltipVisible);
+        return (
+          <span
+            ref={tooltip.tooltipRef}
+            role="tooltip"
+            id={tooltip.tooltipId}
+            aria-hidden={!tooltip.visible}
+            className={tipCx}
+            style={{ '--nudge-x': `${tooltip.nudgeX}px`, '--arrow-offset': tooltip.arrowOffset } as React.CSSProperties}
+          >
+            {tab.badgeTooltip}
+            <span className={styles.tabTooltipArrow} />
+          </span>
+        );
+      })()}
+    </button>
+  );
+};
+
 export const Tabs = ({ tabs, defaultIndex = 0, activeIndex, onActiveChange, className, 'aria-label': ariaLabel, onAdd }: TabsProps) => {
   const [internalActive, setInternalActive] = useState(defaultIndex);
   const active = activeIndex ?? internalActive;
@@ -25,17 +88,14 @@ export const Tabs = ({ tabs, defaultIndex = 0, activeIndex, onActiveChange, clas
     setInternalActive(i);
     onActiveChange?.(i);
   }, [onActiveChange]);
-  const id = useId();
+  const baseId = useId();
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const cx = clsx(styles.root, className);
 
-  const handleClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-    setActive(Number(e.currentTarget.dataset.index));
-  }, [setActive]);
+  const handleActivate = useCallback((i: number) => setActive(i), [setActive]);
 
-  const handleKeyDown = useCallback((e: KeyboardEvent<HTMLButtonElement>) => {
-    const i = Number(e.currentTarget.dataset.index);
+  const handleKeyDown = useCallback((e: KeyboardEvent<HTMLButtonElement>, i: number) => {
     if (e.key === 'ArrowRight') {
       const next = (i + 1) % tabs.length;
       setActive(next);
@@ -51,46 +111,36 @@ export const Tabs = ({ tabs, defaultIndex = 0, activeIndex, onActiveChange, clas
     <div className={cx}>
       <div className={styles.tablistRow}>
         {onAdd && (
-          <Tooltip text="Add an insert" side="bottom" noTabStop>
-            <button
-              type="button"
-              className={styles.addTab}
-              onClick={onAdd}
-              aria-label="Add an insert"
-            >
-              +
-            </button>
-          </Tooltip>
+          <button
+            type="button"
+            className={styles.addTab}
+            onClick={onAdd}
+            aria-label="Add an insert"
+          >
+            +
+          </button>
         )}
         <div className={styles.tablist} role="tablist" aria-label={ariaLabel}>
-          {tabs.map((tab, i) => {
-            const tabCx = clsx(styles.tab, active === i && styles.active);
-            return (
-              <button
-                key={tab.label}
-                ref={(el) => { tabRefs.current[i] = el; }}
-                role="tab"
-                id={`${id}-tab-${i}`}
-                aria-controls={`${id}-panel-${i}`}
-                aria-selected={active === i}
-                tabIndex={active === i ? 0 : -1}
-                className={tabCx}
-                data-index={i}
-                onClick={handleClick}
-                onKeyDown={handleKeyDown}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
+          {tabs.map((tab, i) => (
+            <TabButton
+              key={tab.label}
+              tab={tab}
+              index={i}
+              baseId={baseId}
+              isActive={active === i}
+              onActivate={handleActivate}
+              onKeyDown={handleKeyDown}
+              buttonRef={(el) => { tabRefs.current[i] = el; }}
+            />
+          ))}
         </div>
       </div>
       {tabs.map((tab, i) => (
         <div
           key={tab.label}
           role="tabpanel"
-          id={`${id}-panel-${i}`}
-          aria-labelledby={`${id}-tab-${i}`}
+          id={`${baseId}-panel-${i}`}
+          aria-labelledby={`${baseId}-tab-${i}`}
           hidden={active !== i}
           className={styles.panel}
         >

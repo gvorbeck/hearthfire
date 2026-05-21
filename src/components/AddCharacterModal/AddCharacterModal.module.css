@@ -3,6 +3,7 @@
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   padding: var(--spacing-3) var(--spacing-4);
+  text-align: center;
 }
 
 .actions {

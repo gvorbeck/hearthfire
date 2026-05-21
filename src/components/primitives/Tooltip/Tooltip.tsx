@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect, useId, useCallback } from 'react';
 import clsx from 'clsx';
+import { useTooltip } from './useTooltip';
 import styles from './Tooltip.module.css';
 
 type TooltipSide = 'top' | 'bottom' | 'left' | 'right';
@@ -15,92 +15,28 @@ interface TooltipProps {
   children: React.ReactNode;
 }
 
-const SCREEN_MARGIN = 8;
-const TOOLTIP_GAP = 8;
+export { useTooltip } from './useTooltip';
+export type { UseTooltipOptions, UseTooltipResult } from './useTooltip';
 
-export const Tooltip = ({ text, side = 'top', className, noTabStop = false, tooltipId, children }: TooltipProps) => {
-  const [visible, setVisible] = useState(false);
-  const [resolvedSide, setResolvedSide] = useState<TooltipSide>(side);
-  const [nudgeX, setNudgeX] = useState(0);
-  const [arrowOffset, setArrowOffset] = useState('50%');
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const wrapperRef = useRef<HTMLSpanElement>(null);
-  const tooltipRef = useRef<HTMLSpanElement>(null);
-  const generatedId = useId();
-  const id = tooltipId ?? generatedId;
-
-  useEffect(() => () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }, []);
-
-  const show = useCallback(() => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-
-    const anchor = wrapperRef.current;
-    const tip = tooltipRef.current;
-
-    if (anchor && tip) {
-      const anchorRect = anchor.getBoundingClientRect();
-      const tipWidth = tip.offsetWidth;
-      const tipHeight = tip.offsetHeight;
-      const vw = window.innerWidth;
-
-      if (side === 'top' || side === 'bottom') {
-        const naturalLeft = anchorRect.left + anchorRect.width / 2 - tipWidth / 2;
-        const naturalRight = naturalLeft + tipWidth;
-
-        let shift = 0;
-        if (naturalLeft < SCREEN_MARGIN) {
-          shift = SCREEN_MARGIN - naturalLeft;
-        } else if (naturalRight > vw - SCREEN_MARGIN) {
-          shift = (vw - SCREEN_MARGIN) - naturalRight;
-        }
-
-        const flippedSide =
-          side === 'top' && anchorRect.top - tipHeight - TOOLTIP_GAP < SCREEN_MARGIN ? 'bottom'
-          : side === 'bottom' && anchorRect.bottom + tipHeight + TOOLTIP_GAP > window.innerHeight - SCREEN_MARGIN ? 'top'
-          : side;
-
-        setResolvedSide(flippedSide);
-        setNudgeX(shift);
-        setArrowOffset(shift !== 0 ? `${50 - (shift / tipWidth) * 100}%` : '50%');
-      } else if (side === 'right') {
-        const naturalRight = anchorRect.right + TOOLTIP_GAP + tipWidth;
-        setResolvedSide(naturalRight > vw - SCREEN_MARGIN ? 'left' : 'right');
-        setNudgeX(0);
-        setArrowOffset('50%');
-      } else {
-        const naturalLeft = anchorRect.left - TOOLTIP_GAP - tipWidth;
-        setResolvedSide(naturalLeft < SCREEN_MARGIN ? 'right' : 'left');
-        setNudgeX(0);
-        setArrowOffset('50%');
-      }
-    }
-
-    setVisible(true);
-  }, [side]);
-
-  const hide = useCallback(() => {
-    timeoutRef.current = setTimeout(() => setVisible(false), 100);
-  }, []);
+export const Tooltip = ({ text, side = 'top', className, noTabStop = false, tooltipId: externalId, children }: TooltipProps) => {
+  const { tooltipId, visible, resolvedSide, nudgeX, arrowOffset, anchorRef, tooltipRef, anchorProps } = useTooltip({ side, tooltipId: externalId });
 
   const wrapperCx = clsx(styles.wrapper, className);
   const cx = clsx(styles.tooltip, styles[resolvedSide], visible && styles.visible);
 
   return (
     <span
-      ref={wrapperRef}
+      ref={anchorRef as React.RefObject<HTMLSpanElement>}
       className={wrapperCx}
-      aria-describedby={noTabStop ? undefined : id}
+      aria-describedby={noTabStop ? undefined : tooltipId}
       tabIndex={noTabStop ? undefined : 0}
-      onMouseEnter={show}
-      onMouseLeave={hide}
-      onFocus={show}
-      onBlur={hide}
+      {...anchorProps}
     >
       {children}
       <span
         ref={tooltipRef}
         role="tooltip"
-        id={id}
+        id={tooltipId}
         aria-hidden={!visible}
         className={cx}
         style={{ '--nudge-x': `${nudgeX}px`, '--arrow-offset': arrowOffset } as React.CSSProperties}

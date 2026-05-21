@@ -1,0 +1,32 @@
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-4);
+}
+
+.intro p {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.intro em {
+  font-style: italic;
+}
+
+.grid {
+  columns: 2 280px;
+  column-gap: var(--spacing-3);
+}
+
+.grid > * {
+  break-inside: avoid;
+  margin-bottom: var(--spacing-3);
+}
+
+.grid > *:last-child {
+  margin-bottom: 0;
+}

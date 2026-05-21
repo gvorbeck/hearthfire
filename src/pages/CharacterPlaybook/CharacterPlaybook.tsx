@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { PageMeta } from '@/components/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
-import { Heading, Button, ScrollToTop, Tabs, Modal, Radio } from '@/components/primitives';
+import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Modal, Radio } from '@/components/primitives';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
 import { PageHeader } from '@/components/PageHeader/PageHeader';
 import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, Moves, SpecialPossessions, Introductions } from '@/components/CharacterSheet/sections';
@@ -13,6 +13,7 @@ import { APPEARANCE_OPTIONS } from '@/lib/appearanceOptions';
 import { PLACE_OF_ORIGIN_OPTIONS } from '@/lib/placeOfOriginOptions';
 import { SPECIAL_POSSESSIONS_OPTIONS } from '@/lib/specialPossessionsOptions';
 import { INTRODUCTIONS_OPTIONS } from '@/lib/introductionsOptions';
+import { featurePatch, resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
 import { BlessedInitiatesOfDanu } from '@/components/CharacterSheet/playbooks/blessed/BlessedInitiatesOfDanu';
 import { BlessedSacredPouch } from '@/components/CharacterSheet/playbooks/blessed/BlessedSacredPouch';
 import { BlessedEarthMother } from '@/components/CharacterSheet/playbooks/blessed/BlessedEarthMother';
@@ -21,6 +22,7 @@ import { HeavyViolence } from '@/components/CharacterSheet/playbooks/heavy/Heavy
 import { JudgeChronicle } from '@/components/CharacterSheet/playbooks/judge/JudgeChronicle';
 import { JudgeLawkeeper } from '@/components/CharacterSheet/playbooks/judge/JudgeLawkeeper';
 import { LightbearerPraiseTheDay } from '@/components/CharacterSheet/playbooks/lightbearer/LightbearerPraiseTheDay';
+import { LightbearerInvocations } from '@/components/CharacterSheet/playbooks/lightbearer/LightbearerInvocations';
 import { MarshalWarStories } from '@/components/CharacterSheet/playbooks/marshal/MarshalWarStories';
 import { RangerSomethingWicked } from '@/components/CharacterSheet/playbooks/ranger/RangerSomethingWicked';
 import { SeekerCollection } from '@/components/CharacterSheet/playbooks/seeker/SeekerCollection';
@@ -208,6 +210,26 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, updateCharact
     [character.playbook, character.data]
   );
 
+  const level = getCharacterLevel(character);
+  const features = resolvePlaybookFeatures(character.data);
+  const knownInvocations = Object.values(features.lightbearerInvocations ?? {}).filter(Boolean).length;
+  const invocationsAllowed = 2 + Math.floor(level / 2);
+  const dismissedAt = features.lightbearerInvocationsBadgeDismissedAt ?? 0;
+  const showInvocationsBadge =
+    character.playbook === 'lightbearer' &&
+    level > 0 && level % 2 === 0 &&
+    knownInvocations < invocationsAllowed &&
+    dismissedAt !== level;
+
+  const invocationsTabIndex = playbookTabs.findIndex(({ id }) => id === 'invocations');
+
+  const handleActiveChange = useCallback((i: number) => {
+    setActiveIndex(i);
+    if (showInvocationsBadge && invocationsTabIndex !== -1 && i === 2 + invocationsTabIndex) {
+      handleSaveCharacterData(featurePatch(character.data, { lightbearerInvocationsBadgeDismissedAt: level }));
+    }
+  }, [showInvocationsBadge, invocationsTabIndex, handleSaveCharacterData, character.data, level]);
+
   const tabs = useMemo(() => [
     {
       label: 'PC Playbook',
@@ -219,12 +241,20 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, updateCharact
     },
     ...playbookTabs.map(({ id, label, content }) => ({
       label,
+      badge: id === 'invocations' && showInvocationsBadge
+        ? <span className={tabBadgeClass} aria-label="New Invocation available" />
+        : undefined,
+      badgeTooltip: id === 'invocations' && showInvocationsBadge
+        ? 'A new Invocation can be selected'
+        : undefined,
       content: id === 'initiates-of-danu'
         ? <BlessedInitiatesOfDanu data={character.data} onSave={handleSaveCharacterData} />
-        : content,
+        : id === 'invocations'
+          ? <LightbearerInvocations data={character.data} onSave={handleSaveCharacterData} />
+          : content,
     })),
     ...(character.data?.inserts ?? []).map((label) => ({ label, content: null })),
-  ], [character, playbookOption, handleSaveCharacterData, playbookTabs]);
+  ], [character, playbookOption, handleSaveCharacterData, playbookTabs, showInvocationsBadge]);
 
   return (
     <main className={styles.page}>
@@ -251,7 +281,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, updateCharact
         className={styles.tabs}
         tabs={tabs}
         activeIndex={activeIndex}
-        onActiveChange={setActiveIndex}
+        onActiveChange={handleActiveChange}
         onAdd={handleOpenAddTab}
       />
       <AddInsertModal open={addTabOpen} onClose={handleCloseAddTab} onAdd={handleAddInsert} />

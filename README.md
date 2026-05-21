@@ -143,7 +143,7 @@ The app deploys automatically to Firebase Hosting via GitHub Actions on every pu
   - [ ] Inventory
   - [ ] Animal Companion
   - [ ] Crew
-  - [ ] Invocations
+  - [x] Invocations
   - [x] Initiates of Danu
 - [ ] Death-state playbooks
   - [ ] Ghost
