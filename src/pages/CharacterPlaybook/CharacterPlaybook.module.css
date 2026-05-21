@@ -27,9 +27,15 @@
 
 .columns {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: var(--spacing-6);
   align-items: start;
+}
+
+@media (min-width: 768px) { /* --bp-md */
+  .columns {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .colLeft {

@@ -45,6 +45,13 @@ const PCPlaybookTab = ({ character, playbookOption, onSave }: { character: Chara
     <div className={styles.layout}>
       <div className={styles.columns}>
         <div className={styles.colLeft}>
+          <Stats
+            data={data}
+            onSave={onSave}
+            hpMax={playbookOption?.hpMax}
+            damage={playbookOption?.damage}
+            scoreInstruction={playbook === 'would-be-hero' ? WOULD_BE_HERO_SCORE_INSTRUCTION : undefined}
+          />
           <Background playbookKey={playbook} options={BACKGROUND_OPTIONS[playbook]} level={level} data={data} onSave={onSave} />
         </div>
         <div className={styles.colRight}>
@@ -52,15 +59,6 @@ const PCPlaybookTab = ({ character, playbookOption, onSave }: { character: Chara
           <Appearance rows={APPEARANCE_OPTIONS[playbook]} data={data} onSave={onSave} />
           <PlaceOfOrigin options={PLACE_OF_ORIGIN_OPTIONS[playbook]} data={data} onSave={onSave} />
         </div>
-      </div>
-      <div className={styles.colFull}>
-        <Stats
-          data={data}
-          onSave={onSave}
-          hpMax={playbookOption?.hpMax}
-          damage={playbookOption?.damage}
-          scoreInstruction={playbook === 'would-be-hero' ? WOULD_BE_HERO_SCORE_INSTRUCTION : undefined}
-        />
       </div>
       <div className={styles.colFull}>
         <Moves playbook={playbook} data={data} onSave={onSave} level={level} />
