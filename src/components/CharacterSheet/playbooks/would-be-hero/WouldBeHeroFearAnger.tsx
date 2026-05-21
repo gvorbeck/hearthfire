@@ -1,9 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
 import { CheckboxGroup } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { AnswerPrompts } from '../AnswerPrompts';
-import { useDebouncedAnswers } from '@/hooks/useDebouncedAnswers';
-import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
+import { usePlaybookCheckedWithAnswers } from '@/hooks/usePlaybookChecked';
 import type { CharacterData } from '@/types';
 import styles from '../playbookSection.module.css';
 
@@ -42,35 +40,9 @@ interface WouldBeHeroFearAngerProps {
 }
 
 export const WouldBeHeroFearAnger = ({ data, onSave }: WouldBeHeroFearAngerProps) => {
-  const dataRef = useRef(data);
-  dataRef.current = data;
-
-  const features = resolvePlaybookFeatures(data);
-  const [checked, setChecked] = useState<Record<string, boolean>>(
-    () => features.wouldBeHeroFearAnger ?? {}
+  const { checked, handleChange: handleCheck, answers, handleAnswer } = usePlaybookCheckedWithAnswers(
+    data, onSave, 'wouldBeHeroFearAnger', 'wouldBeHeroFearAngerAnswers',
   );
-  const buildPatch = useCallback(
-    (a: Record<string, string>) => featurePatch(dataRef.current, { wouldBeHeroFearAngerAnswers: a }),
-    [],
-  );
-  const { answers, setAnswers, handleAnswer } = useDebouncedAnswers(
-    features.wouldBeHeroFearAngerAnswers,
-    onSave,
-    buildPatch,
-  );
-
-  useEffect(() => {
-    const f = resolvePlaybookFeatures(data);
-    if (f.wouldBeHeroFearAnger !== undefined) setChecked(f.wouldBeHeroFearAnger);
-    if (f.wouldBeHeroFearAngerAnswers !== undefined) setAnswers(f.wouldBeHeroFearAngerAnswers);
-  }, [data, setAnswers]);
-
-  const handleCheck = useCallback((id: string, value: boolean) => {
-    const prev = checked;
-    const next = { ...checked, [id]: value };
-    setChecked(next);
-    onSave(featurePatch(dataRef.current, { wouldBeHeroFearAnger: next })).catch(() => setChecked(prev));
-  }, [checked, onSave]);
 
   return (
     <PlaybookSection title="Fear & Anger">

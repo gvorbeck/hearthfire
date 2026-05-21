@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 import { Checkbox, CheckboxGroup } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
-import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
+import { usePlaybookChecked } from '@/hooks/usePlaybookChecked';
 import type { CharacterData } from '@/types';
 import styles from '../playbookSection.module.css';
 import localStyles from './FoxTallTales.module.css';
@@ -51,25 +51,15 @@ interface FoxTallTalesProps {
 }
 
 export const FoxTallTales = ({ data, onSave }: FoxTallTalesProps) => {
-  const features = resolvePlaybookFeatures(data);
-  const [checked, setChecked] = useState<Record<string, boolean>>(
-    () => features.foxTallTales ?? {}
-  );
-
-  useEffect(() => {
-    const f = resolvePlaybookFeatures(data);
-    if (f.foxTallTales !== undefined) setChecked(f.foxTallTales);
-  }, [data]);
-
-  const handleChange = useCallback((id: string, value: boolean) => {
-    const prev = checked;
-    const next = { ...checked, [id]: value };
-    setChecked(next);
-    onSave(featurePatch(data, { foxTallTales: next })).catch(() => setChecked(prev));
-  }, [checked, onSave, data]);
+  const { checked, handleChange } = usePlaybookChecked(data, onSave, 'foxTallTales');
 
   const lostChecked = checked['tales-lost'] ?? false;
   const taleItemsWithoutLost = TALE_ITEMS.filter((item) => item.id !== 'tales-lost');
+
+  const handleLostChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => handleChange('tales-lost', e.target.checked),
+    [handleChange],
+  );
 
   return (
     <PlaybookSection title="Tall Tales">
@@ -84,7 +74,7 @@ export const FoxTallTales = ({ data, onSave }: FoxTallTalesProps) => {
           <div className={localStyles.lostRow}>
             <Checkbox
               checked={lostChecked}
-              onChange={(e) => handleChange('tales-lost', e.target.checked)}
+              onChange={handleLostChange}
               label="… got lost in (choose 1):"
             />
             <div className={localStyles.locationSub}>
