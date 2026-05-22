@@ -277,13 +277,15 @@ const useTrackedField = (
   flushDebounce: (patch: Partial<PlaybookFeatures>) => void,
 ) => {
   const [value, setValue] = useState(initialValue);
+  const valueRef = useRef(value);
+  valueRef.current = value;
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setValue(val);
     saveDebounced({ [fieldKey]: val });
   }, [fieldKey, saveDebounced]);
   const handleBlur = useCallback(() => {
-    setValue((prev) => { flushDebounce({ [fieldKey]: prev }); return prev; });
+    flushDebounce({ [fieldKey]: valueRef.current });
   }, [fieldKey, flushDebounce]);
   return { value, setValue, handleChange, handleBlur };
 };
@@ -302,9 +304,9 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
     useTrackedField(resolvePlaybookFeatures(data).animalArmor ?? '', 'animalArmor', saveDebounced, flushDebounce);
   const { value: damage, setValue: setDamage, handleChange: handleDamageChange, handleBlur: handleDamageBlur } =
     useTrackedField(resolvePlaybookFeatures(data).animalDamage ?? '', 'animalDamage', saveDebounced, flushDebounce);
-  const { value: name, setValue: setName, handleChange: handleNameChange, handleBlur: handleNameBlur } =
+  const { value: name, handleChange: handleNameChange, handleBlur: handleNameBlur } =
     useTrackedField(resolvePlaybookFeatures(data).animalName ?? '', 'animalName', saveDebounced, flushDebounce);
-  const { value: damageTags, setValue: setDamageTags, handleChange: handleDamageTagsChange, handleBlur: handleDamageTagsBlur } =
+  const { value: damageTags, handleChange: handleDamageTagsChange, handleBlur: handleDamageTagsBlur } =
     useTrackedField(resolvePlaybookFeatures(data).animalDamageTags ?? '', 'animalDamageTags', saveDebounced, flushDebounce);
 
   const [animalType, setAnimalType] = useState<string>(() => resolvePlaybookFeatures(data).animalType ?? '');
@@ -315,6 +317,12 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
   const [instinctCustom, setInstinctCustom] = useState<string>(() => resolvePlaybookFeatures(data).animalInstinctCustom ?? '');
   const [cost, setCost] = useState<string>(() => resolvePlaybookFeatures(data).animalCost ?? '');
   const [costCustom, setCostCustom] = useState<string>(() => resolvePlaybookFeatures(data).animalCostCustom ?? '');
+  const typeCustomRef = useRef(typeCustom);
+  typeCustomRef.current = typeCustom;
+  const instinctCustomRef = useRef(instinctCustom);
+  instinctCustomRef.current = instinctCustom;
+  const costCustomRef = useRef(costCustom);
+  costCustomRef.current = costCustom;
   const [loyalty, setLoyalty] = useState<number>(() => resolvePlaybookFeatures(data).animalLoyalty ?? 0);
   const [beastOfLegend, setBeastOfLegend] = useState<Record<string, boolean>>(() => resolvePlaybookFeatures(data).animalBeastOfLegend ?? {});
   const [typeCollapsed, setTypeCollapsed] = useState(false);
@@ -326,22 +334,14 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
 
   useEffect(() => {
     const f = resolvePlaybookFeatures(data);
-    if (f.animalHp !== undefined) setHp(f.animalHp);
-    if (f.animalArmor !== undefined) setArmor(f.animalArmor);
-    if (f.animalDamage !== undefined) setDamage(f.animalDamage);
-    if (f.animalName !== undefined) setName(f.animalName);
-    if (f.animalDamageTags !== undefined) setDamageTags(f.animalDamageTags);
     if (f.animalType !== undefined) setAnimalType(f.animalType);
     if (f.animalTypePicks !== undefined) setTypePicks(f.animalTypePicks);
-    if (f.animalTypeCustom !== undefined) setTypeCustom(f.animalTypeCustom);
     if (f.animalTypeCustomChecked !== undefined) setTypeCustomChecked(f.animalTypeCustomChecked);
     if (f.animalInstinct !== undefined) setInstinct(f.animalInstinct);
-    if (f.animalInstinctCustom !== undefined) setInstinctCustom(f.animalInstinctCustom);
     if (f.animalCost !== undefined) setCost(f.animalCost);
-    if (f.animalCostCustom !== undefined) setCostCustom(f.animalCostCustom);
     if (f.animalLoyalty !== undefined) setLoyalty(f.animalLoyalty);
     if (f.animalBeastOfLegend !== undefined) setBeastOfLegend(f.animalBeastOfLegend);
-  }, [data, setHp, setArmor, setDamage, setName, setDamageTags]);
+  }, [data]);
 
   useEffect(() => {
     if (animalType && !hasInitializedTypeCollapse.current) {
@@ -401,9 +401,8 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
     });
   }, [saveDebounced]);
 
-  const handleTypeCustomBlur = useCallback((typeId: string) => {
-    void typeId;
-    setTypeCustom((prev) => { flushDebounce({ animalTypeCustom: prev }); return prev; });
+  const handleTypeCustomBlur = useCallback((_typeId: string) => {
+    flushDebounce({ animalTypeCustom: typeCustomRef.current });
   }, [flushDebounce]);
 
   const handleTypeCustomCheckedChange = useCallback((typeId: string, checked: boolean) => {
@@ -431,7 +430,7 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
   }, [saveDebounced]);
 
   const handleInstinctCustomBlur = useCallback(() => {
-    setInstinctCustom((prev) => { flushDebounce({ animalInstinct: 'custom', animalInstinctCustom: prev }); return prev; });
+    flushDebounce({ animalInstinct: 'custom', animalInstinctCustom: instinctCustomRef.current });
   }, [flushDebounce]);
 
   const handleCostChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -451,7 +450,7 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
   }, [saveDebounced]);
 
   const handleCostCustomBlur = useCallback(() => {
-    setCostCustom((prev) => { flushDebounce({ animalCost: 'custom', animalCostCustom: prev }); return prev; });
+    flushDebounce({ animalCost: 'custom', animalCostCustom: costCustomRef.current });
   }, [flushDebounce]);
 
   const handleLoyaltyChange = useCallback((n: number) => {

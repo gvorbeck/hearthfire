@@ -25,15 +25,20 @@ export const Instinct = ({ playbookKey, options, data, onSave }: InstinctProps =
   const [customText, setCustomText] = useState<string>(data?.instinctCustom ?? '');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const customTextRef = useRef(customText);
+  customTextRef.current = customText;
+  const hasInitializedCollapse = useRef(false);
 
   useEffect(() => {
     if (data?.instinct !== undefined) setSelected(data.instinct);
-    if (data?.instinctCustom !== undefined) setCustomText(data.instinctCustom);
-  }, [data?.instinct, data?.instinctCustom]);
+  }, [data?.instinct]);
 
-  // Collapse once a selection arrives from Firestore (covers async initial load).
+  // Collapse once on the first Firestore load that has a selection; never re-collapse after that.
   useEffect(() => {
-    if (data?.instinct) setIsCollapsed(true);
+    if (data?.instinct && !hasInitializedCollapse.current) {
+      hasInitializedCollapse.current = true;
+      setIsCollapsed(true);
+    }
   }, [data?.instinct]);
 
   useEffect(() => {
@@ -75,8 +80,8 @@ export const Instinct = ({ playbookKey, options, data, onSave }: InstinctProps =
   }, [debouncedChange]);
 
   const handleCustomBlur = useCallback(() => {
-    flushOnBlur(customText);
-  }, [flushOnBlur, customText]);
+    flushOnBlur(customTextRef.current);
+  }, [flushOnBlur]);
 
   if (!options) return <PlaybookSection title="Instinct" />;
 

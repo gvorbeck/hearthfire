@@ -35,11 +35,7 @@ export const Appearance = ({ rows, data, onSave }: AppearanceProps = {}) => {
 
   useEffect(() => {
     if (data?.appearance !== undefined) setSelected(data.appearance);
-    if (data?.appearanceCustom !== undefined) {
-      setCustomText(data.appearanceCustom);
-      setIsCustom(Boolean(data.appearanceCustom));
-    }
-  }, [data?.appearance, data?.appearanceCustom]);
+  }, [data?.appearance]);
 
   useEffect(() => {
     const appearance = data?.appearance ?? {};
@@ -49,7 +45,7 @@ export const Appearance = ({ rows, data, onSave }: AppearanceProps = {}) => {
       hasInitializedCollapse.current = true;
       setIsCollapsed(true);
     }
-  }, [data?.appearance, data?.appearanceCustom, rows]);
+  }, [data?.appearance, rows]);
 
   const handleSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const rowIndex = Number(e.currentTarget.dataset.row);

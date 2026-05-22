@@ -6,7 +6,7 @@ import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
 import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Modal, Radio } from '@/components/primitives';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
 import { PageHeader } from '@/components/PageHeader/PageHeader';
-import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, Moves, SpecialPossessions, Introductions } from '@/components/CharacterSheet/sections';
+import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, Moves, SpecialPossessions, Introductions, Inventory } from '@/components/CharacterSheet/sections';
 import { BACKGROUND_OPTIONS, FOX_LIFE_OF_CRIME_BACKGROUND } from '@/lib/backgroundOptions';
 import { INSTINCT_OPTIONS } from '@/lib/instinctOptions';
 import { APPEARANCE_OPTIONS } from '@/lib/appearanceOptions';
@@ -175,6 +175,7 @@ const resolvePlaybookTabContent = (
   if (id === 'invocations') return <LightbearerInvocations data={data} onSave={onSave} />;
   if (id === 'crew') return <MarshalCrew data={data} prosperity={prosperity} onSave={onSave} />;
   if (id === 'animal-companion') return <RangerAnimalCompanion data={data} onSave={onSave} />;
+  if (id === 'inventory') return <Inventory data={data} prosperity={prosperity} onSave={onSave} />;
   return fallback;
 };
 
@@ -254,7 +255,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
     },
     {
       label: 'Inventory',
-      content: null,
+      content: resolvePlaybookTabContent('inventory', null, character.data, prosperity, handleSaveCharacterData),
     },
     ...playbookTabs.map(({ id, label, content }) => ({
       label,

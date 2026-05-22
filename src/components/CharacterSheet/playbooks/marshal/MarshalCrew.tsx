@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, memo } from 'react';
+import { useState, useEffect, useCallback, useRef, memo } from 'react';
 import clsx from 'clsx';
 import { Checkbox, CheckboxGroup, Divider, Radio, UseDots } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
@@ -224,21 +224,31 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
   const [suppliesUses, setSuppliesUses] = useState<number[]>(() => features.crewSuppliesUses ?? Array(CREW_SIZE).fill(0));
   const [individuals, setIndividuals] = useState<Individual[]>(() => parseIndividuals(features.crewIndividuals));
 
+  const hpRef = useRef(hp);
+  hpRef.current = hp;
+  const armorRef = useRef(armor);
+  armorRef.current = armor;
+  const tagsCustomRef = useRef(tagsCustom);
+  tagsCustomRef.current = tagsCustom;
+  const instinctCustomRef = useRef(instinctCustom);
+  instinctCustomRef.current = instinctCustom;
+  const costCustomRef = useRef(costCustom);
+  costCustomRef.current = costCustom;
+  const customItemsRef = useRef(customItems);
+  customItemsRef.current = customItems;
+  const individualsRef = useRef(individuals);
+  individualsRef.current = individuals;
+
   useEffect(() => {
     const f = resolvePlaybookFeatures(data);
     if (f.crewHp !== undefined) setHp(f.crewHp);
     if (f.crewArmor !== undefined) setArmor(f.crewArmor);
     if (f.crewTags !== undefined) setTags({ group: true, ...f.crewTags });
-    if (f.crewTagsCustom !== undefined) setTagsCustom(f.crewTagsCustom.slice(0, 2));
     if (f.crewInstinct !== undefined) setInstinct(f.crewInstinct);
-    if (f.crewInstinctCustom !== undefined) setInstinctCustom(f.crewInstinctCustom);
     if (f.crewCost !== undefined) setCost(f.crewCost);
-    if (f.crewCostCustom !== undefined) setCostCustom(f.crewCostCustom);
     if (f.crewLoyalty !== undefined) setLoyalty(f.crewLoyalty);
     if (f.crewInventoryChecked !== undefined) setInventoryChecked(f.crewInventoryChecked);
-    if (f.crewCustomItems !== undefined) setCustomItems(normalizeCustomItems(f.crewCustomItems));
     if (f.crewSuppliesUses !== undefined) setSuppliesUses(f.crewSuppliesUses);
-    if (f.crewIndividuals !== undefined) setIndividuals(parseIndividuals(f.crewIndividuals));
   }, [data]);
 
   const { saveDebounced, saveImmediate, flushDebounce, dataRef, onSaveRef } = useCrewSave(data, onSave);
@@ -255,7 +265,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
   }, [saveDebounced]);
 
   const handleHpBlur = useCallback(() => {
-    setHp((prev) => { flushDebounce({ crewHp: prev }); return prev; });
+    flushDebounce({ crewHp: hpRef.current });
   }, [flushDebounce]);
 
   const handleArmorChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -265,7 +275,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
   }, [saveDebounced]);
 
   const handleArmorBlur = useCallback(() => {
-    setArmor((prev) => { flushDebounce({ crewArmor: prev }); return prev; });
+    flushDebounce({ crewArmor: armorRef.current });
   }, [flushDebounce]);
 
   const handleTagChange = useCallback((id: string, checked: boolean) => {
@@ -289,7 +299,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
   }, [saveDebounced]);
 
   const handleTagCustomBlur = useCallback(() => {
-    setTagsCustom((prev) => { flushDebounce({ crewTagsCustom: prev }); return prev; });
+    flushDebounce({ crewTagsCustom: tagsCustomRef.current });
   }, [flushDebounce]);
 
   const handleInstinctChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -309,7 +319,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
   }, [saveDebounced]);
 
   const handleInstinctCustomBlur = useCallback(() => {
-    setInstinctCustom((prev) => { flushDebounce({ crewInstinct: 'custom', crewInstinctCustom: prev }); return prev; });
+    flushDebounce({ crewInstinct: 'custom', crewInstinctCustom: instinctCustomRef.current });
   }, [flushDebounce]);
 
   const handleCostChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -329,7 +339,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
   }, [saveDebounced]);
 
   const handleCostCustomBlur = useCallback(() => {
-    setCostCustom((prev) => { flushDebounce({ crewCost: 'custom', crewCostCustom: prev }); return prev; });
+    flushDebounce({ crewCost: 'custom', crewCostCustom: costCustomRef.current });
   }, [flushDebounce]);
 
   const handleLoyaltyChange = useCallback((n: number) => {
@@ -362,7 +372,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
   }, [saveDebounced]);
 
   const handleCustomItemBlur = useCallback(() => {
-    setCustomItems((prev) => { flushDebounce({ crewCustomItems: prev }); return prev; });
+    flushDebounce({ crewCustomItems: customItemsRef.current });
   }, [flushDebounce]);
 
   const handleSuppliesUsesChange = useCallback((memberIndex: number, n: number) => {
@@ -383,7 +393,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
   }, [saveDebounced]);
 
   const handleIndividualBlur = useCallback(() => {
-    setIndividuals((prev) => { flushDebounce({ crewIndividuals: prev }); return prev; });
+    flushDebounce({ crewIndividuals: individualsRef.current });
   }, [flushDebounce]);
 
   const hasHeroesToTheLast = data?.typeMoves?.['marshal-heroes-to-the-last'] === true;

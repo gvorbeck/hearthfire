@@ -81,6 +81,15 @@ export interface PlaybookFeatures {
 }
 
 export interface CharacterData {
+  inventoryChecked?: Record<string, boolean>;
+  inventoryUses?: Record<string, number>;
+  inventoryCustomItems?: { checked: boolean; text: string; weight: 1 | 2 }[];
+  inventorySmallChecked?: Record<string, boolean>;
+  inventorySmallCustom?: { checked: boolean; text: string }[];
+  inventoryUndefined?: number;
+  inventorySmallUndefined?: number;
+  inventoryOtherThings?: string;
+  inventoryPossessions?: { checked: boolean; text: string; weight: 1 | 2 }[];
   background?: string;
   backgroundChoices?: string[];
   backgroundFreeText?: Record<string, string>;
