@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Checkbox } from '../Checkbox/Checkbox';
 import styles from './CheckboxGroup.module.css';
 
@@ -8,7 +9,7 @@ export interface CheckboxGroupItem {
 }
 
 interface CheckboxGroupProps {
-  items: CheckboxGroupItem[];
+  items: CheckboxGroupItem[] | string[];
   checked: Record<string, boolean>;
   onChange: (id: string, checked: boolean) => void;
   label?: string;
@@ -18,8 +19,11 @@ interface CheckboxGroupProps {
   columns?: 1 | 2 | 4 | 6 | 'responsive-2-4-6';
 }
 
+const normalizeItems = (items: CheckboxGroupItem[] | string[]): CheckboxGroupItem[] =>
+  items.map((item) => typeof item === 'string' ? { id: item, label: item } : item);
+
 export const CheckboxGroup = ({
-  items,
+  items: rawItems,
   checked,
   onChange,
   label,
@@ -28,6 +32,7 @@ export const CheckboxGroup = ({
   disabled = false,
   columns = 1,
 }: CheckboxGroupProps) => {
+  const items = useMemo(() => normalizeItems(rawItems), [rawItems]);
   const selectedCount = items.filter(({ id }) => checked[id]).length;
   const atMax = max !== undefined && selectedCount >= max;
 
