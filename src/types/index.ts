@@ -78,6 +78,10 @@ export interface PlaybookFeatures {
   initiateLoyalty?: Record<string, number>;
   initiatePicks?: Record<string, Record<string, string>>;
   initiateRites?: Record<string, string>;
+  revenantInstinct?: string;
+  revenantPurpose?: string;
+  revenantPurposeName?: Record<string, string>;
+  revenantConsequences?: Record<string, boolean>;
 }
 
 export interface CharacterData {

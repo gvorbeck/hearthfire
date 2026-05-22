@@ -29,6 +29,7 @@ import { RangerSomethingWicked } from '@/components/CharacterSheet/playbooks/ran
 import { RangerAnimalCompanion } from '@/components/CharacterSheet/playbooks/ranger/RangerAnimalCompanion';
 import { SeekerCollection } from '@/components/CharacterSheet/playbooks/seeker/SeekerCollection';
 import { WouldBeHeroFearAnger } from '@/components/CharacterSheet/playbooks/would-be-hero/WouldBeHeroFearAnger';
+import { RevenantInsert } from '@/components/CharacterSheet/playbooks/revenant/RevenantInsert';
 import charSheetStyles from '@/components/CharacterSheet/CharacterSheet.module.css';
 import type { Character, CharacterData, GameSession, PlaybookType } from '@/types';
 import styles from './CharacterPlaybook.module.css';
@@ -129,6 +130,8 @@ const getPlaybookTabs = (playbook: PlaybookType, data: CharacterData | undefined
 const INSERT_OPTIONS = ['Revenant', 'Ghost', 'Thrall'] as const;
 type InsertOption = typeof INSERT_OPTIONS[number];
 
+const IMPLEMENTED_INSERTS = new Set<InsertOption>(['Revenant']);
+
 const AddInsertModal = ({ open, onClose, onAdd }: { open: boolean; onClose: () => void; onAdd: (insert: InsertOption) => void }) => {
   const headingId = useId();
   const [selected, setSelected] = useState<InsertOption>(INSERT_OPTIONS[0]);
@@ -150,8 +153,9 @@ const AddInsertModal = ({ open, onClose, onAdd }: { open: boolean; onClose: () =
             key={opt}
             name="insert-option"
             value={opt}
-            label={opt}
+            label={IMPLEMENTED_INSERTS.has(opt) ? opt : `${opt} (coming soon)`}
             checked={selected === opt}
+            disabled={!IMPLEMENTED_INSERTS.has(opt)}
             onChange={handleSelectChange}
           />
         ))}
@@ -176,6 +180,7 @@ const resolvePlaybookTabContent = (
   if (id === 'crew') return <MarshalCrew data={data} prosperity={prosperity} onSave={onSave} />;
   if (id === 'animal-companion') return <RangerAnimalCompanion data={data} onSave={onSave} />;
   if (id === 'inventory') return <Inventory data={data} prosperity={prosperity} onSave={onSave} />;
+  if (id === 'Revenant') return <RevenantInsert data={data} onSave={onSave} />;
   return fallback;
 };
 
@@ -267,8 +272,11 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
         : undefined,
       content: resolvePlaybookTabContent(id, content, character.data, prosperity, handleSaveCharacterData),
     })),
-    ...(character.data?.inserts ?? []).map((label) => ({ label, content: null })),
-  ], [character, playbookOption, handleSaveCharacterData, playbookTabs, showInvocationsBadge]);
+    ...(character.data?.inserts ?? []).map((label) => ({
+      label,
+      content: resolvePlaybookTabContent(label, null, character.data, prosperity, handleSaveCharacterData),
+    })),
+  ], [character, playbookOption, handleSaveCharacterData, playbookTabs, showInvocationsBadge, prosperity]);
 
   return (
     <main className={styles.page}>
