@@ -1,4 +1,4 @@
-import { CheckboxGroup } from '@/components/primitives';
+import { CheckboxGroup, Divider } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { usePlaybookChecked } from '@/hooks/usePlaybookChecked';
 import type { CharacterData } from '@/types';
@@ -52,7 +52,7 @@ export const HeavyViolence = ({ data, onSave }: HeavyViolenceProps) => {
         onChange={handleChange}
         max={2}
       />
-      <hr className={styles.divider} />
+      <Divider />
       <CheckboxGroup
         label="But folks are less keen to discuss… (pick 1 or 2)"
         items={LESS_KEEN_ITEMS}
@@ -60,7 +60,7 @@ export const HeavyViolence = ({ data, onSave }: HeavyViolenceProps) => {
         onChange={handleChange}
         max={2}
       />
-      <hr className={styles.divider} />
+      <Divider />
       <CheckboxGroup
         label="What keeps you up at night? (pick 1 or 2)"
         items={NIGHT_ITEMS}

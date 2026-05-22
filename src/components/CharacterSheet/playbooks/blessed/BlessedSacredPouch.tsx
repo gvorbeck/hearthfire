@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Radio } from '@/components/primitives';
+import { Divider, Radio } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import type { CharacterData } from '@/types';
@@ -78,7 +78,7 @@ export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) =>
           When you <strong>Forage</strong>, you can produce Stock instead of provisions.
         </p>
 
-        <hr className={styles.divider} />
+        <Divider />
 
         <p className={styles.instruction}>Your sacred pouch is… (choose 1 on each line)</p>
         <div className={styles.isLines}>
@@ -98,7 +98,7 @@ export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) =>
           ))}
         </div>
 
-        <hr className={styles.divider} />
+        <Divider />
 
         <p className={styles.instruction}>What remarkable trait does it possess? (choose 1)</p>
         <div className={styles.traits}>

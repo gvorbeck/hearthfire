@@ -31,3 +31,33 @@
   grid-template-columns: 1fr 1fr;
   gap: var(--spacing-2) var(--spacing-4);
 }
+
+.grid4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-2) var(--spacing-4);
+}
+
+.grid6 {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--spacing-2) var(--spacing-4);
+}
+
+.gridResponsive246 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-2) var(--spacing-4);
+}
+
+@media (min-width: 640px) {
+  .gridResponsive246 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .gridResponsive246 {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}

@@ -24,7 +24,9 @@ import { JudgeLawkeeper } from '@/components/CharacterSheet/playbooks/judge/Judg
 import { LightbearerPraiseTheDay } from '@/components/CharacterSheet/playbooks/lightbearer/LightbearerPraiseTheDay';
 import { LightbearerInvocations } from '@/components/CharacterSheet/playbooks/lightbearer/LightbearerInvocations';
 import { MarshalWarStories } from '@/components/CharacterSheet/playbooks/marshal/MarshalWarStories';
+import { MarshalCrew } from '@/components/CharacterSheet/playbooks/marshal/MarshalCrew';
 import { RangerSomethingWicked } from '@/components/CharacterSheet/playbooks/ranger/RangerSomethingWicked';
+import { RangerAnimalCompanion } from '@/components/CharacterSheet/playbooks/ranger/RangerAnimalCompanion';
 import { SeekerCollection } from '@/components/CharacterSheet/playbooks/seeker/SeekerCollection';
 import { WouldBeHeroFearAnger } from '@/components/CharacterSheet/playbooks/would-be-hero/WouldBeHeroFearAnger';
 import charSheetStyles from '@/components/CharacterSheet/CharacterSheet.module.css';
@@ -108,6 +110,7 @@ interface SheetProps {
   playbookOption: (typeof PLAYBOOKS)[number];
   id: string;
   gameName: string;
+  prosperity: number;
   updateCharacterName: (characterId: string, name: string) => Promise<void>;
   updateCharacterData: (characterId: string, data: Partial<CharacterData>) => Promise<void>;
 }
@@ -161,8 +164,22 @@ const AddInsertModal = ({ open, onClose, onAdd }: { open: boolean; onClose: () =
   );
 };
 
+const resolvePlaybookTabContent = (
+  id: string,
+  fallback: React.ReactNode,
+  data: CharacterData | undefined,
+  prosperity: number,
+  onSave: (data: Partial<CharacterData>) => Promise<void>,
+): React.ReactNode => {
+  if (id === 'initiates-of-danu') return <BlessedInitiatesOfDanu data={data} onSave={onSave} />;
+  if (id === 'invocations') return <LightbearerInvocations data={data} onSave={onSave} />;
+  if (id === 'crew') return <MarshalCrew data={data} prosperity={prosperity} onSave={onSave} />;
+  if (id === 'animal-companion') return <RangerAnimalCompanion data={data} onSave={onSave} />;
+  return fallback;
+};
+
 // Hooks must run unconditionally — split from CharacterPlaybookContent to avoid running hooks after early-return guards.
-const CharacterSheet = ({ character, playbookOption, id, gameName, updateCharacterName, updateCharacterData }: SheetProps) => {
+const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, updateCharacterName, updateCharacterData }: SheetProps) => {
   const headerRef = useRef<HTMLDivElement>(null);
   const [addTabOpen, setAddTabOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -247,11 +264,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, updateCharact
       badgeTooltip: id === 'invocations' && showInvocationsBadge
         ? 'A new Invocation can be selected'
         : undefined,
-      content: id === 'initiates-of-danu'
-        ? <BlessedInitiatesOfDanu data={character.data} onSave={handleSaveCharacterData} />
-        : id === 'invocations'
-          ? <LightbearerInvocations data={character.data} onSave={handleSaveCharacterData} />
-          : content,
+      content: resolvePlaybookTabContent(id, content, character.data, prosperity, handleSaveCharacterData),
     })),
     ...(character.data?.inserts ?? []).map((label) => ({ label, content: null })),
   ], [character, playbookOption, handleSaveCharacterData, playbookTabs, showInvocationsBadge]);
@@ -296,6 +309,7 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
   updateCharacterName: (characterId: string, name: string) => Promise<void>;
   updateCharacterData: (characterId: string, data: Partial<CharacterData>) => Promise<void>;
 }) => {
+  const prosperity = g.prosperity ?? 0;
   const playbookOption = PLAYBOOKS.find((p) => p.value === playbook);
   const character = g.characters.find((c) => c.playbook === playbook);
 
@@ -323,6 +337,7 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
       playbookOption={playbookOption}
       id={id}
       gameName={g.name || DEFAULT_GAME_NAME}
+      prosperity={prosperity}
       updateCharacterName={updateCharacterName}
       updateCharacterData={updateCharacterData}
     />

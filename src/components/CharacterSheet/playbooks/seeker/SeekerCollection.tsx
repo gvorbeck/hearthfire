@@ -1,4 +1,4 @@
-import { CheckboxGroup } from '@/components/primitives';
+import { CheckboxGroup, Divider } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { AnswerPrompts } from '../AnswerPrompts';
 import { usePlaybookCheckedWithAnswers } from '@/hooks/usePlaybookChecked';
@@ -34,7 +34,7 @@ export const SeekerCollection = ({ data, onSave }: SeekerCollectionProps) => {
       <p className={styles.prose}>
         In your travels and investigations you have acquired arcana—artifacts of power and mystery.
       </p>
-      <hr className={styles.divider} />
+      <Divider />
       <p className={styles.prose}>
         <strong>MAJOR ARCANA</strong>
       </p>
@@ -47,7 +47,7 @@ export const SeekerCollection = ({ data, onSave }: SeekerCollectionProps) => {
         onChange={handleCheck}
       />
       <AnswerPrompts prompts={ANSWER_PROMPTS.slice(0, 1)} answers={answers} onAnswer={handleAnswer} />
-      <hr className={styles.divider} />
+      <Divider />
       <p className={styles.prose}>
         <strong>MINOR ARCANA</strong>
       </p>

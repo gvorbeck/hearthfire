@@ -35,8 +35,9 @@ src/
     CharacterPlaybook/     # Per-character sheet with tabbed sections
   components/
     primitives/            # Design-system atoms — ALWAYS check here before creating new UI
-      Button, Checkbox, Collapse, Dropdown, Heading, Icon, Input, Modal, Radio,
-      RuleDivider, ScrollToTop, Stack, Tabs, Text
+      Button, Checkbox, CheckboxGroup, Collapse, Divider, Dropdown, Heading, Icon,
+      Input, List, Modal, Radio, RuleDivider, ScrollToTop, SiteBanner, Stack,
+      Tabs, Text, Toggle, Tooltip, UseDots
     CharacterSheet/        # Character sheet sections and playbook-specific overrides
       Move/                # Move component (with body icons, citation, collapse)
       sections/            # Moves, CharacterStats, Appearance, Background, Instinct, etc.

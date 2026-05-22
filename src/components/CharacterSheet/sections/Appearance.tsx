@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import { Checkbox, Radio } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
 import type { AppearanceRows } from '@/lib/appearanceOptions';
@@ -19,13 +20,18 @@ export const Appearance = ({ rows, data, onSave }: AppearanceProps = {}) => {
   const [customText, setCustomText] = useState<string>(data?.appearanceCustom ?? '');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const hasInitializedCollapse = useRef(false);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onSaveRef = useRef(onSave);
   const selectedRef = useRef(selected);
   const customTextRef = useRef(customText);
   onSaveRef.current = onSave;
   selectedRef.current = selected;
   customTextRef.current = customText;
+
+  const saveCustomText = useCallback(
+    (value: string) => onSaveRef.current?.({ appearance: selectedRef.current, appearanceCustom: value }) ?? Promise.resolve(),
+    [],
+  );
+  const { onChange: debouncedCustomChange, onBlur: flushCustomOnBlur } = useDebouncedSave(saveCustomText, 1000);
 
   useEffect(() => {
     if (data?.appearance !== undefined) setSelected(data.appearance);
@@ -34,8 +40,6 @@ export const Appearance = ({ rows, data, onSave }: AppearanceProps = {}) => {
       setIsCustom(Boolean(data.appearanceCustom));
     }
   }, [data?.appearance, data?.appearanceCustom]);
-
-  useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
 
   useEffect(() => {
     const appearance = data?.appearance ?? {};
@@ -47,47 +51,39 @@ export const Appearance = ({ rows, data, onSave }: AppearanceProps = {}) => {
     }
   }, [data?.appearance, data?.appearanceCustom, rows]);
 
-  const flushSave = useCallback((nextSelected: Record<string, string>, nextCustom: string) => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    onSaveRef.current?.({ appearance: nextSelected, appearanceCustom: nextCustom });
-  }, []);
-
-  const debouncedSave = useCallback((nextSelected: Record<string, string>, nextCustom: string) => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      onSaveRef.current?.({ appearance: nextSelected, appearanceCustom: nextCustom });
-    }, 1000);
-  }, []);
-
   const handleSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const rowIndex = Number(e.currentTarget.dataset.row);
     const value = e.currentTarget.value;
-    const nextSelected = { ...selectedRef.current, [String(rowIndex)]: value };
+    const prev = selectedRef.current;
+    const nextSelected = { ...prev, [String(rowIndex)]: value };
     setSelected(nextSelected);
-    flushSave(nextSelected, customTextRef.current);
-  }, [flushSave]);
+    onSaveRef.current?.({ appearance: nextSelected, appearanceCustom: customTextRef.current })
+      .catch(() => setSelected(prev));
+  }, []);
 
   const handleCustomToggle = useCallback(() => {
     const next = !isCustom;
+    const prevCustom = customTextRef.current;
     setIsCustom(next);
     if (!next) {
       setCustomText('');
-      flushSave(selectedRef.current, '');
+      onSaveRef.current?.({ appearance: selectedRef.current, appearanceCustom: '' })
+        .catch(() => { setIsCustom(true); setCustomText(prevCustom); });
     } else {
-      flushSave(selectedRef.current, customTextRef.current);
+      onSaveRef.current?.({ appearance: selectedRef.current, appearanceCustom: prevCustom })
+        .catch(() => setIsCustom(false));
     }
-  }, [isCustom, flushSave]);
+  }, [isCustom]);
 
   const handleCustomChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setCustomText(value);
-    debouncedSave(selectedRef.current, value);
-  }, [debouncedSave]);
+    debouncedCustomChange(value);
+  }, [debouncedCustomChange]);
 
   const handleCustomBlur = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    onSaveRef.current?.({ appearance: selectedRef.current, appearanceCustom: e.target.value });
-  }, []);
+    flushCustomOnBlur(e.target.value);
+  }, [flushCustomOnBlur]);
 
   const handleToggleCollapse = useCallback(() => setIsCollapsed((v) => !v), []);
 

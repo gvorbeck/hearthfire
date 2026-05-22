@@ -1,4 +1,5 @@
 export { Button } from './Button/Button';
+export { Divider } from './Divider/Divider';
 export { Checkbox } from './Checkbox/Checkbox';
 export { Collapse } from './Collapse/Collapse';
 export { Dropdown } from './Dropdown/Dropdown';
@@ -17,7 +18,6 @@ export { List } from './List/List';
 export { UseDots } from './UseDots/UseDots';
 export { CheckboxGroup } from './CheckboxGroup/CheckboxGroup';
 export type { CheckboxGroupItem } from './CheckboxGroup/CheckboxGroup';
-export { Tooltip, useTooltip } from './Tooltip/Tooltip';
-export type { UseTooltipOptions, UseTooltipResult } from './Tooltip/Tooltip';
+export { Tooltip } from './Tooltip/Tooltip';
 export { SiteBanner } from './SiteBanner/SiteBanner';
 export { Toggle } from './Toggle/Toggle';

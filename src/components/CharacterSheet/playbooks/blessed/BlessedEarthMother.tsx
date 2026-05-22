@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { CheckboxGroup, Radio } from '@/components/primitives';
+import { CheckboxGroup, Divider, Radio } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import type { CharacterData } from '@/types';
@@ -12,7 +12,7 @@ const SHRINE_OPTIONS = [
   '... neglected and all but forgotten, except by a few.',
 ];
 
-const OFFERING_OPTIONS = [
+const OFFERING_ITEMS = [
   'fruits of harvest',
   'whisky/spirits',
   'pure rain water',
@@ -27,8 +27,6 @@ interface BlessedEarthMotherProps {
   data: CharacterData | undefined;
   onSave: (data: Partial<CharacterData>) => Promise<void>;
 }
-
-const OFFERING_ITEMS = OFFERING_OPTIONS.map((opt) => ({ id: opt, label: opt }));
 
 export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) => {
   const features = resolvePlaybookFeatures(data);
@@ -81,7 +79,7 @@ export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) =>
           ))}
         </div>
 
-        <hr className={styles.divider} />
+        <Divider />
 
         <CheckboxGroup
           label="What do the folk of Stonetop leave as offerings?"

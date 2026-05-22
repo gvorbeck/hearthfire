@@ -1,9 +1,8 @@
-import { CheckboxGroup } from '@/components/primitives';
+import { CheckboxGroup, Divider } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { AnswerPrompts } from '../AnswerPrompts';
 import { usePlaybookCheckedWithAnswers } from '@/hooks/usePlaybookChecked';
 import type { CharacterData } from '@/types';
-import styles from '../playbookSection.module.css';
 
 const FEAR_ITEMS = [
   { id: 'fear-fire', label: 'Fire, burning, the smell of charred flesh' },
@@ -53,7 +52,7 @@ export const WouldBeHeroFearAnger = ({ data, onSave }: WouldBeHeroFearAngerProps
         onChange={handleCheck}
         max={2}
       />
-      <hr className={styles.divider} />
+      <Divider />
       <CheckboxGroup
         label="What makes you burn with righteous anger? (choose 2, maybe 3)"
         items={ANGER_ITEMS}
@@ -61,7 +60,7 @@ export const WouldBeHeroFearAnger = ({ data, onSave }: WouldBeHeroFearAngerProps
         onChange={handleCheck}
         max={3}
       />
-      <hr className={styles.divider} />
+      <Divider />
       <AnswerPrompts prompts={ANSWER_PROMPTS} answers={answers} onAnswer={handleAnswer} />
     </PlaybookSection>
   );

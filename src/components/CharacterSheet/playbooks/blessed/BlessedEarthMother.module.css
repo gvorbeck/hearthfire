@@ -26,12 +26,6 @@
   gap: var(--spacing-2);
 }
 
-.divider {
-  border: none;
-  border-top: 1px solid var(--border-subtle);
-  margin: 0;
-}
-
 .offeringsGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;

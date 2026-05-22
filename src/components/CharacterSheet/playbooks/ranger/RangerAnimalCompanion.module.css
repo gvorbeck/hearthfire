@@ -1,0 +1,212 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.prose {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.prose strong {
+  color: var(--text-primary);
+}
+
+.statNote {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.headerRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+  align-items: flex-start;
+}
+
+.statsRow {
+  display: flex;
+  gap: var(--spacing-4);
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
+.infoBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-1);
+  flex-shrink: 0;
+  width: 72px;
+}
+
+.infoInput {
+  width: 72px;
+  min-width: 72px;
+  max-width: 72px;
+  height: 56px;
+  padding: var(--spacing-2);
+  background-color: var(--surface-raised);
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.15s ease;
+  box-sizing: border-box;
+}
+
+.infoInput::-webkit-outer-spin-button,
+.infoInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+.infoInput[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.infoInput:focus-visible {
+  border-color: var(--border-accent);
+  background-color: var(--surface-overlay);
+}
+
+.infoLabel {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  text-align: center;
+  word-break: break-word;
+  text-wrap: balance;
+}
+
+.nameBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  flex: 1;
+  min-width: 160px;
+}
+
+.nameInput,
+.tagsInput {
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-strong);
+  border-radius: 0;
+  font-family: var(--font-serif);
+  padding: var(--spacing-1) var(--spacing-2);
+}
+
+.nameInput:focus,
+.tagsInput:focus {
+  border-color: var(--border-accent);
+  background-color: transparent;
+}
+
+.typeList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.typeEntry {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.typeRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  cursor: pointer;
+  user-select: none;
+}
+
+.typeLabel {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.typeLabel strong {
+  color: var(--text-primary);
+}
+
+.typeExamples {
+  font-style: italic;
+}
+
+.typePicksSection {
+  padding-left: calc(16px + var(--spacing-3));
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+
+.typeCustomRow {
+  margin-top: var(--spacing-1);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+
+.typeCustomInput {
+  max-width: 260px;
+  font-family: var(--font-serif);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-6);
+  align-items: start;
+}
+
+@media (min-width: 640px) {
+  .columns {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.radioList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.radioRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  cursor: pointer;
+  user-select: none;
+}
+
+
+.inlineTextInput {
+  flex: 1;
+  font-family: var(--font-serif);
+}
+
+.loyaltyRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-2);
+}
+
+.loyaltyLabel {
+  font-family: var(--font-serif);
+  font-weight: 600;
+}

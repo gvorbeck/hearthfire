@@ -1,4 +1,4 @@
-import { CheckboxGroup } from '@/components/primitives';
+import { CheckboxGroup, Divider } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { usePlaybookChecked } from '@/hooks/usePlaybookChecked';
 import type { CharacterData } from '@/types';
@@ -45,7 +45,7 @@ export const JudgeChronicle = ({ data, onSave }: JudgeChronicleProps) => {
         onChange={handleChange}
         max={3}
       />
-      <hr className={styles.divider} />
+      <Divider />
       <CheckboxGroup
         label="But alas, it… (choose 2)"
         items={ALAS_ITEMS}

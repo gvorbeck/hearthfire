@@ -136,9 +136,7 @@ export const Move = ({
     const isForced = forcedIdSet.has(id);
     const isChecked = effectiveCheckedWithForced[id] ?? false;
     const recordedLevel = checkedLevel !== null ? (levels[id] ?? null) : null;
-    const displayLabel = checkedLevel !== null
-      ? <>{parseInlineMarkdown(label.replace('___', recordedLevel !== null ? String(recordedLevel) : '___'))}</>
-      : parseInlineMarkdown(label);
+    const displayLabel = <span>{parseInlineMarkdown(label.replace('___', recordedLevel !== null ? String(recordedLevel) : '___'))}</span>;
     const itemDisabled = isForced || (checkedLevel !== null && !isChecked && marksUsed >= checkedLevel);
     return { id, label: displayLabel, disabled: itemDisabled };
   });
