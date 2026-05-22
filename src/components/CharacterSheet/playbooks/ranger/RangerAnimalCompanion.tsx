@@ -174,7 +174,7 @@ const BEAST_OF_LEGEND_OPTIONS = [
 
 const BEAST_OF_LEGEND_ITEMS = BEAST_OF_LEGEND_OPTIONS.map((opt) => ({
   id: opt.id,
-  label: parseInlineMarkdown(opt.label),
+  label: <span>{parseInlineMarkdown(opt.label)}</span>,
 }));
 
 interface TypePicksSectionProps {

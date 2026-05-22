@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useId } from 'react';
-import { Heading, Text, Icon, RuleDivider, Tooltip } from '@/components/primitives';
+import { Button, Heading, Text, RuleDivider, Tooltip } from '@/components/primitives';
 import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
 import type { Crumb } from '@/components/Breadcrumb/Breadcrumb';
 import styles from './PageHeader.module.css';
@@ -83,14 +83,15 @@ export const PageHeader = ({ crumbs, title, titleLabel, subtitle, gameId, onSave
           <>
             <Heading as="h1" size="xl">{title}</Heading>
             <Tooltip text="Edit name" side="top" noTabStop tooltipId={editTooltipId}>
-              <button
+              <Button
+                variant="ghost"
+                icon="pencil"
+                size="sm"
                 className={styles.editBtn}
                 onClick={startEditing}
                 aria-label={titleLabel}
                 aria-describedby={editTooltipId}
-              >
-                <Icon name="pencil" size="small" aria-hidden />
-              </button>
+              />
             </Tooltip>
           </>
         )}
@@ -102,14 +103,15 @@ export const PageHeader = ({ crumbs, title, titleLabel, subtitle, gameId, onSave
           Game ID: <Text as="span" color="accent" size="sm">{gameId}</Text>
         </Text>
         <Tooltip text={copyLabel} side="top" noTabStop tooltipId={copyTooltipId}>
-          <button
+          <Button
+            variant="ghost"
+            icon={copied ? 'check' : 'copy'}
+            size="sm"
             className={styles.copyBtn}
             onClick={copyGameId}
             aria-label={copyLabel}
             aria-describedby={copyTooltipId}
-          >
-            <Icon name={copied ? 'check' : 'copy'} size="small" aria-hidden />
-          </button>
+          />
         </Tooltip>
       </div>
       <RuleDivider className={styles.rule} />

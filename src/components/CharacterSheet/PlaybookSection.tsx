@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { Heading, Icon, Tooltip } from '@/components/primitives';
+import { Button, Heading, Icon, Tooltip } from '@/components/primitives';
 import styles from './CharacterSheet.module.css';
 
 const DEFAULT_WARN_TEXT = 'This section has unresolved choices — select an option to complete it.';
@@ -27,7 +27,7 @@ export const PlaybookSection = ({
   onToggleCollapse,
   children,
 }: PlaybookSectionProps) => {
-  const showCollapse = collapsible && !warn;
+  const showCollapse = collapsible && !warn && !!onToggleCollapse;
   const chevronCx = clsx(styles.collapseChevron, !isCollapsed && styles.collapseChevronOpen);
   const chooseCx = clsx(styles.sectionTitleChoose, !warn && styles.sectionTitleChooseHidden);
   const warnCx = clsx(styles.sectionTitleWarn, !warn && styles.sectionTitleWarnHidden);
@@ -47,20 +47,16 @@ export const PlaybookSection = ({
           </Tooltip>
         </Heading>
         {showCollapse && (
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="sm"
             className={styles.collapseToggle}
             onClick={onToggleCollapse}
             aria-expanded={!isCollapsed}
             aria-label={isCollapsed ? `Expand ${title}` : `Collapse ${title}`}
           >
-            <Icon
-              name="chevron-down"
-              size="small"
-              className={chevronCx}
-              aria-hidden="true"
-            />
-          </button>
+            <Icon name="chevron-down" size="small" className={chevronCx} aria-hidden="true" />
+          </Button>
         )}
       </div>
       {children}

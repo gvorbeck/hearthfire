@@ -40,19 +40,18 @@
 }
 
 .collapseToggle {
-  display: flex;
-  align-items: center;
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
   color: var(--color-stone-400);
+  border: none;
   flex-shrink: 0;
-  line-height: 0;
+  padding: 0;
+  min-width: 44px;
+  min-height: 44px;
 }
 
 .collapseToggle:hover {
   color: var(--text-primary);
+  background: none;
+  border: none;
 }
 
 .collapseToggle:focus-visible {

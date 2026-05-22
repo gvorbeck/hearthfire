@@ -1,9 +1,9 @@
-import { useState, useId, useCallback, useMemo } from 'react';
+import { useState, useId, useCallback, useMemo, memo } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { PageMeta } from '@/components/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { DEFAULT_GAME_NAME, PLAYBOOKS } from '@/lib/constants';
-import { Button, Heading, Icon, Modal, Stack, Text } from '@/components/primitives';
+import { Button, Heading, Modal, Stack, Text } from '@/components/primitives';
 import { GameIdModal } from '@/components/GameIdModal/GameIdModal';
 import { AddCharacterModal } from '@/components/AddCharacterModal/AddCharacterModal';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
@@ -56,6 +56,37 @@ const RemoveCharacterModal = ({ character, onClose, onConfirm }: RemoveCharacter
     </Modal>
   );
 };
+
+interface CharacterRowProps {
+  character: Character;
+  gameId: string;
+  onRemove: (character: Character) => void;
+}
+
+const CharacterRow = memo(({ character, gameId, onRemove }: CharacterRowProps) => {
+  const playbookOption = PLAYBOOKS.find((p) => p.value === character.playbook);
+  const playbookLabel = `${playbookOption?.label ?? character.playbook} Playbook`;
+  const characterName = character.name?.trim();
+  const buttonLabel = characterName ? `${characterName} — ${playbookLabel}` : playbookLabel;
+  const handleRemove = useCallback(() => onRemove(character), [onRemove, character]);
+
+  return (
+    <div className={styles.characterRow}>
+      <Link to={`/game/${gameId}/${character.playbook}`} className={styles.characterLink}>
+        <Button variant="secondary" size="xl" fullWidth className={styles.characterLinkBtn}>
+          <span className={styles.characterBtnText}>{buttonLabel}</span>
+        </Button>
+      </Link>
+      <Button
+        variant="ghost"
+        icon="trash"
+        className={styles.removeCharacterBtn}
+        aria-label={`Remove ${buttonLabel}`}
+        onClick={handleRemove}
+      />
+    </div>
+  );
+});
 
 interface GameContentProps {
   g: GameSession;
@@ -124,26 +155,14 @@ const GameContent = ({
             <Heading as="h2" size="label">Characters</Heading>
             {g.characters.length > 0 && (
               <Stack gap={3}>
-                {g.characters.map((character) => {
-                  const playbookOption = PLAYBOOKS.find((p) => p.value === character.playbook);
-                  const playbookLabel = `${playbookOption?.label ?? character.playbook} Playbook`;
-                  const characterName = character.name?.trim();
-                  const buttonLabel = characterName ? `${characterName} — ${playbookLabel}` : playbookLabel;
-                  return (
-                    <div key={character.id} className={styles.characterRow}>
-                      <Link to={`/game/${id}/${character.playbook}`} className={styles.characterLink}>
-                        <Button variant="secondary" size="xl" fullWidth className={styles.characterLinkBtn}><span className={styles.characterBtnText}>{buttonLabel}</span></Button>
-                      </Link>
-                      <button
-                        className={styles.removeCharacterBtn}
-                        aria-label={`Remove ${buttonLabel}`}
-                        onClick={() => setRemovingCharacter(character)}
-                      >
-                        <Icon name="trash" size="medium" />
-                      </button>
-                    </div>
-                  );
-                })}
+                {g.characters.map((character) => (
+                  <CharacterRow
+                    key={character.id}
+                    character={character}
+                    gameId={id}
+                    onRemove={setRemovingCharacter}
+                  />
+                ))}
               </Stack>
             )}
             <Button variant="secondary" size="xl" fullWidth onClick={onOpenAddCharacter}>
@@ -179,9 +198,9 @@ export const Game = () => {
   const [showIdModal, setShowIdModal] = useState((state as LocationState | null)?.isNew === true);
   const [showAddCharacter, setShowAddCharacter] = useState(false);
 
-  const handleCloseIdModal = () => setShowIdModal(false);
-  const handleCloseAddCharacter = () => setShowAddCharacter(false);
-  const handleOpenAddCharacter = () => setShowAddCharacter(true);
+  const handleCloseIdModal = useCallback(() => setShowIdModal(false), []);
+  const handleCloseAddCharacter = useCallback(() => setShowAddCharacter(false), []);
+  const handleOpenAddCharacter = useCallback(() => setShowAddCharacter(true), []);
 
   return (
     <GameGuard

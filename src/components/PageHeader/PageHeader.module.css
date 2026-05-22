@@ -24,19 +24,14 @@
 }
 
 .editBtn {
-  display: flex;
-  align-items: center;
-  background: none;
-  border: none;
-  padding: var(--spacing-1);
-  cursor: pointer;
   color: var(--text-secondary);
-  border-radius: var(--radius-md);
-  transition: color 0.15s ease;
+  border: none;
 }
 
 .editBtn:hover {
   color: var(--color-gold-400);
+  background: none;
+  border: none;
 }
 
 .editBtn:focus-visible {
@@ -61,24 +56,15 @@
 }
 
 .copyBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
   flex-shrink: 0;
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
   color: var(--text-secondary);
-  border-radius: var(--radius-md);
-  transition: color 0.15s ease;
-  overflow: visible;
+  border: none;
 }
 
 .copyBtn:hover {
   color: var(--color-gold-400);
+  background: none;
+  border: none;
 }
 
 .copyBtn:focus-visible {

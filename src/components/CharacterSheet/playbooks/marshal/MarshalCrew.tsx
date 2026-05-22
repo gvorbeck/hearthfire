@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, memo } from 'react';
 import clsx from 'clsx';
-import { Checkbox, CheckboxGroup, Divider, UseDots } from '@/components/primitives';
+import { Checkbox, CheckboxGroup, Divider, Radio, UseDots } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
 import { useCrewSave } from './useCrewSave';
@@ -483,29 +483,23 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
         <PlaybookSection title="Instinct" choose={1}>
           <div className={styles.radioList}>
             {INSTINCT_OPTIONS.map((opt) => (
-              <label key={opt} className={styles.radioRow}>
-                <input
-                  type="radio"
-                  className={styles.radioInput}
-                  name="crew-instinct"
-                  value={opt}
-                  checked={instinct === opt}
-                  onChange={handleInstinctChange}
-                />
-                <span className={styles.radioIndicator} />
-                <span className={styles.radioLabel}>{opt}</span>
-              </label>
+              <Radio
+                key={opt}
+                name="crew-instinct"
+                value={opt}
+                checked={instinct === opt}
+                onChange={handleInstinctChange}
+                label={<span className={styles.radioLabel}>{opt}</span>}
+              />
             ))}
-            <label className={styles.radioRow}>
-              <input
-                type="radio"
-                className={styles.radioInput}
+            <div className={styles.radioCustomRow}>
+              <Radio
                 name="crew-instinct"
                 value="custom"
                 checked={instinct === 'custom'}
                 onChange={handleInstinctChange}
+                label={null}
               />
-              <span className={styles.radioIndicator} />
               <input
                 type="text"
                 className={styles.inlineTextInput}
@@ -516,7 +510,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
                 onChange={handleInstinctCustomChange}
                 onBlur={handleInstinctCustomBlur}
               />
-            </label>
+            </div>
           </div>
         </PlaybookSection>
 
@@ -527,29 +521,23 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
           </div>
           <div className={styles.radioList}>
             {COST_OPTIONS.map((opt) => (
-              <label key={opt} className={styles.radioRow}>
-                <input
-                  type="radio"
-                  className={styles.radioInput}
-                  name="crew-cost"
-                  value={opt}
-                  checked={cost === opt}
-                  onChange={handleCostChange}
-                />
-                <span className={styles.radioIndicator} />
-                <span className={styles.radioLabel}>{opt}</span>
-              </label>
+              <Radio
+                key={opt}
+                name="crew-cost"
+                value={opt}
+                checked={cost === opt}
+                onChange={handleCostChange}
+                label={<span className={styles.radioLabel}>{opt}</span>}
+              />
             ))}
-            <label className={styles.radioRow}>
-              <input
-                type="radio"
-                className={styles.radioInput}
+            <div className={styles.radioCustomRow}>
+              <Radio
                 name="crew-cost"
                 value="custom"
                 checked={cost === 'custom'}
                 onChange={handleCostChange}
+                label={null}
               />
-              <span className={styles.radioIndicator} />
               <input
                 type="text"
                 className={styles.inlineTextInput}
@@ -560,7 +548,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
                 onChange={handleCostCustomChange}
                 onBlur={handleCostCustomBlur}
               />
-            </label>
+            </div>
           </div>
         </PlaybookSection>
       </div>
