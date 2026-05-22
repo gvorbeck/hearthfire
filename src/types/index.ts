@@ -50,6 +50,7 @@ export interface PlaybookFeatures {
   crewCostCustom?: string;
   crewLoyalty?: number;
   crewInventoryChecked?: Record<string, boolean>;
+  crewCustomItems?: { checked: boolean; text: string }[];
   crewSuppliesUses?: number[];
   crewIndividuals?: { name: string; tag: string; traits: string }[];
   rangerSomethingWicked?: Record<string, boolean>;

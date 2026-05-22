@@ -4,7 +4,6 @@
   gap: var(--spacing-6);
 }
 
-/* ── Prose ── */
 .prose {
   font-family: var(--font-serif);
   font-size: var(--text-sm);
@@ -17,7 +16,6 @@
   color: var(--text-primary);
 }
 
-/* ── Stats row ── */
 .statNote {
   font-size: var(--text-xs);
   color: var(--text-secondary);
@@ -92,7 +90,6 @@
   text-wrap: balance;
 }
 
-/* ── Tags ── */
 .exceptionalRow {
   margin-top: var(--spacing-2);
 }
@@ -128,7 +125,6 @@
 }
 
 
-/* ── Columns layout ── */
 .columns {
   display: grid;
   grid-template-columns: 1fr;
@@ -142,7 +138,6 @@
   }
 }
 
-/* ── Radio lists (instinct, cost) ── */
 .radioList {
   display: flex;
   flex-direction: column;
@@ -252,7 +247,6 @@
   font-weight: 600;
 }
 
-/* ── Inventory ── */
 .suppliesGrid {
   display: flex;
   flex-wrap: wrap;
@@ -273,10 +267,46 @@
   flex-wrap: wrap;
 }
 
+.inventoryCustomColumns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-2);
+}
+
+.inventoryCustomCol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
 .inventoryCustomItem {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: var(--spacing-2);
+}
+
+.inventoryCustomInput {
+  flex: 1;
+  min-width: 0;
+  padding: var(--spacing-1) var(--spacing-2);
+  background-color: var(--surface-raised);
+  border: none;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.inventoryCustomInput::placeholder {
+  color: var(--color-stone-500);
+  font-style: italic;
+}
+
+.inventoryCustomInput:focus-visible {
+  border-color: var(--border-accent);
 }
 
 .inventoryLabel {
@@ -286,16 +316,6 @@
   flex: 1;
 }
 
-.inventoryBlankLine {
-  flex: 1;
-  height: 1px;
-  border-bottom: 1px solid var(--border-subtle);
-  align-self: flex-end;
-  margin-bottom: 3px;
-  min-width: 60px;
-}
-
-/* ── Individuals ── */
 .individualsGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;

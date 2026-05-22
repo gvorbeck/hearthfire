@@ -1,10 +1,9 @@
-import { useState, useEffect, useRef, useCallback, memo } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import clsx from 'clsx';
 import { Checkbox, CheckboxGroup, Divider, UseDots } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
-import { Move } from '../../Move/Move';
-import { FOLLOWER_MOVES } from '@/lib/followerMoves';
-import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
+import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
+import { useCrewSave } from './useCrewSave';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { CharacterData } from '@/types';
 import styles from './MarshalCrew.module.css';
@@ -63,6 +62,10 @@ const INVENTORY_ITEMS: InventoryItem[] = [
 ];
 
 const INDIVIDUALS_COUNT = 6;
+const CUSTOM_ITEM_INDICES = [0, 1, 2, 3];
+
+const normalizeCustomItems = (raw: { checked: boolean; text: string }[] | undefined): { checked: boolean; text: string }[] =>
+  Array.from({ length: 8 }, (_, i) => raw?.[i] ?? { checked: false, text: '' });
 
 
 interface InventoryRowProps {
@@ -147,23 +150,31 @@ const SuppliesMemberDots = memo(({ memberIndex, total, checked, onChange }: Supp
   return <UseDots total={total} checked={checked} onChange={handleChange} />;
 });
 
-interface CustomInventoryRowProps {
-  index: number;
-  checked1: boolean;
-  checked2: boolean;
-  onChange: (id: string, checked: boolean) => void;
+interface CustomInventoryItemProps {
+  slotIndex: number;
+  weight: 1 | 2;
+  checked: boolean;
+  text: string;
+  onCheckedChange: (slotIndex: number, checked: boolean) => void;
+  onTextChange: (slotIndex: number, text: string) => void;
+  onBlur: () => void;
 }
 
-const CustomInventoryRow = memo(({ index, checked1, checked2, onChange }: CustomInventoryRowProps) => {
-  const id1 = `custom-${index}-1`;
-  const id2 = `custom-${index}-2`;
-  const handleChange1 = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onChange(id1, e.target.checked), [id1, onChange]);
-  const handleChange2 = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onChange(id2, e.target.checked), [id2, onChange]);
+const CustomInventoryItem = memo(({ slotIndex, weight, checked, text, onCheckedChange, onTextChange, onBlur }: CustomInventoryItemProps) => {
+  const handleChecked = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onCheckedChange(slotIndex, e.target.checked), [slotIndex, onCheckedChange]);
+  const handleText = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onTextChange(slotIndex, e.target.value), [slotIndex, onTextChange]);
   return (
     <div className={styles.inventoryCustomItem}>
-      <Checkbox variant="provision" weight={1} checked={checked1} onChange={handleChange1} aria-label={`Custom inventory item ${index + 1}, 1 load`} />
-      <span className={styles.inventoryBlankLine} aria-hidden="true" />
-      <Checkbox variant="provision" weight={2} checked={checked2} onChange={handleChange2} aria-label={`Custom inventory item ${index + 1}, 2 load`} />
+      <Checkbox variant="provision" weight={weight} checked={checked} onChange={handleChecked} aria-label={`Custom inventory item ${slotIndex + 1}`} />
+      <input
+        className={styles.inventoryCustomInput}
+        type="text"
+        value={text}
+        placeholder="Item…"
+        aria-label={`Custom inventory item ${slotIndex + 1} name`}
+        onChange={handleText}
+        onBlur={onBlur}
+      />
     </div>
   );
 });
@@ -207,6 +218,9 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
   const [costCustom, setCostCustom] = useState<string>(() => features.crewCostCustom ?? '');
   const [loyalty, setLoyalty] = useState<number>(() => features.crewLoyalty ?? 0);
   const [inventoryChecked, setInventoryChecked] = useState<Record<string, boolean>>(() => features.crewInventoryChecked ?? {});
+  const [customItems, setCustomItems] = useState<{ checked: boolean; text: string }[]>(() =>
+    normalizeCustomItems(features.crewCustomItems)
+  );
   const [suppliesUses, setSuppliesUses] = useState<number[]>(() => features.crewSuppliesUses ?? Array(CREW_SIZE).fill(0));
   const [individuals, setIndividuals] = useState<Individual[]>(() => parseIndividuals(features.crewIndividuals));
 
@@ -222,35 +236,12 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
     if (f.crewCostCustom !== undefined) setCostCustom(f.crewCostCustom);
     if (f.crewLoyalty !== undefined) setLoyalty(f.crewLoyalty);
     if (f.crewInventoryChecked !== undefined) setInventoryChecked(f.crewInventoryChecked);
+    if (f.crewCustomItems !== undefined) setCustomItems(normalizeCustomItems(f.crewCustomItems));
     if (f.crewSuppliesUses !== undefined) setSuppliesUses(f.crewSuppliesUses);
     if (f.crewIndividuals !== undefined) setIndividuals(parseIndividuals(f.crewIndividuals));
   }, [data]);
 
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const onSaveRef = useRef(onSave);
-  const dataRef = useRef(data);
-  onSaveRef.current = onSave;
-  dataRef.current = data;
-
-  useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
-
-  const saveDebounced = useCallback((patch: Parameters<typeof featurePatch>[1]) => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => onSaveRef.current(featurePatch(dataRef.current, patch)), 1000);
-  }, []);
-
-  const saveImmediate = useCallback((patch: Parameters<typeof featurePatch>[1]) => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    onSaveRef.current(featurePatch(dataRef.current, patch));
-  }, []);
-
-  const flushDebounce = useCallback((patch: Parameters<typeof featurePatch>[1]) => {
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-      debounceRef.current = null;
-    }
-    onSaveRef.current(featurePatch(dataRef.current, patch));
-  }, []);
+  const { saveDebounced, saveImmediate, flushDebounce, dataRef, onSaveRef } = useCrewSave(data, onSave);
 
   const handleHpChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value;
@@ -354,6 +345,26 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
     });
   }, [saveImmediate]);
 
+  const handleCustomItemChecked = useCallback((slotIndex: number, checked: boolean) => {
+    setCustomItems((prev) => {
+      const next = prev.map((item, i) => i === slotIndex ? { ...item, checked } : item);
+      saveImmediate({ crewCustomItems: next });
+      return next;
+    });
+  }, [saveImmediate]);
+
+  const handleCustomItemText = useCallback((slotIndex: number, text: string) => {
+    setCustomItems((prev) => {
+      const next = prev.map((item, i) => i === slotIndex ? { ...item, text, checked: text.length > 0 } : item);
+      saveDebounced({ crewCustomItems: next });
+      return next;
+    });
+  }, [saveDebounced]);
+
+  const handleCustomItemBlur = useCallback(() => {
+    setCustomItems((prev) => { flushDebounce({ crewCustomItems: prev }); return prev; });
+  }, [flushDebounce]);
+
   const handleSuppliesUsesChange = useCallback((memberIndex: number, n: number) => {
     setSuppliesUses((prev) => {
       const next = [...prev];
@@ -446,7 +457,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
         <div className={styles.customTagsRow}>
           {tagsCustom.map((val, i) => (
             <input
-              key={i}
+              key={`custom-tag-${i}`}
               data-index={i}
               className={styles.customTagInput}
               type="text"
@@ -581,15 +592,36 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
               ))}
             </div>
           )}
-          {[0, 1, 2, 3].map((i) => (
-            <CustomInventoryRow
-              key={`custom-inv-${i}`}
-              index={i}
-              checked1={inventoryChecked[`custom-${i}-1`] ?? false}
-              checked2={inventoryChecked[`custom-${i}-2`] ?? false}
-              onChange={handleInventoryCheckedChange}
-            />
-          ))}
+          <div className={styles.inventoryCustomColumns}>
+            <div className={styles.inventoryCustomCol}>
+              {CUSTOM_ITEM_INDICES.map((i) => (
+                <CustomInventoryItem
+                  key={`custom-single-${i}`}
+                  slotIndex={i}
+                  weight={1}
+                  checked={customItems[i]?.checked ?? false}
+                  text={customItems[i]?.text ?? ''}
+                  onCheckedChange={handleCustomItemChecked}
+                  onTextChange={handleCustomItemText}
+                  onBlur={handleCustomItemBlur}
+                />
+              ))}
+            </div>
+            <div className={styles.inventoryCustomCol}>
+              {CUSTOM_ITEM_INDICES.map((i) => (
+                <CustomInventoryItem
+                  key={`custom-double-${i}`}
+                  slotIndex={i + 4}
+                  weight={2}
+                  checked={customItems[i + 4]?.checked ?? false}
+                  text={customItems[i + 4]?.text ?? ''}
+                  onCheckedChange={handleCustomItemChecked}
+                  onTextChange={handleCustomItemText}
+                  onBlur={handleCustomItemBlur}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </PlaybookSection>
 
@@ -621,11 +653,6 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
         </div>
       </PlaybookSection>
 
-      <PlaybookSection title="Crew Moves">
-        {FOLLOWER_MOVES.map((move) => (
-          <Move key={move.id} move={move} />
-        ))}
-      </PlaybookSection>
     </div>
   );
 };
