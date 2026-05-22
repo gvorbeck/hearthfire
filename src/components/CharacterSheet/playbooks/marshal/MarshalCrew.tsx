@@ -422,7 +422,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
               onBlur={handleHpBlur}
               onWheel={handleWheel}
             />
-            <span className={styles.infoLabel}>HP <span className={styles.statNote}>(starts at {CREW_HP_MAX})</span></span>
+            <span className={styles.infoLabel}>HP <span className={styles.statNote}>Max [{CREW_HP_MAX}]</span></span>
           </div>
           <div className={styles.infoBox}>
             <input

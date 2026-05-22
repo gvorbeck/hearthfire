@@ -1,0 +1,333 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.prose {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.prose strong {
+  color: var(--text-primary);
+}
+
+.statNote {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.headerRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+  align-items: flex-start;
+}
+
+.statsRow {
+  display: flex;
+  gap: var(--spacing-4);
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
+.infoBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-1);
+  flex-shrink: 0;
+  width: 72px;
+}
+
+.infoInput {
+  width: 72px;
+  min-width: 72px;
+  max-width: 72px;
+  height: 56px;
+  padding: var(--spacing-2);
+  background-color: var(--surface-raised);
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.15s ease;
+  box-sizing: border-box;
+}
+
+.infoInput::-webkit-outer-spin-button,
+.infoInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+.infoInput[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.infoInput:focus-visible {
+  border-color: var(--border-accent);
+  background-color: var(--surface-overlay);
+}
+
+.infoLabel {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  text-align: center;
+  word-break: break-word;
+  text-wrap: balance;
+}
+
+.nameBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  flex: 1;
+  min-width: 160px;
+}
+
+.fieldLabel {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.nameInput,
+.tagsInput {
+  width: 100%;
+  padding: var(--spacing-1) var(--spacing-2);
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  outline: none;
+  transition: border-color 0.15s ease;
+  box-sizing: border-box;
+}
+
+.nameInput::placeholder,
+.tagsInput::placeholder {
+  color: var(--color-stone-500);
+  font-style: italic;
+}
+
+.nameInput:focus-visible,
+.tagsInput:focus-visible {
+  border-color: var(--border-accent);
+}
+
+.typeList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.typeEntry {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.typeRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  cursor: pointer;
+  user-select: none;
+}
+
+.typeLabel {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.typeLabel strong {
+  color: var(--text-primary);
+}
+
+.typeExamples {
+  font-style: italic;
+}
+
+.typePicksSection {
+  padding-left: var(--spacing-7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.typePicksNote {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.typePicksNote strong {
+  color: var(--text-primary);
+}
+
+.typeCustomRow {
+  margin-top: var(--spacing-1);
+}
+
+.typeCustomInput {
+  width: 100%;
+  max-width: 260px;
+  padding: var(--spacing-1) var(--spacing-2);
+  background-color: var(--surface-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  outline: none;
+  transition: border-color 0.15s ease;
+  box-sizing: border-box;
+}
+
+.typeCustomInput::placeholder {
+  color: var(--color-stone-500);
+  font-style: italic;
+}
+
+.typeCustomInput:focus-visible {
+  border-color: var(--border-accent);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-6);
+  align-items: start;
+}
+
+@media (min-width: 640px) {
+  .columns {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.radioList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.radioRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  cursor: pointer;
+  user-select: none;
+}
+
+.radioInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.radioIndicator {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-strong);
+  background: var(--surface-raised);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s ease;
+  position: relative;
+}
+
+.radioIndicator::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-gold-400);
+  opacity: 0;
+  transform: scale(0.5);
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.radioInput:checked + .radioIndicator {
+  border-color: var(--color-gold-500);
+}
+
+.radioInput:checked + .radioIndicator::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.radioInput:focus-visible + .radioIndicator {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: 2px;
+}
+
+.radioRow:hover .radioIndicator {
+  border-color: var(--color-gold-400);
+}
+
+.radioLabel {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.inlineTextInput {
+  flex: 1;
+  padding: var(--spacing-1) var(--spacing-2);
+  background-color: var(--surface-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.inlineTextInput::placeholder {
+  color: var(--color-stone-500);
+  font-style: italic;
+}
+
+.inlineTextInput:focus-visible {
+  border-color: var(--border-accent);
+}
+
+.loyaltyRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-2);
+}
+
+.loyaltyLabel {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  font-weight: 600;
+}

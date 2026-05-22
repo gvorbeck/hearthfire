@@ -26,6 +26,7 @@ import { LightbearerInvocations } from '@/components/CharacterSheet/playbooks/li
 import { MarshalWarStories } from '@/components/CharacterSheet/playbooks/marshal/MarshalWarStories';
 import { MarshalCrew } from '@/components/CharacterSheet/playbooks/marshal/MarshalCrew';
 import { RangerSomethingWicked } from '@/components/CharacterSheet/playbooks/ranger/RangerSomethingWicked';
+import { RangerAnimalCompanion } from '@/components/CharacterSheet/playbooks/ranger/RangerAnimalCompanion';
 import { SeekerCollection } from '@/components/CharacterSheet/playbooks/seeker/SeekerCollection';
 import { WouldBeHeroFearAnger } from '@/components/CharacterSheet/playbooks/would-be-hero/WouldBeHeroFearAnger';
 import charSheetStyles from '@/components/CharacterSheet/CharacterSheet.module.css';
@@ -163,6 +164,20 @@ const AddInsertModal = ({ open, onClose, onAdd }: { open: boolean; onClose: () =
   );
 };
 
+const resolvePlaybookTabContent = (
+  id: string,
+  fallback: React.ReactNode,
+  data: CharacterData | undefined,
+  prosperity: number,
+  onSave: (data: Partial<CharacterData>) => Promise<void>,
+): React.ReactNode => {
+  if (id === 'initiates-of-danu') return <BlessedInitiatesOfDanu data={data} onSave={onSave} />;
+  if (id === 'invocations') return <LightbearerInvocations data={data} onSave={onSave} />;
+  if (id === 'crew') return <MarshalCrew data={data} prosperity={prosperity} onSave={onSave} />;
+  if (id === 'animal-companion') return <RangerAnimalCompanion data={data} onSave={onSave} />;
+  return fallback;
+};
+
 // Hooks must run unconditionally — split from CharacterPlaybookContent to avoid running hooks after early-return guards.
 const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, updateCharacterName, updateCharacterData }: SheetProps) => {
   const headerRef = useRef<HTMLDivElement>(null);
@@ -249,13 +264,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
       badgeTooltip: id === 'invocations' && showInvocationsBadge
         ? 'A new Invocation can be selected'
         : undefined,
-      content: id === 'initiates-of-danu'
-        ? <BlessedInitiatesOfDanu data={character.data} onSave={handleSaveCharacterData} />
-        : id === 'invocations'
-          ? <LightbearerInvocations data={character.data} onSave={handleSaveCharacterData} />
-          : id === 'crew'
-            ? <MarshalCrew data={character.data} prosperity={prosperity} onSave={handleSaveCharacterData} />
-            : content,
+      content: resolvePlaybookTabContent(id, content, character.data, prosperity, handleSaveCharacterData),
     })),
     ...(character.data?.inserts ?? []).map((label) => ({ label, content: null })),
   ], [character, playbookOption, handleSaveCharacterData, playbookTabs, showInvocationsBadge]);
