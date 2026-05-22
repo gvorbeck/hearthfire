@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback, memo } from 'react';
-import { CheckboxGroup, UseDots } from '@/components/primitives';
+import { useState, useEffect, useCallback, useRef, useMemo, memo } from 'react';
+import { Checkbox, CheckboxGroup, Divider, Input, Radio, Text, UseDots } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
 import { useCrewSave } from '../marshal/useCrewSave';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
-import type { CharacterData } from '@/types';
+import type { CharacterData, PlaybookFeatures } from '@/types';
 import styles from './RangerAnimalCompanion.module.css';
 
 interface AnimalTypeConfig {
@@ -178,62 +178,115 @@ const BEAST_OF_LEGEND_ITEMS = BEAST_OF_LEGEND_OPTIONS.map((opt) => ({
 }));
 
 interface TypePicksSectionProps {
+  typeId: string;
   typeConfig: AnimalTypeConfig;
+  isSelected: boolean;
   picks: Record<string, boolean>;
   customText: string;
+  customChecked: boolean;
   onPickChange: (id: string, checked: boolean) => void;
-  onCustomChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onCustomBlur: () => void;
+  onCustomChange: (typeId: string, e: React.ChangeEvent<HTMLInputElement>) => void;
+  onCustomBlur: (typeId: string) => void;
+  onCustomCheckedChange: (typeId: string, checked: boolean) => void;
 }
 
-const TypePicksSection = memo(({ typeConfig, picks, customText, onPickChange, onCustomBlur, onCustomChange }: TypePicksSectionProps) => {
+const TypePicksSection = memo(({
+  typeId,
+  typeConfig,
+  isSelected,
+  picks,
+  customText,
+  customChecked,
+  onPickChange,
+  onCustomChange,
+  onCustomBlur,
+  onCustomCheckedChange,
+}: TypePicksSectionProps) => {
   const selectedCount = typeConfig.picks.filter((p) => !p.defaultChecked && picks[`${typeConfig.id}:${p.id}`]).length;
-  const atMax = selectedCount >= typeConfig.pickCount;
+  const atMax = selectedCount + (customChecked ? 1 : 0) >= typeConfig.pickCount;
 
-  const items = typeConfig.picks.map((p) => {
+  const items = useMemo(() => typeConfig.picks.map((p) => {
     const key = `${typeConfig.id}:${p.id}`;
     const isDefault = !!p.defaultChecked;
     return {
       id: key,
-      label: parseInlineMarkdown(p.label),
-      disabled: isDefault || (!picks[key] && atMax),
+      label: <span>{parseInlineMarkdown(p.label)}</span>,
+      disabled: !isSelected || isDefault || (!picks[key] && atMax),
     };
-  });
+  }), [typeConfig, isSelected, picks, atMax]);
 
-  const checkedMap: Record<string, boolean> = {};
-  for (const p of typeConfig.picks) {
-    const key = `${typeConfig.id}:${p.id}`;
-    checkedMap[key] = p.defaultChecked ? true : (picks[key] ?? false);
-  }
+  const checkedMap = useMemo(() => {
+    const map: Record<string, boolean> = {};
+    for (const p of typeConfig.picks) {
+      const key = `${typeConfig.id}:${p.id}`;
+      map[key] = p.defaultChecked ? true : (picks[key] ?? false);
+    }
+    return map;
+  }, [typeConfig, picks]);
+
+  const handleCustomChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => onCustomChange(typeId, e),
+    [typeId, onCustomChange],
+  );
+  const handleCustomBlur = useCallback(() => onCustomBlur(typeId), [typeId, onCustomBlur]);
+  const handleCustomCheckedChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => onCustomCheckedChange(typeId, e.target.checked),
+    [typeId, onCustomCheckedChange],
+  );
 
   return (
     <div className={styles.typePicksSection}>
-      <p className={styles.typePicksNote}>
+      <Text size="md" color="muted">
         {parseInlineMarkdown(`**HP** ${typeConfig.hp} **Armor** ${typeConfig.armor} (size) **Damage** ${typeConfig.damage} *(hand)*`)}
-      </p>
-      <p className={styles.typePicksNote}>
+      </Text>
+      <Text size="md" color="muted">
         Pick {typeConfig.pickCount} more:
-      </p>
+      </Text>
       <CheckboxGroup
         items={items}
         checked={checkedMap}
         onChange={onPickChange}
-        columns="responsive-2-4-6"
+        columns={2}
       />
       <div className={styles.typeCustomRow}>
-        <input
+        <Checkbox
+          checked={customChecked}
+          disabled={!isSelected || (!customChecked && atMax) || !customText}
+          onChange={handleCustomCheckedChange}
+          aria-label={`Mark custom pick for ${typeConfig.label} as active`}
+        />
+        <Input
           className={styles.typeCustomInput}
           type="text"
           value={customText}
           placeholder="Custom pick…"
           aria-label={`${typeConfig.label} custom pick`}
-          onChange={onCustomChange}
-          onBlur={onCustomBlur}
+          disabled={!isSelected}
+          onChange={handleCustomChange}
+          onBlur={handleCustomBlur}
         />
       </div>
     </div>
   );
 });
+
+const useTrackedField = (
+  initialValue: string,
+  fieldKey: keyof PlaybookFeatures,
+  saveDebounced: (patch: Partial<PlaybookFeatures>) => void,
+  flushDebounce: (patch: Partial<PlaybookFeatures>) => void,
+) => {
+  const [value, setValue] = useState(initialValue);
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setValue(val);
+    saveDebounced({ [fieldKey]: val });
+  }, [fieldKey, saveDebounced]);
+  const handleBlur = useCallback(() => {
+    setValue((prev) => { flushDebounce({ [fieldKey]: prev }); return prev; });
+  }, [fieldKey, flushDebounce]);
+  return { value, setValue, handleChange, handleBlur };
+};
 
 interface RangerAnimalCompanionProps {
   data: CharacterData | undefined;
@@ -241,22 +294,35 @@ interface RangerAnimalCompanionProps {
 }
 
 export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionProps) => {
-  const features = resolvePlaybookFeatures(data);
+  const { saveDebounced, saveImmediate, flushDebounce } = useCrewSave(data, onSave);
 
-  const [hp, setHp] = useState<string>(() => features.animalHp ?? '');
-  const [armor, setArmor] = useState<string>(() => features.animalArmor ?? '');
-  const [damage, setDamage] = useState<string>(() => features.animalDamage ?? '');
-  const [name, setName] = useState<string>(() => features.animalName ?? '');
-  const [damageTags, setDamageTags] = useState<string>(() => features.animalDamageTags ?? '');
-  const [animalType, setAnimalType] = useState<string>(() => features.animalType ?? '');
-  const [typePicks, setTypePicks] = useState<Record<string, boolean>>(() => features.animalTypePicks ?? {});
-  const [typeCustom, setTypeCustom] = useState<string>(() => features.animalTypeCustom ?? '');
-  const [instinct, setInstinct] = useState<string>(() => features.animalInstinct ?? '');
-  const [instinctCustom, setInstinctCustom] = useState<string>(() => features.animalInstinctCustom ?? '');
-  const [cost, setCost] = useState<string>(() => features.animalCost ?? '');
-  const [costCustom, setCostCustom] = useState<string>(() => features.animalCostCustom ?? '');
-  const [loyalty, setLoyalty] = useState<number>(() => features.animalLoyalty ?? 0);
-  const [beastOfLegend, setBeastOfLegend] = useState<Record<string, boolean>>(() => features.animalBeastOfLegend ?? {});
+  const { value: hp, setValue: setHp, handleChange: handleHpChange, handleBlur: handleHpBlur } =
+    useTrackedField(resolvePlaybookFeatures(data).animalHp ?? '', 'animalHp', saveDebounced, flushDebounce);
+  const { value: armor, setValue: setArmor, handleChange: handleArmorChange, handleBlur: handleArmorBlur } =
+    useTrackedField(resolvePlaybookFeatures(data).animalArmor ?? '', 'animalArmor', saveDebounced, flushDebounce);
+  const { value: damage, setValue: setDamage, handleChange: handleDamageChange, handleBlur: handleDamageBlur } =
+    useTrackedField(resolvePlaybookFeatures(data).animalDamage ?? '', 'animalDamage', saveDebounced, flushDebounce);
+  const { value: name, setValue: setName, handleChange: handleNameChange, handleBlur: handleNameBlur } =
+    useTrackedField(resolvePlaybookFeatures(data).animalName ?? '', 'animalName', saveDebounced, flushDebounce);
+  const { value: damageTags, setValue: setDamageTags, handleChange: handleDamageTagsChange, handleBlur: handleDamageTagsBlur } =
+    useTrackedField(resolvePlaybookFeatures(data).animalDamageTags ?? '', 'animalDamageTags', saveDebounced, flushDebounce);
+
+  const [animalType, setAnimalType] = useState<string>(() => resolvePlaybookFeatures(data).animalType ?? '');
+  const [typePicks, setTypePicks] = useState<Record<string, boolean>>(() => resolvePlaybookFeatures(data).animalTypePicks ?? {});
+  const [typeCustom, setTypeCustom] = useState<Record<string, string>>(() => resolvePlaybookFeatures(data).animalTypeCustom ?? {});
+  const [typeCustomChecked, setTypeCustomChecked] = useState<Record<string, boolean>>(() => resolvePlaybookFeatures(data).animalTypeCustomChecked ?? {});
+  const [instinct, setInstinct] = useState<string>(() => resolvePlaybookFeatures(data).animalInstinct ?? '');
+  const [instinctCustom, setInstinctCustom] = useState<string>(() => resolvePlaybookFeatures(data).animalInstinctCustom ?? '');
+  const [cost, setCost] = useState<string>(() => resolvePlaybookFeatures(data).animalCost ?? '');
+  const [costCustom, setCostCustom] = useState<string>(() => resolvePlaybookFeatures(data).animalCostCustom ?? '');
+  const [loyalty, setLoyalty] = useState<number>(() => resolvePlaybookFeatures(data).animalLoyalty ?? 0);
+  const [beastOfLegend, setBeastOfLegend] = useState<Record<string, boolean>>(() => resolvePlaybookFeatures(data).animalBeastOfLegend ?? {});
+  const [typeCollapsed, setTypeCollapsed] = useState(false);
+  const hasInitializedTypeCollapse = useRef(false);
+  const [instinctCollapsed, setInstinctCollapsed] = useState(false);
+  const hasInitializedInstinctCollapse = useRef(false);
+  const [costCollapsed, setCostCollapsed] = useState(false);
+  const hasInitializedCostCollapse = useRef(false);
 
   useEffect(() => {
     const f = resolvePlaybookFeatures(data);
@@ -268,67 +334,41 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
     if (f.animalType !== undefined) setAnimalType(f.animalType);
     if (f.animalTypePicks !== undefined) setTypePicks(f.animalTypePicks);
     if (f.animalTypeCustom !== undefined) setTypeCustom(f.animalTypeCustom);
+    if (f.animalTypeCustomChecked !== undefined) setTypeCustomChecked(f.animalTypeCustomChecked);
     if (f.animalInstinct !== undefined) setInstinct(f.animalInstinct);
     if (f.animalInstinctCustom !== undefined) setInstinctCustom(f.animalInstinctCustom);
     if (f.animalCost !== undefined) setCost(f.animalCost);
     if (f.animalCostCustom !== undefined) setCostCustom(f.animalCostCustom);
     if (f.animalLoyalty !== undefined) setLoyalty(f.animalLoyalty);
     if (f.animalBeastOfLegend !== undefined) setBeastOfLegend(f.animalBeastOfLegend);
-  }, [data]);
+  }, [data, setHp, setArmor, setDamage, setName, setDamageTags]);
 
-  const { saveDebounced, saveImmediate, flushDebounce } = useCrewSave(data, onSave);
+  useEffect(() => {
+    if (animalType && !hasInitializedTypeCollapse.current) {
+      hasInitializedTypeCollapse.current = true;
+      setTypeCollapsed(true);
+    }
+  }, [animalType]);
+
+  useEffect(() => {
+    if (instinct && !hasInitializedInstinctCollapse.current) {
+      hasInitializedInstinctCollapse.current = true;
+      setInstinctCollapsed(true);
+    }
+  }, [instinct]);
+
+  useEffect(() => {
+    if (cost && !hasInitializedCostCollapse.current) {
+      hasInitializedCostCollapse.current = true;
+      setCostCollapsed(true);
+    }
+  }, [cost]);
+
+  const handleToggleTypeCollapse = useCallback(() => setTypeCollapsed((v) => !v), []);
+  const handleToggleInstinctCollapse = useCallback(() => setInstinctCollapsed((v) => !v), []);
+  const handleToggleCostCollapse = useCallback(() => setCostCollapsed((v) => !v), []);
 
   const handleWheel = useCallback((e: React.WheelEvent<HTMLInputElement>) => e.currentTarget.blur(), []);
-
-  const handleHpChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setHp(val);
-    saveDebounced({ animalHp: val });
-  }, [saveDebounced]);
-
-  const handleHpBlur = useCallback(() => {
-    setHp((prev) => { flushDebounce({ animalHp: prev }); return prev; });
-  }, [flushDebounce]);
-
-  const handleArmorChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setArmor(val);
-    saveDebounced({ animalArmor: val });
-  }, [saveDebounced]);
-
-  const handleArmorBlur = useCallback(() => {
-    setArmor((prev) => { flushDebounce({ animalArmor: prev }); return prev; });
-  }, [flushDebounce]);
-
-  const handleDamageChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setDamage(val);
-    saveDebounced({ animalDamage: val });
-  }, [saveDebounced]);
-
-  const handleDamageBlur = useCallback(() => {
-    setDamage((prev) => { flushDebounce({ animalDamage: prev }); return prev; });
-  }, [flushDebounce]);
-
-  const handleNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setName(val);
-    saveDebounced({ animalName: val });
-  }, [saveDebounced]);
-
-  const handleNameBlur = useCallback(() => {
-    setName((prev) => { flushDebounce({ animalName: prev }); return prev; });
-  }, [flushDebounce]);
-
-  const handleDamageTagsChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setDamageTags(val);
-    saveDebounced({ animalDamageTags: val });
-  }, [saveDebounced]);
-
-  const handleDamageTagsBlur = useCallback(() => {
-    setDamageTags((prev) => { flushDebounce({ animalDamageTags: prev }); return prev; });
-  }, [flushDebounce]);
 
   const handleTypeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -342,7 +382,7 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
     } else {
       saveImmediate({ animalType: val });
     }
-  }, [saveImmediate]);
+  }, [saveImmediate, setHp, setArmor, setDamage]);
 
   const handleTypePickChange = useCallback((id: string, checked: boolean) => {
     setTypePicks((prev) => {
@@ -352,15 +392,27 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
     });
   }, [saveImmediate]);
 
-  const handleTypeCustomChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTypeCustomChange = useCallback((typeId: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-    setTypeCustom(val);
-    saveDebounced({ animalTypeCustom: val });
+    setTypeCustom((prev) => {
+      const next = { ...prev, [typeId]: val };
+      saveDebounced({ animalTypeCustom: next });
+      return next;
+    });
   }, [saveDebounced]);
 
-  const handleTypeCustomBlur = useCallback(() => {
+  const handleTypeCustomBlur = useCallback((typeId: string) => {
+    void typeId;
     setTypeCustom((prev) => { flushDebounce({ animalTypeCustom: prev }); return prev; });
   }, [flushDebounce]);
+
+  const handleTypeCustomCheckedChange = useCallback((typeId: string, checked: boolean) => {
+    setTypeCustomChecked((prev) => {
+      const next = { ...prev, [typeId]: checked };
+      saveImmediate({ animalTypeCustomChecked: next });
+      return next;
+    });
+  }, [saveImmediate]);
 
   const handleInstinctChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -420,9 +472,9 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
   return (
     <div className={styles.root}>
       <PlaybookSection title="Stats">
-        <p className={styles.prose}>
+        <Text as="p" size="sm" color="muted" className={styles.prose}>
           {parseInlineMarkdown('You are accompanied by a beast, with whom you have bonded deeply and communicate without words. Treat it as a follower.')}
-        </p>
+        </Text>
         <div className={styles.headerRow}>
           <div className={styles.statsRow}>
             <div className={styles.infoBox}>
@@ -465,23 +517,21 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
             </div>
           </div>
           <div className={styles.nameBlock}>
-            <label className={styles.fieldLabel}>Name</label>
-            <input
+            <Input
+              label="Name"
               className={styles.nameInput}
               type="text"
               value={name}
               placeholder="…"
-              aria-label="Animal Companion name"
               onChange={handleNameChange}
               onBlur={handleNameBlur}
             />
-            <label className={styles.fieldLabel}>Damage tags</label>
-            <input
+            <Input
+              label="Damage tags"
               className={styles.tagsInput}
               type="text"
               value={damageTags}
               placeholder="…"
-              aria-label="Animal Companion damage tags"
               onChange={handleDamageTagsChange}
               onBlur={handleDamageTagsBlur}
             />
@@ -489,34 +539,45 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
         </div>
       </PlaybookSection>
 
-      <PlaybookSection title="Type" choose={1} warn={!animalType}>
+      <PlaybookSection
+        title="Type"
+        choose={1}
+        warn={!animalType}
+        collapsible={!!animalType}
+        isCollapsed={typeCollapsed}
+        onToggleCollapse={handleToggleTypeCollapse}
+      >
         <div className={styles.typeList}>
-          {ANIMAL_TYPES.map((typeConfig) => {
+          {(typeCollapsed ? ANIMAL_TYPES.filter((t) => t.id === animalType) : ANIMAL_TYPES).map((typeConfig) => {
             const isSelected = animalType === typeConfig.id;
+            const globalIndex = ANIMAL_TYPES.indexOf(typeConfig);
             return (
               <div key={typeConfig.id} className={styles.typeEntry}>
-                <label className={styles.typeRow}>
-                  <input
-                    type="radio"
-                    className={styles.radioInput}
-                    name="animal-type"
-                    value={typeConfig.id}
-                    checked={isSelected}
-                    onChange={handleTypeChange}
-                  />
-                  <span className={styles.radioIndicator} />
-                  <span className={styles.typeLabel}>
-                    <strong>{typeConfig.label}</strong>
-                    <span className={styles.typeExamples}> ({typeConfig.examples}, etc.)</span>
-                  </span>
-                </label>
+                {!typeCollapsed && globalIndex > 0 && <Divider />}
+                <Radio
+                  className={styles.typeRow}
+                  name="animal-type"
+                  value={typeConfig.id}
+                  checked={isSelected}
+                  onChange={handleTypeChange}
+                  label={
+                    <span className={styles.typeLabel}>
+                      <strong>{typeConfig.label}</strong>
+                      <span className={styles.typeExamples}> ({typeConfig.examples}, etc.)</span>
+                    </span>
+                  }
+                />
                 <TypePicksSection
+                  typeId={typeConfig.id}
                   typeConfig={typeConfig}
+                  isSelected={isSelected}
                   picks={typePicks}
-                  customText={typeCustom}
+                  customText={typeCustom[typeConfig.id] ?? ''}
+                  customChecked={typeCustomChecked[typeConfig.id] ?? false}
                   onPickChange={handleTypePickChange}
                   onCustomChange={handleTypeCustomChange}
                   onCustomBlur={handleTypeCustomBlur}
+                  onCustomCheckedChange={handleTypeCustomCheckedChange}
                 />
               </div>
             );
@@ -525,95 +586,99 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
       </PlaybookSection>
 
       <div className={styles.columns}>
-        <PlaybookSection title="Instinct" choose={1} warn={!instinct}>
+        <PlaybookSection
+          title="Instinct"
+          choose={1}
+          warn={!instinct}
+          collapsible={!!instinct}
+          isCollapsed={instinctCollapsed}
+          onToggleCollapse={handleToggleInstinctCollapse}
+        >
           <div className={styles.radioList}>
             {INSTINCT_OPTIONS.map((opt) => (
-              <label key={opt} className={styles.radioRow}>
-                <input
-                  type="radio"
-                  className={styles.radioInput}
-                  name="animal-instinct"
-                  value={opt}
-                  checked={instinct === opt}
-                  onChange={handleInstinctChange}
-                />
-                <span className={styles.radioIndicator} />
-                <span className={styles.radioLabel}>{opt}</span>
-              </label>
-            ))}
-            <label className={styles.radioRow}>
-              <input
-                type="radio"
-                className={styles.radioInput}
+              <Radio
+                key={opt}
+                className={styles.radioRow}
                 name="animal-instinct"
-                value="custom"
-                checked={instinct === 'custom'}
+                value={opt}
+                checked={instinct === opt}
                 onChange={handleInstinctChange}
+                label={<Text as="span" size="md" color="muted">{opt}</Text>}
               />
-              <span className={styles.radioIndicator} />
-              <input
-                type="text"
-                className={styles.inlineTextInput}
-                value={instinctCustom}
-                placeholder="Custom instinct…"
-                aria-label="Custom instinct"
-                onFocus={handleInstinctCustomFocus}
-                onChange={handleInstinctCustomChange}
-                onBlur={handleInstinctCustomBlur}
-              />
-            </label>
+            ))}
+            <Radio
+              className={styles.radioRow}
+              name="animal-instinct"
+              value="custom"
+              checked={instinct === 'custom'}
+              onChange={handleInstinctChange}
+              label={
+                <Input
+                  className={styles.inlineTextInput}
+                  type="text"
+                  value={instinctCustom}
+                  placeholder="Custom instinct…"
+                  aria-label="Custom instinct"
+                  onFocus={handleInstinctCustomFocus}
+                  onChange={handleInstinctCustomChange}
+                  onBlur={handleInstinctCustomBlur}
+                />
+              }
+            />
           </div>
         </PlaybookSection>
 
-        <PlaybookSection title="Cost" choose={1} warn={!cost}>
+        <PlaybookSection
+          title="Cost"
+          choose={1}
+          warn={!cost}
+          collapsible={!!cost}
+          isCollapsed={costCollapsed}
+          onToggleCollapse={handleToggleCostCollapse}
+        >
           <div className={styles.loyaltyRow}>
-            <span className={styles.loyaltyLabel}>Loyalty</span>
+            <Text as="span" size="md" color="muted" className={styles.loyaltyLabel}>Loyalty</Text>
             <UseDots total={3} checked={loyalty} onChange={handleLoyaltyChange} />
           </div>
           <div className={styles.radioList}>
             {COST_OPTIONS.map((opt) => (
-              <label key={opt} className={styles.radioRow}>
-                <input
-                  type="radio"
-                  className={styles.radioInput}
-                  name="animal-cost"
-                  value={opt}
-                  checked={cost === opt}
-                  onChange={handleCostChange}
-                />
-                <span className={styles.radioIndicator} />
-                <span className={styles.radioLabel}>{opt}</span>
-              </label>
-            ))}
-            <label className={styles.radioRow}>
-              <input
-                type="radio"
-                className={styles.radioInput}
+              <Radio
+                key={opt}
+                className={styles.radioRow}
                 name="animal-cost"
-                value="custom"
-                checked={cost === 'custom'}
+                value={opt}
+                checked={cost === opt}
                 onChange={handleCostChange}
+                label={<Text as="span" size="md" color="muted">{opt}</Text>}
               />
-              <span className={styles.radioIndicator} />
-              <input
-                type="text"
-                className={styles.inlineTextInput}
-                value={costCustom}
-                placeholder="Custom cost…"
-                aria-label="Custom cost"
-                onFocus={handleCostCustomFocus}
-                onChange={handleCostCustomChange}
-                onBlur={handleCostCustomBlur}
-              />
-            </label>
+            ))}
+            <Radio
+              className={styles.radioRow}
+              name="animal-cost"
+              value="custom"
+              checked={cost === 'custom'}
+              onChange={handleCostChange}
+              label={
+                <Input
+                  className={styles.inlineTextInput}
+                  type="text"
+                  value={costCustom}
+                  placeholder="Custom cost…"
+                  aria-label="Custom cost"
+                  onFocus={handleCostCustomFocus}
+                  onChange={handleCostCustomChange}
+                  onBlur={handleCostCustomBlur}
+                />
+              }
+            />
           </div>
         </PlaybookSection>
       </div>
 
       <PlaybookSection title="Beast of Legend">
-        <p className={styles.prose}>
+        <Text as="p" size="sm" color="muted" className={styles.prose}>
           Each time you take Beast of Legend, pick 1:
-        </p>
+        </Text>
         <CheckboxGroup
           items={BEAST_OF_LEGEND_ITEMS}
           checked={beastOfLegend}

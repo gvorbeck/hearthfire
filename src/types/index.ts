@@ -62,7 +62,8 @@ export interface PlaybookFeatures {
   animalDamageTags?: string;
   animalType?: string;
   animalTypePicks?: Record<string, boolean>;
-  animalTypeCustom?: string;
+  animalTypeCustom?: Record<string, string>;
+  animalTypeCustomChecked?: Record<string, boolean>;
   animalInstinct?: string;
   animalInstinctCustom?: string;
   animalCost?: string;

@@ -18,7 +18,6 @@ export { List } from './List/List';
 export { UseDots } from './UseDots/UseDots';
 export { CheckboxGroup } from './CheckboxGroup/CheckboxGroup';
 export type { CheckboxGroupItem } from './CheckboxGroup/CheckboxGroup';
-export { Tooltip, useTooltip } from './Tooltip/Tooltip';
-export type { UseTooltipOptions, UseTooltipResult } from './Tooltip/Tooltip';
+export { Tooltip } from './Tooltip/Tooltip';
 export { SiteBanner } from './SiteBanner/SiteBanner';
 export { Toggle } from './Toggle/Toggle';

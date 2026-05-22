@@ -1,6 +1,6 @@
 import { Input } from '@/components/primitives';
 
-export interface AnswerPrompt {
+interface AnswerPrompt {
   key: string;
   label: string;
 }

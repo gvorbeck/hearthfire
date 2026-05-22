@@ -15,8 +15,6 @@ interface TooltipProps {
   children: React.ReactNode;
 }
 
-export { useTooltip } from './useTooltip';
-export type { UseTooltipOptions, UseTooltipResult } from './useTooltip';
 
 export const Tooltip = ({ text, side = 'top', className, noTabStop = false, tooltipId: externalId, children }: TooltipProps) => {
   const { tooltipId, visible, resolvedSide, nudgeX, arrowOffset, anchorRef, tooltipRef, anchorProps } = useTooltip({ side, tooltipId: externalId });
