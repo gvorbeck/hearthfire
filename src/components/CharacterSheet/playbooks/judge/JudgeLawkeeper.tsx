@@ -1,4 +1,4 @@
-import { CheckboxGroup } from '@/components/primitives';
+import { CheckboxGroup, Divider } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { usePlaybookChecked } from '@/hooks/usePlaybookChecked';
 import type { CharacterData } from '@/types';
@@ -41,7 +41,7 @@ export const JudgeLawkeeper = ({ data, onSave }: JudgeLawkeeperProps) => {
         onChange={handleChange}
         max={1}
       />
-      <hr className={styles.divider} />
+      <Divider />
       <CheckboxGroup
         label="Of her true disciples, Aratis demands… (choose 3)"
         items={DEMANDS_ITEMS}

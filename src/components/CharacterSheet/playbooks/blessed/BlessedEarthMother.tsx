@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { CheckboxGroup, Radio } from '@/components/primitives';
+import { CheckboxGroup, Divider, Radio } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import type { CharacterData } from '@/types';
@@ -81,7 +81,7 @@ export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) =>
           ))}
         </div>
 
-        <hr className={styles.divider} />
+        <Divider />
 
         <CheckboxGroup
           label="What do the folk of Stonetop leave as offerings?"

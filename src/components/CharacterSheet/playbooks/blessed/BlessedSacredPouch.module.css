@@ -16,12 +16,6 @@
   color: var(--text-primary);
 }
 
-.divider {
-  border: none;
-  border-top: 1px solid var(--border-subtle);
-  margin: 0;
-}
-
 .instruction {
   font-family: var(--font-sans);
   font-size: var(--text-xs);

@@ -1,4 +1,4 @@
-import { CheckboxGroup } from '@/components/primitives';
+import { CheckboxGroup, Divider } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { usePlaybookChecked } from '@/hooks/usePlaybookChecked';
 import type { CharacterData } from '@/types';
@@ -70,7 +70,7 @@ export const LightbearerPraiseTheDay = ({ data, onSave }: LightbearerPraiseTheDa
         onChange={handleChange}
         max={1}
       />
-      <hr className={styles.divider} />
+      <Divider />
       <CheckboxGroup
         label="He is worshipped through… (choose 1 or 2)"
         items={WORSHIPPED_ITEMS}
@@ -78,7 +78,7 @@ export const LightbearerPraiseTheDay = ({ data, onSave }: LightbearerPraiseTheDa
         onChange={handleChange}
         max={2}
       />
-      <hr className={styles.divider} />
+      <Divider />
       <CheckboxGroup
         label="In Stonetop's Pavilion of the Gods, Helior's shrine has… (choose 1)"
         items={SHRINE_ITEMS}
@@ -86,7 +86,7 @@ export const LightbearerPraiseTheDay = ({ data, onSave }: LightbearerPraiseTheDa
         onChange={handleChange}
         max={1}
       />
-      <hr className={styles.divider} />
+      <Divider />
       <CheckboxGroup
         label="Your predecessor, the previous Lightbearer… (choose 2 or 3)"
         items={PREDECESSOR_ITEMS}
@@ -94,7 +94,7 @@ export const LightbearerPraiseTheDay = ({ data, onSave }: LightbearerPraiseTheDa
         onChange={handleChange}
         max={3}
       />
-      <hr className={styles.divider} />
+      <Divider />
       <CheckboxGroup
         label="You came into your powers… (choose 1)"
         items={POWERS_ITEMS}

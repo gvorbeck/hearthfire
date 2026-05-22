@@ -109,6 +109,7 @@ interface SheetProps {
   playbookOption: (typeof PLAYBOOKS)[number];
   id: string;
   gameName: string;
+  prosperity: number;
   updateCharacterName: (characterId: string, name: string) => Promise<void>;
   updateCharacterData: (characterId: string, data: Partial<CharacterData>) => Promise<void>;
 }
@@ -163,7 +164,7 @@ const AddInsertModal = ({ open, onClose, onAdd }: { open: boolean; onClose: () =
 };
 
 // Hooks must run unconditionally — split from CharacterPlaybookContent to avoid running hooks after early-return guards.
-const CharacterSheet = ({ character, playbookOption, id, gameName, updateCharacterName, updateCharacterData }: SheetProps) => {
+const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, updateCharacterName, updateCharacterData }: SheetProps) => {
   const headerRef = useRef<HTMLDivElement>(null);
   const [addTabOpen, setAddTabOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -253,7 +254,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, updateCharact
         : id === 'invocations'
           ? <LightbearerInvocations data={character.data} onSave={handleSaveCharacterData} />
           : id === 'crew'
-            ? <MarshalCrew data={character.data} onSave={handleSaveCharacterData} />
+            ? <MarshalCrew data={character.data} prosperity={prosperity} onSave={handleSaveCharacterData} />
             : content,
     })),
     ...(character.data?.inserts ?? []).map((label) => ({ label, content: null })),
@@ -299,6 +300,7 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
   updateCharacterName: (characterId: string, name: string) => Promise<void>;
   updateCharacterData: (characterId: string, data: Partial<CharacterData>) => Promise<void>;
 }) => {
+  const prosperity = g.prosperity ?? 0;
   const playbookOption = PLAYBOOKS.find((p) => p.value === playbook);
   const character = g.characters.find((c) => c.playbook === playbook);
 
@@ -326,6 +328,7 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
       playbookOption={playbookOption}
       id={id}
       gameName={g.name || DEFAULT_GAME_NAME}
+      prosperity={prosperity}
       updateCharacterName={updateCharacterName}
       updateCharacterData={updateCharacterData}
     />

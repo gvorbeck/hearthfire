@@ -253,6 +253,13 @@
 }
 
 /* ── Inventory ── */
+.suppliesGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2) var(--spacing-4);
+  padding-left: var(--spacing-6);
+}
+
 .inventoryList {
   display: flex;
   flex-direction: column;
@@ -270,13 +277,6 @@
   display: flex;
   align-items: flex-end;
   gap: var(--spacing-2);
-}
-
-.inventoryDiamond {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  flex-shrink: 0;
 }
 
 .inventoryLabel {

@@ -1,4 +1,5 @@
 export { Button } from './Button/Button';
+export { Divider } from './Divider/Divider';
 export { Checkbox } from './Checkbox/Checkbox';
 export { Collapse } from './Collapse/Collapse';
 export { Dropdown } from './Dropdown/Dropdown';

@@ -49,7 +49,8 @@ export interface PlaybookFeatures {
   crewCost?: string;
   crewCostCustom?: string;
   crewLoyalty?: number;
-  crewInventoryUses?: Record<string, number>;
+  crewInventoryChecked?: Record<string, boolean>;
+  crewSuppliesUses?: number[];
   crewIndividuals?: { name: string; tag: string; traits: string }[];
   rangerSomethingWicked?: Record<string, boolean>;
   rangerSomethingWickedAnswers?: Record<string, string>;
@@ -123,4 +124,5 @@ export interface GameSession {
   content?: ContentLists;
   threats?: string;
   iWonder?: string;
+  prosperity?: number;
 }

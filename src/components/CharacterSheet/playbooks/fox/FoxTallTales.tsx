@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Checkbox, CheckboxGroup } from '@/components/primitives';
+import { Checkbox, CheckboxGroup, Divider } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { usePlaybookChecked } from '@/hooks/usePlaybookChecked';
 import type { CharacterData } from '@/types';
@@ -94,14 +94,14 @@ export const FoxTallTales = ({ data, onSave }: FoxTallTalesProps) => {
           />
         </div>
       </div>
-      <hr className={styles.divider} />
+      <Divider />
       <CheckboxGroup
         label="And you ended up… (choose 1 or 2 per tale)"
         items={OUTCOME_ITEMS}
         checked={checked}
         onChange={handleChange}
       />
-      <hr className={styles.divider} />
+      <Divider />
       <CheckboxGroup
         label="But all you've got left to show for it is…"
         items={LEFTOVER_ITEMS}

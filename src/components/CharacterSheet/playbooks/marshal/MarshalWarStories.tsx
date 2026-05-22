@@ -1,4 +1,4 @@
-import { CheckboxGroup } from '@/components/primitives';
+import { CheckboxGroup, Divider } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { AnswerPrompts } from '../AnswerPrompts';
 import { usePlaybookCheckedWithAnswers } from '@/hooks/usePlaybookChecked';
@@ -46,7 +46,7 @@ export const MarshalWarStories = ({ data, onSave }: MarshalWarStoriesProps) => {
         onChange={handleCheck}
         max={1}
       />
-      <hr className={styles.divider} />
+      <Divider />
       <p className={styles.prose}>
         Answer at least 3 of the following questions about that action:
       </p>

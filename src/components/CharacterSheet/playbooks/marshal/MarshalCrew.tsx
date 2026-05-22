@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import clsx from 'clsx';
-import { Checkbox, CheckboxGroup, UseDots } from '@/components/primitives';
+import { Checkbox, CheckboxGroup, Divider, UseDots } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { Move } from '../../Move/Move';
 import { FOLLOWER_MOVES } from '@/lib/followerMoves';
@@ -9,10 +9,10 @@ import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { CharacterData } from '@/types';
 import styles from './MarshalCrew.module.css';
 
-// ── Static data ────────────────────────────────────────────────────────────────
 
 const CREW_HP_MAX = 6;
 const CREW_DAMAGE = 'd6';
+const CREW_SIZE = 6;
 
 const TAG_ITEMS = [
   { id: 'archers', label: 'archers' },
@@ -49,38 +49,39 @@ const COST_OPTIONS = [
 interface InventoryItem {
   id: string;
   label: string;
-  uses?: number;
-  usesLabel?: string;
+  weight?: 1 | 2;
 }
 
 const INVENTORY_ITEMS: InventoryItem[] = [
-  { id: 'hatchet', label: '◇ Hatchet, iron (hand, thrown, x piercing)' },
-  { id: 'spear', label: '◇ Spear, iron (close, thrown, x piercing)' },
-  { id: 'bow', label: '◇ Bow & iron arrows (near, x piercing, ○ low ammo, ○ all out)' },
-  { id: 'shield', label: '◇◇ Shield (+1 armor, +1 Readiness on a 7+ to Defend)' },
-  { id: 'hides', label: '◇◇ Thick hides (1 armor, warm)' },
-  { id: 'cloak', label: '◇ Cloak (warm)' },
-  { id: 'supplies', label: '◇ Supplies (4+Prosperity uses per crew member)', uses: 6, usesLabel: 'per member' },
+  { id: 'hatchet', label: '**Hatchet**, iron *(hand, thrown, x piercing)*' },
+  { id: 'spear', label: '**Spear**, iron *(close, thrown, x piercing)*' },
+  { id: 'bow', label: '**Bow & iron arrows** *(near, x piercing, ○ low ammo, ○ all out)*' },
+  { id: 'shield', label: '**Shield** *(+1 armor, +1 Readiness on a 7+ to Defend)*', weight: 2 },
+  { id: 'hides', label: '**Thick hides** *(1 armor, warm)*', weight: 2 },
+  { id: 'cloak', label: '**Cloak** *(warm)*' },
+  { id: 'supplies', label: '**Supplies** *(4+Prosperity uses per crew member)*' },
 ];
 
 const INDIVIDUALS_COUNT = 6;
 
-// ── Sub-components ─────────────────────────────────────────────────────────────
 
 interface InventoryRowProps {
   item: InventoryItem;
-  uses: number;
-  onUsesChange: (id: string, n: number) => void;
+  checked: boolean;
+  onCheckedChange: (id: string, checked: boolean) => void;
 }
 
-const InventoryRow = memo(({ item, uses, onUsesChange }: InventoryRowProps) => {
-  const handleChange = useCallback((n: number) => onUsesChange(item.id, n), [item.id, onUsesChange]);
+const InventoryRow = memo(({ item, checked, onCheckedChange }: InventoryRowProps) => {
+  const handleChecked = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onCheckedChange(item.id, e.target.checked), [item.id, onCheckedChange]);
   return (
     <div className={styles.inventoryItem}>
-      <span className={styles.inventoryLabel}>{parseInlineMarkdown(item.label)}</span>
-      {item.uses !== undefined && (
-        <UseDots total={item.uses} checked={uses} onChange={handleChange} label={item.usesLabel} />
-      )}
+      <Checkbox
+        variant="provision"
+        weight={item.weight ?? 1}
+        checked={checked}
+        onChange={handleChecked}
+        label={<span className={styles.inventoryLabel}>{parseInlineMarkdown(item.label)}</span>}
+      />
     </div>
   );
 });
@@ -134,7 +135,39 @@ const IndividualSlot = memo(({ index, name, tag, traits, onChange, onBlur }: Ind
   );
 });
 
-// ── Helpers ────────────────────────────────────────────────────────────────────
+interface SuppliesMemberDotsProps {
+  memberIndex: number;
+  total: number;
+  checked: number;
+  onChange: (memberIndex: number, n: number) => void;
+}
+
+const SuppliesMemberDots = memo(({ memberIndex, total, checked, onChange }: SuppliesMemberDotsProps) => {
+  const handleChange = useCallback((n: number) => onChange(memberIndex, n), [memberIndex, onChange]);
+  return <UseDots total={total} checked={checked} onChange={handleChange} />;
+});
+
+interface CustomInventoryRowProps {
+  index: number;
+  checked1: boolean;
+  checked2: boolean;
+  onChange: (id: string, checked: boolean) => void;
+}
+
+const CustomInventoryRow = memo(({ index, checked1, checked2, onChange }: CustomInventoryRowProps) => {
+  const id1 = `custom-${index}-1`;
+  const id2 = `custom-${index}-2`;
+  const handleChange1 = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onChange(id1, e.target.checked), [id1, onChange]);
+  const handleChange2 = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onChange(id2, e.target.checked), [id2, onChange]);
+  return (
+    <div className={styles.inventoryCustomItem}>
+      <Checkbox variant="provision" weight={1} checked={checked1} onChange={handleChange1} aria-label={`Custom inventory item ${index + 1}, 1 load`} />
+      <span className={styles.inventoryBlankLine} aria-hidden="true" />
+      <Checkbox variant="provision" weight={2} checked={checked2} onChange={handleChange2} aria-label={`Custom inventory item ${index + 1}, 2 load`} />
+    </div>
+  );
+});
+
 
 type Individual = { name: string; tag: string; traits: string };
 
@@ -154,14 +187,14 @@ const parseIndividuals = (raw: unknown): Individual[] => {
   return filled.slice(0, INDIVIDUALS_COUNT);
 };
 
-// ── Main component ─────────────────────────────────────────────────────────────
 
 interface MarshalCrewProps {
   data: CharacterData | undefined;
+  prosperity: number;
   onSave: (data: Partial<CharacterData>) => Promise<void>;
 }
 
-export const MarshalCrew = ({ data, onSave }: MarshalCrewProps) => {
+export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
   const features = resolvePlaybookFeatures(data);
 
   const [hp, setHp] = useState<string>(() => features.crewHp ?? String(CREW_HP_MAX));
@@ -173,7 +206,8 @@ export const MarshalCrew = ({ data, onSave }: MarshalCrewProps) => {
   const [cost, setCost] = useState<string>(() => features.crewCost ?? '');
   const [costCustom, setCostCustom] = useState<string>(() => features.crewCostCustom ?? '');
   const [loyalty, setLoyalty] = useState<number>(() => features.crewLoyalty ?? 0);
-  const [inventoryUses, setInventoryUses] = useState<Record<string, number>>(() => features.crewInventoryUses ?? {});
+  const [inventoryChecked, setInventoryChecked] = useState<Record<string, boolean>>(() => features.crewInventoryChecked ?? {});
+  const [suppliesUses, setSuppliesUses] = useState<number[]>(() => features.crewSuppliesUses ?? Array(CREW_SIZE).fill(0));
   const [individuals, setIndividuals] = useState<Individual[]>(() => parseIndividuals(features.crewIndividuals));
 
   useEffect(() => {
@@ -187,7 +221,8 @@ export const MarshalCrew = ({ data, onSave }: MarshalCrewProps) => {
     if (f.crewCost !== undefined) setCost(f.crewCost);
     if (f.crewCostCustom !== undefined) setCostCustom(f.crewCostCustom);
     if (f.crewLoyalty !== undefined) setLoyalty(f.crewLoyalty);
-    if (f.crewInventoryUses !== undefined) setInventoryUses(f.crewInventoryUses);
+    if (f.crewInventoryChecked !== undefined) setInventoryChecked(f.crewInventoryChecked);
+    if (f.crewSuppliesUses !== undefined) setSuppliesUses(f.crewSuppliesUses);
     if (f.crewIndividuals !== undefined) setIndividuals(parseIndividuals(f.crewIndividuals));
   }, [data]);
 
@@ -311,10 +346,19 @@ export const MarshalCrew = ({ data, onSave }: MarshalCrewProps) => {
     saveImmediate({ crewLoyalty: n });
   }, [saveImmediate]);
 
-  const handleInventoryUsesChange = useCallback((id: string, n: number) => {
-    setInventoryUses((prev) => {
-      const next = { ...prev, [id]: n };
-      saveImmediate({ crewInventoryUses: next });
+  const handleInventoryCheckedChange = useCallback((id: string, val: boolean) => {
+    setInventoryChecked((prev) => {
+      const next = { ...prev, [id]: val };
+      saveImmediate({ crewInventoryChecked: next });
+      return next;
+    });
+  }, [saveImmediate]);
+
+  const handleSuppliesUsesChange = useCallback((memberIndex: number, n: number) => {
+    setSuppliesUses((prev) => {
+      const next = [...prev];
+      next[memberIndex] = n;
+      saveImmediate({ crewSuppliesUses: next });
       return next;
     });
   }, [saveImmediate]);
@@ -350,11 +394,9 @@ export const MarshalCrew = ({ data, onSave }: MarshalCrewProps) => {
 
   return (
     <div className={styles.root}>
-      {/* ── Stats ── */}
       <PlaybookSection title="Crew">
         <p className={styles.prose}>
-          Your Crew is a half-dozen strong by default. Treat them as a follower with the <em>group</em> tag.
-          All starting values here are subject to change in play.
+          {parseInlineMarkdown('Your Crew is a half-dozen strong by default. Treat them as a follower with the *group* tag. All starting values here are subject to change in play.')}
         </p>
         <div className={styles.infoBoxes}>
           <div className={styles.infoBox}>
@@ -391,10 +433,9 @@ export const MarshalCrew = ({ data, onSave }: MarshalCrewProps) => {
         </div>
       </PlaybookSection>
 
-      {/* ── Tags ── */}
       <PlaybookSection title="Tags">
         <p className={styles.prose}>
-          Your crew starts with <em>group</em>, a tag granted by your background, plus 2 more of your choice.
+          {parseInlineMarkdown('Your crew starts with *group*, a tag granted by your background, plus 2 more of your choice.')}
         </p>
         <CheckboxGroup
           items={tagItemsWithDisable}
@@ -428,7 +469,6 @@ export const MarshalCrew = ({ data, onSave }: MarshalCrewProps) => {
       </PlaybookSection>
 
       <div className={styles.columns}>
-        {/* ── Instinct ── */}
         <PlaybookSection title="Instinct" choose={1}>
           <div className={styles.radioList}>
             {INSTINCT_OPTIONS.map((opt) => (
@@ -469,7 +509,6 @@ export const MarshalCrew = ({ data, onSave }: MarshalCrewProps) => {
           </div>
         </PlaybookSection>
 
-        {/* ── Cost ── */}
         <PlaybookSection title="Cost" choose={1}>
           <div className={styles.loyaltyRow}>
             <span className={styles.loyaltyLabel}>Loyalty</span>
@@ -515,48 +554,57 @@ export const MarshalCrew = ({ data, onSave }: MarshalCrewProps) => {
         </PlaybookSection>
       </div>
 
-      {/* ── Inventory ── */}
       <PlaybookSection title="Inventory">
         <p className={styles.prose}>
-          3 ◇ or fewer is a light load; 4–6 ◇ is a normal load; 7–9 ◇ is a heavy load.
+          {parseInlineMarkdown('3 ◈ or fewer is a light load; 4-6 ◈ is a normal load; 7-9 ◈ is a heavy load.')}
         </p>
+        <Divider />
         <div className={styles.inventoryList}>
           {INVENTORY_ITEMS.map((item) => (
             <InventoryRow
               key={item.id}
               item={item}
-              uses={inventoryUses[item.id] ?? 0}
-              onUsesChange={handleInventoryUsesChange}
+              checked={inventoryChecked[item.id] ?? false}
+              onCheckedChange={handleInventoryCheckedChange}
             />
           ))}
-          {[0, 1, 2, 3].map((i) => (
-            <div key={`custom-inv-${i}`} className={styles.inventoryCustomItem}>
-              <span className={styles.inventoryDiamond}>◇</span>
-              <span className={styles.inventoryBlankLine} aria-hidden="true" />
-              <span className={styles.inventoryDiamond}>◇◇</span>
+          {inventoryChecked['supplies'] && (
+            <div className={styles.suppliesGrid}>
+              {Array.from({ length: CREW_SIZE }, (_, i) => (
+                <SuppliesMemberDots
+                  key={`member-${i}`}
+                  memberIndex={i}
+                  total={4 + prosperity}
+                  checked={suppliesUses[i] ?? 0}
+                  onChange={handleSuppliesUsesChange}
+                />
+              ))}
             </div>
+          )}
+          {[0, 1, 2, 3].map((i) => (
+            <CustomInventoryRow
+              key={`custom-inv-${i}`}
+              index={i}
+              checked1={inventoryChecked[`custom-${i}-1`] ?? false}
+              checked2={inventoryChecked[`custom-${i}-2`] ?? false}
+              onChange={handleInventoryCheckedChange}
+            />
           ))}
         </div>
       </PlaybookSection>
 
-      {/* ── Individuals ── */}
       <PlaybookSection title="Individuals">
         <p className={styles.prose}>
           When one stands out, give them a name, a tag, and one or more traits.
         </p>
         <p className={styles.prose}>
-          <strong>Names:</strong> Aled, Culhwich, Eira, Gerat, Glaw, Harri, Lowri, Mervyn, Nesta
+          {parseInlineMarkdown('**Names:** Aled, Culhwich, Eira, Gerat, Glaw, Harri, Lowri, Mervyn, Nesta')}
         </p>
         <p className={styles.prose}>
-          <strong>Tags:</strong> <em>animal-lover, big, bully, cynical, drunkard, eager, gambler, greedy, grumpy,
-          gullible, heartthrob, honest, kind, lewd, little, naive, old, popular, proud, rookie, reckless,
-          shameless, sharp-eyed, short-tempered</em>
+          {parseInlineMarkdown('**Tags:** *animal-lover, big, bully, cynical, drunkard, eager, gambler, greedy, grumpy, gullible, heartthrob, honest, kind, lewd, little, naive, old, popular, proud, rookie, reckless, shameless, sharp-eyed, short-tempered*')}
         </p>
         <p className={styles.prose}>
-          <strong>Traits:</strong> __'s kid/sibling/parent/cousin/__, bald, crush on __, grudge against __,
-          hates __, idolizes __, jokes, messy, missing eye/finger/hand/__, misses their kids, nightmares,
-          recently married, religious, scars, skinny, sharp-tongued, sings, snores, tells tall tales, too serious,
-          troubles at home, whistles, whittler
+          {parseInlineMarkdown("**Traits:** __'s kid/sibling/parent/cousin/__, bald, crush on __, grudge against __, hates __, idolizes __, jokes, messy, missing eye/finger/hand/__, misses their kids, nightmares, recently married, religious, scars, skinny, sharp-tongued, sings, snores, tells tall tales, too serious, troubles at home, whistles, whittler")}
         </p>
         <div className={styles.individualsGrid}>
           {individuals.map((ind, i) => (
@@ -573,7 +621,6 @@ export const MarshalCrew = ({ data, onSave }: MarshalCrewProps) => {
         </div>
       </PlaybookSection>
 
-      {/* ── Follower moves ── */}
       <PlaybookSection title="Crew Moves">
         {FOLLOWER_MOVES.map((move) => (
           <Move key={move.id} move={move} />
