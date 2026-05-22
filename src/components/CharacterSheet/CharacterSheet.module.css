@@ -10,12 +10,13 @@
 }
 
 /* Flex row containing the heading and the optional collapse toggle.
-   sectionTitleWarn and collapseToggle are mutually exclusive — only one
-   ever renders at a time — so both use margin-left: auto safely. */
+   Both the warn icon and collapse button are always in the DOM when present;
+   each is hidden independently via visibility: hidden, so margin-left: auto works for both. */
 .sectionHeader {
   display: flex;
   align-items: center;
   gap: var(--spacing-2);
+  min-height: 44px;
   padding-bottom: var(--spacing-3);
   border-bottom: 1px solid var(--border-subtle);
 }
@@ -46,6 +47,11 @@
   padding: 0;
   min-width: 44px;
   min-height: 44px;
+}
+
+.collapseToggleHidden {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .collapseToggle:hover {

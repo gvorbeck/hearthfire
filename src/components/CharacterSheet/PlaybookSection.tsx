@@ -27,8 +27,9 @@ export const PlaybookSection = ({
   onToggleCollapse,
   children,
 }: PlaybookSectionProps) => {
-  const showCollapse = collapsible && !warn && !!onToggleCollapse;
+  const showCollapse = collapsible && !!onToggleCollapse;
   const chevronCx = clsx(styles.collapseChevron, !isCollapsed && styles.collapseChevronOpen);
+  const collapseCx = clsx(styles.collapseToggle, warn && styles.collapseToggleHidden);
   const chooseCx = clsx(styles.sectionTitleChoose, !warn && styles.sectionTitleChooseHidden);
   const warnCx = clsx(styles.sectionTitleWarn, !warn && styles.sectionTitleWarnHidden);
 
@@ -50,10 +51,12 @@ export const PlaybookSection = ({
           <Button
             variant="ghost"
             size="sm"
-            className={styles.collapseToggle}
-            onClick={onToggleCollapse}
+            className={collapseCx}
+            onClick={warn ? undefined : onToggleCollapse}
             aria-expanded={!isCollapsed}
             aria-label={isCollapsed ? `Expand ${title}` : `Collapse ${title}`}
+            tabIndex={warn ? -1 : undefined}
+            aria-hidden={warn || undefined}
           >
             <Icon name="chevron-down" size="small" className={chevronCx} aria-hidden="true" />
           </Button>

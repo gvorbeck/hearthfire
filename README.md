@@ -141,8 +141,8 @@ The app deploys automatically to Firebase Hosting via GitHub Actions on every pu
 - [x] All 9 playbooks — full content coverage
 - [ ] Playbook inserts
   - [ ] Inventory
-  - [ ] Animal Companion
-  - [ ] Crew
+  - [x] Animal Companion
+  - [x] Crew
   - [x] Invocations
   - [x] Initiates of Danu
 - [ ] Death-state playbooks
