@@ -34,7 +34,7 @@ import { GhostInsert } from '@/components/CharacterSheet/playbooks/ghost/GhostIn
 import { ThrallInsert } from '@/components/CharacterSheet/playbooks/thrall/ThrallInsert';
 import { FollowersInsert } from '@/components/CharacterSheet/playbooks/followers/FollowersInsert';
 import charSheetStyles from '@/components/CharacterSheet/CharacterSheet.module.css';
-import type { Character, CharacterData, GameSession, PlaybookType } from '@/types';
+import type { Character, CharacterData, GameSession, PlaybookType, PlaybookFeatures } from '@/types';
 import styles from './CharacterPlaybook.module.css';
 
 type PlaybookSectionComponent = React.ComponentType<{ data: CharacterData | undefined; onSave: (data: Partial<CharacterData>) => Promise<void> }>;
@@ -58,7 +58,7 @@ const getCharacterLevel = (character: Character): number => {
   return isNaN(parsed) ? character.level : parsed;
 };
 
-const INSERT_INSTINCT_KEYS: { feature: keyof import('@/types').PlaybookFeatures; label: string }[] = [
+const INSERT_INSTINCT_KEYS: { feature: keyof PlaybookFeatures; label: string }[] = [
   { feature: 'revenantInstinct', label: 'Revenant' },
   { feature: 'ghostInstinct', label: 'Ghost' },
   { feature: 'thrallInstinct', label: 'Thrall' },
@@ -293,15 +293,15 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
       label: 'Inventory',
       content: resolvePlaybookTabContent('inventory', null, character.data, prosperity, handleSaveCharacterData),
     },
-    ...playbookTabs.map(({ id, label, content }) => ({
+    ...playbookTabs.map(({ id: tabId, label, content }) => ({
       label,
-      badge: id === 'invocations' && showInvocationsBadge
+      badge: tabId === 'invocations' && showInvocationsBadge
         ? <span className={tabBadgeClass} aria-label="New Invocation available" />
         : undefined,
-      badgeTooltip: id === 'invocations' && showInvocationsBadge
+      badgeTooltip: tabId === 'invocations' && showInvocationsBadge
         ? 'A new Invocation can be selected'
         : undefined,
-      content: resolvePlaybookTabContent(id, content, character.data, prosperity, handleSaveCharacterData),
+      content: resolvePlaybookTabContent(tabId, content, character.data, prosperity, handleSaveCharacterData),
     })),
     ...(character.data?.inserts ?? []).map((label) => ({
       label,

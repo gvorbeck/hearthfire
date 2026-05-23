@@ -45,7 +45,7 @@ interface GearRowProps {
   text: string;
   onCheckedChange: (fi: number, gi: number, checked: boolean) => void;
   onTextChange: (fi: number, gi: number, text: string) => void;
-  onBlur: (fi: number) => void;
+  onBlur: () => void;
 }
 
 const GearRow = memo(({ followerIndex, gearIndex, weight, checked, text, onCheckedChange, onTextChange, onBlur }: GearRowProps) => {
@@ -57,7 +57,6 @@ const GearRow = memo(({ followerIndex, gearIndex, weight, checked, text, onCheck
     (e: React.ChangeEvent<HTMLInputElement>) => onTextChange(followerIndex, gearIndex, e.target.value),
     [followerIndex, gearIndex, onTextChange],
   );
-  const handleBlur = useCallback(() => onBlur(followerIndex), [followerIndex, onBlur]);
   const label = weight === 2 ? 'double-weight gear item' : 'gear item';
   return (
     <div className={styles.gearRow}>
@@ -75,7 +74,7 @@ const GearRow = memo(({ followerIndex, gearIndex, weight, checked, text, onCheck
         placeholder="Item…"
         aria-label={`Follower ${followerIndex + 1} ${label} ${gearIndex + 1} name`}
         onChange={handleText}
-        onBlur={handleBlur}
+        onBlur={onBlur}
       />
     </div>
   );
@@ -86,7 +85,7 @@ interface MoveRowProps {
   moveIndex: number;
   value: string;
   onChange: (fi: number, mi: number, val: string) => void;
-  onBlur: (fi: number) => void;
+  onBlur: () => void;
 }
 
 const MoveRow = memo(({ followerIndex, moveIndex, value, onChange, onBlur }: MoveRowProps) => {
@@ -94,7 +93,6 @@ const MoveRow = memo(({ followerIndex, moveIndex, value, onChange, onBlur }: Mov
     (e: React.ChangeEvent<HTMLInputElement>) => onChange(followerIndex, moveIndex, e.target.value),
     [followerIndex, moveIndex, onChange],
   );
-  const handleBlur = useCallback(() => onBlur(followerIndex), [followerIndex, onBlur]);
   return (
     <Input
       className={styles.moveInput}
@@ -103,7 +101,7 @@ const MoveRow = memo(({ followerIndex, moveIndex, value, onChange, onBlur }: Mov
       placeholder={`Move ${moveIndex + 1}…`}
       aria-label={`Follower ${followerIndex + 1} move ${moveIndex + 1}`}
       onChange={handleChange}
-      onBlur={handleBlur}
+      onBlur={onBlur}
     />
   );
 });
@@ -112,7 +110,7 @@ interface FollowerCardProps {
   follower: FollowerData;
   index: number;
   onFieldChange: (fi: number, field: keyof FollowerData, val: unknown) => void;
-  onBlur: (fi: number) => void;
+  onBlur: () => void;
   onGearCheckedChange: (fi: number, gi: number, checked: boolean) => void;
   onGearTextChange: (fi: number, gi: number, text: string) => void;
   onMoveChange: (fi: number, mi: number, val: string) => void;
@@ -142,7 +140,7 @@ const FollowerCard = memo(({
   const handleInstinct = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onFieldChange(index, 'instinct', e.target.value), [index, onFieldChange]);
   const handleCost = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onFieldChange(index, 'cost', e.target.value), [index, onFieldChange]);
   const handleNotes = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onFieldChange(index, 'notes', e.target.value), [index, onFieldChange]);
-  const handleBlur = useCallback(() => onBlur(index), [index, onBlur]);
+  const handleBlur = onBlur;
   const handleLoyalty = useCallback((n: number) => onLoyaltyChange(index, n), [index, onLoyaltyChange]);
   const handleWheel = useCallback((e: React.WheelEvent<HTMLInputElement>) => e.currentTarget.blur(), []);
 
@@ -160,10 +158,10 @@ const FollowerCard = memo(({
 
   return (
     <section className={styles.card} aria-labelledby={headingId}>
+      <Heading as="h3" id={headingId} className={styles.srOnly}>{followerLabel}</Heading>
       <div className={styles.cardHeader}>
         <div className={styles.nameTagRow}>
           <Input
-            id={headingId}
             className={styles.nameInput}
             type="text"
             value={follower.name ?? ''}
@@ -289,7 +287,7 @@ const FollowerCard = memo(({
         <div className={styles.movesList}>
           {(follower.moves ?? []).map((mv, mi) => (
             <MoveRow
-              key={`move-${mi}`}
+              key={`move-${follower.id}-${mi}`}
               followerIndex={index}
               moveIndex={mi}
               value={mv}
@@ -325,7 +323,7 @@ const FollowerCard = memo(({
           <div className={styles.gearCol}>
             {singleGear.map((item, gi) => (
               <GearRow
-                key={`gear-single-${gi}`}
+                key={`gear-single-${follower.id}-${gi}`}
                 followerIndex={index}
                 gearIndex={gi}
                 weight={1}
@@ -340,7 +338,7 @@ const FollowerCard = memo(({
           <div className={styles.gearCol}>
             {doubleGear.map((item, gi) => (
               <GearRow
-                key={`gear-double-${gi}`}
+                key={`gear-double-${follower.id}-${gi}`}
                 followerIndex={index}
                 gearIndex={GEAR_SINGLE_COUNT + gi}
                 weight={2}
@@ -386,11 +384,17 @@ export const FollowersInsert = ({ data, onSave }: FollowersInsertProps) => {
   const followersRef = useRef(followers);
   followersRef.current = followers;
 
+  // Track the last Firestore snapshot we applied so we only sync when it
+  // actually changes, not on every local keystroke that triggers a re-render.
+  const lastFirestoreFollowersRef = useRef<string | undefined>(undefined);
+
   useEffect(() => {
     const f = resolvePlaybookFeatures(data);
-    if (f.followers !== undefined) {
-      setFollowers(f.followers.map((fl) => normalizeFollower(fl, fl.id ?? generateId())));
-    }
+    if (f.followers === undefined) return;
+    const incoming = JSON.stringify(f.followers);
+    if (incoming === lastFirestoreFollowersRef.current) return;
+    lastFirestoreFollowersRef.current = incoming;
+    setFollowers(f.followers.map((fl) => normalizeFollower(fl, fl.id ?? generateId())));
   }, [data]);
 
   const { saveDebounced, saveImmediate, flushDebounce } = useCrewSave(data, onSave);
@@ -433,7 +437,7 @@ export const FollowersInsert = ({ data, onSave }: FollowersInsertProps) => {
     });
   }, [saveFollowers, saveFollowersDebounced]);
 
-  const handleBlur = useCallback((_fi: number) => {
+  const handleBlur = useCallback(() => {
     flushFollowers();
   }, [flushFollowers]);
 
@@ -504,7 +508,7 @@ export const FollowersInsert = ({ data, onSave }: FollowersInsertProps) => {
             onRemove={handleRemove}
           />
         ))}
-        <Button variant="secondary" onClick={handleAdd}>+ Add Follower</Button>
+        <Button variant="secondary" onClick={handleAdd}>Add Follower</Button>
       </PlaybookSection>
     </div>
   );
