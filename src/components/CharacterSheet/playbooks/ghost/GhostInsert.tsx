@@ -10,6 +10,19 @@ import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { CharacterData } from '@/types';
 import styles from './GhostInsert.module.css';
 
+const POLTERGEIST_MOVE: MoveDefinition = {
+  id: 'ghost-poltergeist-fury',
+  name: 'Poltergeist — Fury',
+  uses: 4,
+  usesLabel: 'Fury',
+  body: 'Spend Fury, 1-for-1, to:',
+  list: [
+    'Shatter, break, or destroy a number of small mundane objects, or one big object.',
+    'Hurl an object at someone and roll +DEX: **on a 10+**, deal your damage (*forceful*); **on a 7-9**, deal your damage (*forceful*) but lose 1d4 HP.',
+    'Attack someone with telekinetic force and roll +INT: **on a 10+**, fling them to a place you can see and pin them there, spending 1 HP each time they make a committed effort to break free; **on a 7-9**, as 10+, but you also lose 1d4 HP.',
+  ],
+};
+
 const GHOST_MOVES: MoveDefinition[] = [
   {
     id: 'ghost-unliving',
@@ -83,7 +96,6 @@ const CONSEQUENCE_LABELS: { id: string; label: string; requiresId?: string }[] =
 const POLTERGEIST_ID = 'poltergeist';
 const BREAKDOWN_ID = 'breakdown';
 const UNSTABLE_ID = 'unstable';
-const FURY_TOTAL = 4;
 
 const GHOST_KEYS = {
   instinct: 'ghostInstinct',
@@ -106,12 +118,11 @@ export const GhostInsert = ({ data, onSave }: GhostInsertProps) => {
     saveImmediate,
   } = useInsertSections(data, onSave, GHOST_KEYS);
 
-  const features = resolvePlaybookFeatures(data);
   const [consequences, setConsequences] = useState<Record<string, boolean>>(
-    () => features.ghostConsequences ?? {},
+    () => resolvePlaybookFeatures(data).ghostConsequences ?? {},
   );
   const [furyChecked, setFuryChecked] = useState<number>(
-    () => features.ghostPoltergeistFury ?? 0,
+    () => resolvePlaybookFeatures(data).ghostPoltergeistFury ?? 0,
   );
 
   useEffect(() => {
@@ -145,18 +156,6 @@ export const GhostInsert = ({ data, onSave }: GhostInsertProps) => {
     [hasBreakdown],
   );
 
-  const poltergeistMove: MoveDefinition = useMemo(() => ({
-    id: 'ghost-poltergeist-fury',
-    name: 'Poltergeist — Fury',
-    uses: FURY_TOTAL,
-    usesLabel: 'Fury',
-    body: 'Spend Fury, 1-for-1, to:',
-    list: [
-      'Shatter, break, or destroy a number of small mundane objects, or one big object.',
-      'Hurl an object at someone and roll +DEX: **on a 10+**, deal your damage (*forceful*); **on a 7-9**, deal your damage (*forceful*) but lose 1d4 HP.',
-      'Attack someone with telekinetic force and roll +INT: **on a 10+**, fling them to a place you can see and pin them there, spending 1 HP each time they make a committed effort to break free; **on a 7-9**, as 10+, but you also lose 1d4 HP.',
-    ],
-  }), []);
 
   return (
     <div className={styles.root}>
@@ -200,7 +199,7 @@ export const GhostInsert = ({ data, onSave }: GhostInsertProps) => {
         {hasPoltergeist && (
           <div className={styles.furySection}>
             <Move
-              move={poltergeistMove}
+              move={POLTERGEIST_MOVE}
               usesChecked={furyChecked}
               onUsesChange={handleFuryChange}
             />

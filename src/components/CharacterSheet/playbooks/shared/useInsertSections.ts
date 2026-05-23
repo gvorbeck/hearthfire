@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
-import { useCrewSave } from '../marshal/useCrewSave';
+import { useCrewSave } from './useCrewSave';
 import type { CharacterData, PlaybookFeatures } from '@/types';
 
 interface InsertSectionKeys {
@@ -15,12 +15,11 @@ export const useInsertSections = (
   keys: InsertSectionKeys,
 ) => {
   const { saveDebounced, saveImmediate, flushDebounce } = useCrewSave(data, onSave);
-  const features = resolvePlaybookFeatures(data);
 
-  const [instinct, setInstinct] = useState<string>(() => (features[keys.instinct] as string | undefined) ?? '');
-  const [purpose, setPurpose] = useState<string>(() => (features[keys.purpose] as string | undefined) ?? '');
+  const [instinct, setInstinct] = useState<string>(() => (resolvePlaybookFeatures(data)[keys.instinct] as string | undefined) ?? '');
+  const [purpose, setPurpose] = useState<string>(() => (resolvePlaybookFeatures(data)[keys.purpose] as string | undefined) ?? '');
   const [purposeNames, setPurposeNames] = useState<Record<string, string>>(
-    () => (features[keys.purposeName] as Record<string, string> | undefined) ?? {},
+    () => (resolvePlaybookFeatures(data)[keys.purposeName] as Record<string, string> | undefined) ?? {},
   );
 
   const purposeNamesRef = useRef(purposeNames);

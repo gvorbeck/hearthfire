@@ -12,16 +12,12 @@
   line-height: 1.5;
 }
 
-/* Moves */
-
 .moveList {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-3);
   margin-top: var(--spacing-2);
 }
-
-/* Consequences */
 
 .appetiteSection {
   margin-top: var(--spacing-4);

@@ -1,7 +1,9 @@
+import { useCallback } from 'react';
 import { Input, Radio, Text } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { INSERT_INSTINCT_OPTIONS, INSERT_PURPOSE_OPTIONS } from '@/lib/insertSharedData';
+import type { INSERT_PURPOSE_OPTIONS as PurposeOptions } from '@/lib/insertSharedData';
 import styles from './InsertSections.module.css';
 
 interface InsertInstinctSectionProps {
@@ -51,6 +53,41 @@ export const InsertInstinctSection = ({
   );
 };
 
+interface PurposeDetailProps {
+  opt: (typeof PurposeOptions)[number];
+  nameValue: string;
+  onNameChange: (purposeValue: string, e: React.ChangeEvent<HTMLInputElement>) => void;
+  onNameBlur: () => void;
+}
+
+const PurposeDetail = ({ opt, nameValue, onNameChange, onNameBlur }: PurposeDetailProps) => {
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => onNameChange(opt.value, e),
+    [onNameChange, opt.value],
+  );
+
+  return (
+    <div className={styles.purposeDetail}>
+      <Input
+        className={styles.purposeNameInput}
+        type="text"
+        value={nameValue}
+        placeholder={opt.namePlaceholder}
+        aria-label={opt.namePrompt}
+        onChange={handleChange}
+        onBlur={onNameBlur}
+      />
+      <ul className={styles.triggerList}>
+        {opt.triggers.map((t) => (
+          <li key={t} className={styles.triggerItem}>
+            <Text as="span" size="sm" color="muted">{parseInlineMarkdown(t)}</Text>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
 interface InsertPurposeSectionProps {
   radioName: string;
   purpose: string;
@@ -93,24 +130,12 @@ export const InsertPurposeSection = ({
                 label={<strong className={styles.optionTitle}>{opt.label}</strong>}
               />
               {isSelected && (
-                <div className={styles.purposeDetail}>
-                  <Input
-                    className={styles.purposeNameInput}
-                    type="text"
-                    value={purposeNames[opt.value] ?? ''}
-                    placeholder={opt.namePlaceholder}
-                    aria-label={opt.namePrompt}
-                    onChange={onNameChange.bind(null, opt.value)}
-                    onBlur={onNameBlur}
-                  />
-                  <ul className={styles.triggerList}>
-                    {opt.triggers.map((t) => (
-                      <li key={t} className={styles.triggerItem}>
-                        <Text as="span" size="sm" color="muted">{parseInlineMarkdown(t)}</Text>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <PurposeDetail
+                  opt={opt}
+                  nameValue={purposeNames[opt.value] ?? ''}
+                  onNameChange={onNameChange}
+                  onNameBlur={onNameBlur}
+                />
               )}
             </div>
           );

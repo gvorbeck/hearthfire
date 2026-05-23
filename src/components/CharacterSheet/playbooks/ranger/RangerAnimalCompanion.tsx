@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo, memo } from 'react';
 import { Checkbox, CheckboxGroup, Divider, Input, Radio, Text, UseDots } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
-import { useCrewSave } from '../marshal/useCrewSave';
+import { useCrewSave } from '../shared/useCrewSave';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { CharacterData, PlaybookFeatures } from '@/types';
 import styles from './RangerAnimalCompanion.module.css';

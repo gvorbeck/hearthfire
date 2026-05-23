@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { Checkbox, CheckboxGroup, Divider, Radio, UseDots } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
-import { useCrewSave } from './useCrewSave';
+import { useCrewSave } from '../shared/useCrewSave';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { CharacterData } from '@/types';
 import styles from './MarshalCrew.module.css';
