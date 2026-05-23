@@ -23,17 +23,13 @@ The fundamentals are solid. TypeScript coverage is strong, CSS Modules disciplin
 
 ---
 
-### 2. Unsafe type cast bypasses the compiler
+### ~~2. Unsafe type cast bypasses the compiler~~
 
-**File:** `src/hooks/useGame.ts:38`
+~~**File:** `src/hooks/useGame.ts:38`~~
 
-```ts
-setGame({ ...raw, characters, id: snapshot.id } as unknown as GameSession);
-```
+~~`as unknown as T` is a full escape hatch — it tells TypeScript to trust you unconditionally. This exists because the Firestore data shape doesn't actually match `GameSession`. If a document is malformed or a field type has drifted, you won't find out until a runtime crash in a user session.~~
 
-`as unknown as T` is a full escape hatch — it tells TypeScript to trust you unconditionally. This exists because the Firestore data shape doesn't actually match `GameSession`. If a document is malformed or a field type has drifted, you won't find out until a runtime crash in a user session.
-
-**Fix:** Validate the Firestore response shape before casting. Use a runtime validator (Zod, io-ts, or a hand-rolled guard) and fail explicitly on bad data rather than silently coercing it.
+**Resolved:** `parseGameSession` and `parseContent` now validate every field before constructing the typed object. Bad data throws with a clear message, caught by a `try/catch` that routes the error to the UI. No casts remain except the honest `snapshot.data() as Record<string, unknown>`.
 
 ---
 
@@ -127,7 +123,7 @@ Screen readers announce `aria-label` as the field's name. A question reads stran
 | Priority | Issue                                                                | File                                              |
 | -------- | -------------------------------------------------------------------- | ------------------------------------------------- |
 | ~~P0~~   | ~~Race condition — character updates can silently overwrite each other~~ | ~~`src/hooks/useGame.ts`~~                    |
-| P0       | `as unknown as GameSession` — compiler is being lied to              | `src/hooks/useGame.ts:38`                         |
+| ~~P0~~   | ~~`as unknown as GameSession` — compiler is being lied to~~          | ~~`src/hooks/useGame.ts:38`~~                     |
 | P1       | Save errors are invisible to users                                   | Multiple                                          |
 | P1       | No error boundary — app goes blank on route throw                    | `src/App.tsx`                                     |
 | P2       | RangerAnimalCompanion is 689 lines                                   | `src/components/CharacterSheet/playbooks/ranger/` |
