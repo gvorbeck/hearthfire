@@ -6,7 +6,7 @@ import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
 import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Modal, Radio } from '@/components/primitives';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
 import { PageHeader } from '@/components/PageHeader/PageHeader';
-import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, Moves, SpecialPossessions, Introductions } from '@/components/CharacterSheet/sections';
+import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, Moves, SpecialPossessions, Introductions, Inventory } from '@/components/CharacterSheet/sections';
 import { BACKGROUND_OPTIONS, FOX_LIFE_OF_CRIME_BACKGROUND } from '@/lib/backgroundOptions';
 import { INSTINCT_OPTIONS } from '@/lib/instinctOptions';
 import { APPEARANCE_OPTIONS } from '@/lib/appearanceOptions';
@@ -29,6 +29,9 @@ import { RangerSomethingWicked } from '@/components/CharacterSheet/playbooks/ran
 import { RangerAnimalCompanion } from '@/components/CharacterSheet/playbooks/ranger/RangerAnimalCompanion';
 import { SeekerCollection } from '@/components/CharacterSheet/playbooks/seeker/SeekerCollection';
 import { WouldBeHeroFearAnger } from '@/components/CharacterSheet/playbooks/would-be-hero/WouldBeHeroFearAnger';
+import { RevenantInsert } from '@/components/CharacterSheet/playbooks/revenant/RevenantInsert';
+import { GhostInsert } from '@/components/CharacterSheet/playbooks/ghost/GhostInsert';
+import { ThrallInsert } from '@/components/CharacterSheet/playbooks/thrall/ThrallInsert';
 import charSheetStyles from '@/components/CharacterSheet/CharacterSheet.module.css';
 import type { Character, CharacterData, GameSession, PlaybookType } from '@/types';
 import styles from './CharacterPlaybook.module.css';
@@ -54,6 +57,18 @@ const getCharacterLevel = (character: Character): number => {
   return isNaN(parsed) ? character.level : parsed;
 };
 
+const INSERT_INSTINCT_KEYS: { feature: keyof import('@/types').PlaybookFeatures; label: string }[] = [
+  { feature: 'revenantInstinct', label: 'Revenant' },
+  { feature: 'ghostInstinct', label: 'Ghost' },
+  { feature: 'thrallInstinct', label: 'Thrall' },
+];
+
+const getInsertInstinctNote = (data: CharacterData | undefined): string | undefined => {
+  const features = resolvePlaybookFeatures(data);
+  const match = INSERT_INSTINCT_KEYS.find(({ feature }) => !!features[feature]);
+  return match ? `Replaced by your ${match.label} instinct` : undefined;
+};
+
 const PCPlaybookTab = ({ character, playbookOption, onSave }: { character: Character; playbookOption: (typeof PLAYBOOKS)[number]; onSave: (data: Partial<CharacterData>) => Promise<void> }) => {
   const level = getCharacterLevel(character);
   const { playbook, data } = character;
@@ -61,6 +76,8 @@ const PCPlaybookTab = ({ character, playbookOption, onSave }: { character: Chara
   const foxChooseOverride = playbook === 'fox' && data?.background === FOX_LIFE_OF_CRIME_BACKGROUND
     ? { count: 3, note: '+1 from A Life of Crime' }
     : undefined;
+
+  const insertInstinctNote = getInsertInstinctNote(data);
 
   return (
     <div className={styles.layout}>
@@ -76,7 +93,7 @@ const PCPlaybookTab = ({ character, playbookOption, onSave }: { character: Chara
           <Background playbookKey={playbook} options={BACKGROUND_OPTIONS[playbook]} level={level} data={data} onSave={onSave} />
         </div>
         <div className={styles.colRight}>
-          <Instinct playbookKey={playbook} options={INSTINCT_OPTIONS[playbook]} data={data} onSave={onSave} />
+          <Instinct playbookKey={playbook} options={INSTINCT_OPTIONS[playbook]} data={data} onSave={onSave} overrideNote={insertInstinctNote} />
           <Appearance rows={APPEARANCE_OPTIONS[playbook]} data={data} onSave={onSave} />
           <PlaceOfOrigin options={PLACE_OF_ORIGIN_OPTIONS[playbook]} data={data} onSave={onSave} />
         </div>
@@ -129,6 +146,8 @@ const getPlaybookTabs = (playbook: PlaybookType, data: CharacterData | undefined
 const INSERT_OPTIONS = ['Revenant', 'Ghost', 'Thrall'] as const;
 type InsertOption = typeof INSERT_OPTIONS[number];
 
+const IMPLEMENTED_INSERTS = new Set<InsertOption>(['Revenant', 'Ghost', 'Thrall']);
+
 const AddInsertModal = ({ open, onClose, onAdd }: { open: boolean; onClose: () => void; onAdd: (insert: InsertOption) => void }) => {
   const headingId = useId();
   const [selected, setSelected] = useState<InsertOption>(INSERT_OPTIONS[0]);
@@ -150,8 +169,9 @@ const AddInsertModal = ({ open, onClose, onAdd }: { open: boolean; onClose: () =
             key={opt}
             name="insert-option"
             value={opt}
-            label={opt}
+            label={IMPLEMENTED_INSERTS.has(opt) ? opt : `${opt} (coming soon)`}
             checked={selected === opt}
+            disabled={!IMPLEMENTED_INSERTS.has(opt)}
             onChange={handleSelectChange}
           />
         ))}
@@ -175,6 +195,10 @@ const resolvePlaybookTabContent = (
   if (id === 'invocations') return <LightbearerInvocations data={data} onSave={onSave} />;
   if (id === 'crew') return <MarshalCrew data={data} prosperity={prosperity} onSave={onSave} />;
   if (id === 'animal-companion') return <RangerAnimalCompanion data={data} onSave={onSave} />;
+  if (id === 'inventory') return <Inventory data={data} prosperity={prosperity} onSave={onSave} />;
+  if (id === 'Revenant') return <RevenantInsert data={data} onSave={onSave} />;
+  if (id === 'Ghost') return <GhostInsert data={data} onSave={onSave} />;
+  if (id === 'Thrall') return <ThrallInsert data={data} onSave={onSave} />;
   return fallback;
 };
 
@@ -254,7 +278,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
     },
     {
       label: 'Inventory',
-      content: null,
+      content: resolvePlaybookTabContent('inventory', null, character.data, prosperity, handleSaveCharacterData),
     },
     ...playbookTabs.map(({ id, label, content }) => ({
       label,
@@ -266,8 +290,11 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
         : undefined,
       content: resolvePlaybookTabContent(id, content, character.data, prosperity, handleSaveCharacterData),
     })),
-    ...(character.data?.inserts ?? []).map((label) => ({ label, content: null })),
-  ], [character, playbookOption, handleSaveCharacterData, playbookTabs, showInvocationsBadge]);
+    ...(character.data?.inserts ?? []).map((label) => ({
+      label,
+      content: resolvePlaybookTabContent(label, null, character.data, prosperity, handleSaveCharacterData),
+    })),
+  ], [character, playbookOption, handleSaveCharacterData, playbookTabs, showInvocationsBadge, prosperity]);
 
   return (
     <main className={styles.page}>

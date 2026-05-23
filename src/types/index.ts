@@ -78,9 +78,34 @@ export interface PlaybookFeatures {
   initiateLoyalty?: Record<string, number>;
   initiatePicks?: Record<string, Record<string, string>>;
   initiateRites?: Record<string, string>;
+  revenantInstinct?: string;
+  revenantPurpose?: string;
+  revenantPurposeName?: Record<string, string>;
+  revenantConsequences?: Record<string, boolean>;
+  ghostInstinct?: string;
+  ghostPurpose?: string;
+  ghostPurposeName?: Record<string, string>;
+  ghostConsequences?: Record<string, boolean>;
+  ghostPoltergeistFury?: number;
+  thrallMaster?: string;
+  thrallInstinct?: string;
+  thrallImpulse?: string;
+  thrallImpulseCustom?: string;
+  thrallFavor?: number;
+  thrallMarksGained?: Record<string, boolean>;
+  thrallMarksCrossedOff?: Record<string, boolean>;
 }
 
 export interface CharacterData {
+  inventoryChecked?: Record<string, boolean>;
+  inventoryUses?: Record<string, number>;
+  inventoryCustomItems?: { checked: boolean; text: string; weight: 1 | 2 }[];
+  inventorySmallChecked?: Record<string, boolean>;
+  inventorySmallCustom?: { checked: boolean; text: string }[];
+  inventoryUndefined?: number;
+  inventorySmallUndefined?: number;
+  inventoryOtherThings?: string;
+  inventoryPossessions?: { checked: boolean; text: string; weight: 1 | 2 }[];
   background?: string;
   backgroundChoices?: string[];
   backgroundFreeText?: Record<string, string>;

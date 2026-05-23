@@ -1,0 +1,156 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.prose {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.masterInput {
+  margin-top: var(--spacing-3);
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+}
+
+.radioList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.radioRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+  cursor: pointer;
+  user-select: none;
+}
+
+.optionLabel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.optionTitle {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+}
+
+.optionDesc {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.moveList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-2);
+}
+
+.markList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.markEntry {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  padding-bottom: var(--spacing-4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.markEntry:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.markCrossedOff {
+  opacity: 0.45;
+}
+
+.markHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+}
+
+.markGainedLabel {
+  flex: 1;
+}
+
+.markName {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+}
+
+.crossOffBtn {
+  flex-shrink: 0;
+}
+
+.crossOffBtnActive {
+  color: var(--color-danger, #c0392b);
+  border-color: var(--color-danger, #c0392b);
+}
+
+.crossOffBtnActive:hover {
+  color: var(--color-danger, #c0392b);
+  border-color: var(--color-danger, #c0392b);
+}
+
+.crossOffBtn:focus-visible {
+  outline: 2px solid var(--color-accent, currentColor);
+  outline-offset: 2px;
+}
+
+.markCrossedOff .markName {
+  text-decoration: line-through;
+}
+
+.markBody {
+  padding-left: calc(16px + var(--spacing-3) + var(--spacing-3));
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.markProse {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.markBulletList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.markBulletItem {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+  padding-left: var(--spacing-3);
+  border-left: 2px solid var(--border-subtle);
+}

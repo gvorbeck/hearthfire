@@ -26,6 +26,14 @@
   gap: var(--spacing-2);
 }
 
+.gapMd {
+  gap: var(--spacing-3);
+}
+
+.gapLg {
+  gap: var(--spacing-4);
+}
+
 .grid2 {
   display: grid;
   grid-template-columns: 1fr 1fr;

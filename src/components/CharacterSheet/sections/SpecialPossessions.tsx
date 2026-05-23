@@ -196,8 +196,7 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1, chooseOver
   useEffect(() => {
     setSelected(data?.specialPossessions ?? {});
     setUses(data?.specialPossessionUses ?? {});
-    if (data?.specialPossessionCustom !== undefined) setCustomText(data.specialPossessionCustom);
-  }, [data?.specialPossessions, data?.specialPossessionUses, data?.specialPossessionCustom]);
+  }, [data?.specialPossessions, data?.specialPossessionUses]);
 
   useEffect(() => () => { if (customDebounceRef.current) clearTimeout(customDebounceRef.current); }, []);
 

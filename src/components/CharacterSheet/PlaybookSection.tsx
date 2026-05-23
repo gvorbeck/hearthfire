@@ -13,6 +13,7 @@ interface PlaybookSectionProps {
   collapsible?: boolean;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+  overrideNote?: string;
   children?: React.ReactNode;
 }
 
@@ -25,16 +26,18 @@ export const PlaybookSection = ({
   collapsible,
   isCollapsed,
   onToggleCollapse,
+  overrideNote,
   children,
 }: PlaybookSectionProps) => {
-  const showCollapse = collapsible && !!onToggleCollapse;
+  const showCollapse = collapsible && !!onToggleCollapse && !overrideNote;
   const chevronCx = clsx(styles.collapseChevron, !isCollapsed && styles.collapseChevronOpen);
   const collapseCx = clsx(styles.collapseToggle, warn && styles.collapseToggleHidden);
-  const chooseCx = clsx(styles.sectionTitleChoose, !warn && styles.sectionTitleChooseHidden);
-  const warnCx = clsx(styles.sectionTitleWarn, !warn && styles.sectionTitleWarnHidden);
+  const chooseCx = clsx(styles.sectionTitleChoose, (!warn || !!overrideNote) && styles.sectionTitleChooseHidden);
+  const warnCx = clsx(styles.sectionTitleWarn, (!warn || !!overrideNote) && styles.sectionTitleWarnHidden);
+  const sectionCx = clsx(styles.section, overrideNote && styles.sectionOverride);
 
   return (
-    <section className={styles.section}>
+    <section className={sectionCx}>
       <div className={styles.sectionHeader}>
         <Heading as="h3" size="label" className={styles.sectionTitle}>
           {title}
@@ -43,10 +46,13 @@ export const PlaybookSection = ({
               {choose !== undefined ? `(Choose ${choose}${chooseNote ? `, ${chooseNote}` : ''})` : `(${chooseNote})`}
             </span>
           )}
-          <Tooltip text={warnText} side="top" noTabStop={!warn} className={warnCx}>
+          <Tooltip text={warnText} side="top" noTabStop={!warn || !!overrideNote} className={warnCx}>
             <Icon name="warning" size="small" aria-hidden={true} />
           </Tooltip>
         </Heading>
+        {overrideNote && (
+          <span className={styles.sectionOverrideNote}>{overrideNote}</span>
+        )}
         {showCollapse && (
           <Button
             variant="ghost"
