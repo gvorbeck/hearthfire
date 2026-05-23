@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import clsx from 'clsx';
-import { CheckboxGroup, Input, Radio, Text } from '@/components/primitives';
+import { Button, Checkbox, CheckboxGroup, Input, Radio, Text } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { Move } from '../../Move';
 import type { MoveDefinition } from '../../Move';
@@ -26,7 +26,7 @@ const FAVOR_MOVE: MoveDefinition = {
   ],
   list: [
     'Ask a question of your master and gain advantage on your next roll to act on the answer.',
-    'Gain a new Mark of your choice. Then ask the GM to choose a Mark that you don\'t have, and cross it off—you can never gain it.',
+    "Gain a new Mark of your choice. Then ask the GM to choose a Mark that you don't have, and cross it off—you can never gain it.",
   ],
 };
 
@@ -51,11 +51,11 @@ const DARK_SUCCOR_MOVE: MoveDefinition = {
   id: 'thrall-dark-succor',
   name: 'Dark Succor',
   body: [
-    'When you *are dying or killed outright*, your master intercedes on your behalf. You will recover, here and now or at a time and place of the GM\'s choosing. Then, roll +Favor: **on a 10+**, choose 1; **on a 7-9**, choose 2; **on a 6-**, all 3 apply.',
+    "When you *are dying or killed outright*, your master intercedes on your behalf. You will recover, here and now or at a time and place of the GM's choosing. Then, roll +Favor: **on a 10+**, choose 1; **on a 7-9**, choose 2; **on a 6-**, all 3 apply.",
   ],
   list: [
-    'Gain a new Mark of the GM\'s choice',
-    'Cross off a Mark that you don\'t have—you can never gain it',
+    "Gain a new Mark of the GM's choice",
+    "Cross off a Mark that you don't have—you can never gain it",
     'Your master gives you a task; until you complete it, your Favor stays at 0.',
   ],
   footer: 'Regardless, reset your Favor to 0.',
@@ -64,7 +64,7 @@ const DARK_SUCCOR_MOVE: MoveDefinition = {
 const UNHOLY_VESSEL_MOVE: MoveDefinition = {
   id: 'thrall-unholy-vessel',
   name: 'Unholy Vessel',
-  body: 'When you *would gain a Mark but there are none left to gain*, your humanity is utterly lost. You become a threat in the GM\'s control. Make a new character.',
+  body: "When you *would gain a Mark but there are none left to gain*, your humanity is utterly lost. You become a threat in the GM's control. Make a new character.",
 };
 
 const THRALL_MOVES: MoveDefinition[] = [
@@ -87,9 +87,9 @@ const IMPULSE_OPTIONS = [
 interface MarkDefinition {
   id: string;
   label: string;
-  body: string | string[];
+  body: string[];
   list?: string[];
-  footer?: string | string[];
+  footer?: string[];
   hpPenalty?: boolean;
 }
 
@@ -137,12 +137,12 @@ const MARK_DEFINITIONS: MarkDefinition[] = [
     body: [
       'You are filled with unending hunger. Gain an extra impulse: "Wantonly devour flesh."',
       'When you *Make Camp*, consume an extra 1d4 provisions or uses of supplies.',
+      'You can spend 1 Favor to:',
     ],
     list: [
       'Touch something. For as long as you hold it, everyone who sees it desires it.',
       'Gain a horrid, iron-rending maw (*hand*, 3 piercing, *messy*) for as long as you wish, and with it the ability to eat and digest anything.',
     ],
-    footer: 'You can spend 1 Favor to:',
   },
   {
     id: 'red-wrath',
@@ -182,7 +182,7 @@ const MARK_DEFINITIONS: MarkDefinition[] = [
       'What is their greatest fear?',
       'What is their worst memory?',
     ],
-    footer: 'When you *use the answer against them*, you have advantage.',
+    footer: ['When you *use the answer against them*, you have advantage.'],
   },
   {
     id: 'torments-blessing',
@@ -285,14 +285,11 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
     ? THRALL_INSTINCT_OPTIONS.filter((o) => o.value === instinct)
     : THRALL_INSTINCT_OPTIONS;
 
-  const impulseCheckboxItems = useMemo(
-    () => IMPULSE_OPTIONS.map((opt) => ({
-      id: opt.id,
-      label: <span>{opt.label}</span>,
-      disabled: impulse !== '' && impulse !== opt.id,
-    })),
-    [impulse],
-  );
+  const impulseCheckboxItems = IMPULSE_OPTIONS.map((opt) => ({
+    id: opt.id,
+    label: <span>{opt.label}</span>,
+    disabled: impulse !== '' && impulse !== opt.id,
+  }));
 
   return (
     <div className={styles.root}>
@@ -371,38 +368,40 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
             const gained = marksGained[mark.id] === true;
             const crossedOff = marksCrossedOff[mark.id] === true;
             const markCx = clsx(styles.markEntry, crossedOff && styles.markCrossedOff);
-            const bodyParagraphs = Array.isArray(mark.body) ? mark.body : [mark.body];
-            const footerParagraphs = mark.footer
-              ? Array.isArray(mark.footer) ? mark.footer : [mark.footer]
-              : [];
+            const crossOffCx = clsx(styles.crossOffBtn, crossedOff && styles.crossOffBtnActive);
             return (
               <div key={mark.id} className={markCx}>
                 <div className={styles.markHeader}>
-                  <label className={styles.markGainedLabel}>
-                    <input
-                      type="checkbox"
-                      className={styles.markCheckbox}
-                      checked={gained}
-                      disabled={crossedOff}
-                      onChange={(e) => handleMarkGainedChange(mark.id, e.target.checked)}
-                      aria-label={`Mark gained: ${mark.label}`}
-                    />
-                    <strong className={styles.markName}>{mark.label}</strong>
-                  </label>
-                  <button
-                    type="button"
-                    className={clsx(styles.crossOffBtn, crossedOff && styles.crossOffBtnActive)}
+                  <Checkbox
+                    className={styles.markGainedLabel}
+                    checked={gained}
+                    disabled={crossedOff}
+                    aria-disabled={crossedOff}
+                    onChange={(e) => handleMarkGainedChange(mark.id, e.target.checked)}
+                    aria-label={`Mark gained: ${mark.label}`}
+                    label={
+                      <Text as="span" size="sm" className={styles.markName}>
+                        {mark.label}
+                      </Text>
+                    }
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={crossOffCx}
                     onClick={() => handleMarkCrossedOffChange(mark.id, !crossedOff)}
                     aria-pressed={crossedOff}
                     aria-label={crossedOff ? `Restore mark: ${mark.label}` : `Cross off mark (can never gain): ${mark.label}`}
                   >
                     ✕
-                  </button>
+                  </Button>
                 </div>
                 {!crossedOff && (
                   <div className={styles.markBody}>
-                    {bodyParagraphs.map((p, i) => (
-                      <p key={i} className={styles.markProse}>{parseInlineMarkdown(p)}</p>
+                    {mark.body.map((p, i) => (
+                      <Text key={i} as="p" size="sm" color="muted" className={styles.markProse}>
+                        {parseInlineMarkdown(p)}
+                      </Text>
                     ))}
                     {mark.list && (
                       <ul className={styles.markBulletList}>
@@ -413,8 +412,10 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
                         ))}
                       </ul>
                     )}
-                    {footerParagraphs.map((p, i) => (
-                      <p key={i} className={styles.markProse}>{parseInlineMarkdown(p)}</p>
+                    {mark.footer?.map((p, i) => (
+                      <Text key={i} as="p" size="sm" color="muted" className={styles.markProse}>
+                        {parseInlineMarkdown(p)}
+                      </Text>
                     ))}
                   </div>
                 )}

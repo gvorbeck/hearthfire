@@ -139,6 +139,14 @@ The app deploys automatically to Firebase Hosting via GitHub Actions on every pu
 ## Roadmap
 
 - [x] All 9 playbooks — full content coverage
+  - [x] Blessed
+  - [x] Fox
+  - [x] Heavy
+  - [x] Lightbearer
+  - [x] Judge
+  - [x] Marshal
+  - [x] Ranger
+  - [x] Would-be Hero
 - [ ] Playbook inserts
   - [ ] Followers
   - [x] Inventory
