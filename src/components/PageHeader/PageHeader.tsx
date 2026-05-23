@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useId } from 'react';
+import { useState, useRef, useEffect, useCallback, useId } from 'react';
 import { Button, Heading, Text, RuleDivider, Tooltip, useToast } from '@/components/primitives';
 import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
 import type { Crumb } from '@/components/Breadcrumb/Breadcrumb';
@@ -33,34 +33,36 @@ export const PageHeader = ({ crumbs, title, titleLabel, subtitle, gameId, onSave
     };
   }, []);
 
-  const startEditing = () => {
+  const startEditing = useCallback(() => {
     setValue(title);
     setEditing(true);
-  };
+  }, [title]);
 
-  const commit = async () => {
+  const commit = useCallback(async () => {
     const trimmed = value.trim();
     try {
       if (trimmed && trimmed !== title) await onSaveTitle(trimmed);
-      setEditing(false);
     } catch {
       addToast('Failed to save game name. Try again.');
+    } finally {
+      setEditing(false);
     }
-  };
+  }, [value, title, onSaveTitle, addToast]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value);
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value), []);
 
-  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') await commit();
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') commit();
     if (e.key === 'Escape') setEditing(false);
-  };
+  }, [commit]);
 
-  const copyGameId = () => {
-    navigator.clipboard.writeText(gameId).catch(() => {});
-    setCopied(true);
-    if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current);
-    copiedTimerRef.current = setTimeout(() => setCopied(false), 2000);
-  };
+  const copyGameId = useCallback(() => {
+    navigator.clipboard.writeText(gameId).then(() => {
+      setCopied(true);
+      if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current);
+      copiedTimerRef.current = setTimeout(() => setCopied(false), 2000);
+    }).catch(() => addToast('Failed to copy game ID.'));
+  }, [gameId, addToast]);
 
   const copyLabel = copied ? 'Copied!' : 'Copy game ID';
 

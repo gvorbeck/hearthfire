@@ -59,18 +59,20 @@ export const Appearance = ({ rows, data, onSave }: AppearanceProps = {}) => {
   }, []);
 
   const handleCustomToggle = useCallback(() => {
-    const next = !isCustom;
     const prevCustom = customTextRef.current;
-    setIsCustom(next);
-    if (!next) {
-      setCustomText('');
-      onSaveRef.current?.({ appearance: selectedRef.current, appearanceCustom: '' })
-        .catch(() => { setIsCustom(true); setCustomText(prevCustom); addToast('Failed to save appearance.'); });
-    } else {
-      onSaveRef.current?.({ appearance: selectedRef.current, appearanceCustom: prevCustom })
-        .catch(() => { setIsCustom(false); addToast('Failed to save appearance.'); });
-    }
-  }, [isCustom]);
+    setIsCustom((prev) => {
+      const next = !prev;
+      if (!next) {
+        setCustomText('');
+        onSaveRef.current?.({ appearance: selectedRef.current, appearanceCustom: '' })
+          .catch(() => { setIsCustom(true); setCustomText(prevCustom); addToast('Failed to save appearance.'); });
+      } else {
+        onSaveRef.current?.({ appearance: selectedRef.current, appearanceCustom: prevCustom })
+          .catch(() => { setIsCustom(false); addToast('Failed to save appearance.'); });
+      }
+      return next;
+    });
+  }, [addToast]);
 
   const handleCustomChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

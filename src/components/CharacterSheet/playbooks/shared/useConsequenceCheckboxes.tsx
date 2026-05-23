@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { useToast } from '@/components/primitives';
@@ -24,6 +24,8 @@ export const useConsequenceCheckboxes = (
   const [checked, setChecked] = useState<Record<string, boolean>>(
     () => (resolvePlaybookFeatures(data)[consequenceKey] as Record<string, boolean> | undefined) ?? {},
   );
+  const checkedRef = useRef(checked);
+  checkedRef.current = checked;
 
   useEffect(() => {
     const val = resolvePlaybookFeatures(data)[consequenceKey] as Record<string, boolean> | undefined;
@@ -31,26 +33,24 @@ export const useConsequenceCheckboxes = (
   }, [data, consequenceKey]);
 
   const handleChange = useCallback((id: string, isChecked: boolean) => {
-    setChecked((prev) => {
-      const next = { ...prev, [id]: isChecked };
-      saveImmediate({ [consequenceKey]: next }).catch(() => { setChecked(prev); addToast('Failed to save.'); });
-      return next;
-    });
+    const prev = checkedRef.current;
+    const next = { ...prev, [id]: isChecked };
+    setChecked(next);
+    saveImmediate({ [consequenceKey]: next }).catch(() => { setChecked(prev); addToast('Failed to save.'); });
   }, [saveImmediate, consequenceKey, addToast]);
 
   const updateChecked = useCallback((updater: (prev: Record<string, boolean>) => Record<string, boolean>) => {
-    setChecked((prev) => {
-      const next = updater(prev);
-      saveImmediate({ [consequenceKey]: next }).catch(() => { setChecked(prev); addToast('Failed to save.'); });
-      return next;
-    });
+    const prev = checkedRef.current;
+    const next = updater(prev);
+    setChecked(next);
+    saveImmediate({ [consequenceKey]: next }).catch(() => { setChecked(prev); addToast('Failed to save.'); });
   }, [saveImmediate, consequenceKey, addToast]);
 
-  const items = labels.map((c) => ({
+  const items = useMemo(() => labels.map((c) => ({
     id: c.id,
     label: <span>{parseInlineMarkdown(c.label)}</span>,
     disabled: isDisabled ? isDisabled(c.id, checked) : false,
-  }));
+  })), [labels, checked, isDisabled]);
 
   return { checked, items, onChange: handleChange, updateChecked };
 };

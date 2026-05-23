@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PlaybookSection } from '../PlaybookSection';
 import { Collapse, Toggle, useToast } from '@/components/primitives';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
@@ -132,7 +132,7 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
     setCheckListLevels(data?.typeMoveCheckListLevels ?? {});
   }, [data?.typeMoves, data?.typeMoveUses, data?.typeMoveUses2, data?.typeMoveTakes, data?.typeMoveCheckList, data?.typeMoveCheckListLevels]);
 
-  const handleSelect = (id: string, value: boolean) => {
+  const handleSelect = useCallback((id: string, value: boolean) => {
     if (forcedMoveIds.has(id)) return;
     const move = typeMoves.find((m) => m.id === id);
     if (!move) return;
@@ -142,60 +142,97 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
     const next = { ...selected, [id]: value };
     setSelected(next);
     onSave({ typeMoves: next }).catch(() => { setSelected(prev); addToast('Failed to save move selection.'); });
-  };
+  }, [forcedMoveIds, typeMoves, level, selected, onSave, addToast]);
 
-  const handleUses = (id: string, count: number) => {
+  const handleUses = useCallback((id: string, count: number) => {
     const prev = uses;
     const next = { ...uses, [id]: count };
     setUses(next);
     onSave({ typeMoveUses: next }).catch(() => { setUses(prev); addToast('Failed to save move uses.'); });
-  };
+  }, [uses, onSave, addToast]);
 
-  const handleUses2 = (id: string, count: number) => {
+  const handleUses2 = useCallback((id: string, count: number) => {
     const prev = uses2;
     const next = { ...uses2, [id]: count };
     setUses2(next);
     onSave({ typeMoveUses2: next }).catch(() => { setUses2(prev); addToast('Failed to save move uses.'); });
-  };
+  }, [uses2, onSave, addToast]);
 
-  const handleTakes = (id: string, count: number) => {
+  const handleTakes = useCallback((id: string, count: number) => {
     const prev = takes;
     const next = { ...takes, [id]: count };
     setTakes(next);
     onSave({ typeMoveTakes: next }).catch(() => { setTakes(prev); addToast('Failed to save move takes.'); });
-  };
+  }, [takes, onSave, addToast]);
 
-  const handleCheckList = (id: string, itemId: string, checked: boolean) => {
+  const handleCheckList = useCallback((id: string, itemId: string, checked: boolean) => {
     const prev = checkLists;
     const next = { ...checkLists, [id]: { ...checkLists[id], [itemId]: checked } };
     setCheckLists(next);
     onSave({ typeMoveCheckList: next }).catch(() => { setCheckLists(prev); addToast('Failed to save checklist.'); });
-  };
+  }, [checkLists, onSave, addToast]);
 
-  const handleCheckListLevel = (id: string, itemId: string, level: number | null) => {
+  const handleCheckListLevel = useCallback((id: string, itemId: string, lvl: number | null) => {
     const prev = checkListLevels;
     const prevItem = checkListLevels[id] ?? {};
     const { [itemId]: _removed, ...rest } = prevItem;
-    const nextItem = level !== null ? { ...prevItem, [itemId]: level } : rest;
+    const nextItem = lvl !== null ? { ...prevItem, [itemId]: lvl } : rest;
     const next = { ...checkListLevels, [id]: nextItem };
     setCheckListLevels(next);
     onSave({ typeMoveCheckListLevels: next }).catch(() => { setCheckListLevels(prev); addToast('Failed to save checklist.'); });
-  };
+  }, [checkListLevels, onSave, addToast]);
 
   const playbookLabel = PLAYBOOKS.find((p) => p.value === playbook)?.label ?? playbook;
 
-  const withMeta = typeMoves.map((move) => {
-    const isStarting = move.startingMove === true;
-    const isForced = forcedMoveIds.has(move.id);
-    const isDisabled = isStarting || isForced;
-    const isSelected = isDisabled || (selected[move.id] ?? false);
-    return { move, isDisabled, isSelected, isForced };
-  });
-  const sortedTypeMoves = [
-    ...withMeta.filter((m) => m.isSelected).sort((a, b) => a.move.name.localeCompare(b.move.name)),
-    ...withMeta.filter((m) => !m.isSelected).sort((a, b) => a.move.name.localeCompare(b.move.name)),
-  ];
-  const visibleTypeMoves = hideUnselected ? sortedTypeMoves.filter((m) => m.isSelected) : sortedTypeMoves;
+  const sortedTypeMoves = useMemo(() => {
+    const withMeta = typeMoves.map((move) => {
+      const isStarting = move.startingMove === true;
+      const isForced = forcedMoveIds.has(move.id);
+      const isDisabled = isStarting || isForced;
+      const isSelected = isDisabled || (selected[move.id] ?? false);
+      return { move, isDisabled, isSelected, isForced };
+    });
+    return [
+      ...withMeta.filter((m) => m.isSelected).sort((a, b) => a.move.name.localeCompare(b.move.name)),
+      ...withMeta.filter((m) => !m.isSelected).sort((a, b) => a.move.name.localeCompare(b.move.name)),
+    ];
+  }, [typeMoves, forcedMoveIds, selected]);
+
+  const visibleTypeMoves = useMemo(
+    () => hideUnselected ? sortedTypeMoves.filter((m) => m.isSelected) : sortedTypeMoves,
+    [sortedTypeMoves, hideUnselected]
+  );
+
+  const moveNodes = useMemo(() => visibleTypeMoves.map(({ move, isDisabled, isForced }) => {
+    const lockReason = isForced
+      ? 'Required by your background'
+      : (!isDisabled ? getLockReason(move, typeMoves, level, selected) : undefined);
+    return (
+      <Move
+        key={move.id}
+        move={move}
+        selected={isDisabled ? true : (selected[move.id] ?? false)}
+        onSelectChange={(val) => handleSelect(move.id, val)}
+        usesChecked={uses[move.id] ?? 0}
+        onUsesChange={move.uses !== undefined ? (n) => handleUses(move.id, n) : undefined}
+        usesChecked2={uses2[move.id] ?? 0}
+        onUsesChange2={move.uses2 !== undefined ? (n) => handleUses2(move.id, n) : undefined}
+        checkListChecked={checkLists[move.id] ?? {}}
+        checkListForcedIds={forcedCheckList[move.id]}
+        onCheckListChange={move.checkList !== undefined && !move.checkListLeveled ? (itemId, checked) => handleCheckList(move.id, itemId, checked) : undefined}
+        checkListLevels={checkListLevels[move.id] ?? {}}
+        onCheckListLevelChange={move.checkListLeveled ? (itemId, lvl) => handleCheckListLevel(move.id, itemId, lvl) : undefined}
+        currentLevel={level}
+        takesChecked={takes[move.id] ?? 0}
+        onTakesChange={move.takes !== undefined ? (n) => handleTakes(move.id, n) : undefined}
+        disabled={isDisabled}
+        lockReason={lockReason}
+      />
+    );
+  }), [
+    visibleTypeMoves, typeMoves, level, selected, uses, uses2, checkLists, checkListLevels, takes, forcedCheckList,
+    handleSelect, handleUses, handleUses2, handleCheckList, handleCheckListLevel, handleTakes,
+  ]);
 
   return (
     <PlaybookSection title="Moves">
@@ -252,35 +289,7 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
             <p className={styles.helperText}>{parseInlineMarkdown(PLAYBOOK_HELPER_TEXT[playbook]!)}</p>
           )}
           {visibleTypeMoves.length > 0 ? (
-            <div className={styles.moveGrid}>
-              {visibleTypeMoves.map(({ move, isDisabled, isForced }) => {
-                const lockReason = isForced
-                  ? 'Required by your background'
-                  : (!isDisabled ? getLockReason(move, typeMoves, level, selected) : undefined);
-                return (
-                  <Move
-                    key={move.id}
-                    move={move}
-                    selected={isDisabled ? true : (selected[move.id] ?? false)}
-                    onSelectChange={(val) => handleSelect(move.id, val)}
-                    usesChecked={uses[move.id] ?? 0}
-                    onUsesChange={move.uses !== undefined ? (n) => handleUses(move.id, n) : undefined}
-                    usesChecked2={uses2[move.id] ?? 0}
-                    onUsesChange2={move.uses2 !== undefined ? (n) => handleUses2(move.id, n) : undefined}
-                    checkListChecked={checkLists[move.id] ?? {}}
-                    checkListForcedIds={forcedCheckList[move.id]}
-                    onCheckListChange={move.checkList !== undefined && !move.checkListLeveled ? (itemId, checked) => handleCheckList(move.id, itemId, checked) : undefined}
-                    checkListLevels={checkListLevels[move.id] ?? {}}
-                    onCheckListLevelChange={move.checkListLeveled ? (itemId, lvl) => handleCheckListLevel(move.id, itemId, lvl) : undefined}
-                    currentLevel={level}
-                    takesChecked={takes[move.id] ?? 0}
-                    onTakesChange={move.takes !== undefined ? (n) => handleTakes(move.id, n) : undefined}
-                    disabled={isDisabled}
-                    lockReason={lockReason}
-                  />
-                );
-              })}
-            </div>
+            <div className={styles.moveGrid}>{moveNodes}</div>
           ) : (
             <p className={styles.empty}>
               {sortedTypeMoves.length === 0

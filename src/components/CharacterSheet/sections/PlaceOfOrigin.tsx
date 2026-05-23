@@ -42,6 +42,8 @@ export const PlaceOfOrigin = ({ options, data, onSave }: PlaceOfOriginProps = {}
   const [selected, setSelected] = useState<string>(data?.placeOfOrigin ?? '');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const hasInitializedCollapse = useRef(false);
+  const selectedRef = useRef(selected);
+  selectedRef.current = selected;
 
   useEffect(() => {
     if (data?.placeOfOrigin !== undefined) setSelected(data.placeOfOrigin);
@@ -55,7 +57,7 @@ export const PlaceOfOrigin = ({ options, data, onSave }: PlaceOfOriginProps = {}
   }, [data?.placeOfOrigin]);
 
   const handleSelect = useCallback((value: string) => {
-    const prev = selected;
+    const prev = selectedRef.current;
     setSelected(value);
     setIsCollapsed(true);
     onSave?.({ placeOfOrigin: value }).catch(() => {
@@ -63,7 +65,7 @@ export const PlaceOfOrigin = ({ options, data, onSave }: PlaceOfOriginProps = {}
       setIsCollapsed(false);
       addToast('Failed to save place of origin.');
     });
-  }, [onSave, selected]);
+  }, [onSave, addToast]);
 
   const handleToggleCollapse = useCallback(() => setIsCollapsed((v) => !v), []);
 

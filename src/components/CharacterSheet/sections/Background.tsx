@@ -28,6 +28,8 @@ export const Background = ({ playbookKey, options, level, data, onSave }: Backgr
   selectedOptionRef.current = selectedOption;
   const selectedChoicesRef = useRef(selectedChoices);
   selectedChoicesRef.current = selectedChoices;
+  const backgroundUsesRef = useRef(backgroundUses);
+  backgroundUsesRef.current = backgroundUses;
   const onSaveRef = useRef(onSave);
   onSaveRef.current = onSave;
 
@@ -63,7 +65,7 @@ export const Background = ({ playbookKey, options, level, data, onSave }: Backgr
   const handleToggleCollapse = useCallback(() => setIsCollapsed((v) => !v), []);
 
   const handleOptionChange = useCallback((value: string) => {
-    const prev = selectedOption;
+    const prev = selectedOptionRef.current;
     if (choiceDebounceRef.current) clearTimeout(choiceDebounceRef.current);
     setSelectedOption(value);
     setSelectedChoices([]);
@@ -73,26 +75,26 @@ export const Background = ({ playbookKey, options, level, data, onSave }: Backgr
       setIsCollapsed(false);
       addToast('Failed to save background selection.');
     });
-  }, [selectedOption]);
+  }, []);
 
   const handleChoicesChange = useCallback((choices: string[]) => {
     setSelectedChoices(choices);
     if (choiceDebounceRef.current) clearTimeout(choiceDebounceRef.current);
     choiceDebounceRef.current = setTimeout(() => {
-      const prev = selectedChoicesRef.current;
-      onSaveRef.current?.({ background: selectedOptionRef.current, backgroundChoices: selectedChoicesRef.current }).catch(() => {
-        setSelectedChoices(prev);
+      const snapshot = selectedChoicesRef.current;
+      onSaveRef.current?.({ background: selectedOptionRef.current, backgroundChoices: snapshot }).catch(() => {
+        setSelectedChoices(snapshot);
         addToast('Failed to save background choices.');
       });
     }, 1000);
   }, []);
 
   const handleUsesChange = useCallback((optValue: string, count: number) => {
-    const prev = backgroundUses;
-    const next = { ...backgroundUses, [optValue]: count };
+    const prev = backgroundUsesRef.current;
+    const next = { ...prev, [optValue]: count };
     setBackgroundUses(next);
-    onSave?.({ backgroundUses: next }).catch(() => { setBackgroundUses(prev); addToast('Failed to save.'); });
-  }, [backgroundUses, onSave]);
+    onSaveRef.current?.({ backgroundUses: next }).catch(() => { setBackgroundUses(prev); addToast('Failed to save.'); });
+  }, [addToast]);
 
   if (!options) return <PlaybookSection title="Background" />;
 

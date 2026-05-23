@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import {
   Button,
   Dropdown,
@@ -27,23 +27,29 @@ export const AddCharacterModal = ({
   const { addToast } = useToast();
   const [playbook, setPlaybook] = useState<PlaybookType | ''>('');
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setPlaybook('');
     onClose();
-  };
+  }, [onClose]);
 
-  const handlePlaybookChange = (value: PlaybookType) => setPlaybook(value);
+  const handlePlaybookChange = useCallback((value: PlaybookType) => setPlaybook(value), []);
 
-  const handleAdd = () => {
+  const handleAdd = useCallback(() => {
     if (!playbook) return;
     const selectedLabel = PLAYBOOKS.find((p) => p.value === playbook)?.label ?? playbook;
     const character = { id: crypto.randomUUID(), name: selectedLabel, playbook, level: 1, data: { statLevel: '1' } };
     handleClose();
     onAdd(character).catch(() => addToast('Failed to add character. Please try again.'));
-  };
+  }, [playbook, handleClose, onAdd, addToast]);
 
-  const availablePlaybooks = PLAYBOOKS.filter((p) => !existingPlaybooks.includes(p.value));
-  const selectedPlaybook = PLAYBOOKS.find((p) => p.value === playbook);
+  const availablePlaybooks = useMemo(
+    () => PLAYBOOKS.filter((p) => !existingPlaybooks.includes(p.value)),
+    [existingPlaybooks]
+  );
+  const selectedPlaybook = useMemo(
+    () => PLAYBOOKS.find((p) => p.value === playbook),
+    [playbook]
+  );
 
   return (
     <Modal

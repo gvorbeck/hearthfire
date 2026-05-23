@@ -32,10 +32,12 @@ const ToastEntry = ({
   onDismiss: (id: string) => void;
 }) => {
   const cx = clsx(styles.toast, styles[item.variant], item.exiting && styles.exiting);
+  const iconCx = clsx(styles.icon, styles[item.variant]);
+  const handleDismissItem = useCallback(() => onDismiss(item.id), [onDismiss, item.id]);
 
   return (
     <div role="alert" aria-live="assertive" aria-atomic="true" className={cx}>
-      <span className={clsx(styles.icon, styles[item.variant])}>
+      <span className={iconCx}>
         <Icon name={item.variant === 'error' ? 'warning' : 'check'} size="small" />
       </span>
       <span className={styles.body}>
@@ -46,7 +48,7 @@ const ToastEntry = ({
         size="sm"
         icon="close"
         className={styles.dismiss}
-        onClick={() => onDismiss(item.id)}
+        onClick={handleDismissItem}
         aria-label="Dismiss notification"
       />
     </div>
@@ -80,8 +82,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
   }, [startExit]);
 
   useEffect(() => {
-    const t = timers.current;
-    return () => { t.forEach(clearTimeout); };
+    return () => { timers.current.forEach(clearTimeout); };
   }, []);
 
   return (

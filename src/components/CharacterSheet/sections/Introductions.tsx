@@ -21,6 +21,38 @@ interface IntroductionsProps {
   onSave?: (data: Partial<CharacterData>) => Promise<void>;
 }
 
+const STEP_1 = (
+  <p key="step-1" className={styles.stepText}>
+    On your first turn, <strong>introduce yourself</strong> by name, pronouns, background,
+    origin, and appearance.
+  </p>
+);
+
+const STEP_2 = (
+  <p key="step-2" className={styles.stepText}>
+    On your second turn, <strong>describe your special possessions</strong> and how you
+    contribute to the village (beyond working the fields).
+  </p>
+);
+
+const STEP_5 = (
+  <p key="step-5" className={styles.stepText}>
+    Go around again. Answer another question from 4, or pass. When everyone has passed, go on.
+  </p>
+);
+
+const STEP_7 = (
+  <p key="step-7" className={styles.stepText}>
+    Go around again. Ask another question from 6, or pass. When everyone has passed, go on.
+  </p>
+);
+
+const STEP_8 = (
+  <p key="step-8" className={styles.stepText}>
+    Add your home to the steading playbook. When everyone is done, let spring break forth!
+  </p>
+);
+
 export const Introductions = ({ config, data, onSave }: IntroductionsProps = {}) => {
   const { addToast } = useToast();
   const [questions, setQuestions] = useState<Record<string, boolean>>(
@@ -32,24 +64,19 @@ export const Introductions = ({ config, data, onSave }: IntroductionsProps = {})
   }, [data?.introductionQuestions]);
 
   const handleQuestion = useCallback((id: string, checked: boolean) => {
-    const prev = questions;
-    const next = { ...questions, [id]: checked };
-    setQuestions(next);
-    onSave?.({ introductionQuestions: next }).catch(() => { setQuestions(prev); addToast('Failed to save.'); });
-  }, [questions, onSave]);
+    setQuestions((prev) => {
+      const next = { ...prev, [id]: checked };
+      onSave?.({ introductionQuestions: next }).catch(() => { setQuestions(prev); addToast('Failed to save.'); });
+      return next;
+    });
+  }, [onSave, addToast]);
 
   const items = useMemo(() => {
     if (!config) return [];
     const { step3, step4Questions, step6Questions } = config;
     return [
-      <p key="step-1" className={styles.stepText}>
-        On your first turn, <strong>introduce yourself</strong> by name, pronouns, background,
-        origin, and appearance.
-      </p>,
-      <p key="step-2" className={styles.stepText}>
-        On your second turn, <strong>describe your special possessions</strong> and how you
-        contribute to the village (beyond working the fields).
-      </p>,
+      STEP_1,
+      STEP_2,
       <p key="step-3" className={styles.stepText}>{step3}</p>,
       <div key="step-4">
         <p className={styles.stepText}>
@@ -64,9 +91,7 @@ export const Introductions = ({ config, data, onSave }: IntroductionsProps = {})
           />
         </div>
       </div>,
-      <p key="step-5" className={styles.stepText}>
-        Go around again. Answer another question from 4, or pass. When everyone has passed, go on.
-      </p>,
+      STEP_5,
       <div key="step-6">
         <p className={styles.stepText}>
           On your next turn, <strong>ask your fellow PCs one of these</strong>. When others ask
@@ -80,12 +105,8 @@ export const Introductions = ({ config, data, onSave }: IntroductionsProps = {})
           />
         </div>
       </div>,
-      <p key="step-7" className={styles.stepText}>
-        Go around again. Ask another question from 6, or pass. When everyone has passed, go on.
-      </p>,
-      <p key="step-8" className={styles.stepText}>
-        Add your home to the steading playbook. When everyone is done, let spring break forth!
-      </p>,
+      STEP_7,
+      STEP_8,
     ];
   }, [config, questions, handleQuestion]);
 

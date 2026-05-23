@@ -11,7 +11,7 @@
 
 .toast {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--spacing-3);
   padding: var(--spacing-3) var(--spacing-4);
   border-radius: var(--radius-md);
@@ -39,7 +39,6 @@
 
 .icon {
   flex-shrink: 0;
-  margin-top: 1px;
 }
 
 .icon.error {
@@ -62,12 +61,12 @@
   line-height: 1.4;
 }
 
+/* !important overrides Button ghost variant border/padding — CSS Modules can't target internal component classes across module boundaries */
 .dismiss {
   flex-shrink: 0;
   border: none !important;
   padding: 0 !important;
   color: var(--text-secondary) !important;
-  margin-top: 1px;
 }
 
 .dismiss:hover {
