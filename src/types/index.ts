@@ -90,6 +90,7 @@ export interface PlaybookFeatures {
   thrallMaster?: string;
   thrallInstinct?: string;
   thrallImpulse?: string;
+  thrallImpulseCustom?: string;
   thrallFavor?: number;
   thrallMarksGained?: Record<string, boolean>;
   thrallMarksCrossedOff?: Record<string, boolean>;
