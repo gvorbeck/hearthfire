@@ -442,7 +442,10 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
         </div>
       </PlaybookSection>
 
-      <PlaybookSection title="Marks" chooseNote="GM chooses 1 to start; more as moves tell you">
+      <PlaybookSection title="Marks">
+        <Text as="p" size="sm" color="muted" className={styles.prose}>
+          When you first gain this insert, the GM will choose 1 Mark for you, based on your master's nature. Gain more when a move tells you.
+        </Text>
         <div className={styles.markList}>
           {MARK_DEFINITIONS.map((mark) => {
             const gained = marksGained[mark.id] === true;

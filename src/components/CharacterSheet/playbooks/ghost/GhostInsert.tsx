@@ -1,12 +1,12 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { CheckboxGroup, Text } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { Move } from '../../Move';
 import type { MoveDefinition } from '../../Move';
 import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
 import { useInsertSections } from '../shared/useInsertSections';
+import { useConsequenceCheckboxes } from '../shared/useConsequenceCheckboxes';
 import { InsertInstinctSection, InsertPurposeSection } from '../shared/InsertSections';
-import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { CharacterData } from '@/types';
 import styles from './GhostInsert.module.css';
 
@@ -118,26 +118,30 @@ export const GhostInsert = ({ data, onSave }: GhostInsertProps) => {
     saveImmediate,
   } = useInsertSections(data, onSave, GHOST_KEYS);
 
-  const [consequences, setConsequences] = useState<Record<string, boolean>>(
-    () => resolvePlaybookFeatures(data).ghostConsequences ?? {},
-  );
   const [furyChecked, setFuryChecked] = useState<number>(
     () => resolvePlaybookFeatures(data).ghostPoltergeistFury ?? 0,
   );
 
   useEffect(() => {
     const f = resolvePlaybookFeatures(data);
-    if (f.ghostConsequences !== undefined) setConsequences(f.ghostConsequences);
     if (f.ghostPoltergeistFury !== undefined) setFuryChecked(f.ghostPoltergeistFury);
   }, [data]);
 
-  const handleConsequenceChange = useCallback((id: string, checked: boolean) => {
-    setConsequences((prev) => {
-      const next = { ...prev, [id]: checked };
-      saveImmediate({ ghostConsequences: next });
-      return next;
-    });
-  }, [saveImmediate]);
+  const isConsequenceDisabled = useCallback((id: string, checked: Record<string, boolean>) =>
+    id === UNSTABLE_ID && !checked[BREAKDOWN_ID],
+  []);
+
+  const {
+    checked: consequences,
+    items: consequenceCheckboxItems,
+    onChange: handleConsequenceChange,
+  } = useConsequenceCheckboxes(
+    data,
+    saveImmediate,
+    'ghostConsequences',
+    CONSEQUENCE_LABELS,
+    isConsequenceDisabled,
+  );
 
   const handleFuryChange = useCallback((count: number) => {
     setFuryChecked(count);
@@ -145,17 +149,6 @@ export const GhostInsert = ({ data, onSave }: GhostInsertProps) => {
   }, [saveImmediate]);
 
   const hasPoltergeist = consequences[POLTERGEIST_ID] === true;
-  const hasBreakdown = consequences[BREAKDOWN_ID] === true;
-
-  const consequenceCheckboxItems = useMemo(
-    () => CONSEQUENCE_LABELS.map((c) => ({
-      id: c.id,
-      label: <span>{parseInlineMarkdown(c.label)}</span>,
-      disabled: c.id === UNSTABLE_ID && !hasBreakdown,
-    })),
-    [hasBreakdown],
-  );
-
 
   return (
     <div className={styles.root}>

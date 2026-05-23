@@ -1,12 +1,11 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import { CheckboxGroup, Radio, Text } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { Move } from '../../Move';
 import type { MoveDefinition } from '../../Move';
-import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
 import { useInsertSections } from '../shared/useInsertSections';
+import { useConsequenceCheckboxes } from '../shared/useConsequenceCheckboxes';
 import { InsertInstinctSection, InsertPurposeSection } from '../shared/InsertSections';
-import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { CharacterData } from '@/types';
 import styles from './RevenantInsert.module.css';
 
@@ -117,49 +116,37 @@ export const RevenantInsert = ({ data, onSave }: RevenantInsertProps) => {
     saveImmediate,
   } = useInsertSections(data, onSave, REVENANT_KEYS);
 
-  const features = resolvePlaybookFeatures(data);
-  const [consequences, setConsequences] = useState<Record<string, boolean>>(
-    () => features.revenantConsequences ?? {},
+  const isConsequenceDisabled = useCallback((id: string, checked: Record<string, boolean>) =>
+    (id === INSATIABLE_ID && !checked[STRANGE_APPETITES_ID]) ||
+    (id === 'unstable' && !checked['breakdown']),
+  []);
+
+  const {
+    checked: consequences,
+    items: consequenceCheckboxItems,
+    onChange: handleConsequenceChange,
+    updateChecked,
+  } = useConsequenceCheckboxes(
+    data,
+    saveImmediate,
+    'revenantConsequences',
+    CONSEQUENCE_LABELS,
+    isConsequenceDisabled,
   );
-
-  useEffect(() => {
-    const f = resolvePlaybookFeatures(data);
-    if (f.revenantConsequences !== undefined) setConsequences(f.revenantConsequences);
-  }, [data]);
-
-  const handleConsequenceChange = useCallback((id: string, checked: boolean) => {
-    setConsequences((prev) => {
-      const next = { ...prev, [id]: checked };
-      saveImmediate({ revenantConsequences: next });
-      return next;
-    });
-  }, [saveImmediate]);
 
   const handleAppetitePickChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-    setConsequences((prev) => {
-      const cleaned = Object.fromEntries(
-        Object.entries(prev).filter(([k]) => !k.startsWith('appetite:')),
-      );
-      const next = { ...cleaned, [`appetite:${val}`]: true };
-      saveImmediate({ revenantConsequences: next });
+    updateChecked((prev) => {
+      const next: Record<string, boolean> = {};
+      for (const [k, v] of Object.entries(prev)) {
+        if (!k.startsWith('appetite:')) next[k] = v;
+      }
+      next[`appetite:${val}`] = true;
       return next;
     });
-  }, [saveImmediate]);
+  }, [updateChecked]);
 
   const hasStrangeAppetites = consequences[STRANGE_APPETITES_ID] === true;
-  const hasBreakdown = consequences['breakdown'] === true;
-
-  const consequenceCheckboxItems = useMemo(
-    () => CONSEQUENCE_LABELS.map((c) => ({
-      id: c.id,
-      label: <span>{parseInlineMarkdown(c.label)}</span>,
-      disabled:
-        (c.id === INSATIABLE_ID && !hasStrangeAppetites) ||
-        (c.id === 'unstable' && !hasBreakdown),
-    })),
-    [hasStrangeAppetites, hasBreakdown],
-  );
 
   const currentAppetitePick = Object.keys(consequences).find((k) => k.startsWith('appetite:'))?.replace('appetite:', '') ?? '';
 
