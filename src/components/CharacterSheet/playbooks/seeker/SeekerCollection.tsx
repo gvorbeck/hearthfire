@@ -1,9 +1,9 @@
-import { CheckboxGroup, Divider } from '@/components/primitives';
+import { CheckboxGroup, Divider, Text } from '@/components/primitives';
+import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { PlaybookSection } from '../../PlaybookSection';
 import { AnswerPrompts } from '../AnswerPrompts';
 import { usePlaybookCheckedWithAnswers } from '@/hooks/usePlaybookChecked';
 import type { CharacterData } from '@/types';
-import styles from '../playbookSection.module.css';
 
 const MAJOR_ARCANA_ITEMS = [
   { id: 'major-acquired', label: 'Where did you acquire it?' },
@@ -31,16 +31,14 @@ export const SeekerCollection = ({ data, onSave }: SeekerCollectionProps) => {
 
   return (
     <PlaybookSection title="Collection">
-      <p className={styles.prose}>
+      <Text as="p" size="sm" color="muted">
         In your travels and investigations you have acquired arcana—artifacts of power and mystery.
-      </p>
+      </Text>
       <Divider />
-      <p className={styles.prose}>
-        <strong>MAJOR ARCANA</strong>
-      </p>
-      <p className={styles.prose}>
+      <Text as="p" size="sm" color="muted">{parseInlineMarkdown('**MAJOR ARCANA**')}</Text>
+      <Text as="p" size="sm" color="muted">
         Your Background grants you 1 major arcanum. Answer at least 2 questions about it:
-      </p>
+      </Text>
       <CheckboxGroup
         items={MAJOR_ARCANA_ITEMS}
         checked={checked}
@@ -48,14 +46,12 @@ export const SeekerCollection = ({ data, onSave }: SeekerCollectionProps) => {
       />
       <AnswerPrompts prompts={ANSWER_PROMPTS.slice(0, 1)} answers={answers} onAnswer={handleAnswer} onFlush={flushAnswers} />
       <Divider />
-      <p className={styles.prose}>
-        <strong>MINOR ARCANA</strong>
-      </p>
-      <p className={styles.prose}>
+      <Text as="p" size="sm" color="muted">{parseInlineMarkdown('**MINOR ARCANA**')}</Text>
+      <Text as="p" size="sm" color="muted">
         Ask the GM for the minor arcana cards. Draw 3 at random and review both sides. Choose one
         whose secrets you have unlocked, one you have not yet mastered, and one you have not yet
         found.
-      </p>
+      </Text>
       <AnswerPrompts prompts={ANSWER_PROMPTS.slice(1)} answers={answers} onAnswer={handleAnswer} onFlush={flushAnswers} />
     </PlaybookSection>
   );

@@ -249,11 +249,16 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
     if (f.crewHp !== undefined) setHp(f.crewHp);
     if (f.crewArmor !== undefined) setArmor(f.crewArmor);
     if (f.crewTags !== undefined) setTags({ group: true, ...f.crewTags });
+    if (f.crewTagsCustom !== undefined) setTagsCustom(f.crewTagsCustom.slice(0, 2));
     if (f.crewInstinct !== undefined) setInstinct(f.crewInstinct);
+    if (f.crewInstinctCustom !== undefined) setInstinctCustom(f.crewInstinctCustom);
     if (f.crewCost !== undefined) setCost(f.crewCost);
+    if (f.crewCostCustom !== undefined) setCostCustom(f.crewCostCustom);
     if (f.crewLoyalty !== undefined) setLoyalty(f.crewLoyalty);
     if (f.crewInventoryChecked !== undefined) setInventoryChecked(f.crewInventoryChecked);
+    if (f.crewCustomItems !== undefined) setCustomItems(normalizeCustomItems(f.crewCustomItems));
     if (f.crewSuppliesUses !== undefined) setSuppliesUses(f.crewSuppliesUses);
+    if (f.crewIndividuals !== undefined) setIndividuals(parseIndividuals(f.crewIndividuals));
   }, [data]);
 
   const { saveDebounced, saveImmediate, flushDebounce, dataRef, onSaveRef } = useCrewSave(data, onSave);
@@ -443,8 +448,15 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
 
   const handleExceptionalChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.checked;
+    // typeMoveCheckList lives on CharacterData directly, not in playbookFeatures, so we bypass featurePatch.
+    // updateCharacterData shallow-merges the patch onto c.data, so spreading the existing sub-objects is required.
     const prev = dataRef.current?.typeMoveCheckList ?? {};
-    onSaveRef.current({ typeMoveCheckList: { ...prev, 'marshal-heroes-to-the-last': { ...prev['marshal-heroes-to-the-last'], 'marshal-httl-exceptional': val } } });
+    onSaveRef.current({
+      typeMoveCheckList: {
+        ...prev,
+        'marshal-heroes-to-the-last': { ...prev['marshal-heroes-to-the-last'], 'marshal-httl-exceptional': val },
+      },
+    }).catch(() => {});
   }, []);
 
   return (

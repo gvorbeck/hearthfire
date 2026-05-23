@@ -286,9 +286,9 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
     useTrackedField(resolvePlaybookFeatures(data).animalArmor ?? '', 'animalArmor', saveDebounced, flushDebounce);
   const { value: damage, setValue: setDamage, handleChange: handleDamageChange, handleBlur: handleDamageBlur } =
     useTrackedField(resolvePlaybookFeatures(data).animalDamage ?? '', 'animalDamage', saveDebounced, flushDebounce);
-  const { value: name, handleChange: handleNameChange, handleBlur: handleNameBlur } =
+  const { value: name, setValue: setName, handleChange: handleNameChange, handleBlur: handleNameBlur } =
     useTrackedField(resolvePlaybookFeatures(data).animalName ?? '', 'animalName', saveDebounced, flushDebounce);
-  const { value: damageTags, handleChange: handleDamageTagsChange, handleBlur: handleDamageTagsBlur } =
+  const { value: damageTags, setValue: setDamageTags, handleChange: handleDamageTagsChange, handleBlur: handleDamageTagsBlur } =
     useTrackedField(resolvePlaybookFeatures(data).animalDamageTags ?? '', 'animalDamageTags', saveDebounced, flushDebounce);
 
   const [animalType, setAnimalType] = useState<string>(() => resolvePlaybookFeatures(data).animalType ?? '');
@@ -316,6 +316,11 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
 
   useEffect(() => {
     const f = resolvePlaybookFeatures(data);
+    if (f.animalHp !== undefined) setHp(f.animalHp);
+    if (f.animalArmor !== undefined) setArmor(f.animalArmor);
+    if (f.animalDamage !== undefined) setDamage(f.animalDamage);
+    if (f.animalName !== undefined) setName(f.animalName);
+    if (f.animalDamageTags !== undefined) setDamageTags(f.animalDamageTags);
     if (f.animalType !== undefined) setAnimalType(f.animalType);
     if (f.animalTypePicks !== undefined) setTypePicks(f.animalTypePicks);
     if (f.animalTypeCustomChecked !== undefined) setTypeCustomChecked(f.animalTypeCustomChecked);
@@ -383,7 +388,7 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
     });
   }, [saveDebounced]);
 
-  const handleTypeCustomBlur = useCallback((_typeId: string) => {
+  const handleTypeCustomBlur = useCallback((_typeId: string) => {  // flushes full map; per-type flush isn't needed since the ref holds all types
     flushDebounce({ animalTypeCustom: typeCustomRef.current });
   }, [flushDebounce]);
 

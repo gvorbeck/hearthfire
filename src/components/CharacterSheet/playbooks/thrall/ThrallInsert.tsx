@@ -200,12 +200,13 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
   const { saveDebounced, saveImmediate, flushDebounce } = useCrewSave(data, onSave);
 
   const [master, setMaster] = useState<string>(() => resolvePlaybookFeatures(data).thrallMaster ?? '');
+  const masterRef = useRef(master);
+  masterRef.current = master;
   const [instinct, setInstinct] = useState<string>(() => resolvePlaybookFeatures(data).thrallInstinct ?? '');
   const [impulse, setImpulse] = useState<string>(() => resolvePlaybookFeatures(data).thrallImpulse ?? '');
   const [impulseCustom, setImpulseCustom] = useState<string>(() => resolvePlaybookFeatures(data).thrallImpulseCustom ?? '');
   const impulseCustomRef = useRef(impulseCustom);
   impulseCustomRef.current = impulseCustom;
-  const impulseTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [favor, setFavor] = useState<number>(() => resolvePlaybookFeatures(data).thrallFavor ?? 0);
   const [marksGained, setMarksGained] = useState<Record<string, boolean>>(
     () => resolvePlaybookFeatures(data).thrallMarksGained ?? {},
@@ -255,8 +256,8 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
   }, [saveDebounced]);
 
   const handleMasterBlur = useCallback(() => {
-    flushDebounce({ thrallMaster: master });
-  }, [flushDebounce, master]);
+    flushDebounce({ thrallMaster: masterRef.current });
+  }, [flushDebounce]);
 
   const handleInstinctChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -399,7 +400,6 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
                 impulse === IMPULSE_CUSTOM ? (
                   <Input
                     multiline
-                    ref={impulseTextareaRef}
                     value={impulseCustom}
                     aria-label="Custom impulse"
                     onChange={handleImpulseCustomChange}

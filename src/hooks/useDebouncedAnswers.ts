@@ -27,7 +27,7 @@ export const useDebouncedAnswers = (
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
       debounceRef.current = null;
-      onSaveRef.current(buildPatch(answersRef.current));
+      onSaveRef.current(buildPatch(answersRef.current)).catch(() => {});
     }
   }, [buildPatch]);
 
