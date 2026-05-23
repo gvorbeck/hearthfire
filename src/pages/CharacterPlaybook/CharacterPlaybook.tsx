@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useMemo, useState, useId } from 'react';
+import React, { useRef, useCallback, useMemo, useState, useId, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PageMeta } from '@/components/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
@@ -32,6 +32,7 @@ import { WouldBeHeroFearAnger } from '@/components/CharacterSheet/playbooks/woul
 import { RevenantInsert } from '@/components/CharacterSheet/playbooks/revenant/RevenantInsert';
 import { GhostInsert } from '@/components/CharacterSheet/playbooks/ghost/GhostInsert';
 import { ThrallInsert } from '@/components/CharacterSheet/playbooks/thrall/ThrallInsert';
+import { FollowersInsert } from '@/components/CharacterSheet/playbooks/followers/FollowersInsert';
 import charSheetStyles from '@/components/CharacterSheet/CharacterSheet.module.css';
 import type { Character, CharacterData, GameSession, PlaybookType } from '@/types';
 import styles from './CharacterPlaybook.module.css';
@@ -143,10 +144,12 @@ const getPlaybookTabs = (playbook: PlaybookType, data: CharacterData | undefined
   return tabs;
 };
 
-const INSERT_OPTIONS = ['Revenant', 'Ghost', 'Thrall'] as const;
+const DOG_POSSESSION_IDS = new Set(['mastiffs', 'hounds', 'good-dog']);
+
+const INSERT_OPTIONS = ['Revenant', 'Ghost', 'Thrall', 'Followers'] as const;
 type InsertOption = typeof INSERT_OPTIONS[number];
 
-const IMPLEMENTED_INSERTS = new Set<InsertOption>(['Revenant', 'Ghost', 'Thrall']);
+const IMPLEMENTED_INSERTS = new Set<InsertOption>(['Revenant', 'Ghost', 'Thrall', 'Followers']);
 
 const AddInsertModal = ({ open, onClose, onAdd }: { open: boolean; onClose: () => void; onAdd: (insert: InsertOption) => void }) => {
   const headingId = useId();
@@ -199,6 +202,7 @@ const resolvePlaybookTabContent = (
   if (id === 'Revenant') return <RevenantInsert data={data} onSave={onSave} />;
   if (id === 'Ghost') return <GhostInsert data={data} onSave={onSave} />;
   if (id === 'Thrall') return <ThrallInsert data={data} onSave={onSave} />;
+  if (id === 'Followers') return <FollowersInsert data={data} onSave={onSave} />;
   return fallback;
 };
 
@@ -220,6 +224,15 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
     (name: string) => updateCharacterName(character.id, name),
     [updateCharacterName, character.id]
   );
+
+  useEffect(() => {
+    const possessions = character.data?.specialPossessions ?? {};
+    const hasDog = Object.entries(possessions).some(([id, checked]) => checked && DOG_POSSESSION_IDS.has(id));
+    if (!hasDog) return;
+    const current = character.data?.inserts ?? [];
+    if (current.includes('Followers')) return;
+    handleSaveCharacterData({ inserts: [...current, 'Followers'] }).catch(() => {});
+  }, [character.data?.specialPossessions, character.data?.inserts, handleSaveCharacterData]);
 
   const handleAddInsert = useCallback(async (insert: InsertOption) => {
     const current = character.data?.inserts ?? [];

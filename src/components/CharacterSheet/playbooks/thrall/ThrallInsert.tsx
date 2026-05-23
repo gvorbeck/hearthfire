@@ -454,13 +454,12 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
                     <Button
                       variant="ghost"
                       size="sm"
+                      icon="close"
                       className={crossOffCx}
                       onClick={() => handleMarkCrossedOffChange(mark.id)}
                       aria-pressed={crossedOff}
                       aria-label={crossedOff ? `Restore mark: ${mark.name}` : `Cross off mark (can never gain): ${mark.name}`}
-                    >
-                      ✕
-                    </Button>
+                    />
                   }
                 />
               </div>

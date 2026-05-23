@@ -94,6 +94,31 @@ export interface PlaybookFeatures {
   thrallFavor?: number;
   thrallMarksGained?: Record<string, boolean>;
   thrallMarksCrossedOff?: Record<string, boolean>;
+  followers?: FollowerData[];
+}
+
+export interface FollowerGearItem {
+  checked: boolean;
+  text: string;
+  weight: 1 | 2;
+}
+
+export interface FollowerData {
+  id: string;
+  name?: string;
+  tags?: string;
+  hp?: string;
+  maxHp?: string;
+  armor?: string;
+  damage?: string;
+  exceptional?: boolean;
+  group?: boolean;
+  instinct?: string;
+  moves?: string[];
+  cost?: string;
+  loyalty?: number;
+  gear?: FollowerGearItem[];
+  notes?: string;
 }
 
 export interface CharacterData {
