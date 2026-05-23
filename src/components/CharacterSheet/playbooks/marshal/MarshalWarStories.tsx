@@ -31,7 +31,7 @@ interface MarshalWarStoriesProps {
 }
 
 export const MarshalWarStories = ({ data, onSave }: MarshalWarStoriesProps) => {
-  const { checked, handleChange: handleCheck, answers, handleAnswer } = usePlaybookCheckedWithAnswers(
+  const { checked, handleChange: handleCheck, answers, handleAnswer, flushAnswers } = usePlaybookCheckedWithAnswers(
     data, onSave, 'marshalWarStories', 'marshalWarStoriesAnswers',
   );
 
@@ -50,7 +50,7 @@ export const MarshalWarStories = ({ data, onSave }: MarshalWarStoriesProps) => {
       <p className={styles.prose}>
         Answer at least 3 of the following questions about that action:
       </p>
-      <AnswerPrompts prompts={ANSWER_PROMPTS} answers={answers} onAnswer={handleAnswer} />
+      <AnswerPrompts prompts={ANSWER_PROMPTS} answers={answers} onAnswer={handleAnswer} onFlush={flushAnswers} />
     </PlaybookSection>
   );
 };

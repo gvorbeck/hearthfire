@@ -9,9 +9,10 @@ interface AnswerPromptsProps {
   prompts: AnswerPrompt[];
   answers: Record<string, string>;
   onAnswer: (key: string, value: string) => void;
+  onFlush?: () => void;
 }
 
-export const AnswerPrompts = ({ prompts, answers, onAnswer }: AnswerPromptsProps) => (
+export const AnswerPrompts = ({ prompts, answers, onAnswer, onFlush }: AnswerPromptsProps) => (
   <>
     {prompts.map(({ key, label }) => (
       <Input
@@ -20,6 +21,7 @@ export const AnswerPrompts = ({ prompts, answers, onAnswer }: AnswerPromptsProps
         label={label}
         value={answers[key] ?? ''}
         onChange={(e) => onAnswer(key, e.target.value)}
+        onBlur={onFlush}
       />
     ))}
   </>

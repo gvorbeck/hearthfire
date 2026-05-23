@@ -51,7 +51,7 @@ export const usePlaybookCheckedWithAnswers = (
 
   // Pass undefined so useDebouncedAnswers initializes empty; the useEffect below
   // syncs the real value once data arrives, matching how checked state is handled.
-  const { answers, setAnswers, handleAnswer } = useDebouncedAnswers(
+  const { answers, setAnswers, handleAnswer, flushAnswers } = useDebouncedAnswers(
     undefined,
     onSave,
     buildPatch,
@@ -72,5 +72,5 @@ export const usePlaybookCheckedWithAnswers = (
     onSave(featurePatch(dataRef.current, { [checkedKey]: next })).catch(() => setChecked(prev));
   }, [checked, onSave, checkedKey]);
 
-  return { checked, handleChange, answers, handleAnswer };
+  return { checked, handleChange, answers, handleAnswer, flushAnswers };
 };

@@ -23,5 +23,13 @@ export const useDebouncedAnswers = (
     debounceRef.current = setTimeout(() => onSaveRef.current(buildPatch(next)), delay);
   }, [buildPatch, delay]);
 
-  return { answers, setAnswers, handleAnswer };
+  const flushAnswers = useCallback(() => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+      onSaveRef.current(buildPatch(answersRef.current));
+    }
+  }, [buildPatch]);
+
+  return { answers, setAnswers, handleAnswer, flushAnswers };
 };

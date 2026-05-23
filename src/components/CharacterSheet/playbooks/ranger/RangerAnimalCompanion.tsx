@@ -3,8 +3,9 @@ import { Checkbox, CheckboxGroup, Divider, Input, Radio, Text, UseDots } from '@
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
 import { useCrewSave } from '../shared/useCrewSave';
+import { useTrackedField } from '../shared/useTrackedField';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
-import type { CharacterData, PlaybookFeatures } from '@/types';
+import type { CharacterData } from '@/types';
 import styles from './RangerAnimalCompanion.module.css';
 
 interface AnimalTypeConfig {
@@ -270,25 +271,6 @@ const TypePicksSection = memo(({
   );
 });
 
-const useTrackedField = (
-  initialValue: string,
-  fieldKey: keyof PlaybookFeatures,
-  saveDebounced: (patch: Partial<PlaybookFeatures>) => void,
-  flushDebounce: (patch: Partial<PlaybookFeatures>) => void,
-) => {
-  const [value, setValue] = useState(initialValue);
-  const valueRef = useRef(value);
-  valueRef.current = value;
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setValue(val);
-    saveDebounced({ [fieldKey]: val });
-  }, [fieldKey, saveDebounced]);
-  const handleBlur = useCallback(() => {
-    flushDebounce({ [fieldKey]: valueRef.current });
-  }, [fieldKey, flushDebounce]);
-  return { value, setValue, handleChange, handleBlur };
-};
 
 interface RangerAnimalCompanionProps {
   data: CharacterData | undefined;
@@ -477,7 +459,7 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
         <div className={styles.headerRow}>
           <div className={styles.statsRow}>
             <div className={styles.infoBox}>
-              <input
+              <Input
                 className={styles.infoInput}
                 type="number"
                 value={hp}
@@ -490,7 +472,7 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
               <span className={styles.infoLabel}>HP <span className={styles.statNote}>Max [{selectedTypeConfig?.hp ?? ' '}]</span></span>
             </div>
             <div className={styles.infoBox}>
-              <input
+              <Input
                 className={styles.infoInput}
                 type="number"
                 value={armor}
@@ -503,7 +485,7 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
               <span className={styles.infoLabel}>Armor <span className={styles.statNote}>See Type</span></span>
             </div>
             <div className={styles.infoBox}>
-              <input
+              <Input
                 className={styles.infoInput}
                 type="text"
                 value={damage}

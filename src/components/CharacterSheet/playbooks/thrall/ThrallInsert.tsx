@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import clsx from 'clsx';
-import { Button, Checkbox, Input, Radio, Text } from '@/components/primitives';
+import { Button, Input, Radio, Text } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { Move } from '../../Move';
 import type { MoveDefinition } from '../../Move';
@@ -86,19 +86,11 @@ const IMPULSE_OPTIONS = [
   { value: 'impulse-shock', label: 'Shock/terrify/horrify others' },
 ] as const;
 
-interface MarkDefinition {
-  id: string;
-  label: string;
-  body: string[];
-  list?: string[];
-  footer?: string[];
-  hpPenalty?: boolean;
-}
-
-const MARK_DEFINITIONS: MarkDefinition[] = [
+const MARK_DEFINITIONS: MoveDefinition[] = [
   {
     id: 'festering-rot',
-    label: 'A Festering Rot',
+    name: 'A Festering Rot',
+    selectable: true,
     body: [
       'You are unharmed by poison, disease, caustic substances, and vermin bites. Things in your presence rot, crack, corrode, and spoil.',
       'When you *roll doubles*, something on your person is ruined. The GM will tell you what, and how.',
@@ -106,8 +98,8 @@ const MARK_DEFINITIONS: MarkDefinition[] = [
   },
   {
     id: 'child-of-the-deeps',
-    label: 'Child of the Deeps',
-    hpPenalty: true,
+    name: 'Child of the Deeps',
+    selectable: true,
     body: [
       'Reduce your max HP by 2.',
       'You can breathe water and suffer no harm from cold or pressure. Your skin becomes squamous. When you *go a day without bathing*, mark a debility.',
@@ -116,7 +108,8 @@ const MARK_DEFINITIONS: MarkDefinition[] = [
   },
   {
     id: 'death-mask',
-    label: 'Death Mask',
+    name: 'Death Mask',
+    selectable: true,
     body: [
       'You find or craft a horrid mask. When you *do not wear your mask*, you have disadvantage on all rolls.',
       'When you *wear your mask*, undead treat as one of their own.',
@@ -125,8 +118,8 @@ const MARK_DEFINITIONS: MarkDefinition[] = [
   },
   {
     id: 'quicksilver-dreams',
-    label: 'Quicksilver Dreams',
-    hpPenalty: true,
+    name: 'Quicksilver Dreams',
+    selectable: true,
     body: [
       'Reduce your max HP by 2.',
       'When you *Make Camp*, everyone with you suffers nightmares and has disadvantage on their next roll.',
@@ -135,7 +128,8 @@ const MARK_DEFINITIONS: MarkDefinition[] = [
   },
   {
     id: 'ravenous',
-    label: 'Ravenous',
+    name: 'Ravenous',
+    selectable: true,
     body: [
       'You are filled with unending hunger. Gain an extra impulse: "Wantonly devour flesh."',
       'When you *Make Camp*, consume an extra 1d4 provisions or uses of supplies.',
@@ -148,8 +142,8 @@ const MARK_DEFINITIONS: MarkDefinition[] = [
   },
   {
     id: 'red-wrath',
-    label: 'Red Wrath',
-    hpPenalty: true,
+    name: 'Red Wrath',
+    selectable: true,
     body: [
       'Reduce your max HP by 2. When *the GM compels you to violence*, you have disadvantage to resist.',
       'When you *let your fury fly and lash out at someone* (*hand, close*), spend 1-3 Favor and roll +Favor spent: **on a 10+**, deal 2d8 damage (*messy, forceful*) and shock, terrify, or impress any onlookers; **on a 7-9**, as a 10+ but you keep attacking your victim (or their corpse) in an unthinking rage, heedless of other danger.',
@@ -157,8 +151,8 @@ const MARK_DEFINITIONS: MarkDefinition[] = [
   },
   {
     id: 'shadows-cold-embrace',
-    label: "Shadow's Cold Embrace",
-    hpPenalty: true,
+    name: "Shadow's Cold Embrace",
+    selectable: true,
     body: [
       'Reduce your max HP by 2. You cast no shadow and no reflection.',
       'When you *are exposed to sunlight or holy light*, you cannot spend Favor (for any reason).',
@@ -172,8 +166,8 @@ const MARK_DEFINITIONS: MarkDefinition[] = [
   },
   {
     id: 'speak-truth-whisper-secrets',
-    label: 'Speak Truth, Whisper Secrets',
-    hpPenalty: true,
+    name: 'Speak Truth, Whisper Secrets',
+    selectable: true,
     body: [
       'Reduce your max HP by 2. Your tongue grows unusually long and your teeth become stained and jagged.',
       'You can spend 1 Favor to look someone in the eye and learn (pick 1):',
@@ -188,7 +182,8 @@ const MARK_DEFINITIONS: MarkDefinition[] = [
   },
   {
     id: 'torments-blessing',
-    label: "Torment's Blessing",
+    name: "Torment's Blessing",
+    selectable: true,
     body: [
       'Your wounds are slow to heal. When you *recover HP*, recover only half the amount that you should. But, you never need to Defy Danger due to pain, blood loss, and weakness due to wounds.',
       'When you *speak a word of torment*, name someone nearby, spend 1-3 Favor, and roll +Favor spent: **on a 10+**, they take 2d4 damage and are wracked with pain—lesser victims are incapacitated, and mighty foes are momentarily stunned; **on a 7-9**, they take 1d6 damage (ignores armor) and lesser victims are momentarily stunned.',
@@ -298,21 +293,17 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
     saveImmediate({ thrallFavor: count });
   }, [saveImmediate]);
 
-  const handleMarkGainedChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const id = e.currentTarget.dataset.id ?? '';
-    const checked = e.target.checked;
+  const handleMarkGainedChange = useCallback((id: string, gained: boolean) => {
     setMarksGained((prev) => {
-      const next = { ...prev, [id]: checked };
+      const next = { ...prev, [id]: gained };
       saveImmediate({ thrallMarksGained: next });
       return next;
     });
   }, [saveImmediate]);
 
-  const handleMarkCrossedOffChange = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-    const id = e.currentTarget.dataset.id ?? '';
+  const handleMarkCrossedOffChange = useCallback((id: string) => {
     setMarksCrossedOff((prev) => {
-      const crossedOff = prev[id] === true;
-      const next = { ...prev, [id]: !crossedOff };
+      const next = { ...prev, [id]: !prev[id] };
       saveImmediate({ thrallMarksCrossedOff: next });
       return next;
     });
@@ -454,56 +445,24 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
             const crossOffCx = clsx(styles.crossOffBtn, crossedOff && styles.crossOffBtnActive);
             return (
               <div key={mark.id} className={markCx}>
-                <div className={styles.markHeader}>
-                  <Checkbox
-                    className={styles.markGainedLabel}
-                    checked={gained}
-                    disabled={crossedOff}
-                    aria-disabled={crossedOff}
-                    data-id={mark.id}
-                    onChange={handleMarkGainedChange}
-                    aria-label={`Mark gained: ${mark.label}`}
-                    label={
-                      <Text as="span" size="sm" className={styles.markName}>
-                        {mark.label}
-                      </Text>
-                    }
-                  />
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={crossOffCx}
-                    data-id={mark.id}
-                    onClick={handleMarkCrossedOffChange}
-                    aria-pressed={crossedOff}
-                    aria-label={crossedOff ? `Restore mark: ${mark.label}` : `Cross off mark (can never gain): ${mark.label}`}
-                  >
-                    ✕
-                  </Button>
-                </div>
-                {!crossedOff && (
-                  <div className={styles.markBody}>
-                    {mark.body.map((p, i) => (
-                      <Text key={i} as="p" size="sm" color="muted" className={styles.markProse}>
-                        {parseInlineMarkdown(p)}
-                      </Text>
-                    ))}
-                    {mark.list && (
-                      <ul className={styles.markBulletList}>
-                        {mark.list.map((item, i) => (
-                          <li key={i} className={styles.markBulletItem}>
-                            <Text as="span" size="sm" color="muted">{parseInlineMarkdown(item)}</Text>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                    {mark.footer?.map((p, i) => (
-                      <Text key={i} as="p" size="sm" color="muted" className={styles.markProse}>
-                        {parseInlineMarkdown(p)}
-                      </Text>
-                    ))}
-                  </div>
-                )}
+                <Move
+                  move={mark}
+                  selected={gained}
+                  onSelectChange={(val) => handleMarkGainedChange(mark.id, val)}
+                  disabled={crossedOff}
+                  headerAction={
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={crossOffCx}
+                      onClick={() => handleMarkCrossedOffChange(mark.id)}
+                      aria-pressed={crossedOff}
+                      aria-label={crossedOff ? `Restore mark: ${mark.name}` : `Cross off mark (can never gain): ${mark.name}`}
+                    >
+                      ✕
+                    </Button>
+                  }
+                />
               </div>
             );
           })}

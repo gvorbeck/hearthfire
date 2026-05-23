@@ -72,6 +72,7 @@ Type selection, HP/armor display, instinct, cost, loyalty, and beast of legend a
 ### 6. Three different debouncing patterns
 
 The codebase has:
+
 - `useDebouncedSave` — simple, stateless, single string
 - `useDebouncedAnswers` — uses `useLayoutEffect` for ref sync (unusual, suggests timing concerns)
 - Inline debounce logic in individual components (`Stats`, `Background`)
@@ -121,13 +122,29 @@ Screen readers announce `aria-label` as the field's name. A question reads stran
 
 ## Priority Order
 
-| Priority | Issue | File |
-|----------|-------|------|
-| P0 | Race condition — character updates can silently overwrite each other | `src/hooks/useGame.ts` |
-| P0 | `as unknown as GameSession` — compiler is being lied to | `src/hooks/useGame.ts:38` |
-| P1 | Save errors are invisible to users | Multiple |
-| P1 | No error boundary — app goes blank on route throw | `src/App.tsx` |
-| P2 | RangerAnimalCompanion is 689 lines | `src/components/CharacterSheet/playbooks/ranger/` |
-| P2 | Three debouncing patterns — pick one | Multiple |
-| P3 | Unnecessary memo on leaf components | `Stats.tsx`, `Inventory.tsx` |
-| P3 | aria-label uses question format | `RevenantInsert.tsx:330` |
+| Priority | Issue                                                                | File                                              |
+| -------- | -------------------------------------------------------------------- | ------------------------------------------------- |
+| P0       | Race condition — character updates can silently overwrite each other | `src/hooks/useGame.ts`                            |
+| P0       | `as unknown as GameSession` — compiler is being lied to              | `src/hooks/useGame.ts:38`                         |
+| P1       | Save errors are invisible to users                                   | Multiple                                          |
+| P1       | No error boundary — app goes blank on route throw                    | `src/App.tsx`                                     |
+| P2       | RangerAnimalCompanion is 689 lines                                   | `src/components/CharacterSheet/playbooks/ranger/` |
+| P2       | Three debouncing patterns — pick one                                 | Multiple                                          |
+| P3       | Unnecessary memo on leaf components                                  | `Stats.tsx`, `Inventory.tsx`                      |
+| P3       | aria-label uses question format                                      | `RevenantInsert.tsx:330`                          |
+
+---
+
+# Sample Prompt
+
+Let's looks at all nine of the playbooks: Blessed, Fox, Heavy, Lightbearer, Judge, Marshal, Ranger, Would-be Hero. These all have been developed and exist in our application.
+
+Now that they all exist, I want to see if there are any major refactor opportunities, DRY violations, strategy improvements, best practices missed, accessibility improvements, SEO improvements, bugs, etc.
+
+There should also be quality of life improvements looked at. Design improvements. Little touches and flourishes.
+
+Look up any and all game concepts in the game rulebook: /Users/garrett.vorbeck/Sites/stonetop/docs/Stonetop (Book 1).txt
+
+Make use of any primitive components in /Users/garrett.vorbeck/Sites/stonetop/src/components/primitives
+
+Develop this with an eye towards establish patterns, react best practices, accessibility, a conservative firestore read/write process, DRY policies, current coding standards, lean elegant code. Ask questions, don't make assumptions.

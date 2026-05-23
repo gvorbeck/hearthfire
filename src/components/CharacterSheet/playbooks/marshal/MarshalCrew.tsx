@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, memo } from 'react';
 import clsx from 'clsx';
-import { Checkbox, CheckboxGroup, Divider, Radio, UseDots } from '@/components/primitives';
+import { Checkbox, CheckboxGroup, Divider, Input, Radio, UseDots } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
 import { useCrewSave } from '../shared/useCrewSave';
@@ -106,7 +106,7 @@ const IndividualSlot = memo(({ index, name, tag, traits, onChange, onBlur }: Ind
   return (
     <div className={styles.individual}>
       <div className={styles.individualFields}>
-        <input
+        <Input
           className={styles.individualInput}
           type="text"
           value={name}
@@ -115,7 +115,7 @@ const IndividualSlot = memo(({ index, name, tag, traits, onChange, onBlur }: Ind
           onChange={handleName}
           onBlur={onBlur}
         />
-        <input
+        <Input
           className={styles.individualInput}
           type="text"
           value={tag}
@@ -125,7 +125,8 @@ const IndividualSlot = memo(({ index, name, tag, traits, onChange, onBlur }: Ind
           onBlur={onBlur}
         />
       </div>
-      <textarea
+      <Input
+        multiline
         className={styles.individualTraits}
         value={traits}
         placeholder="Traits"
@@ -166,7 +167,7 @@ const CustomInventoryItem = memo(({ slotIndex, weight, checked, text, onCheckedC
   return (
     <div className={styles.inventoryCustomItem}>
       <Checkbox variant="provision" weight={weight} checked={checked} onChange={handleChecked} aria-label={`Custom inventory item ${slotIndex + 1}`} />
-      <input
+      <Input
         className={styles.inventoryCustomInput}
         type="text"
         value={text}
@@ -216,6 +217,10 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
   const [instinctCustom, setInstinctCustom] = useState<string>(() => features.crewInstinctCustom ?? '');
   const [cost, setCost] = useState<string>(() => features.crewCost ?? '');
   const [costCustom, setCostCustom] = useState<string>(() => features.crewCostCustom ?? '');
+  const [instinctCollapsed, setInstinctCollapsed] = useState(false);
+  const hasInitInstinctCollapse = useRef(false);
+  const [costCollapsed, setCostCollapsed] = useState(false);
+  const hasInitCostCollapse = useRef(false);
   const [loyalty, setLoyalty] = useState<number>(() => features.crewLoyalty ?? 0);
   const [inventoryChecked, setInventoryChecked] = useState<Record<string, boolean>>(() => features.crewInventoryChecked ?? {});
   const [customItems, setCustomItems] = useState<{ checked: boolean; text: string }[]>(() =>
@@ -302,10 +307,28 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
     flushDebounce({ crewTagsCustom: tagsCustomRef.current });
   }, [flushDebounce]);
 
+  useEffect(() => {
+    if (instinct && !hasInitInstinctCollapse.current) {
+      hasInitInstinctCollapse.current = true;
+      setInstinctCollapsed(true);
+    }
+  }, [instinct]);
+
+  useEffect(() => {
+    if (cost && !hasInitCostCollapse.current) {
+      hasInitCostCollapse.current = true;
+      setCostCollapsed(true);
+    }
+  }, [cost]);
+
+  const handleToggleInstinctCollapse = useCallback(() => setInstinctCollapsed((v) => !v), []);
+  const handleToggleCostCollapse = useCallback(() => setCostCollapsed((v) => !v), []);
+
   const handleInstinctChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setInstinct(val);
     setInstinctCustom('');
+    setInstinctCollapsed(true);
     saveImmediate({ crewInstinct: val, crewInstinctCustom: '' });
   }, [saveImmediate]);
 
@@ -326,6 +349,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
     const val = e.target.value;
     setCost(val);
     setCostCustom('');
+    setCostCollapsed(true);
     saveImmediate({ crewCost: val, crewCostCustom: '' });
   }, [saveImmediate]);
 
@@ -396,6 +420,16 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
     flushDebounce({ crewIndividuals: individualsRef.current });
   }, [flushDebounce]);
 
+  const instinctOptionsVisible = instinctCollapsed && instinct && instinct !== 'custom'
+    ? INSTINCT_OPTIONS.filter((opt) => opt === instinct)
+    : INSTINCT_OPTIONS;
+  const showInstinctCustom = !instinctCollapsed || instinct === 'custom';
+
+  const costOptionsVisible = costCollapsed && cost && cost !== 'custom'
+    ? COST_OPTIONS.filter((opt) => opt === cost)
+    : COST_OPTIONS;
+  const showCostCustom = !costCollapsed || cost === 'custom';
+
   const hasHeroesToTheLast = data?.typeMoves?.['marshal-heroes-to-the-last'] === true;
   const isExceptional = data?.typeMoveCheckList?.['marshal-heroes-to-the-last']?.['marshal-httl-exceptional'] === true;
   const selectedTagCount = Object.entries(tags).filter(([id, v]) => id !== 'group' && id !== 'exceptional' && v).length;
@@ -421,7 +455,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
         </p>
         <div className={styles.infoBoxes}>
           <div className={styles.infoBox}>
-            <input
+            <Input
               className={styles.infoInput}
               type="number"
               value={hp}
@@ -435,7 +469,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
             <span className={styles.infoLabel}>HP <span className={styles.statNote}>Max [{CREW_HP_MAX}]</span></span>
           </div>
           <div className={styles.infoBox}>
-            <input
+            <Input
               className={styles.infoInput}
               type="number"
               value={armor}
@@ -466,7 +500,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
         />
         <div className={styles.customTagsRow}>
           {tagsCustom.map((val, i) => (
-            <input
+            <Input
               key={`custom-tag-${i}`}
               data-index={i}
               className={styles.customTagInput}
@@ -490,9 +524,16 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
       </PlaybookSection>
 
       <div className={styles.columns}>
-        <PlaybookSection title="Instinct" choose={1}>
+        <PlaybookSection
+          title="Instinct"
+          choose={1}
+          warn={!instinct}
+          collapsible={!!instinct}
+          isCollapsed={instinctCollapsed}
+          onToggleCollapse={handleToggleInstinctCollapse}
+        >
           <div className={styles.radioList}>
-            {INSTINCT_OPTIONS.map((opt) => (
+            {instinctOptionsVisible.map((opt) => (
               <Radio
                 key={opt}
                 name="crew-instinct"
@@ -502,35 +543,44 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
                 label={<span className={styles.radioLabel}>{opt}</span>}
               />
             ))}
-            <div className={styles.radioCustomRow}>
-              <Radio
-                name="crew-instinct"
-                value="custom"
-                checked={instinct === 'custom'}
-                onChange={handleInstinctChange}
-                label={null}
-              />
-              <input
-                type="text"
-                className={styles.inlineTextInput}
-                value={instinctCustom}
-                placeholder="Custom instinct…"
-                aria-label="Custom instinct"
-                onFocus={handleInstinctCustomFocus}
-                onChange={handleInstinctCustomChange}
-                onBlur={handleInstinctCustomBlur}
-              />
-            </div>
+            {showInstinctCustom && (
+              <div className={styles.radioCustomRow}>
+                <Radio
+                  name="crew-instinct"
+                  value="custom"
+                  checked={instinct === 'custom'}
+                  onChange={handleInstinctChange}
+                  label={null}
+                />
+                <Input
+                  type="text"
+                  className={styles.inlineTextInput}
+                  value={instinctCustom}
+                  placeholder="Custom instinct…"
+                  aria-label="Custom instinct"
+                  onFocus={handleInstinctCustomFocus}
+                  onChange={handleInstinctCustomChange}
+                  onBlur={handleInstinctCustomBlur}
+                />
+              </div>
+            )}
           </div>
         </PlaybookSection>
 
-        <PlaybookSection title="Cost" choose={1}>
+        <PlaybookSection
+          title="Cost"
+          choose={1}
+          warn={!cost}
+          collapsible={!!cost}
+          isCollapsed={costCollapsed}
+          onToggleCollapse={handleToggleCostCollapse}
+        >
           <div className={styles.loyaltyRow}>
             <span className={styles.loyaltyLabel}>Loyalty</span>
             <UseDots total={3} checked={loyalty} onChange={handleLoyaltyChange} />
           </div>
           <div className={styles.radioList}>
-            {COST_OPTIONS.map((opt) => (
+            {costOptionsVisible.map((opt) => (
               <Radio
                 key={opt}
                 name="crew-cost"
@@ -540,25 +590,27 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
                 label={<span className={styles.radioLabel}>{opt}</span>}
               />
             ))}
-            <div className={styles.radioCustomRow}>
-              <Radio
-                name="crew-cost"
-                value="custom"
-                checked={cost === 'custom'}
-                onChange={handleCostChange}
-                label={null}
-              />
-              <input
-                type="text"
-                className={styles.inlineTextInput}
-                value={costCustom}
-                placeholder="Custom cost…"
-                aria-label="Custom cost"
-                onFocus={handleCostCustomFocus}
-                onChange={handleCostCustomChange}
-                onBlur={handleCostCustomBlur}
-              />
-            </div>
+            {showCostCustom && (
+              <div className={styles.radioCustomRow}>
+                <Radio
+                  name="crew-cost"
+                  value="custom"
+                  checked={cost === 'custom'}
+                  onChange={handleCostChange}
+                  label={null}
+                />
+                <Input
+                  type="text"
+                  className={styles.inlineTextInput}
+                  value={costCustom}
+                  placeholder="Custom cost…"
+                  aria-label="Custom cost"
+                  onFocus={handleCostCustomFocus}
+                  onChange={handleCostCustomChange}
+                  onBlur={handleCostCustomBlur}
+                />
+              </div>
+            )}
           </div>
         </PlaybookSection>
       </div>

@@ -25,7 +25,7 @@ interface SeekerCollectionProps {
 }
 
 export const SeekerCollection = ({ data, onSave }: SeekerCollectionProps) => {
-  const { checked, handleChange: handleCheck, answers, handleAnswer } = usePlaybookCheckedWithAnswers(
+  const { checked, handleChange: handleCheck, answers, handleAnswer, flushAnswers } = usePlaybookCheckedWithAnswers(
     data, onSave, 'seekerCollection', 'seekerCollectionAnswers',
   );
 
@@ -46,7 +46,7 @@ export const SeekerCollection = ({ data, onSave }: SeekerCollectionProps) => {
         checked={checked}
         onChange={handleCheck}
       />
-      <AnswerPrompts prompts={ANSWER_PROMPTS.slice(0, 1)} answers={answers} onAnswer={handleAnswer} />
+      <AnswerPrompts prompts={ANSWER_PROMPTS.slice(0, 1)} answers={answers} onAnswer={handleAnswer} onFlush={flushAnswers} />
       <Divider />
       <p className={styles.prose}>
         <strong>MINOR ARCANA</strong>
@@ -56,7 +56,7 @@ export const SeekerCollection = ({ data, onSave }: SeekerCollectionProps) => {
         whose secrets you have unlocked, one you have not yet mastered, and one you have not yet
         found.
       </p>
-      <AnswerPrompts prompts={ANSWER_PROMPTS.slice(1)} answers={answers} onAnswer={handleAnswer} />
+      <AnswerPrompts prompts={ANSWER_PROMPTS.slice(1)} answers={answers} onAnswer={handleAnswer} onFlush={flushAnswers} />
     </PlaybookSection>
   );
 };

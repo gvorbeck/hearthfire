@@ -29,7 +29,7 @@ interface RangerSomethingWickedProps {
 }
 
 export const RangerSomethingWicked = ({ data, onSave }: RangerSomethingWickedProps) => {
-  const { checked, handleChange: handleCheck, answers, handleAnswer } = usePlaybookCheckedWithAnswers(
+  const { checked, handleChange: handleCheck, answers, handleAnswer, flushAnswers } = usePlaybookCheckedWithAnswers(
     data, onSave, 'rangerSomethingWicked', 'rangerSomethingWickedAnswers',
   );
 
@@ -50,7 +50,7 @@ export const RangerSomethingWicked = ({ data, onSave }: RangerSomethingWickedPro
       <p className={styles.prose}>
         Then, answer at least 3 of the following questions about this threat:
       </p>
-      <AnswerPrompts prompts={ANSWER_PROMPTS} answers={answers} onAnswer={handleAnswer} />
+      <AnswerPrompts prompts={ANSWER_PROMPTS} answers={answers} onAnswer={handleAnswer} onFlush={flushAnswers} />
     </PlaybookSection>
   );
 };
