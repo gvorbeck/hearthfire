@@ -66,6 +66,12 @@
   outline-offset: -2px;
 }
 
+.tabRemoveWrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
 .tabRemove {
   display: inline-flex;
   align-items: center;

@@ -179,11 +179,6 @@ const AddInsertModal = ({ open, onClose, onAdd, existingInserts }: { open: boole
   const availableOptions = INSERT_OPTIONS.filter((opt) => !existingInserts.includes(opt));
   const [selected, setSelected] = useState<InsertOption>(() => availableOptions[0] ?? INSERT_OPTIONS[0]);
 
-  useEffect(() => {
-    if (open) setSelected(availableOptions[0] ?? INSERT_OPTIONS[0]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
-
   const handleSelectChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSelected(e.currentTarget.value as InsertOption);
   }, []);
@@ -273,9 +268,9 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
   const handleConfirmRemoveInsert = useCallback(async () => {
     if (!removeInsert) return;
     const next = (character.data?.inserts ?? []).filter((i) => i !== removeInsert);
-    const existingFeatures = resolvePlaybookFeatures(character.data);
-    if (removeInsert === 'Followers') delete (existingFeatures as Record<string, unknown>).followers;
-    await handleSaveCharacterData({ inserts: next, playbookFeatures: existingFeatures });
+    const { followers: _removed, ...restFeatures } = resolvePlaybookFeatures(character.data);
+    const playbookFeatures = removeInsert === 'Followers' ? restFeatures : resolvePlaybookFeatures(character.data);
+    await handleSaveCharacterData({ inserts: next, playbookFeatures });
     setActiveIndex(0);
     setRemoveInsert(null);
   }, [removeInsert, character.data, handleSaveCharacterData]);
@@ -352,7 +347,9 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
     ...(character.data?.inserts ?? []).map((label) => ({
       label,
       content: resolvePlaybookTabContent(label, null, character.data, prosperity, handleSaveCharacterData),
-      onRemove: () => handleRequestRemoveInsert(label as InsertOption),
+      onRemove: INSERT_OPTIONS.includes(label as InsertOption)
+        ? () => handleRequestRemoveInsert(label as InsertOption)
+        : undefined,
       removeTooltip: `Remove ${label}`,
     })),
   ], [character, playbookOption, handleSaveCharacterData, playbookTabs, showInvocationsBadge, prosperity]);
@@ -385,7 +382,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
         onActiveChange={handleActiveChange}
         onAdd={handleOpenAddTab}
       />
-      <AddInsertModal open={addTabOpen} onClose={handleCloseAddTab} onAdd={handleAddInsert} existingInserts={character.data?.inserts ?? []} />
+      <AddInsertModal key={addTabOpen ? 'open' : 'closed'} open={addTabOpen} onClose={handleCloseAddTab} onAdd={handleAddInsert} existingInserts={character.data?.inserts ?? []} />
       <RemoveInsertModal open={removeInsert !== null} insert={removeInsert} onClose={handleCloseRemoveInsert} onConfirm={handleConfirmRemoveInsert} />
     </main>
   );

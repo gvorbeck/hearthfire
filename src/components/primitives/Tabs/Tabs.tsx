@@ -35,7 +35,7 @@ const TabRemoveButton = ({ tab, index, baseId, onRemove }: { tab: Tab; index: nu
   const tipCx = clsx(styles.tabTooltip, styles[removeTooltip.resolvedSide], removeTooltip.visible && styles.tabTooltipVisible);
 
   return (
-    <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+    <span className={styles.tabRemoveWrapper}>
       <button
         ref={(el) => { (removeTooltip.anchorRef as React.MutableRefObject<HTMLElement | null>).current = el; }}
         type="button"
@@ -43,7 +43,6 @@ const TabRemoveButton = ({ tab, index, baseId, onRemove }: { tab: Tab; index: nu
         aria-label={tab.removeTooltip ?? `Remove ${tab.label} tab`}
         aria-describedby={removeTooltip.tooltipId}
         onClick={handleClick}
-        tabIndex={-1}
         {...removeTooltip.anchorProps}
       >
         ×
@@ -63,8 +62,6 @@ const TabRemoveButton = ({ tab, index, baseId, onRemove }: { tab: Tab; index: nu
   );
 };
 
-// Renders a single tab button, conditionally wiring tooltip behavior directly
-// onto the button so no wrapper element interrupts role="tablist".
 const TabButton = ({
   tab, index, baseId, isActive, onActivate, onKeyDown, buttonRef, onRemove,
 }: {
