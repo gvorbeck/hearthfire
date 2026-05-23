@@ -31,6 +31,7 @@ import { SeekerCollection } from '@/components/CharacterSheet/playbooks/seeker/S
 import { WouldBeHeroFearAnger } from '@/components/CharacterSheet/playbooks/would-be-hero/WouldBeHeroFearAnger';
 import { RevenantInsert } from '@/components/CharacterSheet/playbooks/revenant/RevenantInsert';
 import { GhostInsert } from '@/components/CharacterSheet/playbooks/ghost/GhostInsert';
+import { ThrallInsert } from '@/components/CharacterSheet/playbooks/thrall/ThrallInsert';
 import charSheetStyles from '@/components/CharacterSheet/CharacterSheet.module.css';
 import type { Character, CharacterData, GameSession, PlaybookType } from '@/types';
 import styles from './CharacterPlaybook.module.css';
@@ -131,7 +132,7 @@ const getPlaybookTabs = (playbook: PlaybookType, data: CharacterData | undefined
 const INSERT_OPTIONS = ['Revenant', 'Ghost', 'Thrall'] as const;
 type InsertOption = typeof INSERT_OPTIONS[number];
 
-const IMPLEMENTED_INSERTS = new Set<InsertOption>(['Revenant', 'Ghost']);
+const IMPLEMENTED_INSERTS = new Set<InsertOption>(['Revenant', 'Ghost', 'Thrall']);
 
 const AddInsertModal = ({ open, onClose, onAdd }: { open: boolean; onClose: () => void; onAdd: (insert: InsertOption) => void }) => {
   const headingId = useId();
@@ -183,6 +184,7 @@ const resolvePlaybookTabContent = (
   if (id === 'inventory') return <Inventory data={data} prosperity={prosperity} onSave={onSave} />;
   if (id === 'Revenant') return <RevenantInsert data={data} onSave={onSave} />;
   if (id === 'Ghost') return <GhostInsert data={data} onSave={onSave} />;
+  if (id === 'Thrall') return <ThrallInsert data={data} onSave={onSave} />;
   return fallback;
 };
 

@@ -87,6 +87,12 @@ export interface PlaybookFeatures {
   ghostPurposeName?: Record<string, string>;
   ghostConsequences?: Record<string, boolean>;
   ghostPoltergeistFury?: number;
+  thrallMaster?: string;
+  thrallInstinct?: string;
+  thrallImpulse?: string;
+  thrallFavor?: number;
+  thrallMarksGained?: Record<string, boolean>;
+  thrallMarksCrossedOff?: Record<string, boolean>;
 }
 
 export interface CharacterData {
