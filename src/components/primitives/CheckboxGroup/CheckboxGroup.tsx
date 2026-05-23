@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import clsx from 'clsx';
 import { Checkbox } from '../Checkbox/Checkbox';
 import styles from './CheckboxGroup.module.css';
 
@@ -17,6 +18,7 @@ interface CheckboxGroupProps {
   max?: number;
   disabled?: boolean;
   columns?: 1 | 2 | 4 | 6 | 'responsive-2-4-6';
+  itemGap?: 'sm' | 'md' | 'lg';
 }
 
 const normalizeItems = (items: CheckboxGroupItem[] | string[]): CheckboxGroupItem[] =>
@@ -31,17 +33,21 @@ export const CheckboxGroup = ({
   max,
   disabled = false,
   columns = 1,
+  itemGap,
 }: CheckboxGroupProps) => {
   const items = useMemo(() => normalizeItems(rawItems), [rawItems]);
   const selectedCount = items.filter(({ id }) => checked[id]).length;
   const atMax = max !== undefined && selectedCount >= max;
 
-  const gridClass =
+  const gridClass = clsx(
     columns === 'responsive-2-4-6' ? styles.gridResponsive246
     : columns === 6 ? styles.grid6
     : columns === 4 ? styles.grid4
     : columns === 2 ? styles.grid2
-    : styles.list;
+    : styles.list,
+    itemGap === 'md' && styles.gapMd,
+    itemGap === 'lg' && styles.gapLg,
+  );
 
   return (
     <div className={styles.root}>

@@ -12,91 +12,13 @@
   line-height: 1.5;
 }
 
-/* Instinct + Purpose radio options */
-
-.radioList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3);
-}
-
-.radioRow {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--spacing-3);
-  cursor: pointer;
-  user-select: none;
-}
-
-.optionLabel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-1);
-}
-
-.optionTitle {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  color: var(--text-primary);
-  letter-spacing: 0.02em;
-}
-
-.optionDesc {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-}
-
 /* Moves */
 
 .moveList {
   display: flex;
   flex-direction: column;
-  margin-top: var(--spacing-2);
-}
-
-/* Terrible Purpose */
-
-.purposeList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-4);
-}
-
-.purposeEntry {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-}
-
-.purposeDetail {
-  padding-left: calc(16px + var(--spacing-3));
-  display: flex;
-  flex-direction: column;
   gap: var(--spacing-3);
-}
-
-.purposeNameInput {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-}
-
-.triggerList {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-}
-
-.triggerItem {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  line-height: 1.5;
-  padding-left: var(--spacing-3);
-  border-left: 2px solid var(--border-subtle);
+  margin-top: var(--spacing-2);
 }
 
 /* Consequences */

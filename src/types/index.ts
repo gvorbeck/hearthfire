@@ -82,6 +82,11 @@ export interface PlaybookFeatures {
   revenantPurpose?: string;
   revenantPurposeName?: Record<string, string>;
   revenantConsequences?: Record<string, boolean>;
+  ghostInstinct?: string;
+  ghostPurpose?: string;
+  ghostPurposeName?: Record<string, string>;
+  ghostConsequences?: Record<string, boolean>;
+  ghostPoltergeistFury?: number;
 }
 
 export interface CharacterData {

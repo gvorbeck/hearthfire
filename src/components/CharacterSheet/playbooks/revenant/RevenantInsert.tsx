@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { CheckboxGroup, Input, Radio, Text } from '@/components/primitives';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { CheckboxGroup, Radio, Text } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { Move } from '../../Move';
 import type { MoveDefinition } from '../../Move';
 import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
-import { useCrewSave } from '../marshal/useCrewSave';
+import { useInsertSections } from '../shared/useInsertSections';
+import { InsertInstinctSection, InsertPurposeSection } from '../shared/InsertSections';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { CharacterData } from '@/types';
 import styles from './RevenantInsert.module.css';
@@ -37,54 +38,6 @@ const REVENANT_MOVES: MoveDefinition[] = [
       'Perform a feat of inhuman strength',
       'Act with uncanny speed and grace',
       'Refuse to be moved, held back, or knocked off course',
-    ],
-  },
-];
-
-const INSTINCT_OPTIONS = [
-  { value: 'denial', label: 'DENIAL', description: 'To refuse to accept that you are dead.' },
-  { value: 'obsession', label: 'OBSESSION', description: 'To pursue your Terrible Purpose no matter what.' },
-  { value: 'ennui', label: 'ENNUI', description: 'To bemoan your condition, to wish for release.' },
-];
-
-const PURPOSE_OPTIONS = [
-  {
-    value: 'longing',
-    label: 'LONGING',
-    namePrompt: 'Name the person or persons you refuse to let go of.',
-    namePlaceholder: 'Name the person or persons…',
-    triggers: [
-      'When you *spend the night watching them*, regain all your HP or clear all your debilities.',
-      'When they *genuinely return your affections*, free of fear or horror, either regain all your HP and clear your debilities, or clear a consequence.',
-      'When they *rebuff you or recoil from you*, mark a consequence.',
-      'When they *die peacefully and pass through the Last Door*, so do you.',
-      'Should they be *taken from you violently*, mark the Final Consequence.',
-    ],
-  },
-  {
-    value: 'vengeance',
-    label: 'VENGEANCE',
-    namePrompt: 'Name the person or persons who must pay.',
-    namePlaceholder: 'Name the person or persons…',
-    triggers: [
-      'When you *spend the night wailing, howling, and raging in a lonely place*, regain all your HP or clear all your debilities.',
-      'When you *make one of them pay and ensure that they know why*, either regain all your HP and clear your debilities, or clear a consequence.',
-      'When they *defeat or escape you*, mark a consequence.',
-      'When you *kill the last of them*, pass through the Last Door.',
-      'Should they *die before you\'re finished with them*, mark the Final Consequence.',
-    ],
-  },
-  {
-    value: 'duty',
-    label: 'DUTY',
-    namePrompt: 'Name the task you refuse to leave undone.',
-    namePlaceholder: 'Name the task…',
-    triggers: [
-      'When you *spend the night working on your task*, regain all your HP or clear all your debilities.',
-      'When you *achieve a significant milestone towards your task*, either regain all your HP and clear your debilities, or clear a consequence.',
-      'When you *fail to perform your task or suffer a material setback*, mark a consequence.',
-      'When the *task is finally complete*, pass through the Last Door.',
-      'Should the *task become impossible to perform*, mark the Final Consequence.',
     ],
   },
 ];
@@ -133,6 +86,7 @@ const CONSEQUENCE_LABELS: { id: string; label: string }[] = [
 ];
 
 const STRANGE_APPETITES_ID = 'strange-appetites';
+const INSATIABLE_ID = 'insatiable';
 const STRANGE_APPETITE_PICKS = [
   { id: 'blood', label: 'still-warm blood' },
   { id: 'marrow', label: 'bone & marrow' },
@@ -142,83 +96,36 @@ const STRANGE_APPETITE_PICKS = [
   { id: 'eyes', label: 'eyes' },
 ];
 
+const REVENANT_KEYS = {
+  instinct: 'revenantInstinct',
+  purpose: 'revenantPurpose',
+  purposeName: 'revenantPurposeName',
+} as const;
+
 interface RevenantInsertProps {
   data: CharacterData | undefined;
   onSave: (data: Partial<CharacterData>) => Promise<void>;
 }
 
 export const RevenantInsert = ({ data, onSave }: RevenantInsertProps) => {
-  const { saveDebounced, saveImmediate, flushDebounce } = useCrewSave(data, onSave);
-  const features = resolvePlaybookFeatures(data);
+  const {
+    instinct, purpose, purposeNames,
+    instinctCollapsed, purposeCollapsed,
+    handleToggleInstinctCollapse, handleTogglePurposeCollapse,
+    handleInstinctChange, handlePurposeChange,
+    handlePurposeNameChange, handlePurposeNameBlur,
+    saveImmediate,
+  } = useInsertSections(data, onSave, REVENANT_KEYS);
 
-  const [instinct, setInstinct] = useState<string>(() => features.revenantInstinct ?? '');
-  const [purpose, setPurpose] = useState<string>(() => features.revenantPurpose ?? '');
-  const [purposeNames, setPurposeNames] = useState<Record<string, string>>(
-    () => features.revenantPurposeName ?? {},
-  );
+  const features = resolvePlaybookFeatures(data);
   const [consequences, setConsequences] = useState<Record<string, boolean>>(
     () => features.revenantConsequences ?? {},
   );
 
-  const purposeNamesRef = useRef(purposeNames);
-  purposeNamesRef.current = purposeNames;
-
-  const [instinctCollapsed, setInstinctCollapsed] = useState(false);
-  const hasInitInstinctCollapse = useRef(false);
-  const [purposeCollapsed, setPurposeCollapsed] = useState(false);
-  const hasInitPurposeCollapse = useRef(false);
-
   useEffect(() => {
     const f = resolvePlaybookFeatures(data);
-    if (f.revenantInstinct !== undefined) setInstinct(f.revenantInstinct);
-    if (f.revenantPurpose !== undefined) setPurpose(f.revenantPurpose);
-    if (f.revenantPurposeName !== undefined) setPurposeNames(f.revenantPurposeName);
     if (f.revenantConsequences !== undefined) setConsequences(f.revenantConsequences);
   }, [data]);
-
-  useEffect(() => {
-    if (instinct && !hasInitInstinctCollapse.current) {
-      hasInitInstinctCollapse.current = true;
-      setInstinctCollapsed(true);
-    }
-  }, [instinct]);
-
-  useEffect(() => {
-    if (purpose && !hasInitPurposeCollapse.current) {
-      hasInitPurposeCollapse.current = true;
-      setPurposeCollapsed(true);
-    }
-  }, [purpose]);
-
-  const handleToggleInstinctCollapse = useCallback(() => setInstinctCollapsed((v) => !v), []);
-  const handleTogglePurposeCollapse = useCallback(() => setPurposeCollapsed((v) => !v), []);
-
-  const handleInstinctChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setInstinct(val);
-    setInstinctCollapsed(true);
-    saveImmediate({ revenantInstinct: val });
-  }, [saveImmediate]);
-
-  const handlePurposeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setPurpose(val);
-    setPurposeCollapsed(true);
-    saveImmediate({ revenantPurpose: val });
-  }, [saveImmediate]);
-
-  const handlePurposeNameChange = useCallback((purposeValue: string, e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setPurposeNames((prev) => {
-      const next = { ...prev, [purposeValue]: val };
-      saveDebounced({ revenantPurposeName: next });
-      return next;
-    });
-  }, [saveDebounced]);
-
-  const handlePurposeNameBlur = useCallback(() => {
-    flushDebounce({ revenantPurposeName: purposeNamesRef.current });
-  }, [flushDebounce]);
 
   const handleConsequenceChange = useCallback((id: string, checked: boolean) => {
     setConsequences((prev) => {
@@ -240,52 +147,31 @@ export const RevenantInsert = ({ data, onSave }: RevenantInsertProps) => {
     });
   }, [saveImmediate]);
 
+  const hasStrangeAppetites = consequences[STRANGE_APPETITES_ID] === true;
+  const hasBreakdown = consequences['breakdown'] === true;
+
   const consequenceCheckboxItems = useMemo(
-    () => CONSEQUENCE_LABELS.map((c) => ({ id: c.id, label: parseInlineMarkdown(c.label) })),
-    [],
+    () => CONSEQUENCE_LABELS.map((c) => ({
+      id: c.id,
+      label: <span>{parseInlineMarkdown(c.label)}</span>,
+      disabled:
+        (c.id === INSATIABLE_ID && !hasStrangeAppetites) ||
+        (c.id === 'unstable' && !hasBreakdown),
+    })),
+    [hasStrangeAppetites, hasBreakdown],
   );
 
-  const hasStrangeAppetites = consequences[STRANGE_APPETITES_ID] === true;
   const currentAppetitePick = Object.keys(consequences).find((k) => k.startsWith('appetite:'))?.replace('appetite:', '') ?? '';
-
-  const visibleInstincts = instinctCollapsed && instinct
-    ? INSTINCT_OPTIONS.filter((o) => o.value === instinct)
-    : INSTINCT_OPTIONS;
-
-  const visiblePurposes = purposeCollapsed && purpose
-    ? PURPOSE_OPTIONS.filter((p) => p.value === purpose)
-    : PURPOSE_OPTIONS;
 
   return (
     <div className={styles.root}>
-      <PlaybookSection
-        title="Instinct"
-        choose={1}
-        chooseNote="replaces playbook instinct"
-        warn={!instinct}
-        collapsible={!!instinct}
-        isCollapsed={instinctCollapsed}
+      <InsertInstinctSection
+        radioName="revenant-instinct"
+        instinct={instinct}
+        instinctCollapsed={instinctCollapsed}
         onToggleCollapse={handleToggleInstinctCollapse}
-      >
-        <div className={styles.radioList}>
-          {visibleInstincts.map((opt) => (
-            <Radio
-              key={opt.value}
-              className={styles.radioRow}
-              name="revenant-instinct"
-              value={opt.value}
-              checked={instinct === opt.value}
-              onChange={handleInstinctChange}
-              label={
-                <span className={styles.optionLabel}>
-                  <strong className={styles.optionTitle}>{opt.label}</strong>
-                  <span className={styles.optionDesc}>{opt.description}</span>
-                </span>
-              }
-            />
-          ))}
-        </div>
-      </PlaybookSection>
+        onChange={handleInstinctChange}
+      />
 
       <PlaybookSection title="Moves">
         <Text as="p" size="sm" color="muted" className={styles.prose}>
@@ -298,52 +184,16 @@ export const RevenantInsert = ({ data, onSave }: RevenantInsertProps) => {
         </div>
       </PlaybookSection>
 
-      <PlaybookSection
-        title="Terrible Purpose"
-        choose={1}
-        warn={!purpose}
-        collapsible={!!purpose}
-        isCollapsed={purposeCollapsed}
+      <InsertPurposeSection
+        radioName="revenant-purpose"
+        purpose={purpose}
+        purposeNames={purposeNames}
+        purposeCollapsed={purposeCollapsed}
         onToggleCollapse={handleTogglePurposeCollapse}
-      >
-        <div className={styles.purposeList}>
-          {visiblePurposes.map((opt) => {
-            const isSelected = purpose === opt.value;
-            return (
-              <div key={opt.value} className={styles.purposeEntry}>
-                <Radio
-                  className={styles.radioRow}
-                  name="revenant-purpose"
-                  value={opt.value}
-                  checked={isSelected}
-                  onChange={handlePurposeChange}
-                  label={<strong className={styles.optionTitle}>{opt.label}</strong>}
-                />
-                {isSelected && (
-                  <div className={styles.purposeDetail}>
-                    <Input
-                      className={styles.purposeNameInput}
-                      type="text"
-                      value={purposeNames[opt.value] ?? ''}
-                      placeholder={opt.namePlaceholder}
-                      aria-label={opt.namePrompt}
-                      onChange={handlePurposeNameChange.bind(null, opt.value)}
-                      onBlur={handlePurposeNameBlur}
-                    />
-                    <ul className={styles.triggerList}>
-                      {opt.triggers.map((t) => (
-                        <li key={t} className={styles.triggerItem}>
-                          <Text as="span" size="sm" color="muted">{parseInlineMarkdown(t)}</Text>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </PlaybookSection>
+        onPurposeChange={handlePurposeChange}
+        onNameChange={handlePurposeNameChange}
+        onNameBlur={handlePurposeNameBlur}
+      />
 
       <PlaybookSection title="Consequences" chooseNote="choose 1 to start; more as play demands">
         <CheckboxGroup
