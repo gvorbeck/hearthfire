@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { arrayUnion, doc, onSnapshot, updateDoc } from 'firebase/firestore';
+import { useCallback, useEffect, useState } from 'react';
+import { arrayUnion, doc, onSnapshot, runTransaction, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { GAMES_COLLECTION } from '@/lib/constants';
 import type { Character, CharacterData, ContentLists, GameSession } from '@/types';
@@ -17,12 +17,24 @@ interface UseGameResult {
   removeCharacter: (characterId: string) => Promise<void>;
 }
 
+const parseCharacters = (raw: { characters?: unknown }): Character[] =>
+  Array.isArray(raw?.characters) ? (raw.characters as Character[]).filter(Boolean) : [];
+
+const withCharacters = async (
+  ref: ReturnType<typeof doc>,
+  transform: (characters: Character[]) => Character[]
+): Promise<void> => {
+  await runTransaction(db, async (tx) => {
+    const snap = await tx.get(ref);
+    if (!snap.exists()) return;
+    tx.update(ref, { characters: transform(parseCharacters(snap.data())) as unknown[] });
+  });
+};
+
 export const useGame = (gameId: string): UseGameResult => {
   const [game, setGame] = useState<GameSession | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const gameRef = useRef<GameSession | null>(null);
-  gameRef.current = game;
 
   useEffect(() => {
     const ref = doc(db, GAMES_COLLECTION, gameId);
@@ -34,8 +46,7 @@ export const useGame = (gameId: string): UseGameResult => {
           setGame(null);
         } else {
           const raw = snapshot.data();
-          const characters = Array.isArray(raw?.characters) ? raw.characters.filter(Boolean) : [];
-          setGame({ ...raw, characters, id: snapshot.id } as unknown as GameSession);
+          setGame({ ...raw, characters: parseCharacters(raw), id: snapshot.id } as unknown as GameSession);
         }
         setLoading(false);
         setError(null);
@@ -86,26 +97,17 @@ export const useGame = (gameId: string): UseGameResult => {
   }, [gameId]);
 
   const removeCharacter = useCallback(async (characterId: string) => {
-    const current = gameRef.current;
-    if (!current) return;
-    const updatedCharacters = current.characters.filter((c: Character) => c.id !== characterId);
     try {
-      await updateDoc(doc(db, GAMES_COLLECTION, gameId), { characters: updatedCharacters });
+      await withCharacters(doc(db, GAMES_COLLECTION, gameId), (chars) => chars.filter((c) => c.id !== characterId));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to remove character');
       throw err;
     }
   }, [gameId]);
 
-  // removeCharacter, updateCharacterName, and updateCharacterData all read gameRef.current
-  // and write the full characters array. Concurrent calls in the same tick will race — the
-  // last write wins. This is acceptable for this app's single-user-per-character model.
   const updateCharacterName = useCallback(async (characterId: string, name: string) => {
-    const current = gameRef.current;
-    if (!current) return;
-    const updatedCharacters = current.characters.map((c: Character) => c.id === characterId ? { ...c, name } : c);
     try {
-      await updateDoc(doc(db, GAMES_COLLECTION, gameId), { characters: updatedCharacters });
+      await withCharacters(doc(db, GAMES_COLLECTION, gameId), (chars) => chars.map((c) => c.id === characterId ? { ...c, name } : c));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update character name');
       throw err;
@@ -113,13 +115,8 @@ export const useGame = (gameId: string): UseGameResult => {
   }, [gameId]);
 
   const updateCharacterData = useCallback(async (characterId: string, data: Partial<CharacterData>) => {
-    const current = gameRef.current;
-    if (!current) return;
-    const updatedCharacters = current.characters.map((c: Character) =>
-      c.id === characterId ? { ...c, data: { ...c.data, ...data } } : c
-    );
     try {
-      await updateDoc(doc(db, GAMES_COLLECTION, gameId), { characters: updatedCharacters });
+      await withCharacters(doc(db, GAMES_COLLECTION, gameId), (chars) => chars.map((c) => c.id === characterId ? { ...c, data: { ...c.data, ...data } } : c));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update character data');
       throw err;

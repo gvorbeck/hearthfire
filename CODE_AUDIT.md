@@ -9,15 +9,17 @@ The fundamentals are solid. TypeScript coverage is strong, CSS Modules disciplin
 
 ## Critical — Fix Before Real Users
 
-### 1. Race condition in character updates
+### ~~1. Race condition in character updates~~
 
-**File:** `src/hooks/useGame.ts`
+~~**File:** `src/hooks/useGame.ts`~~
 
-Every character mutation — `removeCharacter`, `updateCharacterName`, `updateCharacterData` — reads `gameRef.current` and rewrites the full characters array. Two concurrent writes in the same tick means last write wins and the other change is silently discarded.
+~~Every character mutation — `removeCharacter`, `updateCharacterName`, `updateCharacterData` — reads `gameRef.current` and rewrites the full characters array. Two concurrent writes in the same tick means last write wins and the other change is silently discarded.~~
 
-This is a **known bug**. The code comments acknowledge it. It hasn't been fixed.
+~~This is a **known bug**. The code comments acknowledge it. It hasn't been fixed.~~
 
-**Fix:** Move to per-character Firestore writes using dot-notation paths (`characters.0.name`) or restructure characters as a sub-collection so writes don't collide.
+~~**Fix:** Move to per-character Firestore writes using dot-notation paths (`characters.0.name`) or restructure characters as a sub-collection so writes don't collide.~~
+
+**Resolved:** All three mutations now use `runTransaction` — they read live Firestore state inside the transaction before writing, so concurrent saves can never clobber each other.
 
 ---
 
@@ -124,7 +126,7 @@ Screen readers announce `aria-label` as the field's name. A question reads stran
 
 | Priority | Issue                                                                | File                                              |
 | -------- | -------------------------------------------------------------------- | ------------------------------------------------- |
-| P0       | Race condition — character updates can silently overwrite each other | `src/hooks/useGame.ts`                            |
+| ~~P0~~   | ~~Race condition — character updates can silently overwrite each other~~ | ~~`src/hooks/useGame.ts`~~                    |
 | P0       | `as unknown as GameSession` — compiler is being lied to              | `src/hooks/useGame.ts:38`                         |
 | P1       | Save errors are invisible to users                                   | Multiple                                          |
 | P1       | No error boundary — app goes blank on route throw                    | `src/App.tsx`                                     |
