@@ -151,9 +151,38 @@ type InsertOption = typeof INSERT_OPTIONS[number];
 
 const IMPLEMENTED_INSERTS = new Set<InsertOption>(['Revenant', 'Ghost', 'Thrall', 'Followers']);
 
-const AddInsertModal = ({ open, onClose, onAdd }: { open: boolean; onClose: () => void; onAdd: (insert: InsertOption) => void }) => {
+const REMOVE_INSERT_WARNINGS: Partial<Record<InsertOption, string>> = {
+  Followers: 'All followers and their data will be permanently lost.',
+};
+
+const RemoveInsertModal = ({ open, insert, onClose, onConfirm }: { open: boolean; insert: InsertOption | null; onClose: () => void; onConfirm: () => void }) => {
   const headingId = useId();
-  const [selected, setSelected] = useState<InsertOption>(INSERT_OPTIONS[0]);
+  if (!insert) return null;
+  const warning = REMOVE_INSERT_WARNINGS[insert];
+  return (
+    <Modal open={open} onClose={onClose} aria-labelledby={headingId}>
+      <Heading as="h2" size="md" id={headingId}>Remove {insert}?</Heading>
+      <p className={styles.removeInsertWarning}>
+        This will remove the <strong>{insert}</strong> tab from this character sheet.
+        {warning && ` ${warning}`}
+      </p>
+      <div className={styles.insertActions}>
+        <Button variant="secondary" onClick={onClose}>Cancel</Button>
+        <Button variant="primary" onClick={onConfirm}>Remove</Button>
+      </div>
+    </Modal>
+  );
+};
+
+const AddInsertModal = ({ open, onClose, onAdd, existingInserts }: { open: boolean; onClose: () => void; onAdd: (insert: InsertOption) => void; existingInserts: string[] }) => {
+  const headingId = useId();
+  const availableOptions = INSERT_OPTIONS.filter((opt) => !existingInserts.includes(opt));
+  const [selected, setSelected] = useState<InsertOption>(() => availableOptions[0] ?? INSERT_OPTIONS[0]);
+
+  useEffect(() => {
+    if (open) setSelected(availableOptions[0] ?? INSERT_OPTIONS[0]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const handleSelectChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSelected(e.currentTarget.value as InsertOption);
@@ -167,7 +196,7 @@ const AddInsertModal = ({ open, onClose, onAdd }: { open: boolean; onClose: () =
     <Modal open={open} onClose={onClose} aria-labelledby={headingId}>
       <Heading as="h2" size="md" id={headingId}>Add an Insert</Heading>
       <div className={styles.insertOptions}>
-        {INSERT_OPTIONS.map((opt) => (
+        {availableOptions.map((opt) => (
           <Radio
             key={opt}
             name="insert-option"
@@ -211,6 +240,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
   const headerRef = useRef<HTMLDivElement>(null);
   const [addTabOpen, setAddTabOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [removeInsert, setRemoveInsert] = useState<InsertOption | null>(null);
 
   const handleOpenAddTab = useCallback(() => setAddTabOpen(true), []);
   const handleCloseAddTab = useCallback(() => setAddTabOpen(false), []);
@@ -233,6 +263,22 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
     if (current.includes('Followers')) return;
     handleSaveCharacterData({ inserts: [...current, 'Followers'] }).catch(() => {});
   }, [character.data?.specialPossessions, character.data?.inserts, handleSaveCharacterData]);
+
+  const handleRequestRemoveInsert = useCallback((insert: InsertOption) => {
+    setRemoveInsert(insert);
+  }, []);
+
+  const handleCloseRemoveInsert = useCallback(() => setRemoveInsert(null), []);
+
+  const handleConfirmRemoveInsert = useCallback(async () => {
+    if (!removeInsert) return;
+    const next = (character.data?.inserts ?? []).filter((i) => i !== removeInsert);
+    const existingFeatures = resolvePlaybookFeatures(character.data);
+    if (removeInsert === 'Followers') delete (existingFeatures as Record<string, unknown>).followers;
+    await handleSaveCharacterData({ inserts: next, playbookFeatures: existingFeatures });
+    setActiveIndex(0);
+    setRemoveInsert(null);
+  }, [removeInsert, character.data, handleSaveCharacterData]);
 
   const handleAddInsert = useCallback(async (insert: InsertOption) => {
     const current = character.data?.inserts ?? [];
@@ -306,6 +352,8 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
     ...(character.data?.inserts ?? []).map((label) => ({
       label,
       content: resolvePlaybookTabContent(label, null, character.data, prosperity, handleSaveCharacterData),
+      onRemove: () => handleRequestRemoveInsert(label as InsertOption),
+      removeTooltip: `Remove ${label}`,
     })),
   ], [character, playbookOption, handleSaveCharacterData, playbookTabs, showInvocationsBadge, prosperity]);
 
@@ -337,7 +385,8 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
         onActiveChange={handleActiveChange}
         onAdd={handleOpenAddTab}
       />
-      <AddInsertModal open={addTabOpen} onClose={handleCloseAddTab} onAdd={handleAddInsert} />
+      <AddInsertModal open={addTabOpen} onClose={handleCloseAddTab} onAdd={handleAddInsert} existingInserts={character.data?.inserts ?? []} />
+      <RemoveInsertModal open={removeInsert !== null} insert={removeInsert} onClose={handleCloseRemoveInsert} onConfirm={handleConfirmRemoveInsert} />
     </main>
   );
 };
