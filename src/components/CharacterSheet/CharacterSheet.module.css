@@ -96,3 +96,19 @@
   flex-direction: column;
   gap: var(--spacing-6);
 }
+
+.sectionOverride {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.sectionOverrideNote {
+  margin-left: auto;
+  font-size: var(--text-2xs);
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  text-transform: none;
+  color: var(--text-secondary);
+  font-style: italic;
+  flex-shrink: 0;
+}

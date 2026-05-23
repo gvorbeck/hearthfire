@@ -13,6 +13,7 @@ interface InstinctProps {
   options?: InstinctOption[];
   data?: CharacterData;
   onSave?: (data: Partial<CharacterData>) => Promise<void>;
+  overrideNote?: string;
 }
 
 const syncTextareaHeight = (el: HTMLTextAreaElement) => {
@@ -20,7 +21,7 @@ const syncTextareaHeight = (el: HTMLTextAreaElement) => {
   el.style.height = `${el.scrollHeight}px`;
 };
 
-export const Instinct = ({ playbookKey, options, data, onSave }: InstinctProps = {}) => {
+export const Instinct = ({ playbookKey, options, data, onSave, overrideNote }: InstinctProps = {}) => {
   const [selected, setSelected] = useState<string>(data?.instinct ?? '');
   const [customText, setCustomText] = useState<string>(data?.instinctCustom ?? '');
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -83,7 +84,7 @@ export const Instinct = ({ playbookKey, options, data, onSave }: InstinctProps =
     flushOnBlur(customTextRef.current);
   }, [flushOnBlur]);
 
-  if (!options) return <PlaybookSection title="Instinct" />;
+  if (!options) return <PlaybookSection title="Instinct" overrideNote={overrideNote} />;
 
   const warn = !selected || (selected === CUSTOM_VALUE && !customText.trim());
   const hasSelection = !!selected && (selected !== CUSTOM_VALUE || !!customText.trim());
@@ -94,6 +95,10 @@ export const Instinct = ({ playbookKey, options, data, onSave }: InstinctProps =
 
   const showCustom = !isCollapsed || selected === CUSTOM_VALUE;
 
+  if (overrideNote) {
+    return <PlaybookSection title="Instinct" overrideNote={overrideNote} />;
+  }
+
   return (
     <PlaybookSection
       title="Instinct"
@@ -102,6 +107,7 @@ export const Instinct = ({ playbookKey, options, data, onSave }: InstinctProps =
       collapsible={hasSelection}
       isCollapsed={isCollapsed}
       onToggleCollapse={handleToggleCollapse}
+      overrideNote={overrideNote}
     >
       <div className={styles.options}>
         {visibleOptions.map((opt) => (

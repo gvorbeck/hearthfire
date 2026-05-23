@@ -57,6 +57,18 @@ const getCharacterLevel = (character: Character): number => {
   return isNaN(parsed) ? character.level : parsed;
 };
 
+const INSERT_INSTINCT_KEYS: { feature: keyof import('@/types').PlaybookFeatures; label: string }[] = [
+  { feature: 'revenantInstinct', label: 'Revenant' },
+  { feature: 'ghostInstinct', label: 'Ghost' },
+  { feature: 'thrallInstinct', label: 'Thrall' },
+];
+
+const getInsertInstinctNote = (data: CharacterData | undefined): string | undefined => {
+  const features = resolvePlaybookFeatures(data);
+  const match = INSERT_INSTINCT_KEYS.find(({ feature }) => !!features[feature]);
+  return match ? `Replaced by your ${match.label} instinct` : undefined;
+};
+
 const PCPlaybookTab = ({ character, playbookOption, onSave }: { character: Character; playbookOption: (typeof PLAYBOOKS)[number]; onSave: (data: Partial<CharacterData>) => Promise<void> }) => {
   const level = getCharacterLevel(character);
   const { playbook, data } = character;
@@ -64,6 +76,8 @@ const PCPlaybookTab = ({ character, playbookOption, onSave }: { character: Chara
   const foxChooseOverride = playbook === 'fox' && data?.background === FOX_LIFE_OF_CRIME_BACKGROUND
     ? { count: 3, note: '+1 from A Life of Crime' }
     : undefined;
+
+  const insertInstinctNote = getInsertInstinctNote(data);
 
   return (
     <div className={styles.layout}>
@@ -79,7 +93,7 @@ const PCPlaybookTab = ({ character, playbookOption, onSave }: { character: Chara
           <Background playbookKey={playbook} options={BACKGROUND_OPTIONS[playbook]} level={level} data={data} onSave={onSave} />
         </div>
         <div className={styles.colRight}>
-          <Instinct playbookKey={playbook} options={INSTINCT_OPTIONS[playbook]} data={data} onSave={onSave} />
+          <Instinct playbookKey={playbook} options={INSTINCT_OPTIONS[playbook]} data={data} onSave={onSave} overrideNote={insertInstinctNote} />
           <Appearance rows={APPEARANCE_OPTIONS[playbook]} data={data} onSave={onSave} />
           <PlaceOfOrigin options={PLACE_OF_ORIGIN_OPTIONS[playbook]} data={data} onSave={onSave} />
         </div>
