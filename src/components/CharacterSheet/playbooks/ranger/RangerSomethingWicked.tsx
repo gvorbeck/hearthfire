@@ -1,9 +1,8 @@
-import { CheckboxGroup, Divider } from '@/components/primitives';
+import { CheckboxGroup, Divider, Text } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { AnswerPrompts } from '../AnswerPrompts';
 import { usePlaybookCheckedWithAnswers } from '@/hooks/usePlaybookChecked';
 import type { CharacterData } from '@/types';
-import styles from '../playbookSection.module.css';
 
 const THREAT_ITEMS = [
   { id: 'threat-great-wood', label: 'A dark, unwholesome presence lurking in the Great Wood' },
@@ -29,17 +28,17 @@ interface RangerSomethingWickedProps {
 }
 
 export const RangerSomethingWicked = ({ data, onSave }: RangerSomethingWickedProps) => {
-  const { checked, handleChange: handleCheck, answers, handleAnswer } = usePlaybookCheckedWithAnswers(
+  const { checked, handleChange: handleCheck, answers, handleAnswer, flushAnswers } = usePlaybookCheckedWithAnswers(
     data, onSave, 'rangerSomethingWicked', 'rangerSomethingWickedAnswers',
   );
 
   return (
     <PlaybookSection title="Something Wicked This Way Comes">
-      <p className={styles.prose}>
+      <Text as="p" size="sm" color="muted">
         You know firsthand that trouble is out there, and like it or not, one of these days the
         folk of Stonetop are going to have to face it. What is it that you're so worried about?
         (choose 1)
-      </p>
+      </Text>
       <CheckboxGroup
         items={THREAT_ITEMS}
         checked={checked}
@@ -47,10 +46,10 @@ export const RangerSomethingWicked = ({ data, onSave }: RangerSomethingWickedPro
         max={1}
       />
       <Divider />
-      <p className={styles.prose}>
+      <Text as="p" size="sm" color="muted">
         Then, answer at least 3 of the following questions about this threat:
-      </p>
-      <AnswerPrompts prompts={ANSWER_PROMPTS} answers={answers} onAnswer={handleAnswer} />
+      </Text>
+      <AnswerPrompts prompts={ANSWER_PROMPTS} answers={answers} onAnswer={handleAnswer} onFlush={flushAnswers} />
     </PlaybookSection>
   );
 };

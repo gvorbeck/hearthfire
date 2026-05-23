@@ -14,7 +14,7 @@ interface ConsequenceLabel {
 
 export const useConsequenceCheckboxes = (
   data: CharacterData | undefined,
-  saveImmediate: (patch: Partial<PlaybookFeatures>) => void,
+  saveImmediate: (patch: Partial<PlaybookFeatures>) => Promise<void>,
   consequenceKey: ConsequenceKey,
   labels: ConsequenceLabel[],
   isDisabled?: (id: string, checked: Record<string, boolean>) => boolean,
@@ -31,7 +31,7 @@ export const useConsequenceCheckboxes = (
   const handleChange = useCallback((id: string, isChecked: boolean) => {
     setChecked((prev) => {
       const next = { ...prev, [id]: isChecked };
-      saveImmediate({ [consequenceKey]: next });
+      saveImmediate({ [consequenceKey]: next }).catch(() => setChecked(prev));
       return next;
     });
   }, [saveImmediate, consequenceKey]);
@@ -39,7 +39,7 @@ export const useConsequenceCheckboxes = (
   const updateChecked = useCallback((updater: (prev: Record<string, boolean>) => Record<string, boolean>) => {
     setChecked((prev) => {
       const next = updater(prev);
-      saveImmediate({ [consequenceKey]: next });
+      saveImmediate({ [consequenceKey]: next }).catch(() => setChecked(prev));
       return next;
     });
   }, [saveImmediate, consequenceKey]);

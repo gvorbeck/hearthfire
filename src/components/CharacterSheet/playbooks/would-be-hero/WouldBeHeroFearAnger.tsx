@@ -1,8 +1,10 @@
-import { CheckboxGroup, Divider } from '@/components/primitives';
+import { CheckboxGroup, Divider, Text } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { AnswerPrompts } from '../AnswerPrompts';
 import { usePlaybookCheckedWithAnswers } from '@/hooks/usePlaybookChecked';
+import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { CharacterData } from '@/types';
+import styles from '../playbookSection.module.css';
 
 const FEAR_ITEMS = [
   { id: 'fear-fire', label: 'Fire, burning, the smell of charred flesh' },
@@ -39,12 +41,15 @@ interface WouldBeHeroFearAngerProps {
 }
 
 export const WouldBeHeroFearAnger = ({ data, onSave }: WouldBeHeroFearAngerProps) => {
-  const { checked, handleChange: handleCheck, answers, handleAnswer } = usePlaybookCheckedWithAnswers(
+  const { checked, handleChange: handleCheck, answers, handleAnswer, flushAnswers } = usePlaybookCheckedWithAnswers(
     data, onSave, 'wouldBeHeroFearAnger', 'wouldBeHeroFearAngerAnswers',
   );
 
   return (
     <PlaybookSection title="Fear & Anger">
+      <Text as="p" size="sm" color="muted" className={styles.prose}>
+        {parseInlineMarkdown('When you **burn with righteous anger** (triggered by what you chose below), hold 2 Resolve. Spend Resolve 1-for-1 to set aside fear and doubt, act with uncanny speed, inspire allies, strike hard (+1d4 damage, *forceful*), or keep your footing despite what befalls you.')}
+      </Text>
       <CheckboxGroup
         label="What do you fear most? (choose 1, maybe 2)"
         items={FEAR_ITEMS}
@@ -61,7 +66,7 @@ export const WouldBeHeroFearAnger = ({ data, onSave }: WouldBeHeroFearAngerProps
         max={3}
       />
       <Divider />
-      <AnswerPrompts prompts={ANSWER_PROMPTS} answers={answers} onAnswer={handleAnswer} />
+      <AnswerPrompts prompts={ANSWER_PROMPTS} answers={answers} onAnswer={handleAnswer} onFlush={flushAnswers} />
     </PlaybookSection>
   );
 };

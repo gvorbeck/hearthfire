@@ -51,6 +51,7 @@ interface MoveProps {
   onTakesChange?: (count: number) => void;
   disabled?: boolean;
   lockReason?: string;
+  headerAction?: React.ReactNode;
 }
 
 const TakeBoxes = ({ total, checked, onChange }: { total: number; checked: number; onChange: (n: number) => void }) => (
@@ -99,7 +100,7 @@ export const Move = ({
   checkListLevels, onCheckListLevelChange,
   currentLevel,
   takesChecked = 0, onTakesChange,
-  disabled, lockReason,
+  disabled, lockReason, headerAction,
 }: MoveProps) => {
   const locked = !!lockReason;
   const usesTotal = move.uses;
@@ -202,6 +203,9 @@ export const Move = ({
               />
             )}
           </div>
+        )}
+        {headerAction && (
+          <div className={styles.headerAction}>{headerAction}</div>
         )}
       </div>
       {lockReason && <p className={styles.moveLockLabel}>{lockReason}</p>}

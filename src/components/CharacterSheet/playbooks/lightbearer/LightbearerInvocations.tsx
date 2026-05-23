@@ -1,4 +1,3 @@
-import clsx from "clsx";
 import { PlaybookSection } from "../../PlaybookSection";
 import { Move } from "../../Move";
 import { usePlaybookChecked } from "@/hooks/usePlaybookChecked";
@@ -35,11 +34,11 @@ export const LightbearerInvocations = ({
   return (
     <PlaybookSection title="Invocations">
       <div className={styles.intro}>
-        {INTRO_LINES.map((line, i) => (
-          <p key={i}>{parseInlineMarkdown(line)}</p>
+        {INTRO_LINES.map((line) => (
+          <p key={line}>{parseInlineMarkdown(line)}</p>
         ))}
       </div>
-      <div className={clsx(styles.grid)}>
+      <div className={styles.grid}>
         {sorted.map((inv) => (
           <Move
             key={inv.id}

@@ -53,7 +53,7 @@ const GHOST_MOVES: MoveDefinition[] = [
   },
 ];
 
-const CONSEQUENCE_LABELS: { id: string; label: string; requiresId?: string }[] = [
+const CONSEQUENCE_LABELS: { id: string; label: string }[] = [
   {
     id: 'bodysnatcher',
     label: '**BODYSNATCHER** — When you *possess an unconscious or willing person*, lose 1d4 HP and control their actions.',
@@ -85,7 +85,6 @@ const CONSEQUENCE_LABELS: { id: string; label: string; requiresId?: string }[] =
   {
     id: 'unstable',
     label: '**UNSTABLE** *(Requires Breakdown)* — You are prone to episodes of unthinking, unfeeling rage (as per Breakdown). When you *roll a 6-*, the GM can choose to have you enter such a rage.',
-    requiresId: 'breakdown',
   },
   {
     id: 'final-consequence',

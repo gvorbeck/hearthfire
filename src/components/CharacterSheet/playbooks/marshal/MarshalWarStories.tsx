@@ -1,9 +1,8 @@
-import { CheckboxGroup, Divider } from '@/components/primitives';
+import { CheckboxGroup, Divider, Text } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { AnswerPrompts } from '../AnswerPrompts';
 import { usePlaybookCheckedWithAnswers } from '@/hooks/usePlaybookChecked';
 import type { CharacterData } from '@/types';
-import styles from '../playbookSection.module.css';
 
 const ACTION_ITEMS = [
   { id: 'action-crinwin', label: '…to repel a nighttime raid by crinwin from the Great Wood.' },
@@ -31,15 +30,15 @@ interface MarshalWarStoriesProps {
 }
 
 export const MarshalWarStories = ({ data, onSave }: MarshalWarStoriesProps) => {
-  const { checked, handleChange: handleCheck, answers, handleAnswer } = usePlaybookCheckedWithAnswers(
+  const { checked, handleChange: handleCheck, answers, handleAnswer, flushAnswers } = usePlaybookCheckedWithAnswers(
     data, onSave, 'marshalWarStories', 'marshalWarStoriesAnswers',
   );
 
   return (
     <PlaybookSection title="War Stories">
-      <p className={styles.prose}>
+      <Text as="p" size="sm" color="muted">
         The last time the militia saw serious action, it was… (pick 1)
-      </p>
+      </Text>
       <CheckboxGroup
         items={ACTION_ITEMS}
         checked={checked}
@@ -47,10 +46,10 @@ export const MarshalWarStories = ({ data, onSave }: MarshalWarStoriesProps) => {
         max={1}
       />
       <Divider />
-      <p className={styles.prose}>
+      <Text as="p" size="sm" color="muted">
         Answer at least 3 of the following questions about that action:
-      </p>
-      <AnswerPrompts prompts={ANSWER_PROMPTS} answers={answers} onAnswer={handleAnswer} />
+      </Text>
+      <AnswerPrompts prompts={ANSWER_PROMPTS} answers={answers} onAnswer={handleAnswer} onFlush={flushAnswers} />
     </PlaybookSection>
   );
 };

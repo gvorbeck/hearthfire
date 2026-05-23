@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { CheckboxGroup, Divider, Radio } from '@/components/primitives';
+import { CheckboxGroup, Divider, Radio, Text } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import type { CharacterData } from '@/types';
@@ -61,11 +61,10 @@ export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) =>
   return (
     <PlaybookSection title="The Earth Mother">
       <div className={styles.body}>
-        <p className={styles.prose}>
-          Danu has long been revered by all peoples, though not always worshipped or served by
-          priests. In Stonetop&apos;s Pavilion of the Gods, Danu&apos;s shrine is…
-        </p>
-        <p className={styles.instruction}>(choose 1)</p>
+        <Text as="p" size="sm" color="muted" className={styles.prose}>
+          {"Danu has long been revered by all peoples, though not always worshipped or served by priests. In Stonetop’s Pavilion of the Gods, Danu’s shrine is…"}
+        </Text>
+        <Text as="p" size="sm" color="muted" className={styles.instruction}>(choose 1)</Text>
         <div className={styles.shrineOptions}>
           {SHRINE_OPTIONS.map((opt) => (
             <Radio

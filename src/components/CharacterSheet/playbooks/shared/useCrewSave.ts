@@ -18,7 +18,7 @@ export const useCrewSave = (data: CharacterData | undefined, onSave: (data: Part
 
   const saveImmediate = useCallback((patch: Parameters<typeof featurePatch>[1]) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    onSaveRef.current(featurePatch(dataRef.current, patch));
+    return onSaveRef.current(featurePatch(dataRef.current, patch));
   }, []);
 
   const flushDebounce = useCallback((patch: Parameters<typeof featurePatch>[1]) => {
@@ -26,7 +26,7 @@ export const useCrewSave = (data: CharacterData | undefined, onSave: (data: Part
       clearTimeout(debounceRef.current);
       debounceRef.current = null;
     }
-    onSaveRef.current(featurePatch(dataRef.current, patch));
+    return onSaveRef.current(featurePatch(dataRef.current, patch));
   }, []);
 
   return { saveDebounced, saveImmediate, flushDebounce, dataRef, onSaveRef };

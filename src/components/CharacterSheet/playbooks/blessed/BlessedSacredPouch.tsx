@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Divider, Radio } from '@/components/primitives';
+import { Divider, Radio, Text } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
+import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { CharacterData } from '@/types';
 import styles from './BlessedSacredPouch.module.css';
 
@@ -61,26 +62,19 @@ export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) =>
   return (
     <PlaybookSection title="Sacred Pouch">
       <div className={styles.body}>
-        <p className={styles.prose}>
-          Your sacred pouch (<em>magical</em>) doesn't take up space in your inventory. It can hold
-          up to 3 Stock (sacred herbs, powders, stones, pigments, chalks, clay, and so forth). Each
-          time you gain an even-numbered level, your pouch can hold +1 Stock. When{' '}
-          <strong>
-            <em>anyone but you looks inside your sacred pouch and touches the materials therein</em>
-          </strong>
-          , the Stock is ruined.
-        </p>
-        <p className={styles.prose}>
-          When you <strong>have a few days of downtime in familiar terrain</strong>, you may
-          replenish your Stock.
-        </p>
-        <p className={styles.prose}>
-          When you <strong>Forage</strong>, you can produce Stock instead of provisions.
-        </p>
+        <Text as="p" size="sm" color="muted" className={styles.prose}>
+          {parseInlineMarkdown("Your sacred pouch (*magical*) doesn't take up space in your inventory. It can hold up to 3 Stock (sacred herbs, powders, stones, pigments, chalks, clay, and so forth). Each time you gain an even-numbered level, your pouch can hold +1 Stock. When ***anyone but you looks inside your sacred pouch and touches the materials therein***, the Stock is ruined.")}
+        </Text>
+        <Text as="p" size="sm" color="muted" className={styles.prose}>
+          {parseInlineMarkdown('When you **have a few days of downtime in familiar terrain**, you may replenish your Stock.')}
+        </Text>
+        <Text as="p" size="sm" color="muted" className={styles.prose}>
+          {parseInlineMarkdown('When you **Forage**, you can produce Stock instead of provisions.')}
+        </Text>
 
         <Divider />
 
-        <p className={styles.instruction}>Your sacred pouch is… (choose 1 on each line)</p>
+        <Text as="p" size="sm" color="muted" className={styles.instruction}>Your sacred pouch is… (choose 1 on each line)</Text>
         <div className={styles.isLines}>
           {IS_LINES.map((line) => (
             <div key={line.key} className={styles.optionRow}>
@@ -100,7 +94,7 @@ export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) =>
 
         <Divider />
 
-        <p className={styles.instruction}>What remarkable trait does it possess? (choose 1)</p>
+        <Text as="p" size="sm" color="muted" className={styles.instruction}>What remarkable trait does it possess? (choose 1)</Text>
         <div className={styles.traits}>
           {TRAITS.map((t) => (
             <Radio

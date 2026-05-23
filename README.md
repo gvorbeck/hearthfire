@@ -147,14 +147,14 @@ The app deploys automatically to Firebase Hosting via GitHub Actions on every pu
   - [x] Marshal
   - [x] Ranger
   - [x] Would-be Hero
-- [ ] Playbook inserts
-  - [ ] Followers
+- [x] Playbook inserts
+  - [x] Followers
   - [x] Inventory
   - [x] Animal Companion
   - [x] Crew
   - [x] Invocations
   - [x] Initiates of Danu
-- [ ] Death-state playbooks
+- [x] Death-state playbooks
   - [x] Ghost
   - [x] Revenant
   - [x] Thrall

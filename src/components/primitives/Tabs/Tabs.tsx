@@ -1,4 +1,4 @@
-import { useState, useId, useRef, useCallback, type ReactNode, type KeyboardEvent } from 'react';
+import { useState, useId, useRef, useCallback, type ReactNode, type KeyboardEvent, type MouseEvent } from 'react';
 import clsx from 'clsx';
 import { useTooltip } from '../Tooltip/useTooltip';
 import styles from './Tabs.module.css';
@@ -8,6 +8,8 @@ interface Tab {
   content: ReactNode;
   badge?: ReactNode;
   badgeTooltip?: string;
+  onRemove?: () => void;
+  removeTooltip?: string;
 }
 
 interface TabsProps {
@@ -22,10 +24,46 @@ interface TabsProps {
 
 export const tabBadgeClass = styles.tabBadge;
 
-// Renders a single tab button, conditionally wiring tooltip behavior directly
-// onto the button so no wrapper element interrupts role="tablist".
+const TabRemoveButton = ({ tab, index, baseId, onRemove }: { tab: Tab; index: number; baseId: string; onRemove: () => void }) => {
+  const removeTooltip = useTooltip({ side: 'bottom', tooltipId: `${baseId}-tab-${index}-remove-tooltip` });
+
+  const handleClick = useCallback((e: MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    onRemove();
+  }, [onRemove]);
+
+  const tipCx = clsx(styles.tabTooltip, styles[removeTooltip.resolvedSide], removeTooltip.visible && styles.tabTooltipVisible);
+
+  return (
+    <span className={styles.tabRemoveWrapper}>
+      <button
+        ref={(el) => { (removeTooltip.anchorRef as React.MutableRefObject<HTMLElement | null>).current = el; }}
+        type="button"
+        className={styles.tabRemove}
+        aria-label={tab.removeTooltip ?? `Remove ${tab.label} tab`}
+        aria-describedby={removeTooltip.tooltipId}
+        onClick={handleClick}
+        {...removeTooltip.anchorProps}
+      >
+        ×
+      </button>
+      <span
+        ref={removeTooltip.tooltipRef}
+        role="tooltip"
+        id={removeTooltip.tooltipId}
+        aria-hidden={!removeTooltip.visible}
+        className={tipCx}
+        style={{ '--nudge-x': `${removeTooltip.nudgeX}px`, '--arrow-offset': removeTooltip.arrowOffset } as React.CSSProperties}
+      >
+        {tab.removeTooltip ?? `Remove ${tab.label}`}
+        <span className={styles.tabTooltipArrow} />
+      </span>
+    </span>
+  );
+};
+
 const TabButton = ({
-  tab, index, baseId, isActive, onActivate, onKeyDown, buttonRef,
+  tab, index, baseId, isActive, onActivate, onKeyDown, buttonRef, onRemove,
 }: {
   tab: Tab;
   index: number;
@@ -34,6 +72,7 @@ const TabButton = ({
   onActivate: (index: number) => void;
   onKeyDown: (e: KeyboardEvent<HTMLButtonElement>, index: number) => void;
   buttonRef: (el: HTMLButtonElement | null) => void;
+  onRemove?: () => void;
 }) => {
   const tooltip = useTooltip({ side: 'bottom', tooltipId: tab.badgeTooltip ? `${baseId}-tab-${index}-tooltip` : undefined });
   const cx = clsx(styles.tab, isActive && styles.active);
@@ -61,6 +100,7 @@ const TabButton = ({
     >
       {tab.label}
       {tab.badge}
+      {onRemove && <TabRemoveButton tab={tab} index={index} baseId={baseId} onRemove={onRemove} />}
       {tab.badgeTooltip && (() => {
         const tipCx = clsx(styles.tabTooltip, styles[tooltip.resolvedSide], tooltip.visible && styles.tabTooltipVisible);
         return (
@@ -131,6 +171,7 @@ export const Tabs = ({ tabs, defaultIndex = 0, activeIndex, onActiveChange, clas
               onActivate={handleActivate}
               onKeyDown={handleKeyDown}
               buttonRef={(el) => { tabRefs.current[i] = el; }}
+              onRemove={tab.onRemove}
             />
           ))}
         </div>

@@ -26,6 +26,10 @@
   gap: var(--spacing-2);
 }
 
+.headerAction {
+  flex-shrink: 0;
+}
+
 .moveHeaderLeft {
   display: flex;
   align-items: center;
