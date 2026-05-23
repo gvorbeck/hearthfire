@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useId } from 'react';
-import { Button, Heading, Text, RuleDivider, Tooltip } from '@/components/primitives';
+import { Button, Heading, Text, RuleDivider, Tooltip, useToast } from '@/components/primitives';
 import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
 import type { Crumb } from '@/components/Breadcrumb/Breadcrumb';
 import styles from './PageHeader.module.css';
@@ -14,9 +14,9 @@ interface Props {
 }
 
 export const PageHeader = ({ crumbs, title, titleLabel, subtitle, gameId, onSaveTitle }: Props) => {
+  const { addToast } = useToast();
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState('');
-  const [saveError, setSaveError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const copiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -35,7 +35,6 @@ export const PageHeader = ({ crumbs, title, titleLabel, subtitle, gameId, onSave
 
   const startEditing = () => {
     setValue(title);
-    setSaveError(null);
     setEditing(true);
   };
 
@@ -45,7 +44,7 @@ export const PageHeader = ({ crumbs, title, titleLabel, subtitle, gameId, onSave
       if (trimmed && trimmed !== title) await onSaveTitle(trimmed);
       setEditing(false);
     } catch {
-      setSaveError('Failed to save. Try again.');
+      addToast('Failed to save game name. Try again.');
     }
   };
 
@@ -96,7 +95,6 @@ export const PageHeader = ({ crumbs, title, titleLabel, subtitle, gameId, onSave
           </>
         )}
       </div>
-      {saveError && <Text color="muted" size="sm" className={styles.saveError}>{saveError}</Text>}
       {subtitle && <Text color="muted" size="sm" className={styles.subtitle}>{subtitle}</Text>}
       <div className={styles.gameId}>
         <Text color="muted" size="sm">

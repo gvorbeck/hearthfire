@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import clsx from 'clsx';
-import { Checkbox, Input, Radio, UseDots } from '@/components/primitives';
+import { Checkbox, Input, Radio, UseDots, useToast } from '@/components/primitives';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { PlaybookSection } from '../PlaybookSection';
 import type { Possession, PossessionSubItem, PlaybookSpecialPossessions } from '@/lib/specialPossessionsOptions';
@@ -183,6 +183,7 @@ const PossessionLabel = ({ p, checked, selected, uses, onToggle, onRadioSelect, 
 };
 
 export const SpecialPossessions = ({ config, data, onSave, level = 1, chooseOverride }: SpecialPossessionsProps = {}) => {
+  const { addToast } = useToast();
   const [selected, setSelected] = useState<Record<string, boolean>>(() => data?.specialPossessions ?? {});
   const [uses, setUses] = useState<Record<string, number>>(() => data?.specialPossessionUses ?? {});
   const [customText, setCustomText] = useState<string>(() => data?.specialPossessionCustom ?? '');
@@ -214,10 +215,10 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1, chooseOver
   const handleToggle = useCallback((id: string, checked: boolean) => {
     setSelected(prev => {
       const next = { ...prev, [id]: checked };
-      onSave?.({ specialPossessions: next }).catch(() => setSelected(prev));
+      onSave?.({ specialPossessions: next }).catch(() => { setSelected(prev); addToast('Failed to save possession.'); });
       return next;
     });
-  }, [onSave]);
+  }, [onSave, addToast]);
 
   const handleRadioSelect = useCallback((possessionId: string, key: string) => {
     setSelected(prev => {
@@ -226,18 +227,18 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1, chooseOver
         if (k.startsWith(`${possessionId}-`)) next[k] = false;
       }
       next[key] = true;
-      onSave?.({ specialPossessions: next }).catch(() => setSelected(prev));
+      onSave?.({ specialPossessions: next }).catch(() => { setSelected(prev); addToast('Failed to save possession.'); });
       return next;
     });
-  }, [onSave]);
+  }, [onSave, addToast]);
 
   const handleUses = useCallback((id: string, count: number) => {
     setUses(prev => {
       const next = { ...prev, [id]: count };
-      onSave?.({ specialPossessionUses: next }).catch(() => setUses(prev));
+      onSave?.({ specialPossessionUses: next }).catch(() => { setUses(prev); addToast('Failed to save.'); });
       return next;
     });
-  }, [onSave]);
+  }, [onSave, addToast]);
 
   const handleStock = useCallback((stockKey: Extract<keyof CharacterData, 'sacredPouchStock'>, stock: number) => {
     onSave?.({ [stockKey]: stock });

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
+import { useToast } from '@/components/primitives';
 import type { CharacterData, PlaybookFeatures } from '@/types';
 
 type ConsequenceKey = Extract<{
@@ -19,6 +20,7 @@ export const useConsequenceCheckboxes = (
   labels: ConsequenceLabel[],
   isDisabled?: (id: string, checked: Record<string, boolean>) => boolean,
 ) => {
+  const { addToast } = useToast();
   const [checked, setChecked] = useState<Record<string, boolean>>(
     () => (resolvePlaybookFeatures(data)[consequenceKey] as Record<string, boolean> | undefined) ?? {},
   );
@@ -31,18 +33,18 @@ export const useConsequenceCheckboxes = (
   const handleChange = useCallback((id: string, isChecked: boolean) => {
     setChecked((prev) => {
       const next = { ...prev, [id]: isChecked };
-      saveImmediate({ [consequenceKey]: next }).catch(() => setChecked(prev));
+      saveImmediate({ [consequenceKey]: next }).catch(() => { setChecked(prev); addToast('Failed to save.'); });
       return next;
     });
-  }, [saveImmediate, consequenceKey]);
+  }, [saveImmediate, consequenceKey, addToast]);
 
   const updateChecked = useCallback((updater: (prev: Record<string, boolean>) => Record<string, boolean>) => {
     setChecked((prev) => {
       const next = updater(prev);
-      saveImmediate({ [consequenceKey]: next }).catch(() => setChecked(prev));
+      saveImmediate({ [consequenceKey]: next }).catch(() => { setChecked(prev); addToast('Failed to save.'); });
       return next;
     });
-  }, [saveImmediate, consequenceKey]);
+  }, [saveImmediate, consequenceKey, addToast]);
 
   const items = labels.map((c) => ({
     id: c.id,

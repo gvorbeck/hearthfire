@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, memo } from 'react';
-import { Radio } from '@/components/primitives';
+import { Radio, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
 import type { PlaceOfOriginOptions } from '@/lib/placeOfOriginOptions';
 import type { CharacterData } from '@/types';
@@ -38,6 +38,7 @@ interface PlaceOfOriginProps {
 }
 
 export const PlaceOfOrigin = ({ options, data, onSave }: PlaceOfOriginProps = {}) => {
+  const { addToast } = useToast();
   const [selected, setSelected] = useState<string>(data?.placeOfOrigin ?? '');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const hasInitializedCollapse = useRef(false);
@@ -60,6 +61,7 @@ export const PlaceOfOrigin = ({ options, data, onSave }: PlaceOfOriginProps = {}
     onSave?.({ placeOfOrigin: value }).catch(() => {
       setSelected(prev);
       setIsCollapsed(false);
+      addToast('Failed to save place of origin.');
     });
   }, [onSave, selected]);
 

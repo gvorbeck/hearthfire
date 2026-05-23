@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Divider, Radio, Text } from '@/components/primitives';
+import { Divider, Radio, Text, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
@@ -30,6 +30,7 @@ interface BlessedSacredPouchProps {
 }
 
 export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) => {
+  const { addToast } = useToast();
   const features = resolvePlaybookFeatures(data);
   const [is, setIs] = useState<Record<string, string>>(features.sacredPouchIs ?? {});
   const [trait, setTrait] = useState<string>(features.sacredPouchTrait ?? '');
@@ -45,7 +46,7 @@ export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) =>
       const prev = is;
       const next = { ...is, [key]: value };
       setIs(next);
-      onSave(featurePatch(data, { sacredPouchIs: next })).catch(() => setIs(prev));
+      onSave(featurePatch(data, { sacredPouchIs: next })).catch(() => { setIs(prev); addToast('Failed to save.'); });
     },
     [is, onSave, data]
   );
@@ -54,7 +55,7 @@ export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) =>
     (value: string) => {
       const prev = trait;
       setTrait(value);
-      onSave(featurePatch(data, { sacredPouchTrait: value })).catch(() => setTrait(prev));
+      onSave(featurePatch(data, { sacredPouchTrait: value })).catch(() => { setTrait(prev); addToast('Failed to save.'); });
     },
     [trait, onSave, data]
   );

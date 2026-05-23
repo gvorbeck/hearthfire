@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { CheckboxGroup, Divider, Radio, Text } from '@/components/primitives';
+import { CheckboxGroup, Divider, Radio, Text, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import type { CharacterData } from '@/types';
@@ -29,6 +29,7 @@ interface BlessedEarthMotherProps {
 }
 
 export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) => {
+  const { addToast } = useToast();
   const features = resolvePlaybookFeatures(data);
   const [shrine, setShrine] = useState<string>(features.earthMotherShrine ?? '');
   const [offerings, setOfferings] = useState<Record<string, boolean>>(features.earthMotherOfferings ?? {});
@@ -43,7 +44,7 @@ export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) =>
     (value: string) => {
       const prev = shrine;
       setShrine(value);
-      onSave(featurePatch(data, { earthMotherShrine: value })).catch(() => setShrine(prev));
+      onSave(featurePatch(data, { earthMotherShrine: value })).catch(() => { setShrine(prev); addToast('Failed to save.'); });
     },
     [shrine, onSave, data]
   );
@@ -53,7 +54,7 @@ export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) =>
       const prev = offerings;
       const next = { ...offerings, [id]: checked };
       setOfferings(next);
-      onSave(featurePatch(data, { earthMotherOfferings: next })).catch(() => setOfferings(prev));
+      onSave(featurePatch(data, { earthMotherOfferings: next })).catch(() => { setOfferings(prev); addToast('Failed to save.'); });
     },
     [offerings, onSave, data]
   );

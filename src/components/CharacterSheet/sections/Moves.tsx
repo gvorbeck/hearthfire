@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { PlaybookSection } from '../PlaybookSection';
-import { Collapse, Toggle } from '@/components/primitives';
+import { Collapse, Toggle, useToast } from '@/components/primitives';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { Move } from '../Move';
 import type { MoveDefinition } from '../Move';
@@ -87,6 +87,7 @@ interface MovesProps {
 }
 
 export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
+  const { addToast } = useToast();
   const typeMoves = useMemo(() => PLAYBOOK_MOVES[playbook] ?? [], [playbook]);
   const forcedMoveIds = useMemo(
     () => new Set(data?.background ? (BACKGROUND_FORCED_MOVES[playbook]?.[data.background] ?? []) : []),
@@ -140,35 +141,35 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
     const prev = selected;
     const next = { ...selected, [id]: value };
     setSelected(next);
-    onSave({ typeMoves: next }).catch(() => setSelected(prev));
+    onSave({ typeMoves: next }).catch(() => { setSelected(prev); addToast('Failed to save move selection.'); });
   };
 
   const handleUses = (id: string, count: number) => {
     const prev = uses;
     const next = { ...uses, [id]: count };
     setUses(next);
-    onSave({ typeMoveUses: next }).catch(() => setUses(prev));
+    onSave({ typeMoveUses: next }).catch(() => { setUses(prev); addToast('Failed to save move uses.'); });
   };
 
   const handleUses2 = (id: string, count: number) => {
     const prev = uses2;
     const next = { ...uses2, [id]: count };
     setUses2(next);
-    onSave({ typeMoveUses2: next }).catch(() => setUses2(prev));
+    onSave({ typeMoveUses2: next }).catch(() => { setUses2(prev); addToast('Failed to save move uses.'); });
   };
 
   const handleTakes = (id: string, count: number) => {
     const prev = takes;
     const next = { ...takes, [id]: count };
     setTakes(next);
-    onSave({ typeMoveTakes: next }).catch(() => setTakes(prev));
+    onSave({ typeMoveTakes: next }).catch(() => { setTakes(prev); addToast('Failed to save move takes.'); });
   };
 
   const handleCheckList = (id: string, itemId: string, checked: boolean) => {
     const prev = checkLists;
     const next = { ...checkLists, [id]: { ...checkLists[id], [itemId]: checked } };
     setCheckLists(next);
-    onSave({ typeMoveCheckList: next }).catch(() => setCheckLists(prev));
+    onSave({ typeMoveCheckList: next }).catch(() => { setCheckLists(prev); addToast('Failed to save checklist.'); });
   };
 
   const handleCheckListLevel = (id: string, itemId: string, level: number | null) => {
@@ -178,7 +179,7 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
     const nextItem = level !== null ? { ...prevItem, [itemId]: level } : rest;
     const next = { ...checkListLevels, [id]: nextItem };
     setCheckListLevels(next);
-    onSave({ typeMoveCheckListLevels: next }).catch(() => setCheckListLevels(prev));
+    onSave({ typeMoveCheckListLevels: next }).catch(() => { setCheckListLevels(prev); addToast('Failed to save checklist.'); });
   };
 
   const playbookLabel = PLAYBOOKS.find((p) => p.value === playbook)?.label ?? playbook;

@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { SiteBanner } from '@/components/primitives';
+import { SiteBanner, ToastProvider } from '@/components/primitives';
 import styles from '@/App.module.css';
 
 const CURRENT_YEAR = new Date().getFullYear();
@@ -12,7 +12,7 @@ const CharacterPlaybook = lazy(() => import('@/pages/CharacterPlaybook/Character
 const NotFound = lazy(() => import('@/pages/NotFound/NotFound').then((m) => ({ default: m.NotFound })));
 
 export const App = () => (
-  <>
+  <ToastProvider>
     <SiteBanner>
       <strong>Under Construction</strong> — This app is a work in progress. Data may be lost or reset before June 2026.{' '}
       Found a bug? <a href="https://github.com/gvorbeck/hearthfire/issues" target="_blank" rel="noopener noreferrer">Open an issue on GitHub.</a>
@@ -35,5 +35,5 @@ export const App = () => (
       {' · '}
       <a href="https://github.com/gvorbeck/hearthfire" target="_blank" rel="noreferrer">GitHub</a>
     </footer>
-  </>
+  </ToastProvider>
 );

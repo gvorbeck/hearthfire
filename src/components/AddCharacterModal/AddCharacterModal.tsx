@@ -5,6 +5,7 @@ import {
   Heading,
   Modal,
   Text,
+  useToast,
 } from '@/components/primitives';
 import { PLAYBOOKS } from '@/lib/constants';
 import type { Character, PlaybookType } from '@/types';
@@ -23,12 +24,11 @@ export const AddCharacterModal = ({
   existingPlaybooks,
   onAdd,
 }: AddCharacterModalProps) => {
+  const { addToast } = useToast();
   const [playbook, setPlaybook] = useState<PlaybookType | ''>('');
-  const [addError, setAddError] = useState<string | null>(null);
 
   const handleClose = () => {
     setPlaybook('');
-    setAddError(null);
     onClose();
   };
 
@@ -39,7 +39,7 @@ export const AddCharacterModal = ({
     const selectedLabel = PLAYBOOKS.find((p) => p.value === playbook)?.label ?? playbook;
     const character = { id: crypto.randomUUID(), name: selectedLabel, playbook, level: 1, data: { statLevel: '1' } };
     handleClose();
-    onAdd(character).catch(() => setAddError('Failed to add character. Please try again.'));
+    onAdd(character).catch(() => addToast('Failed to add character. Please try again.'));
   };
 
   const availablePlaybooks = PLAYBOOKS.filter((p) => !existingPlaybooks.includes(p.value));
@@ -66,9 +66,6 @@ export const AddCharacterModal = ({
         <Text size="md" color="muted" className={styles.description}>
           {selectedPlaybook.description}
         </Text>
-      )}
-      {addError && (
-        <Text size="sm" color="muted">{addError}</Text>
       )}
       <div className={styles.actions}>
         <Button type="button" variant="secondary" onClick={handleClose} size="md">

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useDebouncedAnswers } from '@/hooks/useDebouncedAnswers';
+import { useToast } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
 import { BackgroundOptionItem } from './BackgroundOption';
 import type { BackgroundOption, CharacterData } from '@/types';
@@ -16,6 +17,7 @@ interface BackgroundProps {
 }
 
 export const Background = ({ playbookKey, options, level, data, onSave }: BackgroundProps = {}) => {
+  const { addToast } = useToast();
   const [selectedOption, setSelectedOption] = useState<string>(data?.background ?? '');
   const [selectedChoices, setSelectedChoices] = useState<string[]>(data?.backgroundChoices ?? []);
   const [backgroundUses, setBackgroundUses] = useState<Record<string, number>>(data?.backgroundUses ?? {});
@@ -69,6 +71,7 @@ export const Background = ({ playbookKey, options, level, data, onSave }: Backgr
     onSaveRef.current?.({ background: value, backgroundChoices: [] }).catch(() => {
       setSelectedOption(prev);
       setIsCollapsed(false);
+      addToast('Failed to save background selection.');
     });
   }, [selectedOption]);
 
@@ -79,6 +82,7 @@ export const Background = ({ playbookKey, options, level, data, onSave }: Backgr
       const prev = selectedChoicesRef.current;
       onSaveRef.current?.({ background: selectedOptionRef.current, backgroundChoices: selectedChoicesRef.current }).catch(() => {
         setSelectedChoices(prev);
+        addToast('Failed to save background choices.');
       });
     }, 1000);
   }, []);
@@ -87,7 +91,7 @@ export const Background = ({ playbookKey, options, level, data, onSave }: Backgr
     const prev = backgroundUses;
     const next = { ...backgroundUses, [optValue]: count };
     setBackgroundUses(next);
-    onSave?.({ backgroundUses: next }).catch(() => setBackgroundUses(prev));
+    onSave?.({ backgroundUses: next }).catch(() => { setBackgroundUses(prev); addToast('Failed to save.'); });
   }, [backgroundUses, onSave]);
 
   if (!options) return <PlaybookSection title="Background" />;

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { CheckboxGroup, List } from '@/components/primitives';
+import { CheckboxGroup, List, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
 import type { CharacterData } from '@/types';
 import styles from './Introductions.module.css';
@@ -22,6 +22,7 @@ interface IntroductionsProps {
 }
 
 export const Introductions = ({ config, data, onSave }: IntroductionsProps = {}) => {
+  const { addToast } = useToast();
   const [questions, setQuestions] = useState<Record<string, boolean>>(
     () => data?.introductionQuestions ?? {}
   );
@@ -34,7 +35,7 @@ export const Introductions = ({ config, data, onSave }: IntroductionsProps = {})
     const prev = questions;
     const next = { ...questions, [id]: checked };
     setQuestions(next);
-    onSave?.({ introductionQuestions: next }).catch(() => setQuestions(prev));
+    onSave?.({ introductionQuestions: next }).catch(() => { setQuestions(prev); addToast('Failed to save.'); });
   }, [questions, onSave]);
 
   const items = useMemo(() => {

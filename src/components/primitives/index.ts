@@ -21,3 +21,4 @@ export type { CheckboxGroupItem } from './CheckboxGroup/CheckboxGroup';
 export { Tooltip } from './Tooltip/Tooltip';
 export { SiteBanner } from './SiteBanner/SiteBanner';
 export { Toggle } from './Toggle/Toggle';
+export { ToastProvider, useToast } from './Toast/Toast';
