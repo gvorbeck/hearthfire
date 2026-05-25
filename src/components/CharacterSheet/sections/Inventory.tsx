@@ -453,7 +453,7 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
 
             <div className={styles.loadRow}>
               <span className={loadCx}>
-                {totalLoad} ◈ — {loadLabel}
+                {parseInlineMarkdown(`${totalLoad} ◈ — ${loadLabel}`)}
               </span>
             </div>
 
