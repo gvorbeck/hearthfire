@@ -33,27 +33,31 @@ The fundamentals are solid. TypeScript coverage is strong, CSS Modules disciplin
 
 ---
 
-### 3. Save failures are invisible to users
+### ~~3. Save failures are invisible to users~~
 
-**File:** Multiple — `src/components/CharacterSheet/sections/Moves.tsx` and others
+~~**File:** Multiple — `src/components/CharacterSheet/sections/Moves.tsx` and others~~
 
-`.catch()` blocks silently roll back local state. The user's input reverts with no explanation. The `error` state in `useGame.ts` is set but never surfaced anywhere in the UI.
+~~`.catch()` blocks silently roll back local state. The user's input reverts with no explanation. The `error` state in `useGame.ts` is set but never surfaced anywhere in the UI.~~
 
-This is a multi-player tool where data matters. Users need to know when a save fails.
+~~This is a multi-player tool where data matters. Users need to know when a save fails.~~
 
-**Fix:** At minimum, `console.error` on failure. Better: a dismissible error banner or toast that tells the user their change didn't save and to try again.
+~~**Fix:** At minimum, `console.error` on failure. Better: a dismissible error banner or toast that tells the user their change didn't save and to try again.~~
+
+**Resolved:** `ToastProvider` is wired into `App.tsx` and all save `.catch()` blocks now call `addToast(...)` with a user-visible error message.
 
 ---
 
 ## High — Address Soon
 
-### 4. No error boundary in App.tsx
+### ~~4. No error boundary in App.tsx~~
 
-**File:** `src/App.tsx`
+~~**File:** `src/App.tsx`~~
 
-`<Suspense fallback={null}>` wraps all lazy routes. If any route throws, the app goes blank with no recovery path and no message to the user.
+~~`<Suspense fallback={null}>` wraps all lazy routes. If any route throws, the app goes blank with no recovery path and no message to the user.~~
 
-**Fix:** Wrap lazy routes in an `<ErrorBoundary>` with a fallback UI.
+~~**Fix:** Wrap lazy routes in an `<ErrorBoundary>` with a fallback UI.~~
+
+**Resolved:** `ErrorBoundary` added as a primitive (`src/components/primitives/ErrorBoundary/`) and wraps `<Suspense>` in `App.tsx`. Uses `Stack` + `Text` primitives, arrow-function class methods, and a `role="alert"` live region.
 
 ---
 
@@ -124,8 +128,8 @@ Screen readers announce `aria-label` as the field's name. A question reads stran
 | -------- | -------------------------------------------------------------------- | ------------------------------------------------- |
 | ~~P0~~   | ~~Race condition — character updates can silently overwrite each other~~ | ~~`src/hooks/useGame.ts`~~                    |
 | ~~P0~~   | ~~`as unknown as GameSession` — compiler is being lied to~~          | ~~`src/hooks/useGame.ts:38`~~                     |
-| P1       | Save errors are invisible to users                                   | Multiple                                          |
-| P1       | No error boundary — app goes blank on route throw                    | `src/App.tsx`                                     |
+| ~~P1~~   | ~~Save errors are invisible to users~~                               | ~~Multiple~~                                      |
+| ~~P1~~   | ~~No error boundary — app goes blank on route throw~~                | ~~`src/App.tsx`~~                                 |
 | P2       | RangerAnimalCompanion is 689 lines                                   | `src/components/CharacterSheet/playbooks/ranger/` |
 | P2       | Three debouncing patterns — pick one                                 | Multiple                                          |
 | P3       | Unnecessary memo on leaf components                                  | `Stats.tsx`, `Inventory.tsx`                      |

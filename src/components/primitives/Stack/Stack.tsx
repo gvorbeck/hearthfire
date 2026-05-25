@@ -1,13 +1,11 @@
-import { type ReactNode } from 'react';
+import { type ComponentPropsWithoutRef } from 'react';
 import clsx from 'clsx';
 import styles from './Stack.module.css';
 
-interface StackProps {
+interface StackProps extends ComponentPropsWithoutRef<'div'> {
   direction?: 'row' | 'column';
   gap?: 1 | 2 | 3 | 4 | 6 | 8;
   align?: 'start' | 'center' | 'end' | 'stretch';
-  className?: string;
-  children: ReactNode;
 }
 
 export const Stack = ({
@@ -16,6 +14,7 @@ export const Stack = ({
   align = 'stretch',
   className,
   children,
+  ...rest
 }: StackProps) => {
   const cx = clsx(
     styles.base,
@@ -25,5 +24,5 @@ export const Stack = ({
     className
   );
 
-  return <div className={cx}>{children}</div>;
+  return <div className={cx} {...rest}>{children}</div>;
 };
