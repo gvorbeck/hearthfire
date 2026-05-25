@@ -206,10 +206,10 @@ const TypePicksSection = memo(({
 
   return (
     <div className={styles.typePicksSection}>
-      <Text as="p" size="sm" color="muted" className={styles.prose}>
+      <Text as="span" size="sm" color="muted" className={styles.prose}>
         {parseInlineMarkdown(`**HP** ${typeConfig.hp} **Armor** ${typeConfig.armor} (size) **Damage** ${typeConfig.damage} *(hand)*`)}
       </Text>
-      <Text as="p" size="sm" color="muted" className={styles.prose}>Pick {typeConfig.pickCount} more:</Text>
+      <Text as="span" size="sm" color="muted" className={styles.prose}>Pick {typeConfig.pickCount} more:</Text>
       <CheckboxGroup
         items={items}
         checked={checkedMap}
@@ -279,12 +279,11 @@ export const AnimalType = ({
       onToggleCollapse={onToggleCollapse}
     >
       <div className={styles.typeList}>
-        {visibleTypes.map((typeConfig) => {
+        {visibleTypes.map((typeConfig, i) => {
           const isSelected = animalType === typeConfig.id;
-          const globalIndex = ANIMAL_TYPES.indexOf(typeConfig);
           return (
             <div key={typeConfig.id} className={styles.typeEntry}>
-              {!typeCollapsed && globalIndex > 0 && <Divider />}
+              {!typeCollapsed && i > 0 && <Divider />}
               <Radio
                 className={styles.typeRow}
                 name="animal-type"
