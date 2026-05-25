@@ -61,13 +61,15 @@ The fundamentals are solid. TypeScript coverage is strong, CSS Modules disciplin
 
 ---
 
-### 5. RangerAnimalCompanion.tsx is 689 lines
+### ~~5. RangerAnimalCompanion.tsx is 689 lines~~
 
-**File:** `src/components/CharacterSheet/playbooks/ranger/RangerAnimalCompanion.tsx`
+~~**File:** `src/components/CharacterSheet/playbooks/ranger/RangerAnimalCompanion.tsx`~~
 
-Type selection, HP/armor display, instinct, cost, loyalty, and beast of legend are all in one file. This isn't a premature abstraction problem — it's the opposite. It's too big to reason about safely and too large to modify without risk of breakage.
+~~Type selection, HP/armor display, instinct, cost, loyalty, and beast of legend are all in one file. This isn't a premature abstraction problem — it's the opposite. It's too big to reason about safely and too large to modify without risk of breakage.~~
 
-**Fix:** Extract distinct concerns into sub-components: `AnimalTypeSelector`, `AnimalStats`, `AnimalInstinct`, etc. Each should be independently readable.
+~~**Fix:** Extract distinct concerns into sub-components: `AnimalTypeSelector`, `AnimalStats`, `AnimalInstinct`, etc. Each should be independently readable.~~
+
+**Resolved:** Split into `AnimalStats`, `AnimalType`, `AnimalInstinct`, `AnimalCost`, and `BeastOfLegend` sub-components. `RangerAnimalCompanion` is now a thin composer holding all state and handlers.
 
 ---
 
@@ -136,7 +138,7 @@ aria-label={opt.namePrompt}  // "Name the person or persons…"
 | ~~P0~~   | ~~`as unknown as GameSession` — compiler is being lied to~~          | ~~`src/hooks/useGame.ts:38`~~                     |
 | ~~P1~~   | ~~Save errors are invisible to users~~                               | ~~Multiple~~                                      |
 | ~~P1~~   | ~~No error boundary — app goes blank on route throw~~                | ~~`src/App.tsx`~~                                 |
-| P2       | RangerAnimalCompanion is 689 lines                                   | `src/components/CharacterSheet/playbooks/ranger/` |
+| ~~P2~~   | ~~RangerAnimalCompanion is 689 lines~~                               | ~~`src/components/CharacterSheet/playbooks/ranger/`~~ |
 | ~~P2~~   | ~~Three debouncing patterns — pick one~~                             | ~~Multiple~~                                      |
 | ~~P3~~   | ~~Unnecessary memo on leaf components~~                              | ~~`Stats.tsx`, `Inventory.tsx`~~                  |
 | ~~P3~~   | ~~aria-label uses question format~~                                  | ~~`RevenantInsert.tsx:330`~~                      |
