@@ -2,7 +2,7 @@ import { useRef, useCallback, useEffect } from 'react';
 
 export const useDebouncedSave = <T>(onSave: (value: T) => Promise<void>, delay = 1500) => {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const lastSavedRef = useRef<string>('__unset__');
+  const lastSavedRef = useRef<string | null>(null);
   const onSaveRef = useRef(onSave);
   onSaveRef.current = onSave;
 

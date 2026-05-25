@@ -71,17 +71,19 @@ Type selection, HP/armor display, instinct, cost, loyalty, and beast of legend a
 
 ---
 
-### 6. Three different debouncing patterns
+### ~~6. Three different debouncing patterns~~
 
-The codebase has:
+~~The codebase has:~~
 
-- `useDebouncedSave` — simple, stateless, single string
-- `useDebouncedAnswers` — uses `useLayoutEffect` for ref sync (unusual, suggests timing concerns)
-- Inline debounce logic in individual components (`Stats`, `Background`)
+~~- `useDebouncedSave` — simple, stateless, single string~~
+~~- `useDebouncedAnswers` — uses `useLayoutEffect` for ref sync (unusual, suggests timing concerns)~~
+~~- Inline debounce logic in individual components (`Stats`, `Background`)~~
 
-Having three patterns means three places to find bugs and three behaviors to keep in sync.
+~~Having three patterns means three places to find bugs and three behaviors to keep in sync.~~
 
-**Fix:** Pick one pattern and consolidate. The `useLayoutEffect` in `useDebouncedAnswers` warrants a comment explaining why it's not `useEffect`.
+~~**Fix:** Pick one pattern and consolidate. The `useLayoutEffect` in `useDebouncedAnswers` warrants a comment explaining why it's not `useEffect`.~~
+
+**Resolved:** `useDebouncedSave` generalized to `<T>` and is now the single debouncing pattern. `useDebouncedAnswers` deleted. Inline debounce removed from `Stats.tsx` and `Background.tsx`.
 
 ---
 
@@ -131,7 +133,7 @@ Screen readers announce `aria-label` as the field's name. A question reads stran
 | ~~P1~~   | ~~Save errors are invisible to users~~                               | ~~Multiple~~                                      |
 | ~~P1~~   | ~~No error boundary — app goes blank on route throw~~                | ~~`src/App.tsx`~~                                 |
 | P2       | RangerAnimalCompanion is 689 lines                                   | `src/components/CharacterSheet/playbooks/ranger/` |
-| P2       | Three debouncing patterns — pick one                                 | Multiple                                          |
+| ~~P2~~   | ~~Three debouncing patterns — pick one~~                             | ~~Multiple~~                                      |
 | P3       | Unnecessary memo on leaf components                                  | `Stats.tsx`, `Inventory.tsx`                      |
 | P3       | aria-label uses question format                                      | `RevenantInsert.tsx:330`                          |
 

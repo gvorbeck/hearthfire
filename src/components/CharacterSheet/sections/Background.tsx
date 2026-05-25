@@ -74,10 +74,10 @@ export const Background = ({ playbookKey, options, level, data, onSave }: Backgr
   }, [addToast]);
 
   const handleChoicesChange = useCallback((choices: string[]) => {
+    const prev = selectedChoicesRef.current;
     setSelectedChoices(choices);
-    const snapshot = choices;
-    onSaveRef.current?.({ background: selectedOptionRef.current, backgroundChoices: snapshot }).catch(() => {
-      setSelectedChoices(snapshot);
+    onSaveRef.current?.({ background: selectedOptionRef.current, backgroundChoices: choices }).catch(() => {
+      setSelectedChoices(prev);
       addToast('Failed to save background choices.');
     });
   }, [addToast]);

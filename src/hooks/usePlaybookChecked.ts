@@ -44,7 +44,9 @@ export const usePlaybookCheckedWithAnswers = (
     () => (resolvePlaybookFeatures(data)[checkedKey] as Record<string, boolean> | undefined) ?? {},
   );
 
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [answers, setAnswers] = useState<Record<string, string>>(
+    () => (resolvePlaybookFeatures(data)[answersKey] as Record<string, string> | undefined) ?? {},
+  );
   const answersRef = useRef(answers);
   answersRef.current = answers;
 
