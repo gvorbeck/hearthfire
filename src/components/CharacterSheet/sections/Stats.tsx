@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, memo } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import clsx from 'clsx';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import { Checkbox } from '@/components/primitives';
@@ -15,30 +15,27 @@ interface StatBoxProps {
   onBlur: () => void;
 }
 
-const StatBox = memo(({ label, abbr, statKey, value, onChange, onBlur }: StatBoxProps) => {
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value;
-    if (raw === '' || raw === '-') { onChange(statKey, raw); return; }
-    const n = parseInt(raw, 10);
-    if (!isNaN(n)) onChange(statKey, String(Math.min(n, 3)));
-  }, [onChange, statKey]);
-  return (
-    <div className={styles.statBox}>
-      <label className={styles.statLabel} htmlFor={`stat-${abbr}`}>{label}</label>
-      <input
-        id={`stat-${abbr}`}
-        className={styles.statInput}
-        type="number"
-        value={value}
-        max={3}
-        onChange={handleChange}
-        onBlur={onBlur}
-        onWheel={(e) => e.currentTarget.blur()}
-      />
-      <span className={styles.statAbbr}>({abbr})</span>
-    </div>
-  );
-});
+const StatBox = ({ label, abbr, statKey, value, onChange, onBlur }: StatBoxProps) => (
+  <div className={styles.statBox}>
+    <label className={styles.statLabel} htmlFor={`stat-${abbr}`}>{label}</label>
+    <input
+      id={`stat-${abbr}`}
+      className={styles.statInput}
+      type="number"
+      value={value}
+      max={3}
+      onChange={(e) => {
+        const raw = e.target.value;
+        if (raw === '' || raw === '-') { onChange(statKey, raw); return; }
+        const n = parseInt(raw, 10);
+        if (!isNaN(n)) onChange(statKey, String(Math.min(n, 3)));
+      }}
+      onBlur={onBlur}
+      onWheel={(e) => e.currentTarget.blur()}
+    />
+    <span className={styles.statAbbr}>({abbr})</span>
+  </div>
+);
 
 interface InfoBoxProps {
   label: string;
@@ -50,30 +47,25 @@ interface InfoBoxProps {
   onBlur?: () => void;
 }
 
-const InfoBox = memo(({ label, statKey, value, isStatic, min, onChange, onBlur }: InfoBoxProps) => {
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (statKey) onChange?.(statKey, e.target.value);
-  }, [onChange, statKey]);
-  return (
-    <div className={styles.infoBox}>
-      {isStatic ? (
-        <span className={styles.infoStatic}>{value}</span>
-      ) : (
-        <input
-          className={styles.infoInput}
-          type="number"
-          value={value}
-          min={min}
-          aria-label={label}
-          onChange={handleChange}
-          onBlur={onBlur}
-          onWheel={(e) => e.currentTarget.blur()}
-        />
-      )}
-      <span className={styles.infoLabel}>{label}</span>
-    </div>
-  );
-});
+const InfoBox = ({ label, statKey, value, isStatic, min, onChange, onBlur }: InfoBoxProps) => (
+  <div className={styles.infoBox}>
+    {isStatic ? (
+      <span className={styles.infoStatic}>{value}</span>
+    ) : (
+      <input
+        className={styles.infoInput}
+        type="number"
+        value={value}
+        min={min}
+        aria-label={label}
+        onChange={(e) => { if (statKey) onChange?.(statKey, e.target.value); }}
+        onBlur={onBlur}
+        onWheel={(e) => e.currentTarget.blur()}
+      />
+    )}
+    <span className={styles.infoLabel}>{label}</span>
+  </div>
+);
 
 interface DebilityRowProps {
   label: string;
@@ -82,9 +74,8 @@ interface DebilityRowProps {
   onChange: (key: keyof DebilitiesState, checked: boolean) => void;
 }
 
-const DebilityRow = memo(({ label, debilityKey, checked, onChange }: DebilityRowProps) => {
+const DebilityRow = ({ label, debilityKey, checked, onChange }: DebilityRowProps) => {
   const braceCx = clsx(styles.debilityBrace, checked && styles.debilityBraceActive);
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onChange(debilityKey, e.target.checked), [onChange, debilityKey]);
   return (
     <div className={styles.debility}>
       <div className={braceCx} />
@@ -92,12 +83,12 @@ const DebilityRow = memo(({ label, debilityKey, checked, onChange }: DebilityRow
         name={`debility-${label}`}
         value={label}
         checked={checked}
-        onChange={handleChange}
+        onChange={(e) => onChange(debilityKey, e.target.checked)}
         label={<span className={styles.debilityLabel}>{label}</span>}
       />
     </div>
   );
-});
+};
 
 type StatsState = {
   statStr: string; statDex: string; statInt: string; statWis: string;
