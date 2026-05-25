@@ -89,27 +89,31 @@ Type selection, HP/armor display, instinct, cost, loyalty, and beast of legend a
 
 ## Low — Polish
 
-### 7. Unnecessary memo/useCallback on leaf components
+### ~~7. Unnecessary memo/useCallback on leaf components~~
 
-**Files:** `src/components/CharacterSheet/sections/Stats.tsx`, `Inventory.tsx`
+~~**Files:** `src/components/CharacterSheet/sections/Stats.tsx`, `Inventory.tsx`~~
 
-Small presentational components (`StatBox`, `InfoBox`, `DebilityRow`) are all wrapped in `memo()` with `useCallback` for every handler. Without profiling data showing these re-renders are a problem, this adds noise without benefit. React 18's auto-batching makes this even less necessary.
+~~Small presentational components (`StatBox`, `InfoBox`, `DebilityRow`) are all wrapped in `memo()` with `useCallback` for every handler. Without profiling data showing these re-renders are a problem, this adds noise without benefit. React 18's auto-batching makes this even less necessary.~~
 
-**Fix:** Remove unless you have profiling evidence. Re-add if you do.
+~~**Fix:** Remove unless you have profiling evidence. Re-add if you do.~~
+
+**Resolved:** `memo()` removed from all leaf sub-components in both files. `useCallback` removed from sub-component handlers and from all parent-level handlers in `Inventory.tsx` (none had `memo` children to serve). Parent `useCallback`s in `Stats.tsx` retained — `savePayload` provides the stable reference `useDebouncedSave` needs on mount.
 
 ---
 
-### 8. aria-label uses a question instead of a label
+### ~~8. aria-label uses a question instead of a label~~
 
-**File:** `src/components/CharacterSheet/playbooks/revenant/RevenantInsert.tsx:330`
+~~**File:** `src/components/CharacterSheet/playbooks/revenant/RevenantInsert.tsx:330`~~
 
 ```tsx
 aria-label={opt.namePrompt}  // "Name the person or persons…"
 ```
 
-Screen readers announce `aria-label` as the field's name. A question reads strangely in that context.
+~~Screen readers announce `aria-label` as the field's name. A question reads strangely in that context.~~
 
-**Fix:** Use a short, descriptive label ("Purpose name") and move the prompt text to `aria-describedby` if it needs to be associated.
+~~**Fix:** Use a short, descriptive label ("Purpose name") and move the prompt text to `aria-describedby` if it needs to be associated.~~
+
+**Resolved:** The `namePrompt` pattern no longer exists in `RevenantInsert.tsx` — the file was refactored and the offending `aria-label` usage is gone.
 
 ---
 
@@ -134,8 +138,8 @@ Screen readers announce `aria-label` as the field's name. A question reads stran
 | ~~P1~~   | ~~No error boundary — app goes blank on route throw~~                | ~~`src/App.tsx`~~                                 |
 | P2       | RangerAnimalCompanion is 689 lines                                   | `src/components/CharacterSheet/playbooks/ranger/` |
 | ~~P2~~   | ~~Three debouncing patterns — pick one~~                             | ~~Multiple~~                                      |
-| P3       | Unnecessary memo on leaf components                                  | `Stats.tsx`, `Inventory.tsx`                      |
-| P3       | aria-label uses question format                                      | `RevenantInsert.tsx:330`                          |
+| ~~P3~~   | ~~Unnecessary memo on leaf components~~                              | ~~`Stats.tsx`, `Inventory.tsx`~~                  |
+| ~~P3~~   | ~~aria-label uses question format~~                                  | ~~`RevenantInsert.tsx:330`~~                      |
 
 ---
 
