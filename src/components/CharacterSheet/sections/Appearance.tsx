@@ -32,7 +32,7 @@ export const Appearance = ({ rows, data, onSave }: AppearanceProps = {}) => {
     (value: string) => onSaveRef.current?.({ appearance: selectedRef.current, appearanceCustom: value }) ?? Promise.resolve(),
     [],
   );
-  const { onChange: debouncedCustomChange, onBlur: flushCustomOnBlur } = useDebouncedSave(saveCustomText, 1000);
+  const { onChange: debouncedCustomChange, flush: flushCustomOnBlur } = useDebouncedSave(saveCustomText, 1000);
 
   useEffect(() => {
     if (data?.appearance !== undefined) setSelected(data.appearance);

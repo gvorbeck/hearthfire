@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import clsx from 'clsx';
+import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import { Checkbox } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
 import type { CharacterData } from '@/types';
@@ -170,11 +171,9 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
   const [stats, setStats] = useState<StatsState>(() => statsFromData(data, hpMax));
   const [debilities, setDebilities] = useState<DebilitiesState>(() => debilitiesFromData(data));
 
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onSaveRef = useRef(onSave);
   const statsRef = useRef(stats);
   const debilitiesRef = useRef(debilities);
-  const lastSavedRef = useRef<string>('');
   onSaveRef.current = onSave;
   statsRef.current = stats;
   debilitiesRef.current = debilities;
@@ -194,37 +193,27 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
     hpMax,
   ]);
 
-  useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
-
-  const write = useCallback((nextStats: StatsState, nextDebilities: DebilitiesState) => {
-    const payload = { ...nextStats, ...nextDebilities };
-    const key = JSON.stringify(payload);
-    if (key === lastSavedRef.current) return;
-    lastSavedRef.current = key;
-    onSaveRef.current?.(payload);
-  }, []);
-
-  const flush = useCallback(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    write(statsRef.current, debilitiesRef.current);
-  }, [write]);
-
-  const debounced = useCallback((nextStats: StatsState, nextDebilities: DebilitiesState) => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => write(nextStats, nextDebilities), 1000);
-  }, [write]);
+  const savePayload = useCallback(
+    (payload: Partial<CharacterData>) => onSaveRef.current?.(payload) ?? Promise.resolve(),
+    [],
+  );
+  const { onChange: debouncedSave, flush } = useDebouncedSave(savePayload, 1000);
 
   const handleStatChange = useCallback((key: keyof StatsState, val: string) => {
     const next = { ...statsRef.current, [key]: val };
     setStats(next);
-    debounced(next, debilitiesRef.current);
-  }, [debounced]);
+    debouncedSave({ ...next, ...debilitiesRef.current });
+  }, [debouncedSave]);
+
+  const handleFlush = useCallback(() => {
+    flush({ ...statsRef.current, ...debilitiesRef.current });
+  }, [flush]);
 
   const handleDebilityChange = useCallback((key: keyof DebilitiesState, checked: boolean) => {
     const next = { ...debilitiesRef.current, [key]: checked };
     setDebilities(next);
-    write(statsRef.current, next);
-  }, [write]);
+    flush({ ...statsRef.current, ...next });
+  }, [flush]);
 
   if (!data || hpMax === undefined) return <PlaybookSection title="Stats" />;
 
@@ -247,7 +236,7 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
                     statKey={f.key}
                     value={stats[f.key]}
                     onChange={handleStatChange}
-                    onBlur={flush}
+                    onBlur={handleFlush}
                   />
                 ))}
               </div>
@@ -262,10 +251,10 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
         </div>
         <div className={styles.infoRow}>
           <InfoBox label="Damage" value={damage} isStatic />
-          <InfoBox label={hpLabel} statKey="statHp" value={stats.statHp} onChange={handleStatChange} onBlur={flush} />
-          <InfoBox label="Armor" statKey="statArmor" value={stats.statArmor} onChange={handleStatChange} onBlur={flush} />
-          <InfoBox label="XP" statKey="statXp" value={stats.statXp} onChange={handleStatChange} onBlur={flush} />
-          <InfoBox label="Level" statKey="statLevel" value={stats.statLevel} min={1} onChange={handleStatChange} onBlur={flush} />
+          <InfoBox label={hpLabel} statKey="statHp" value={stats.statHp} onChange={handleStatChange} onBlur={handleFlush} />
+          <InfoBox label="Armor" statKey="statArmor" value={stats.statArmor} onChange={handleStatChange} onBlur={handleFlush} />
+          <InfoBox label="XP" statKey="statXp" value={stats.statXp} onChange={handleStatChange} onBlur={handleFlush} />
+          <InfoBox label="Level" statKey="statLevel" value={stats.statLevel} min={1} onChange={handleStatChange} onBlur={handleFlush} />
         </div>
       </div>
     </PlaybookSection>

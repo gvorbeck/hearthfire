@@ -1,28 +1,29 @@
 import { useRef, useCallback, useEffect } from 'react';
 
-export const useDebouncedSave = (onSave: (value: string) => Promise<void>, delay = 1500, initialValue?: string) => {
+export const useDebouncedSave = <T>(onSave: (value: T) => Promise<void>, delay = 1500) => {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const lastSavedRef = useRef<string | null>(initialValue ?? null);
+  const lastSavedRef = useRef<string>('__unset__');
   const onSaveRef = useRef(onSave);
   onSaveRef.current = onSave;
 
   useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
 
-  const save = useCallback(async (value: string) => {
-    if (value === lastSavedRef.current) return;
+  const save = useCallback(async (value: T) => {
+    const key = JSON.stringify(value);
+    if (key === lastSavedRef.current) return;
+    lastSavedRef.current = key;
     await onSaveRef.current(value);
-    lastSavedRef.current = value;
   }, []);
 
-  const onChange = useCallback((value: string) => {
+  const onChange = useCallback((value: T) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => save(value), delay);
   }, [save, delay]);
 
-  const onBlur = useCallback((value: string) => {
+  const flush = useCallback((value: T) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     save(value);
   }, [save]);
 
-  return { onChange, onBlur };
+  return { onChange, flush };
 };

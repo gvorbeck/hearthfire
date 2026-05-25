@@ -72,7 +72,7 @@ export const Instinct = ({ playbookKey, options, data, onSave, overrideNote }: I
     (value: string) => onSave?.({ instinct: CUSTOM_VALUE, instinctCustom: value }) ?? Promise.resolve(),
     [onSave]
   );
-  const { onChange: debouncedChange, onBlur: flushOnBlur } = useDebouncedSave(saveCustomText, 1000);
+  const { onChange: debouncedChange, flush: flushOnBlur } = useDebouncedSave(saveCustomText, 1000);
 
   const handleCustomChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
