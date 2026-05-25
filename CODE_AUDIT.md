@@ -23,41 +23,41 @@ The fundamentals are solid. TypeScript coverage is strong, CSS Modules disciplin
 
 ---
 
-### 2. Unsafe type cast bypasses the compiler
+### ~~2. Unsafe type cast bypasses the compiler~~
 
-**File:** `src/hooks/useGame.ts:38`
+~~**File:** `src/hooks/useGame.ts:38`~~
 
-```ts
-setGame({ ...raw, characters, id: snapshot.id } as unknown as GameSession);
-```
+~~`as unknown as T` is a full escape hatch — it tells TypeScript to trust you unconditionally. This exists because the Firestore data shape doesn't actually match `GameSession`. If a document is malformed or a field type has drifted, you won't find out until a runtime crash in a user session.~~
 
-`as unknown as T` is a full escape hatch — it tells TypeScript to trust you unconditionally. This exists because the Firestore data shape doesn't actually match `GameSession`. If a document is malformed or a field type has drifted, you won't find out until a runtime crash in a user session.
-
-**Fix:** Validate the Firestore response shape before casting. Use a runtime validator (Zod, io-ts, or a hand-rolled guard) and fail explicitly on bad data rather than silently coercing it.
+**Resolved:** `parseGameSession` and `parseContent` now validate every field before constructing the typed object. Bad data throws with a clear message, caught by a `try/catch` that routes the error to the UI. No casts remain except the honest `snapshot.data() as Record<string, unknown>`.
 
 ---
 
-### 3. Save failures are invisible to users
+### ~~3. Save failures are invisible to users~~
 
-**File:** Multiple — `src/components/CharacterSheet/sections/Moves.tsx` and others
+~~**File:** Multiple — `src/components/CharacterSheet/sections/Moves.tsx` and others~~
 
-`.catch()` blocks silently roll back local state. The user's input reverts with no explanation. The `error` state in `useGame.ts` is set but never surfaced anywhere in the UI.
+~~`.catch()` blocks silently roll back local state. The user's input reverts with no explanation. The `error` state in `useGame.ts` is set but never surfaced anywhere in the UI.~~
 
-This is a multi-player tool where data matters. Users need to know when a save fails.
+~~This is a multi-player tool where data matters. Users need to know when a save fails.~~
 
-**Fix:** At minimum, `console.error` on failure. Better: a dismissible error banner or toast that tells the user their change didn't save and to try again.
+~~**Fix:** At minimum, `console.error` on failure. Better: a dismissible error banner or toast that tells the user their change didn't save and to try again.~~
+
+**Resolved:** `ToastProvider` is wired into `App.tsx` and all save `.catch()` blocks now call `addToast(...)` with a user-visible error message.
 
 ---
 
 ## High — Address Soon
 
-### 4. No error boundary in App.tsx
+### ~~4. No error boundary in App.tsx~~
 
-**File:** `src/App.tsx`
+~~**File:** `src/App.tsx`~~
 
-`<Suspense fallback={null}>` wraps all lazy routes. If any route throws, the app goes blank with no recovery path and no message to the user.
+~~`<Suspense fallback={null}>` wraps all lazy routes. If any route throws, the app goes blank with no recovery path and no message to the user.~~
 
-**Fix:** Wrap lazy routes in an `<ErrorBoundary>` with a fallback UI.
+~~**Fix:** Wrap lazy routes in an `<ErrorBoundary>` with a fallback UI.~~
+
+**Resolved:** `ErrorBoundary` added as a primitive (`src/components/primitives/ErrorBoundary/`) and wraps `<Suspense>` in `App.tsx`. Uses `Stack` + `Text` primitives, arrow-function class methods, and a `role="alert"` live region.
 
 ---
 
@@ -71,43 +71,49 @@ Type selection, HP/armor display, instinct, cost, loyalty, and beast of legend a
 
 ---
 
-### 6. Three different debouncing patterns
+### ~~6. Three different debouncing patterns~~
 
-The codebase has:
+~~The codebase has:~~
 
-- `useDebouncedSave` — simple, stateless, single string
-- `useDebouncedAnswers` — uses `useLayoutEffect` for ref sync (unusual, suggests timing concerns)
-- Inline debounce logic in individual components (`Stats`, `Background`)
+~~- `useDebouncedSave` — simple, stateless, single string~~
+~~- `useDebouncedAnswers` — uses `useLayoutEffect` for ref sync (unusual, suggests timing concerns)~~
+~~- Inline debounce logic in individual components (`Stats`, `Background`)~~
 
-Having three patterns means three places to find bugs and three behaviors to keep in sync.
+~~Having three patterns means three places to find bugs and three behaviors to keep in sync.~~
 
-**Fix:** Pick one pattern and consolidate. The `useLayoutEffect` in `useDebouncedAnswers` warrants a comment explaining why it's not `useEffect`.
+~~**Fix:** Pick one pattern and consolidate. The `useLayoutEffect` in `useDebouncedAnswers` warrants a comment explaining why it's not `useEffect`.~~
+
+**Resolved:** `useDebouncedSave` generalized to `<T>` and is now the single debouncing pattern. `useDebouncedAnswers` deleted. Inline debounce removed from `Stats.tsx` and `Background.tsx`.
 
 ---
 
 ## Low — Polish
 
-### 7. Unnecessary memo/useCallback on leaf components
+### ~~7. Unnecessary memo/useCallback on leaf components~~
 
-**Files:** `src/components/CharacterSheet/sections/Stats.tsx`, `Inventory.tsx`
+~~**Files:** `src/components/CharacterSheet/sections/Stats.tsx`, `Inventory.tsx`~~
 
-Small presentational components (`StatBox`, `InfoBox`, `DebilityRow`) are all wrapped in `memo()` with `useCallback` for every handler. Without profiling data showing these re-renders are a problem, this adds noise without benefit. React 18's auto-batching makes this even less necessary.
+~~Small presentational components (`StatBox`, `InfoBox`, `DebilityRow`) are all wrapped in `memo()` with `useCallback` for every handler. Without profiling data showing these re-renders are a problem, this adds noise without benefit. React 18's auto-batching makes this even less necessary.~~
 
-**Fix:** Remove unless you have profiling evidence. Re-add if you do.
+~~**Fix:** Remove unless you have profiling evidence. Re-add if you do.~~
+
+**Resolved:** `memo()` removed from all leaf sub-components in both files. `useCallback` removed from sub-component handlers and from all parent-level handlers in `Inventory.tsx` (none had `memo` children to serve). Parent `useCallback`s in `Stats.tsx` retained — `savePayload` provides the stable reference `useDebouncedSave` needs on mount.
 
 ---
 
-### 8. aria-label uses a question instead of a label
+### ~~8. aria-label uses a question instead of a label~~
 
-**File:** `src/components/CharacterSheet/playbooks/revenant/RevenantInsert.tsx:330`
+~~**File:** `src/components/CharacterSheet/playbooks/revenant/RevenantInsert.tsx:330`~~
 
 ```tsx
 aria-label={opt.namePrompt}  // "Name the person or persons…"
 ```
 
-Screen readers announce `aria-label` as the field's name. A question reads strangely in that context.
+~~Screen readers announce `aria-label` as the field's name. A question reads strangely in that context.~~
 
-**Fix:** Use a short, descriptive label ("Purpose name") and move the prompt text to `aria-describedby` if it needs to be associated.
+~~**Fix:** Use a short, descriptive label ("Purpose name") and move the prompt text to `aria-describedby` if it needs to be associated.~~
+
+**Resolved:** The `namePrompt` pattern no longer exists in `RevenantInsert.tsx` — the file was refactored and the offending `aria-label` usage is gone.
 
 ---
 
@@ -127,13 +133,13 @@ Screen readers announce `aria-label` as the field's name. A question reads stran
 | Priority | Issue                                                                | File                                              |
 | -------- | -------------------------------------------------------------------- | ------------------------------------------------- |
 | ~~P0~~   | ~~Race condition — character updates can silently overwrite each other~~ | ~~`src/hooks/useGame.ts`~~                    |
-| P0       | `as unknown as GameSession` — compiler is being lied to              | `src/hooks/useGame.ts:38`                         |
-| P1       | Save errors are invisible to users                                   | Multiple                                          |
-| P1       | No error boundary — app goes blank on route throw                    | `src/App.tsx`                                     |
+| ~~P0~~   | ~~`as unknown as GameSession` — compiler is being lied to~~          | ~~`src/hooks/useGame.ts:38`~~                     |
+| ~~P1~~   | ~~Save errors are invisible to users~~                               | ~~Multiple~~                                      |
+| ~~P1~~   | ~~No error boundary — app goes blank on route throw~~                | ~~`src/App.tsx`~~                                 |
 | P2       | RangerAnimalCompanion is 689 lines                                   | `src/components/CharacterSheet/playbooks/ranger/` |
-| P2       | Three debouncing patterns — pick one                                 | Multiple                                          |
-| P3       | Unnecessary memo on leaf components                                  | `Stats.tsx`, `Inventory.tsx`                      |
-| P3       | aria-label uses question format                                      | `RevenantInsert.tsx:330`                          |
+| ~~P2~~   | ~~Three debouncing patterns — pick one~~                             | ~~Multiple~~                                      |
+| ~~P3~~   | ~~Unnecessary memo on leaf components~~                              | ~~`Stats.tsx`, `Inventory.tsx`~~                  |
+| ~~P3~~   | ~~aria-label uses question format~~                                  | ~~`RevenantInsert.tsx:330`~~                      |
 
 ---
 

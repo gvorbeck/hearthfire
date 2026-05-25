@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useMemo, memo } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import clsx from 'clsx';
 import { Checkbox, Divider, Input, UseDots } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
@@ -108,30 +108,23 @@ interface MainItemRowProps {
   onUsesChange: (id: string, n: number) => void;
 }
 
-const MainItemRow = memo(({ item, checked, uses, prosperity, onCheckedChange, onUsesChange }: MainItemRowProps) => {
-  const handleChecked = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => onCheckedChange(item.id, e.target.checked),
-    [item.id, onCheckedChange],
-  );
-  const handleUses = useCallback((n: number) => onUsesChange(item.id, n), [item.id, onUsesChange]);
-
+const MainItemRow = ({ item, checked, uses, prosperity, onCheckedChange, onUsesChange }: MainItemRowProps) => {
   const isSupplies = item.id.startsWith('supplies-');
   const hasUses = isSupplies || item.uses !== undefined;
   const effectiveTotal = isSupplies ? 4 + prosperity : (item.uses ?? 0);
-
   return (
     <div className={clsx(styles.mainItemRow, item.weight === 2 && styles.mainItemRowDouble)}>
       <Checkbox
         variant="provision"
         weight={item.weight}
         checked={checked}
-        onChange={handleChecked}
+        onChange={(e) => onCheckedChange(item.id, e.target.checked)}
         label={
           <span className={styles.itemLabel}>
             {parseInlineMarkdown(item.label)}
             {hasUses && checked && (
               <span className={styles.itemDots}>
-                <UseDots total={effectiveTotal} checked={uses} onChange={handleUses} />
+                <UseDots total={effectiveTotal} checked={uses} onChange={(n) => onUsesChange(item.id, n)} />
               </span>
             )}
           </span>
@@ -139,7 +132,7 @@ const MainItemRow = memo(({ item, checked, uses, prosperity, onCheckedChange, on
       />
     </div>
   );
-});
+};
 
 interface SmallItemRowProps {
   item: SmallItem;
@@ -147,21 +140,15 @@ interface SmallItemRowProps {
   onCheckedChange: (id: string, checked: boolean) => void;
 }
 
-const SmallItemRow = memo(({ item, checked, onCheckedChange }: SmallItemRowProps) => {
-  const handleChecked = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => onCheckedChange(item.id, e.target.checked),
-    [item.id, onCheckedChange],
-  );
-  return (
-    <div className={styles.smallItemRow}>
-      <Checkbox
-        checked={checked}
-        onChange={handleChecked}
-        label={<span className={styles.itemLabel}>{parseInlineMarkdown(item.label)}</span>}
-      />
-    </div>
-  );
-});
+const SmallItemRow = ({ item, checked, onCheckedChange }: SmallItemRowProps) => (
+  <div className={styles.smallItemRow}>
+    <Checkbox
+      checked={checked}
+      onChange={(e) => onCheckedChange(item.id, e.target.checked)}
+      label={<span className={styles.itemLabel}>{parseInlineMarkdown(item.label)}</span>}
+    />
+  </div>
+);
 
 interface CustomMainItemProps {
   index: number;
@@ -174,34 +161,29 @@ interface CustomMainItemProps {
   onBlur: () => void;
 }
 
-const CustomMainItem = memo(({ index, checked, text, weight, onCheckedChange, onTextChange, onWeightChange, onBlur }: CustomMainItemProps) => {
-  const handleChecked = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onCheckedChange(index, e.target.checked), [index, onCheckedChange]);
-  const handleText = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onTextChange(index, e.target.value), [index, onTextChange]);
-  const handleWeight = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => onWeightChange(index, Number(e.target.value) as 1 | 2), [index, onWeightChange]);
-  return (
-    <div className={styles.customMainItem}>
-      <Checkbox variant="provision" weight={weight} checked={checked} onChange={handleChecked} aria-label={`Custom item ${index + 1}`} />
-      <input
-        className={styles.customInput}
-        type="text"
-        value={text}
-        placeholder="Item…"
-        aria-label={`Custom item ${index + 1} name`}
-        onChange={handleText}
-        onBlur={onBlur}
-      />
-      <select
-        className={styles.weightSelect}
-        value={weight}
-        aria-label={`Custom item ${index + 1} weight`}
-        onChange={handleWeight}
-      >
-        <option value={1}>◇</option>
-        <option value={2}>◇◇</option>
-      </select>
-    </div>
-  );
-});
+const CustomMainItem = ({ index, checked, text, weight, onCheckedChange, onTextChange, onWeightChange, onBlur }: CustomMainItemProps) => (
+  <div className={styles.customMainItem}>
+    <Checkbox variant="provision" weight={weight} checked={checked} onChange={(e) => onCheckedChange(index, e.target.checked)} aria-label={`Custom item ${index + 1}`} />
+    <input
+      className={styles.customInput}
+      type="text"
+      value={text}
+      placeholder="Item…"
+      aria-label={`Custom item ${index + 1} name`}
+      onChange={(e) => onTextChange(index, e.target.value)}
+      onBlur={onBlur}
+    />
+    <select
+      className={styles.weightSelect}
+      value={weight}
+      aria-label={`Custom item ${index + 1} weight`}
+      onChange={(e) => onWeightChange(index, Number(e.target.value) as 1 | 2)}
+    >
+      <option value={1}>◇</option>
+      <option value={2}>◇◇</option>
+    </select>
+  </div>
+);
 
 interface CustomSmallItemProps {
   index: number;
@@ -212,24 +194,20 @@ interface CustomSmallItemProps {
   onBlur: () => void;
 }
 
-const CustomSmallItem = memo(({ index, checked, text, onCheckedChange, onTextChange, onBlur }: CustomSmallItemProps) => {
-  const handleChecked = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onCheckedChange(index, e.target.checked), [index, onCheckedChange]);
-  const handleText = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onTextChange(index, e.target.value), [index, onTextChange]);
-  return (
-    <div className={styles.customSmallItem}>
-      <Checkbox checked={checked} onChange={handleChecked} aria-label={`Custom small item ${index + 1}`} />
-      <input
-        className={styles.customInput}
-        type="text"
-        value={text}
-        placeholder="Item…"
-        aria-label={`Custom small item ${index + 1} name`}
-        onChange={handleText}
-        onBlur={onBlur}
-      />
-    </div>
-  );
-});
+const CustomSmallItem = ({ index, checked, text, onCheckedChange, onTextChange, onBlur }: CustomSmallItemProps) => (
+  <div className={styles.customSmallItem}>
+    <Checkbox checked={checked} onChange={(e) => onCheckedChange(index, e.target.checked)} aria-label={`Custom small item ${index + 1}`} />
+    <input
+      className={styles.customInput}
+      type="text"
+      value={text}
+      placeholder="Item…"
+      aria-label={`Custom small item ${index + 1} name`}
+      onChange={(e) => onTextChange(index, e.target.value)}
+      onBlur={onBlur}
+    />
+  </div>
+);
 
 interface PossessionRowProps {
   index: number;
@@ -242,34 +220,29 @@ interface PossessionRowProps {
   onBlur: () => void;
 }
 
-const PossessionRow = memo(({ index, checked, text, weight, onCheckedChange, onTextChange, onWeightChange, onBlur }: PossessionRowProps) => {
-  const handleChecked = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onCheckedChange(index, e.target.checked), [index, onCheckedChange]);
-  const handleText = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onTextChange(index, e.target.value), [index, onTextChange]);
-  const handleWeight = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => onWeightChange(index, Number(e.target.value) as 1 | 2), [index, onWeightChange]);
-  return (
-    <div className={styles.possessionRow}>
-      <Checkbox variant="provision" weight={weight} checked={checked} onChange={handleChecked} aria-label={`Possession ${index + 1}`} />
-      <input
-        className={styles.customInput}
-        type="text"
-        value={text}
-        placeholder="Item…"
-        aria-label={`Possession ${index + 1} name`}
-        onChange={handleText}
-        onBlur={onBlur}
-      />
-      <select
-        className={styles.weightSelect}
-        value={weight}
-        aria-label={`Possession ${index + 1} weight`}
-        onChange={handleWeight}
-      >
-        <option value={1}>◇</option>
-        <option value={2}>◇◇</option>
-      </select>
-    </div>
-  );
-});
+const PossessionRow = ({ index, checked, text, weight, onCheckedChange, onTextChange, onWeightChange, onBlur }: PossessionRowProps) => (
+  <div className={styles.possessionRow}>
+    <Checkbox variant="provision" weight={weight} checked={checked} onChange={(e) => onCheckedChange(index, e.target.checked)} aria-label={`Possession ${index + 1}`} />
+    <input
+      className={styles.customInput}
+      type="text"
+      value={text}
+      placeholder="Item…"
+      aria-label={`Possession ${index + 1} name`}
+      onChange={(e) => onTextChange(index, e.target.value)}
+      onBlur={onBlur}
+    />
+    <select
+      className={styles.weightSelect}
+      value={weight}
+      aria-label={`Possession ${index + 1} weight`}
+      onChange={(e) => onWeightChange(index, Number(e.target.value) as 1 | 2)}
+    >
+      <option value={1}>◇</option>
+      <option value={2}>◇◇</option>
+    </select>
+  </div>
+);
 
 interface InventoryProps {
   data: CharacterData | undefined;
@@ -277,7 +250,7 @@ interface InventoryProps {
   onSave: (data: Partial<CharacterData>) => Promise<void>;
 }
 
-export const Inventory = memo(({ data, prosperity, onSave }: InventoryProps) => {
+export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
   const [inventoryChecked, setInventoryChecked] = useState<Record<string, boolean>>(() => data?.inventoryChecked ?? {});
   const [inventoryUses, setInventoryUses] = useState<Record<string, number>>(() => data?.inventoryUses ?? {});
   const [customItems, setCustomItems] = useState(() => normalizeCustomMain(data?.inventoryCustomItems));
@@ -312,140 +285,140 @@ export const Inventory = memo(({ data, prosperity, onSave }: InventoryProps) => 
     if (data?.inventorySmallUndefined !== undefined) setUndefinedSmall(data.inventorySmallUndefined);
   }, [data]);
 
-  const saveDebounced = useCallback((patch: Partial<CharacterData>) => {
+  const saveDebounced = (patch: Partial<CharacterData>) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => onSaveRef.current(patch), 1000);
-  }, []);
+  };
 
-  const saveImmediate = useCallback((patch: Partial<CharacterData>) => {
+  const saveImmediate = (patch: Partial<CharacterData>) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     onSaveRef.current(patch);
-  }, []);
+  };
 
-  const flushDebounce = useCallback((patch: Partial<CharacterData>) => {
+  const flushDebounce = (patch: Partial<CharacterData>) => {
     if (debounceRef.current) { clearTimeout(debounceRef.current); debounceRef.current = null; }
     onSaveRef.current(patch);
-  }, []);
+  };
 
-  const handleMainChecked = useCallback((id: string, val: boolean) => {
+  const handleMainChecked = (id: string, val: boolean) => {
     setInventoryChecked((prev) => {
       const next = { ...prev, [id]: val };
       saveImmediate({ inventoryChecked: next });
       return next;
     });
-  }, [saveImmediate]);
+  };
 
-  const handleMainUses = useCallback((id: string, n: number) => {
+  const handleMainUses = (id: string, n: number) => {
     setInventoryUses((prev) => {
       const next = { ...prev, [id]: n };
       saveImmediate({ inventoryUses: next });
       return next;
     });
-  }, [saveImmediate]);
+  };
 
-  const handleUndefinedMain = useCallback((n: number) => {
+  const handleUndefinedMain = (n: number) => {
     setUndefinedMain(n);
     saveImmediate({ inventoryUndefined: n });
-  }, [saveImmediate]);
+  };
 
-  const handleUndefinedSmall = useCallback((n: number) => {
+  const handleUndefinedSmall = (n: number) => {
     setUndefinedSmall(n);
     saveImmediate({ inventorySmallUndefined: n });
-  }, [saveImmediate]);
+  };
 
-  const handleSmallChecked = useCallback((id: string, val: boolean) => {
+  const handleSmallChecked = (id: string, val: boolean) => {
     setSmallChecked((prev) => {
       const next = { ...prev, [id]: val };
       saveImmediate({ inventorySmallChecked: next });
       return next;
     });
-  }, [saveImmediate]);
+  };
 
-  const handleCustomMainChecked = useCallback((i: number, val: boolean) => {
+  const handleCustomMainChecked = (i: number, val: boolean) => {
     setCustomItems((prev) => {
       const next = prev.map((item, idx) => idx === i ? { ...item, checked: val } : item);
       saveImmediate({ inventoryCustomItems: next });
       return next;
     });
-  }, [saveImmediate]);
+  };
 
-  const handleCustomMainText = useCallback((i: number, text: string) => {
+  const handleCustomMainText = (i: number, text: string) => {
     setCustomItems((prev) => {
       const next = prev.map((item, idx) => idx === i ? { ...item, text } : item);
       saveDebounced({ inventoryCustomItems: next });
       return next;
     });
-  }, [saveDebounced]);
+  };
 
-  const handleCustomMainWeight = useCallback((i: number, weight: 1 | 2) => {
+  const handleCustomMainWeight = (i: number, weight: 1 | 2) => {
     setCustomItems((prev) => {
       const next = prev.map((item, idx) => idx === i ? { ...item, weight } : item);
       saveImmediate({ inventoryCustomItems: next });
       return next;
     });
-  }, [saveImmediate]);
+  };
 
-  const handleCustomMainBlur = useCallback(() => {
+  const handleCustomMainBlur = () => {
     flushDebounce({ inventoryCustomItems: customItemsRef.current });
-  }, [flushDebounce]);
+  };
 
-  const handleSmallCustomChecked = useCallback((i: number, val: boolean) => {
+  const handleSmallCustomChecked = (i: number, val: boolean) => {
     setSmallCustom((prev) => {
       const next = prev.map((item, idx) => idx === i ? { ...item, checked: val } : item);
       saveImmediate({ inventorySmallCustom: next });
       return next;
     });
-  }, [saveImmediate]);
+  };
 
-  const handleSmallCustomText = useCallback((i: number, text: string) => {
+  const handleSmallCustomText = (i: number, text: string) => {
     setSmallCustom((prev) => {
       const next = prev.map((item, idx) => idx === i ? { ...item, text } : item);
       saveDebounced({ inventorySmallCustom: next });
       return next;
     });
-  }, [saveDebounced]);
+  };
 
-  const handleSmallCustomBlur = useCallback(() => {
+  const handleSmallCustomBlur = () => {
     flushDebounce({ inventorySmallCustom: smallCustomRef.current });
-  }, [flushDebounce]);
+  };
 
-  const handleOtherThingsChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleOtherThingsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value;
     setOtherThings(val);
     saveDebounced({ inventoryOtherThings: val });
-  }, [saveDebounced]);
+  };
 
-  const handleOtherThingsBlur = useCallback((e: React.FocusEvent<HTMLTextAreaElement>) => {
+  const handleOtherThingsBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
     flushDebounce({ inventoryOtherThings: e.target.value });
-  }, [flushDebounce]);
+  };
 
-  const handlePossessionChecked = useCallback((i: number, val: boolean) => {
+  const handlePossessionChecked = (i: number, val: boolean) => {
     setPossessions((prev) => {
       const next = prev.map((item, idx) => idx === i ? { ...item, checked: val } : item);
       saveImmediate({ inventoryPossessions: next });
       return next;
     });
-  }, [saveImmediate]);
+  };
 
-  const handlePossessionText = useCallback((i: number, text: string) => {
+  const handlePossessionText = (i: number, text: string) => {
     setPossessions((prev) => {
       const next = prev.map((item, idx) => idx === i ? { ...item, text } : item);
       saveDebounced({ inventoryPossessions: next });
       return next;
     });
-  }, [saveDebounced]);
+  };
 
-  const handlePossessionWeight = useCallback((i: number, weight: 1 | 2) => {
+  const handlePossessionWeight = (i: number, weight: 1 | 2) => {
     setPossessions((prev) => {
       const next = prev.map((item, idx) => idx === i ? { ...item, weight } : item);
       saveImmediate({ inventoryPossessions: next });
       return next;
     });
-  }, [saveImmediate]);
+  };
 
-  const handlePossessionBlur = useCallback(() => {
+  const handlePossessionBlur = () => {
     flushDebounce({ inventoryPossessions: possessionsRef.current });
-  }, [flushDebounce]);
+  };
 
   const { totalLoad, loadLabel, loadCx } = useMemo(() => {
     const load = MAIN_ITEMS.reduce((sum, item) => inventoryChecked[item.id] ? sum + item.weight : sum, 0) +
@@ -480,7 +453,7 @@ export const Inventory = memo(({ data, prosperity, onSave }: InventoryProps) => 
 
             <div className={styles.loadRow}>
               <span className={loadCx}>
-                {totalLoad} ◈ — {loadLabel}
+                {parseInlineMarkdown(`${totalLoad} ◈ — ${loadLabel}`)}
               </span>
             </div>
 
@@ -636,4 +609,4 @@ export const Inventory = memo(({ data, prosperity, onSave }: InventoryProps) => 
       </div>
     </div>
   );
-});
+};

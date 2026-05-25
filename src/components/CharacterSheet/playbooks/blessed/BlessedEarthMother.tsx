@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { CheckboxGroup, Divider, Radio, Text } from '@/components/primitives';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { CheckboxGroup, Divider, Radio, Text, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import type { CharacterData } from '@/types';
@@ -29,9 +29,13 @@ interface BlessedEarthMotherProps {
 }
 
 export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) => {
-  const features = resolvePlaybookFeatures(data);
-  const [shrine, setShrine] = useState<string>(features.earthMotherShrine ?? '');
-  const [offerings, setOfferings] = useState<Record<string, boolean>>(features.earthMotherOfferings ?? {});
+  const { addToast } = useToast();
+  const [shrine, setShrine] = useState<string>(() => resolvePlaybookFeatures(data).earthMotherShrine ?? '');
+  const [offerings, setOfferings] = useState<Record<string, boolean>>(() => resolvePlaybookFeatures(data).earthMotherOfferings ?? {});
+  const shrineRef = useRef(shrine);
+  shrineRef.current = shrine;
+  const offeringsRef = useRef(offerings);
+  offeringsRef.current = offerings;
 
   useEffect(() => {
     const f = resolvePlaybookFeatures(data);
@@ -41,21 +45,21 @@ export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) =>
 
   const handleShrine = useCallback(
     (value: string) => {
-      const prev = shrine;
+      const prev = shrineRef.current;
       setShrine(value);
-      onSave(featurePatch(data, { earthMotherShrine: value })).catch(() => setShrine(prev));
+      onSave(featurePatch(data, { earthMotherShrine: value })).catch(() => { setShrine(prev); addToast('Failed to save.'); });
     },
-    [shrine, onSave, data]
+    [onSave, data, addToast]
   );
 
   const handleOffering = useCallback(
     (id: string, checked: boolean) => {
-      const prev = offerings;
-      const next = { ...offerings, [id]: checked };
+      const prev = offeringsRef.current;
+      const next = { ...prev, [id]: checked };
       setOfferings(next);
-      onSave(featurePatch(data, { earthMotherOfferings: next })).catch(() => setOfferings(prev));
+      onSave(featurePatch(data, { earthMotherOfferings: next })).catch(() => { setOfferings(prev); addToast('Failed to save.'); });
     },
-    [offerings, onSave, data]
+    [onSave, data, addToast]
   );
 
   return (

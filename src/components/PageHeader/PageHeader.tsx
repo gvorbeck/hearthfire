@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect, useId } from 'react';
-import { Button, Heading, Text, RuleDivider, Tooltip } from '@/components/primitives';
+import { useState, useRef, useEffect, useCallback, useId } from 'react';
+import { Button, Heading, Text, RuleDivider, Tooltip, useToast } from '@/components/primitives';
 import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
 import type { Crumb } from '@/components/Breadcrumb/Breadcrumb';
 import styles from './PageHeader.module.css';
@@ -14,9 +14,9 @@ interface Props {
 }
 
 export const PageHeader = ({ crumbs, title, titleLabel, subtitle, gameId, onSaveTitle }: Props) => {
+  const { addToast } = useToast();
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState('');
-  const [saveError, setSaveError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const copiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -33,35 +33,36 @@ export const PageHeader = ({ crumbs, title, titleLabel, subtitle, gameId, onSave
     };
   }, []);
 
-  const startEditing = () => {
+  const startEditing = useCallback(() => {
     setValue(title);
-    setSaveError(null);
     setEditing(true);
-  };
+  }, [title]);
 
-  const commit = async () => {
+  const commit = useCallback(async () => {
     const trimmed = value.trim();
     try {
       if (trimmed && trimmed !== title) await onSaveTitle(trimmed);
-      setEditing(false);
     } catch {
-      setSaveError('Failed to save. Try again.');
+      addToast('Failed to save game name. Try again.');
+    } finally {
+      setEditing(false);
     }
-  };
+  }, [value, title, onSaveTitle, addToast]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value);
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value), []);
 
-  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') await commit();
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') commit();
     if (e.key === 'Escape') setEditing(false);
-  };
+  }, [commit]);
 
-  const copyGameId = () => {
-    navigator.clipboard.writeText(gameId).catch(() => {});
-    setCopied(true);
-    if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current);
-    copiedTimerRef.current = setTimeout(() => setCopied(false), 2000);
-  };
+  const copyGameId = useCallback(() => {
+    navigator.clipboard.writeText(gameId).then(() => {
+      setCopied(true);
+      if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current);
+      copiedTimerRef.current = setTimeout(() => setCopied(false), 2000);
+    }).catch(() => addToast('Failed to copy game ID.'));
+  }, [gameId, addToast]);
 
   const copyLabel = copied ? 'Copied!' : 'Copy game ID';
 
@@ -96,7 +97,6 @@ export const PageHeader = ({ crumbs, title, titleLabel, subtitle, gameId, onSave
           </>
         )}
       </div>
-      {saveError && <Text color="muted" size="sm" className={styles.saveError}>{saveError}</Text>}
       {subtitle && <Text color="muted" size="sm" className={styles.subtitle}>{subtitle}</Text>}
       <div className={styles.gameId}>
         <Text color="muted" size="sm">

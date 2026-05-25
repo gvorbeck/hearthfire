@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
-import { useDebouncedAnswers } from './useDebouncedAnswers';
+import { useDebouncedSave } from './useDebouncedSave';
 import type { CharacterData, PlaybookFeatures } from '@/types';
 
 // Intentionally broad — callers are responsible for passing the right key type.
@@ -44,18 +44,17 @@ export const usePlaybookCheckedWithAnswers = (
     () => (resolvePlaybookFeatures(data)[checkedKey] as Record<string, boolean> | undefined) ?? {},
   );
 
-  const buildPatch = useCallback(
-    (a: Record<string, string>) => featurePatch(dataRef.current, { [answersKey]: a }),
-    [answersKey],
+  const [answers, setAnswers] = useState<Record<string, string>>(
+    () => (resolvePlaybookFeatures(data)[answersKey] as Record<string, string> | undefined) ?? {},
   );
+  const answersRef = useRef(answers);
+  answersRef.current = answers;
 
-  // Pass undefined so useDebouncedAnswers initializes empty; the useEffect below
-  // syncs the real value once data arrives, matching how checked state is handled.
-  const { answers, setAnswers, handleAnswer, flushAnswers } = useDebouncedAnswers(
-    undefined,
-    onSave,
-    buildPatch,
+  const saveAnswers = useCallback(
+    (a: Record<string, string>) => onSave(featurePatch(dataRef.current, { [answersKey]: a })),
+    [onSave, answersKey],
   );
+  const { onChange: debouncedAnswers, flush: flushAnswers } = useDebouncedSave(saveAnswers);
 
   useEffect(() => {
     const f = resolvePlaybookFeatures(data);
@@ -63,7 +62,17 @@ export const usePlaybookCheckedWithAnswers = (
     const av = f[answersKey] as Record<string, string> | undefined;
     if (cv !== undefined) setChecked(cv);
     if (av !== undefined) setAnswers(av);
-  }, [data, checkedKey, answersKey, setAnswers]);
+  }, [data, checkedKey, answersKey]);
+
+  const handleAnswer = useCallback((key: string, value: string) => {
+    const next = { ...answersRef.current, [key]: value };
+    setAnswers(next);
+    debouncedAnswers(next);
+  }, [debouncedAnswers]);
+
+  const handleFlushAnswers = useCallback(() => {
+    flushAnswers(answersRef.current);
+  }, [flushAnswers]);
 
   const handleChange = useCallback((id: string, value: boolean) => {
     const prev = checked;
@@ -72,5 +81,5 @@ export const usePlaybookCheckedWithAnswers = (
     onSave(featurePatch(dataRef.current, { [checkedKey]: next })).catch(() => setChecked(prev));
   }, [checked, onSave, checkedKey]);
 
-  return { checked, handleChange, answers, handleAnswer, flushAnswers };
+  return { checked, handleChange, answers, handleAnswer, flushAnswers: handleFlushAnswers };
 };

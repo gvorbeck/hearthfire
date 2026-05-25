@@ -1,11 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { useDebouncedAnswers } from '@/hooks/useDebouncedAnswers';
+import { useDebouncedSave } from '@/hooks/useDebouncedSave';
+import { useToast } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
 import { BackgroundOptionItem } from './BackgroundOption';
 import type { BackgroundOption, CharacterData } from '@/types';
 import styles from './Background.module.css';
-
-const noopSave = () => Promise.resolve();
 
 interface BackgroundProps {
   playbookKey?: string;
@@ -16,38 +15,36 @@ interface BackgroundProps {
 }
 
 export const Background = ({ playbookKey, options, level, data, onSave }: BackgroundProps = {}) => {
+  const { addToast } = useToast();
   const [selectedOption, setSelectedOption] = useState<string>(data?.background ?? '');
   const [selectedChoices, setSelectedChoices] = useState<string[]>(data?.backgroundChoices ?? []);
   const [backgroundUses, setBackgroundUses] = useState<Record<string, number>>(data?.backgroundUses ?? {});
+  const [freeText, setFreeText] = useState<Record<string, string>>(data?.backgroundFreeText ?? {});
   const [isCollapsed, setIsCollapsed] = useState(false);
   const hasInitializedCollapse = useRef(false);
-  const choiceDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const selectedOptionRef = useRef(selectedOption);
   selectedOptionRef.current = selectedOption;
   const selectedChoicesRef = useRef(selectedChoices);
   selectedChoicesRef.current = selectedChoices;
+  const backgroundUsesRef = useRef(backgroundUses);
+  backgroundUsesRef.current = backgroundUses;
+  const freeTextRef = useRef(freeText);
+  freeTextRef.current = freeText;
   const onSaveRef = useRef(onSave);
   onSaveRef.current = onSave;
 
-  const buildFreeTextPatch = useCallback(
-    (answers: Record<string, string>): Partial<CharacterData> => ({ backgroundFreeText: answers }),
+  const saveFreeText = useCallback(
+    (answers: Record<string, string>) => onSaveRef.current?.({ backgroundFreeText: answers }) ?? Promise.resolve(),
     [],
   );
-  const { answers: freeText, setAnswers: setFreeText, handleAnswer: handleFreeTextChange } = useDebouncedAnswers(
-    data?.backgroundFreeText,
-    // setFreeText (below) syncs server-sourced changes into this hook's state,
-    // matching the pattern in usePlaybookCheckedWithAnswers.
-    onSave ?? noopSave,
-    buildFreeTextPatch,
-    1000,
-  );
+  const { onChange: debouncedFreeText } = useDebouncedSave(saveFreeText, 1000);
 
   useEffect(() => {
     if (data?.background !== undefined) setSelectedOption(data.background);
     if (data?.backgroundChoices !== undefined) setSelectedChoices(data.backgroundChoices);
     if (data?.backgroundFreeText !== undefined) setFreeText(data.backgroundFreeText);
     if (data?.backgroundUses !== undefined) setBackgroundUses(data.backgroundUses);
-  }, [data?.background, data?.backgroundChoices, data?.backgroundFreeText, data?.backgroundUses, setFreeText]);
+  }, [data?.background, data?.backgroundChoices, data?.backgroundFreeText, data?.backgroundUses]);
 
   useEffect(() => {
     if (data?.background && !hasInitializedCollapse.current) {
@@ -56,39 +53,41 @@ export const Background = ({ playbookKey, options, level, data, onSave }: Backgr
     }
   }, [data?.background]);
 
-  useEffect(() => () => { if (choiceDebounceRef.current) clearTimeout(choiceDebounceRef.current); }, []);
-
   const handleToggleCollapse = useCallback(() => setIsCollapsed((v) => !v), []);
 
+  const handleFreeTextChange = useCallback((key: string, value: string) => {
+    const next = { ...freeTextRef.current, [key]: value };
+    setFreeText(next);
+    debouncedFreeText(next);
+  }, [debouncedFreeText]);
+
   const handleOptionChange = useCallback((value: string) => {
-    const prev = selectedOption;
-    if (choiceDebounceRef.current) clearTimeout(choiceDebounceRef.current);
+    const prev = selectedOptionRef.current;
     setSelectedOption(value);
     setSelectedChoices([]);
     setIsCollapsed(true);
     onSaveRef.current?.({ background: value, backgroundChoices: [] }).catch(() => {
       setSelectedOption(prev);
       setIsCollapsed(false);
+      addToast('Failed to save background selection.');
     });
-  }, [selectedOption]);
+  }, [addToast]);
 
   const handleChoicesChange = useCallback((choices: string[]) => {
+    const prev = selectedChoicesRef.current;
     setSelectedChoices(choices);
-    if (choiceDebounceRef.current) clearTimeout(choiceDebounceRef.current);
-    choiceDebounceRef.current = setTimeout(() => {
-      const prev = selectedChoicesRef.current;
-      onSaveRef.current?.({ background: selectedOptionRef.current, backgroundChoices: selectedChoicesRef.current }).catch(() => {
-        setSelectedChoices(prev);
-      });
-    }, 1000);
-  }, []);
+    onSaveRef.current?.({ background: selectedOptionRef.current, backgroundChoices: choices }).catch(() => {
+      setSelectedChoices(prev);
+      addToast('Failed to save background choices.');
+    });
+  }, [addToast]);
 
   const handleUsesChange = useCallback((optValue: string, count: number) => {
-    const prev = backgroundUses;
-    const next = { ...backgroundUses, [optValue]: count };
+    const prev = backgroundUsesRef.current;
+    const next = { ...prev, [optValue]: count };
     setBackgroundUses(next);
-    onSave?.({ backgroundUses: next }).catch(() => setBackgroundUses(prev));
-  }, [backgroundUses, onSave]);
+    onSaveRef.current?.({ backgroundUses: next }).catch(() => { setBackgroundUses(prev); addToast('Failed to save.'); });
+  }, [addToast]);
 
   if (!options) return <PlaybookSection title="Background" />;
 

@@ -40,7 +40,7 @@ export const TextareaField = ({ value, label, note, onSave, rows = 6 }: Textarea
     }
   }, []);
 
-  const { onChange: debouncedChange, onBlur: flushOnBlur } = useDebouncedSave(wrappedSave, 1500, value);
+  const { onChange: debouncedChange, flush: flushOnBlur } = useDebouncedSave(wrappedSave, 1500);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const text = e.target.value;

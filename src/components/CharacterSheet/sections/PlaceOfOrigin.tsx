@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, memo } from 'react';
-import { Radio } from '@/components/primitives';
+import { Radio, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
 import type { PlaceOfOriginOptions } from '@/lib/placeOfOriginOptions';
 import type { CharacterData } from '@/types';
@@ -38,9 +38,12 @@ interface PlaceOfOriginProps {
 }
 
 export const PlaceOfOrigin = ({ options, data, onSave }: PlaceOfOriginProps = {}) => {
+  const { addToast } = useToast();
   const [selected, setSelected] = useState<string>(data?.placeOfOrigin ?? '');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const hasInitializedCollapse = useRef(false);
+  const selectedRef = useRef(selected);
+  selectedRef.current = selected;
 
   useEffect(() => {
     if (data?.placeOfOrigin !== undefined) setSelected(data.placeOfOrigin);
@@ -54,14 +57,15 @@ export const PlaceOfOrigin = ({ options, data, onSave }: PlaceOfOriginProps = {}
   }, [data?.placeOfOrigin]);
 
   const handleSelect = useCallback((value: string) => {
-    const prev = selected;
+    const prev = selectedRef.current;
     setSelected(value);
     setIsCollapsed(true);
     onSave?.({ placeOfOrigin: value }).catch(() => {
       setSelected(prev);
       setIsCollapsed(false);
+      addToast('Failed to save place of origin.');
     });
-  }, [onSave, selected]);
+  }, [onSave, addToast]);
 
   const handleToggleCollapse = useCallback(() => setIsCollapsed((v) => !v), []);
 

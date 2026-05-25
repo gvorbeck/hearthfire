@@ -20,6 +20,30 @@ interface UseGameResult {
 const parseCharacters = (raw: { characters?: unknown }): Character[] =>
   Array.isArray(raw?.characters) ? (raw.characters as Character[]).filter(Boolean) : [];
 
+const parseContent = (raw: unknown): ContentLists | undefined => {
+  if (typeof raw !== 'object' || raw === null) return undefined;
+  const r = raw as Record<string, unknown>;
+  return {
+    excluded: typeof r.excluded === 'string' ? r.excluded : '',
+    veiled: typeof r.veiled === 'string' ? r.veiled : '',
+    specialHandling: typeof r.specialHandling === 'string' ? r.specialHandling : '',
+  };
+};
+
+const parseGameSession = (raw: Record<string, unknown>, id: string): GameSession => {
+  if (typeof raw.name !== 'string') throw new Error('Game document missing required field: name');
+  return {
+    id,
+    name: raw.name,
+    createdAt: typeof raw.createdAt === 'number' ? raw.createdAt : 0,
+    characters: parseCharacters(raw),
+    content: parseContent(raw.content),
+    threats: typeof raw.threats === 'string' ? raw.threats : undefined,
+    iWonder: typeof raw.iWonder === 'string' ? raw.iWonder : undefined,
+    prosperity: typeof raw.prosperity === 'number' ? raw.prosperity : undefined,
+  };
+};
+
 const withCharacters = async (
   ref: ReturnType<typeof doc>,
   transform: (characters: Character[]) => Character[]
@@ -27,7 +51,7 @@ const withCharacters = async (
   await runTransaction(db, async (tx) => {
     const snap = await tx.get(ref);
     if (!snap.exists()) return;
-    tx.update(ref, { characters: transform(parseCharacters(snap.data())) as unknown[] });
+    tx.update(ref, { characters: transform(parseCharacters(snap.data())) });
   });
 };
 
@@ -44,12 +68,17 @@ export const useGame = (gameId: string): UseGameResult => {
       (snapshot) => {
         if (!snapshot.exists()) {
           setGame(null);
+          setError(null);
         } else {
-          const raw = snapshot.data();
-          setGame({ ...raw, characters: parseCharacters(raw), id: snapshot.id } as unknown as GameSession);
+          try {
+            const raw = snapshot.data() as Record<string, unknown>;
+            setGame(parseGameSession(raw, snapshot.id));
+            setError(null);
+          } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to parse game data');
+          }
         }
         setLoading(false);
-        setError(null);
       },
       (err) => {
         setError(err.message);
@@ -61,66 +90,31 @@ export const useGame = (gameId: string): UseGameResult => {
   }, [gameId]);
 
   const updateGameName = useCallback(async (name: string) => {
-    try {
-      await updateDoc(doc(db, GAMES_COLLECTION, gameId), { name });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update game name');
-      throw err;
-    }
+    await updateDoc(doc(db, GAMES_COLLECTION, gameId), { name });
   }, [gameId]);
 
   const updateContent = useCallback(async (field: keyof ContentLists, value: string) => {
-    try {
-      await updateDoc(doc(db, GAMES_COLLECTION, gameId), { [`content.${field}`]: value });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save content');
-      throw err;
-    }
+    await updateDoc(doc(db, GAMES_COLLECTION, gameId), { [`content.${field}`]: value });
   }, [gameId]);
 
   const updateField = useCallback(async (field: keyof Pick<GameSession, 'threats' | 'iWonder'>, value: string) => {
-    try {
-      await updateDoc(doc(db, GAMES_COLLECTION, gameId), { [field]: value });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save');
-      throw err;
-    }
+    await updateDoc(doc(db, GAMES_COLLECTION, gameId), { [field]: value });
   }, [gameId]);
 
   const addCharacter = useCallback(async (character: Character) => {
-    try {
-      await updateDoc(doc(db, GAMES_COLLECTION, gameId), { characters: arrayUnion(character) });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to add character');
-      throw err;
-    }
+    await updateDoc(doc(db, GAMES_COLLECTION, gameId), { characters: arrayUnion(character) });
   }, [gameId]);
 
   const removeCharacter = useCallback(async (characterId: string) => {
-    try {
-      await withCharacters(doc(db, GAMES_COLLECTION, gameId), (chars) => chars.filter((c) => c.id !== characterId));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to remove character');
-      throw err;
-    }
+    await withCharacters(doc(db, GAMES_COLLECTION, gameId), (chars) => chars.filter((c) => c.id !== characterId));
   }, [gameId]);
 
   const updateCharacterName = useCallback(async (characterId: string, name: string) => {
-    try {
-      await withCharacters(doc(db, GAMES_COLLECTION, gameId), (chars) => chars.map((c) => c.id === characterId ? { ...c, name } : c));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update character name');
-      throw err;
-    }
+    await withCharacters(doc(db, GAMES_COLLECTION, gameId), (chars) => chars.map((c) => c.id === characterId ? { ...c, name } : c));
   }, [gameId]);
 
   const updateCharacterData = useCallback(async (characterId: string, data: Partial<CharacterData>) => {
-    try {
-      await withCharacters(doc(db, GAMES_COLLECTION, gameId), (chars) => chars.map((c) => c.id === characterId ? { ...c, data: { ...c.data, ...data } } : c));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update character data');
-      throw err;
-    }
+    await withCharacters(doc(db, GAMES_COLLECTION, gameId), (chars) => chars.map((c) => c.id === characterId ? { ...c, data: { ...c.data, ...data } } : c));
   }, [gameId]);
 
   return { game, loading, error, updateGameName, updateCharacterName, updateCharacterData, updateContent, updateField, addCharacter, removeCharacter };

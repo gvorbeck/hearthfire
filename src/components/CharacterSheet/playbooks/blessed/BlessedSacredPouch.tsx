@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Divider, Radio, Text } from '@/components/primitives';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Divider, Radio, Text, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
@@ -30,9 +30,13 @@ interface BlessedSacredPouchProps {
 }
 
 export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) => {
-  const features = resolvePlaybookFeatures(data);
-  const [is, setIs] = useState<Record<string, string>>(features.sacredPouchIs ?? {});
-  const [trait, setTrait] = useState<string>(features.sacredPouchTrait ?? '');
+  const { addToast } = useToast();
+  const [is, setIs] = useState<Record<string, string>>(() => resolvePlaybookFeatures(data).sacredPouchIs ?? {});
+  const [trait, setTrait] = useState<string>(() => resolvePlaybookFeatures(data).sacredPouchTrait ?? '');
+  const isRef = useRef(is);
+  isRef.current = is;
+  const traitRef = useRef(trait);
+  traitRef.current = trait;
 
   useEffect(() => {
     const f = resolvePlaybookFeatures(data);
@@ -42,21 +46,21 @@ export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) =>
 
   const handleIs = useCallback(
     (key: string, value: string) => {
-      const prev = is;
-      const next = { ...is, [key]: value };
+      const prev = isRef.current;
+      const next = { ...prev, [key]: value };
       setIs(next);
-      onSave(featurePatch(data, { sacredPouchIs: next })).catch(() => setIs(prev));
+      onSave(featurePatch(data, { sacredPouchIs: next })).catch(() => { setIs(prev); addToast('Failed to save.'); });
     },
-    [is, onSave, data]
+    [onSave, data, addToast]
   );
 
   const handleTrait = useCallback(
     (value: string) => {
-      const prev = trait;
+      const prev = traitRef.current;
       setTrait(value);
-      onSave(featurePatch(data, { sacredPouchTrait: value })).catch(() => setTrait(prev));
+      onSave(featurePatch(data, { sacredPouchTrait: value })).catch(() => { setTrait(prev); addToast('Failed to save.'); });
     },
-    [trait, onSave, data]
+    [onSave, data, addToast]
   );
 
   return (
