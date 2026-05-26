@@ -117,7 +117,8 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
   const [checkListLevels, setCheckListLevels] = useState<Record<string, Record<string, number>>>(
     () => data?.typeMoveCheckListLevels ?? {}
   );
-  const [hideUnselected, setHideUnselected] = useState(false);
+  const [isHideUnselected, setIsHideUnselected] = useState(false);
+  const handleHideUnselected = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setIsHideUnselected(e.target.checked), []);
 
   // Known limitation: Firestore's onSnapshot delivers a new object reference on every update, so
   // this effect fires whenever the parent re-renders with fresh data and overwrites any in-flight
@@ -184,6 +185,31 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
 
   const playbookLabel = PLAYBOOKS.find((p) => p.value === playbook)?.label ?? playbook;
 
+  const selectHandlers = useMemo(
+    () => Object.fromEntries(typeMoves.map((m) => [m.id, (val: boolean) => handleSelect(m.id, val)])),
+    [typeMoves, handleSelect],
+  );
+  const usesHandlers = useMemo(
+    () => Object.fromEntries(typeMoves.map((m) => [m.id, (n: number) => handleUses(m.id, n)])),
+    [typeMoves, handleUses],
+  );
+  const uses2Handlers = useMemo(
+    () => Object.fromEntries(typeMoves.map((m) => [m.id, (n: number) => handleUses2(m.id, n)])),
+    [typeMoves, handleUses2],
+  );
+  const checkListHandlers = useMemo(
+    () => Object.fromEntries(typeMoves.map((m) => [m.id, (itemId: string, checked: boolean) => handleCheckList(m.id, itemId, checked)])),
+    [typeMoves, handleCheckList],
+  );
+  const checkListLevelHandlers = useMemo(
+    () => Object.fromEntries(typeMoves.map((m) => [m.id, (itemId: string, lvl: number | null) => handleCheckListLevel(m.id, itemId, lvl)])),
+    [typeMoves, handleCheckListLevel],
+  );
+  const takesHandlers = useMemo(
+    () => Object.fromEntries(typeMoves.map((m) => [m.id, (n: number) => handleTakes(m.id, n)])),
+    [typeMoves, handleTakes],
+  );
+
   const sortedTypeMoves = useMemo(() => {
     const withMeta = typeMoves.map((move) => {
       const isStarting = move.startingMove === true;
@@ -199,11 +225,11 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
   }, [typeMoves, forcedMoveIds, selected]);
 
   const visibleTypeMoves = useMemo(
-    () => hideUnselected ? sortedTypeMoves.filter((m) => m.isSelected) : sortedTypeMoves,
-    [sortedTypeMoves, hideUnselected]
+    () => isHideUnselected ? sortedTypeMoves.filter((m) => m.isSelected) : sortedTypeMoves,
+    [sortedTypeMoves, isHideUnselected]
   );
 
-  const moveNodes = useMemo(() => visibleTypeMoves.map(({ move, isDisabled, isForced }) => {
+  const moveNodes = visibleTypeMoves.map(({ move, isDisabled, isForced }) => {
     const lockReason = isForced
       ? 'Required by your background'
       : (!isDisabled ? getLockReason(move, typeMoves, level, selected) : undefined);
@@ -212,27 +238,24 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
         key={move.id}
         move={move}
         selected={isDisabled ? true : (selected[move.id] ?? false)}
-        onSelectChange={(val) => handleSelect(move.id, val)}
+        onSelectChange={selectHandlers[move.id]}
         usesChecked={uses[move.id] ?? 0}
-        onUsesChange={move.uses !== undefined ? (n) => handleUses(move.id, n) : undefined}
+        onUsesChange={move.uses !== undefined ? usesHandlers[move.id] : undefined}
         usesChecked2={uses2[move.id] ?? 0}
-        onUsesChange2={move.uses2 !== undefined ? (n) => handleUses2(move.id, n) : undefined}
+        onUsesChange2={move.uses2 !== undefined ? uses2Handlers[move.id] : undefined}
         checkListChecked={checkLists[move.id] ?? {}}
         checkListForcedIds={forcedCheckList[move.id]}
-        onCheckListChange={move.checkList !== undefined && !move.checkListLeveled ? (itemId, checked) => handleCheckList(move.id, itemId, checked) : undefined}
+        onCheckListChange={move.checkList !== undefined && !move.checkListLeveled ? checkListHandlers[move.id] : undefined}
         checkListLevels={checkListLevels[move.id] ?? {}}
-        onCheckListLevelChange={move.checkListLeveled ? (itemId, lvl) => handleCheckListLevel(move.id, itemId, lvl) : undefined}
+        onCheckListLevelChange={move.checkListLeveled ? checkListLevelHandlers[move.id] : undefined}
         currentLevel={level}
         takesChecked={takes[move.id] ?? 0}
-        onTakesChange={move.takes !== undefined ? (n) => handleTakes(move.id, n) : undefined}
+        onTakesChange={move.takes !== undefined ? takesHandlers[move.id] : undefined}
         disabled={isDisabled}
         lockReason={lockReason}
       />
     );
-  }), [
-    visibleTypeMoves, typeMoves, level, selected, uses, uses2, checkLists, checkListLevels, takes, forcedCheckList,
-    handleSelect, handleUses, handleUses2, handleCheckList, handleCheckListLevel, handleTakes,
-  ]);
+  });
 
   return (
     <PlaybookSection title="Moves">
@@ -280,8 +303,8 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
           action={
             <Toggle
               label="Selected only"
-              checked={hideUnselected}
-              onChange={(e) => setHideUnselected(e.target.checked)}
+              checked={isHideUnselected}
+              onChange={handleHideUnselected}
             />
           }
         >

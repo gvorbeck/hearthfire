@@ -1,6 +1,8 @@
 import { Component, type ReactNode } from 'react';
-import { Stack } from '../Stack/Stack';
+import { Button } from '../Button/Button';
+import { Heading } from '../Heading/Heading';
 import { Text } from '../Text/Text';
+import styles from './ErrorBoundary.module.css';
 
 interface Props {
   children: ReactNode;
@@ -18,10 +20,16 @@ export class ErrorBoundary extends Component<Props, State> {
   render = () => {
     if (this.state.hasError) {
       return (
-        <Stack role="alert" align="center" gap={1}>
-          <Text size="lg">Something went wrong.</Text>
-          <Text size="sm" color="muted">Refresh the page to try again.</Text>
-        </Stack>
+        <main role="alert" className={styles.page}>
+          <div className={styles.content}>
+            <Text className={styles.code}>!</Text>
+            <Heading as="h1" size="xl">Something went wrong.</Heading>
+            <Text color="muted">Refresh the page to try again.</Text>
+            <Button size="lg" onClick={() => window.location.reload()}>
+              Refresh
+            </Button>
+          </div>
+        </main>
       );
     }
     return this.props.children;

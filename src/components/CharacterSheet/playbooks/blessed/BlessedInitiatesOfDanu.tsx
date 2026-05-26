@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
-import { Radio, UseDots, CheckboxGroup } from '@/components/primitives';
+import { Input, Radio, UseDots, CheckboxGroup } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { CharacterData } from '@/types';
@@ -136,25 +136,26 @@ const InitiateSection = memo(({
 }: InitiateSectionProps) => {
   const ritesChecked = Object.fromEntries(config.rites.map((r) => [r, rites === r]));
 
-  const handleHpChange = (e: React.ChangeEvent<HTMLInputElement>) => onHpChange(e.target.value);
+  const handleHpChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onHpChange(e.target.value), [onHpChange]);
+  const handleHpWheel = useCallback((e: React.WheelEvent<HTMLInputElement>) => e.currentTarget.blur(), []);
 
-  const handlePickChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    onPickChange(e.currentTarget.dataset.lineKey!, e.currentTarget.value);
+  const handlePickChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) =>
+    onPickChange(e.currentTarget.dataset.lineKey!, e.currentTarget.value), [onPickChange]);
 
-  const handleRitesChange = (id: string, checked: boolean) => onRitesChange(checked ? id : '');
+  const handleRitesChange = useCallback((id: string, checked: boolean) => onRitesChange(checked ? id : ''), [onRitesChange]);
 
-  const handlePronounTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePronounTextChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     onPickChange('pronoun', '___');
     onPickChange('pronoun_text', e.target.value);
-  };
+  }, [onPickChange]);
 
-  const handlePronounFocus = () => onPickChange('pronoun', '___');
+  const handlePronounFocus = useCallback(() => onPickChange('pronoun', '___'), [onPickChange]);
 
   return (
     <PlaybookSection title={config.name}>
       <div className={styles.bodyTop}>
         <div className={styles.hpBox}>
-          <input
+          <Input
             className={styles.hpInput}
             type="number"
             value={hp}
@@ -162,6 +163,7 @@ const InitiateSection = memo(({
             max={config.hpMax}
             aria-label={`${config.name} current HP`}
             onChange={handleHpChange}
+            onWheel={handleHpWheel}
           />
           <span className={styles.hpLabel}>HP (max {config.hpMax})</span>
         </div>
@@ -201,7 +203,7 @@ const InitiateSection = memo(({
                 />
               ))}
               {line.key === 'pronoun' && (
-                <input
+                <Input
                   className={styles.pronounInput}
                   type="text"
                   value={picks['pronoun_text'] ?? ''}
@@ -288,7 +290,7 @@ export const BlessedInitiatesOfDanu = ({ data, onSave }: BlessedInitiatesOfDanuP
     if (f.initiateLoyalty !== undefined) setLoyalty(f.initiateLoyalty);
     if (f.initiatePicks !== undefined) setPicks(f.initiatePicks);
     if (f.initiateRites !== undefined) setRites(f.initiateRites);
-  }, [data]);
+  }, [data?.playbookFeatures]);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onSaveRef = useRef(onSave);
@@ -310,7 +312,7 @@ export const BlessedInitiatesOfDanu = ({ data, onSave }: BlessedInitiatesOfDanuP
   const handleLoyaltyChange = useCallback((initiateValue: string, n: number) => {
     setLoyalty((prev) => {
       const next = { ...prev, [initiateValue]: n };
-      onSaveRef.current(featurePatch(dataRef.current, { initiateLoyalty: next }));
+      onSaveRef.current(featurePatch(dataRef.current, { initiateLoyalty: next })).catch(() => {});
       return next;
     });
   }, []);
@@ -318,7 +320,7 @@ export const BlessedInitiatesOfDanu = ({ data, onSave }: BlessedInitiatesOfDanuP
   const handlePickChange = useCallback((initiateValue: string, lineKey: string, option: string) => {
     setPicks((prev) => {
       const next = { ...prev, [initiateValue]: { ...(prev[initiateValue] ?? {}), [lineKey]: option } };
-      onSaveRef.current(featurePatch(dataRef.current, { initiatePicks: next }));
+      onSaveRef.current(featurePatch(dataRef.current, { initiatePicks: next })).catch(() => {});
       return next;
     });
   }, []);
@@ -326,7 +328,7 @@ export const BlessedInitiatesOfDanu = ({ data, onSave }: BlessedInitiatesOfDanuP
   const handleRitesChange = useCallback((initiateValue: string, value: string) => {
     setRites((prev) => {
       const next = { ...prev, [initiateValue]: value };
-      onSaveRef.current(featurePatch(dataRef.current, { initiateRites: next }));
+      onSaveRef.current(featurePatch(dataRef.current, { initiateRites: next })).catch(() => {});
       return next;
     });
   }, []);

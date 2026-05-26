@@ -230,9 +230,10 @@ const resolvePlaybookTabContent = (
   return fallback;
 };
 
-// Hooks must run unconditionally — split from CharacterPlaybookContent to avoid running hooks after early-return guards.
+// Separated from CharacterPlaybookContent because hooks cannot be called after conditional early returns (Rules of Hooks).
 const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, updateCharacterName, updateCharacterData }: SheetProps) => {
   const headerRef = useRef<HTMLDivElement>(null);
+  const hasAutoAddedFollowersRef = useRef(false);
   const [addTabOpen, setAddTabOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [removeInsert, setRemoveInsert] = useState<InsertOption | null>(null);
@@ -251,11 +252,13 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
   );
 
   useEffect(() => {
+    if (hasAutoAddedFollowersRef.current) return;
     const possessions = character.data?.specialPossessions ?? {};
     const hasDog = Object.entries(possessions).some(([id, checked]) => checked && DOG_POSSESSION_IDS.has(id));
     if (!hasDog) return;
     const current = character.data?.inserts ?? [];
     if (current.includes('Followers')) return;
+    hasAutoAddedFollowersRef.current = true;
     handleSaveCharacterData({ inserts: [...current, 'Followers'] }).catch(() => {});
   }, [character.data?.specialPossessions, character.data?.inserts, handleSaveCharacterData]);
 
@@ -263,13 +266,19 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
     setRemoveInsert(insert);
   }, []);
 
+  const removeInsertHandlers = useMemo(
+    () => Object.fromEntries(INSERT_OPTIONS.map((opt) => [opt, () => handleRequestRemoveInsert(opt)])),
+    [handleRequestRemoveInsert],
+  );
+
   const handleCloseRemoveInsert = useCallback(() => setRemoveInsert(null), []);
 
   const handleConfirmRemoveInsert = useCallback(async () => {
     if (!removeInsert) return;
     const next = (character.data?.inserts ?? []).filter((i) => i !== removeInsert);
-    const { followers: _removed, ...restFeatures } = resolvePlaybookFeatures(character.data);
-    const playbookFeatures = removeInsert === 'Followers' ? restFeatures : resolvePlaybookFeatures(character.data);
+    const resolved = resolvePlaybookFeatures(character.data);
+    const { followers: _removed, ...restFeatures } = resolved;
+    const playbookFeatures = removeInsert === 'Followers' ? restFeatures : resolved;
     await handleSaveCharacterData({ inserts: next, playbookFeatures });
     setActiveIndex(0);
     setRemoveInsert(null);
@@ -300,10 +309,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
     { label: playbookLabel },
   ], [gameName, id, playbookLabel]);
 
-  const playbookTabs = useMemo(() =>
-    getPlaybookTabs(character.playbook, character.data),
-    [character.playbook, character.data]
-  );
+  const playbookTabs = getPlaybookTabs(character.playbook, character.data);
 
   const level = getCharacterLevel(character);
   const features = resolvePlaybookFeatures(character.data);
@@ -348,11 +354,11 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
       label,
       content: resolvePlaybookTabContent(label, null, character.data, prosperity, handleSaveCharacterData),
       onRemove: INSERT_OPTIONS.includes(label as InsertOption)
-        ? () => handleRequestRemoveInsert(label as InsertOption)
+        ? removeInsertHandlers[label as InsertOption]
         : undefined,
       removeTooltip: `Remove ${label}`,
     })),
-  ], [character, playbookOption, handleSaveCharacterData, playbookTabs, showInvocationsBadge, prosperity]);
+  ], [character, playbookOption, handleSaveCharacterData, playbookTabs, showInvocationsBadge, prosperity, removeInsertHandlers]);
 
   return (
     <main className={styles.page}>
@@ -395,7 +401,7 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
   updateCharacterName: (characterId: string, name: string) => Promise<void>;
   updateCharacterData: (characterId: string, data: Partial<CharacterData>) => Promise<void>;
 }) => {
-  const prosperity = g.prosperity ?? 0;
+  const prosperity = g.steading?.prosperity ?? 0;
   const playbookOption = PLAYBOOKS.find((p) => p.value === playbook);
   const character = g.characters.find((c) => c.playbook === playbook);
 

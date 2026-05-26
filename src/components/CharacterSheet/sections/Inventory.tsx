@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import clsx from 'clsx';
 import { Checkbox, Divider, Input, UseDots } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
@@ -112,8 +112,9 @@ const MainItemRow = ({ item, checked, uses, prosperity, onCheckedChange, onUsesC
   const isSupplies = item.id.startsWith('supplies-');
   const hasUses = isSupplies || item.uses !== undefined;
   const effectiveTotal = isSupplies ? 4 + prosperity : (item.uses ?? 0);
+  const rowCx = clsx(styles.mainItemRow, item.weight === 2 && styles.mainItemRowDouble);
   return (
-    <div className={clsx(styles.mainItemRow, item.weight === 2 && styles.mainItemRowDouble)}>
+    <div className={rowCx}>
       <Checkbox
         variant="provision"
         weight={item.weight}
@@ -164,7 +165,7 @@ interface CustomMainItemProps {
 const CustomMainItem = ({ index, checked, text, weight, onCheckedChange, onTextChange, onWeightChange, onBlur }: CustomMainItemProps) => (
   <div className={styles.customMainItem}>
     <Checkbox variant="provision" weight={weight} checked={checked} onChange={(e) => onCheckedChange(index, e.target.checked)} aria-label={`Custom item ${index + 1}`} />
-    <input
+    <Input
       className={styles.customInput}
       type="text"
       value={text}
@@ -197,7 +198,7 @@ interface CustomSmallItemProps {
 const CustomSmallItem = ({ index, checked, text, onCheckedChange, onTextChange, onBlur }: CustomSmallItemProps) => (
   <div className={styles.customSmallItem}>
     <Checkbox checked={checked} onChange={(e) => onCheckedChange(index, e.target.checked)} aria-label={`Custom small item ${index + 1}`} />
-    <input
+    <Input
       className={styles.customInput}
       type="text"
       value={text}
@@ -223,7 +224,7 @@ interface PossessionRowProps {
 const PossessionRow = ({ index, checked, text, weight, onCheckedChange, onTextChange, onWeightChange, onBlur }: PossessionRowProps) => (
   <div className={styles.possessionRow}>
     <Checkbox variant="provision" weight={weight} checked={checked} onChange={(e) => onCheckedChange(index, e.target.checked)} aria-label={`Possession ${index + 1}`} />
-    <input
+    <Input
       className={styles.customInput}
       type="text"
       value={text}
@@ -285,140 +286,140 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
     if (data?.inventorySmallUndefined !== undefined) setUndefinedSmall(data.inventorySmallUndefined);
   }, [data]);
 
-  const saveDebounced = (patch: Partial<CharacterData>) => {
+  const saveDebounced = useCallback((patch: Partial<CharacterData>) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => onSaveRef.current(patch), 1000);
-  };
+  }, []);
 
-  const saveImmediate = (patch: Partial<CharacterData>) => {
+  const saveImmediate = useCallback((patch: Partial<CharacterData>) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     onSaveRef.current(patch);
-  };
+  }, []);
 
-  const flushDebounce = (patch: Partial<CharacterData>) => {
+  const flushDebounce = useCallback((patch: Partial<CharacterData>) => {
     if (debounceRef.current) { clearTimeout(debounceRef.current); debounceRef.current = null; }
     onSaveRef.current(patch);
-  };
+  }, []);
 
-  const handleMainChecked = (id: string, val: boolean) => {
+  const handleMainChecked = useCallback((id: string, val: boolean) => {
     setInventoryChecked((prev) => {
       const next = { ...prev, [id]: val };
       saveImmediate({ inventoryChecked: next });
       return next;
     });
-  };
+  }, [saveImmediate]);
 
-  const handleMainUses = (id: string, n: number) => {
+  const handleMainUses = useCallback((id: string, n: number) => {
     setInventoryUses((prev) => {
       const next = { ...prev, [id]: n };
       saveImmediate({ inventoryUses: next });
       return next;
     });
-  };
+  }, [saveImmediate]);
 
-  const handleUndefinedMain = (n: number) => {
+  const handleUndefinedMain = useCallback((n: number) => {
     setUndefinedMain(n);
     saveImmediate({ inventoryUndefined: n });
-  };
+  }, [saveImmediate]);
 
-  const handleUndefinedSmall = (n: number) => {
+  const handleUndefinedSmall = useCallback((n: number) => {
     setUndefinedSmall(n);
     saveImmediate({ inventorySmallUndefined: n });
-  };
+  }, [saveImmediate]);
 
-  const handleSmallChecked = (id: string, val: boolean) => {
+  const handleSmallChecked = useCallback((id: string, val: boolean) => {
     setSmallChecked((prev) => {
       const next = { ...prev, [id]: val };
       saveImmediate({ inventorySmallChecked: next });
       return next;
     });
-  };
+  }, [saveImmediate]);
 
-  const handleCustomMainChecked = (i: number, val: boolean) => {
+  const handleCustomMainChecked = useCallback((i: number, val: boolean) => {
     setCustomItems((prev) => {
       const next = prev.map((item, idx) => idx === i ? { ...item, checked: val } : item);
       saveImmediate({ inventoryCustomItems: next });
       return next;
     });
-  };
+  }, [saveImmediate]);
 
-  const handleCustomMainText = (i: number, text: string) => {
+  const handleCustomMainText = useCallback((i: number, text: string) => {
     setCustomItems((prev) => {
       const next = prev.map((item, idx) => idx === i ? { ...item, text } : item);
       saveDebounced({ inventoryCustomItems: next });
       return next;
     });
-  };
+  }, [saveDebounced]);
 
-  const handleCustomMainWeight = (i: number, weight: 1 | 2) => {
+  const handleCustomMainWeight = useCallback((i: number, weight: 1 | 2) => {
     setCustomItems((prev) => {
       const next = prev.map((item, idx) => idx === i ? { ...item, weight } : item);
       saveImmediate({ inventoryCustomItems: next });
       return next;
     });
-  };
+  }, [saveImmediate]);
 
-  const handleCustomMainBlur = () => {
+  const handleCustomMainBlur = useCallback(() => {
     flushDebounce({ inventoryCustomItems: customItemsRef.current });
-  };
+  }, [flushDebounce]);
 
-  const handleSmallCustomChecked = (i: number, val: boolean) => {
+  const handleSmallCustomChecked = useCallback((i: number, val: boolean) => {
     setSmallCustom((prev) => {
       const next = prev.map((item, idx) => idx === i ? { ...item, checked: val } : item);
       saveImmediate({ inventorySmallCustom: next });
       return next;
     });
-  };
+  }, [saveImmediate]);
 
-  const handleSmallCustomText = (i: number, text: string) => {
+  const handleSmallCustomText = useCallback((i: number, text: string) => {
     setSmallCustom((prev) => {
       const next = prev.map((item, idx) => idx === i ? { ...item, text } : item);
       saveDebounced({ inventorySmallCustom: next });
       return next;
     });
-  };
+  }, [saveDebounced]);
 
-  const handleSmallCustomBlur = () => {
+  const handleSmallCustomBlur = useCallback(() => {
     flushDebounce({ inventorySmallCustom: smallCustomRef.current });
-  };
+  }, [flushDebounce]);
 
-  const handleOtherThingsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleOtherThingsChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value;
     setOtherThings(val);
     saveDebounced({ inventoryOtherThings: val });
-  };
+  }, [saveDebounced]);
 
-  const handleOtherThingsBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
+  const handleOtherThingsBlur = useCallback((e: React.FocusEvent<HTMLTextAreaElement>) => {
     flushDebounce({ inventoryOtherThings: e.target.value });
-  };
+  }, [flushDebounce]);
 
-  const handlePossessionChecked = (i: number, val: boolean) => {
+  const handlePossessionChecked = useCallback((i: number, val: boolean) => {
     setPossessions((prev) => {
       const next = prev.map((item, idx) => idx === i ? { ...item, checked: val } : item);
       saveImmediate({ inventoryPossessions: next });
       return next;
     });
-  };
+  }, [saveImmediate]);
 
-  const handlePossessionText = (i: number, text: string) => {
+  const handlePossessionText = useCallback((i: number, text: string) => {
     setPossessions((prev) => {
       const next = prev.map((item, idx) => idx === i ? { ...item, text } : item);
       saveDebounced({ inventoryPossessions: next });
       return next;
     });
-  };
+  }, [saveDebounced]);
 
-  const handlePossessionWeight = (i: number, weight: 1 | 2) => {
+  const handlePossessionWeight = useCallback((i: number, weight: 1 | 2) => {
     setPossessions((prev) => {
       const next = prev.map((item, idx) => idx === i ? { ...item, weight } : item);
       saveImmediate({ inventoryPossessions: next });
       return next;
     });
-  };
+  }, [saveImmediate]);
 
-  const handlePossessionBlur = () => {
+  const handlePossessionBlur = useCallback(() => {
     flushDebounce({ inventoryPossessions: possessionsRef.current });
-  };
+  }, [flushDebounce]);
 
   const { totalLoad, loadLabel, loadCx } = useMemo(() => {
     const load = MAIN_ITEMS.reduce((sum, item) => inventoryChecked[item.id] ? sum + item.weight : sum, 0) +
@@ -436,6 +437,8 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
       ),
     };
   }, [inventoryChecked, customItems, possessions, undefinedMain]);
+
+  const possessionsHeadingCx = clsx(styles.prose, styles.possessionsHeading);
 
   return (
     <div className={styles.root}>
@@ -488,7 +491,7 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
             <Divider />
 
             <div className={styles.possessionsSection}>
-              <p className={clsx(styles.prose, styles.possessionsHeading)}>Possessions, items, loot</p>
+              <p className={possessionsHeadingCx}>Possessions, items, loot</p>
               <div className={styles.possessionList}>
                 {possessions.map((item, i) => (
                   <PossessionRow
@@ -529,7 +532,7 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
             <Divider />
 
             <div className={styles.otherSection}>
-              <p className={clsx(styles.prose, styles.possessionsHeading)}>Other things <em>(animals, kits, stashed items, etc.)</em></p>
+              <p className={possessionsHeadingCx}>Other things <em>(animals, kits, stashed items, etc.)</em></p>
               <Input
                 multiline
                 value={otherThings}
@@ -592,8 +595,10 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
               Affects uses from Supplies, HP from Recover, and piercing on iron weapons. Set by the GM.
             </p>
             <div className={styles.prosperityList}>
-              {([-1, 0, 1, 2] as const).map((val) => (
-                <div key={val} className={clsx(styles.prosperityOption, prosperity === val && styles.prosperitySelected)}>
+              {([-1, 0, 1, 2] as const).map((val) => {
+                const prosperityOptionCx = clsx(styles.prosperityOption, prosperity === val && styles.prosperitySelected);
+                return (
+                <div key={val} className={prosperityOptionCx}>
                   <span className={styles.prosperityValue}>{val > 0 ? `+${val}` : val}</span>
                   <span className={styles.prosperityNote}>
                     {val === -1 && 'Gear is crude'}
@@ -602,7 +607,8 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
                     {val === 2 && 'x = 2 piercing'}
                   </span>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </PlaybookSection>
         </div>

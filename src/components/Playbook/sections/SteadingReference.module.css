@@ -1,0 +1,66 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.subsection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  border-top: 1px solid var(--border-subtle);
+  padding-top: var(--spacing-6);
+}
+
+/* ── Places list ──────────────────────────────────────── */
+.placesList {
+  list-style: none;
+  padding: 0;
+  margin: var(--spacing-3) 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.place {
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  padding: var(--spacing-1) 0;
+  border-bottom: 1px dotted var(--border-subtle);
+}
+
+.placeBlank {
+  height: 1.75rem;
+  border-bottom: 1px dotted var(--border-subtle);
+}
+
+/* ── Traits grid ──────────────────────────────────────── */
+.traitsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-2) var(--spacing-6);
+  margin-top: var(--spacing-2);
+}
+
+@media (max-width: 480px) {
+  .traitsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.traitsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.trait {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  padding: var(--spacing-1) 0;
+  border-bottom: 1px dotted var(--border-subtle);
+}

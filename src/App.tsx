@@ -8,6 +8,7 @@ const CURRENT_YEAR = new Date().getFullYear();
 const Home = lazy(() => import('@/pages/Home/Home').then((m) => ({ default: m.Home })));
 const Game = lazy(() => import('@/pages/Game/Game').then((m) => ({ default: m.Game })));
 const GmPlaybook = lazy(() => import('@/pages/GmPlaybook/GmPlaybook').then((m) => ({ default: m.GmPlaybook })));
+const SteadingPlaybook = lazy(() => import('@/pages/SteadingPlaybook/SteadingPlaybook').then((m) => ({ default: m.SteadingPlaybook })));
 const CharacterPlaybook = lazy(() => import('@/pages/CharacterPlaybook/CharacterPlaybook').then((m) => ({ default: m.CharacterPlaybook })));
 const NotFound = lazy(() => import('@/pages/NotFound/NotFound').then((m) => ({ default: m.NotFound })));
 
@@ -23,6 +24,7 @@ export const App = () => (
           <Route path="/" element={<Home />} />
           <Route path="/game/:id" element={<Game />} />
           <Route path="/game/:id/gm" element={<GmPlaybook />} />
+          <Route path="/game/:id/steading" element={<SteadingPlaybook />} />
           <Route path="/game/:id/:playbook" element={<CharacterPlaybook />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

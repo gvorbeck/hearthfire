@@ -2,6 +2,7 @@
   position: relative;
   display: inline-flex;
   align-items: center;
+  contain: layout;
 }
 
 .tooltip {
@@ -23,7 +24,8 @@
   pointer-events: none;
   /* opacity:0 not display:none — JS measures offsetWidth/offsetHeight while hidden to compute clamped position before reveal */
   opacity: 0;
-  transition: opacity 0.12s ease, transform 0.12s ease;
+  visibility: hidden;
+  transition: opacity 0.12s ease, transform 0.12s ease, visibility 0s 0.12s;
   white-space: normal;
   text-align: center;
 }
@@ -37,6 +39,8 @@
 
 .top.visible {
   opacity: 1;
+  visibility: visible;
+  transition: opacity 0.12s ease, transform 0.12s ease, visibility 0s 0s;
   transform: translateX(calc(-50% + var(--nudge-x, 0px))) translateY(0);
 }
 
@@ -48,6 +52,8 @@
 
 .bottom.visible {
   opacity: 1;
+  visibility: visible;
+  transition: opacity 0.12s ease, transform 0.12s ease, visibility 0s 0s;
   transform: translateX(calc(-50% + var(--nudge-x, 0px))) translateY(0);
 }
 
@@ -59,6 +65,8 @@
 
 .left.visible {
   opacity: 1;
+  visibility: visible;
+  transition: opacity 0.12s ease, transform 0.12s ease, visibility 0s 0s;
   transform: translateY(-50%) translateX(0);
 }
 
@@ -70,6 +78,8 @@
 
 .right.visible {
   opacity: 1;
+  visibility: visible;
+  transition: opacity 0.12s ease, transform 0.12s ease, visibility 0s 0s;
   transform: translateY(-50%) translateX(0);
 }
 

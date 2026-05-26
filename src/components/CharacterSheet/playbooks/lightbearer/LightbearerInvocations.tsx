@@ -1,15 +1,34 @@
-import { PlaybookSection } from "../../PlaybookSection";
-import { Move } from "../../Move";
-import { usePlaybookChecked } from "@/hooks/usePlaybookChecked";
-import { LIGHTBEARER_INVOCATIONS } from "@/lib/lightbearerInvocations";
-import { parseInlineMarkdown } from "@/lib/parseMarkdown";
-import type { CharacterData } from "@/types";
-import styles from "./LightbearerInvocations.module.css";
+import { useCallback, memo } from 'react';
+import { PlaybookSection } from '../../PlaybookSection';
+import { Move } from '../../Move';
+import { usePlaybookChecked } from '@/hooks/usePlaybookChecked';
+import { LIGHTBEARER_INVOCATIONS } from '@/lib/lightbearerInvocations';
+import { parseInlineMarkdown } from '@/lib/parseMarkdown';
+import type { MoveDefinition } from '../../Move';
+import type { CharacterData } from '@/types';
+import styles from './LightbearerInvocations.module.css';
 
 const INTRO_LINES = [
   "Lightbearer, you start knowing 2 Invocations. Each time you reach an even-numbered level, learn 1 new Invocation.",
   "While one Invocation is *ongoing*, you can't use another. You can end an Invocation whenever you wish, and it will end immediately if your holy light is extinguished. An Invocation's range is equal to that of its light source.",
 ];
+
+interface InvocationMoveProps {
+  inv: MoveDefinition;
+  isChecked: boolean;
+  onChange: (id: string, val: boolean) => void;
+}
+
+const InvocationMove = memo(({ inv, isChecked, onChange }: InvocationMoveProps) => {
+  const handleChange = useCallback((val: boolean) => onChange(inv.id, val), [inv.id, onChange]);
+  return (
+    <Move
+      move={inv}
+      selected={isChecked}
+      onSelectChange={handleChange}
+    />
+  );
+});
 
 interface LightbearerInvocationsProps {
   data: CharacterData | undefined;
@@ -23,7 +42,7 @@ export const LightbearerInvocations = ({
   const { checked, handleChange } = usePlaybookChecked(
     data,
     onSave,
-    "lightbearerInvocations",
+    'lightbearerInvocations',
   );
 
   const sorted = [
@@ -40,11 +59,11 @@ export const LightbearerInvocations = ({
       </div>
       <div className={styles.grid}>
         {sorted.map((inv) => (
-          <Move
+          <InvocationMove
             key={inv.id}
-            move={inv}
-            selected={checked[inv.id] ?? false}
-            onSelectChange={(val) => handleChange(inv.id, val)}
+            inv={inv}
+            isChecked={checked[inv.id] ?? false}
+            onChange={handleChange}
           />
         ))}
       </div>

@@ -25,7 +25,7 @@ const RemoveCharacterModal = ({ character, onClose, onConfirm }: RemoveCharacter
   const headingId = useId();
   const [removing, setRemoving] = useState(false);
 
-  const handleConfirm = async () => {
+  const handleConfirm = useCallback(async () => {
     setRemoving(true);
     try {
       await onConfirm();
@@ -34,7 +34,7 @@ const RemoveCharacterModal = ({ character, onClose, onConfirm }: RemoveCharacter
     } catch {
       setRemoving(false);
     }
-  };
+  }, [onConfirm, onClose]);
 
   const playbookOption = PLAYBOOKS.find((p) => p.value === character?.playbook);
   const playbookLabel = `${playbookOption?.label ?? character?.playbook} Playbook`;
@@ -173,9 +173,9 @@ const GameContent = ({
           <div className={styles.sectionRight}>
             <div className={styles.section}>
               <Heading as="h2" size="label">Stonetop</Heading>
-              <div className={styles.placeholder}>
-                <Text color="muted" size="sm">Town playbook coming soon</Text>
-              </div>
+              <Link to={`/game/${id}/steading`}>
+                <Button variant="secondary" size="xl" fullWidth>Open Steading Playbook</Button>
+              </Link>
             </div>
 
             <div className={styles.section}>
