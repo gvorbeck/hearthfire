@@ -182,6 +182,39 @@ export interface ContentLists {
   specialHandling: string;
 }
 
+export interface SteadingDebilities {
+  diminished?: boolean;
+  lacking?: boolean;
+  malcontent?: boolean;
+}
+
+export interface SteadingNPC {
+  id: string;
+  name: string;
+  pronouns?: string;
+  occupation?: string;
+  notes?: string;
+}
+
+export type SteadingSize = 'hamlet' | 'village' | 'town' | 'city';
+
+export interface SteadingData {
+  size?: SteadingSize;
+  fortunes?: number;
+  population?: number;
+  prosperity?: number;
+  defenses?: number;
+  surplus?: number;
+  debilities?: SteadingDebilities;
+  resources?: string;
+  fortifications?: string;
+  improvements?: Record<string, boolean>;
+  assets?: string;
+  residents?: SteadingNPC[];
+  neighbors?: SteadingNPC[];
+  neighborNotes?: Record<string, string>;
+}
+
 export interface GameSession {
   id: string;
   name: string;
@@ -190,5 +223,5 @@ export interface GameSession {
   content?: ContentLists;
   threats?: string;
   iWonder?: string;
-  prosperity?: number;
+  steading?: SteadingData;
 }

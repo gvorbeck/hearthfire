@@ -7,11 +7,14 @@
   display: flex;
   align-items: center;
   border-bottom: 1px solid var(--border-subtle);
+  overflow-x: auto;
+  overflow-y: visible;
 }
 
 .tablist {
   display: flex;
   flex: 1;
+  min-width: 0;
 }
 
 .addTab {
@@ -39,6 +42,7 @@
 }
 
 .tab {
+  position: relative;
   background: none;
   border: none;
   border-bottom: 2px solid transparent;

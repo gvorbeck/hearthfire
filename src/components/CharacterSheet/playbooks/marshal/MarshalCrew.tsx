@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, memo } from 'react';
 import clsx from 'clsx';
-import { Checkbox, CheckboxGroup, Divider, Input, Radio, UseDots } from '@/components/primitives';
+import { Checkbox, CheckboxGroup, Divider, Input, Radio, Text, UseDots } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
 import { useCrewSave } from '../shared/useCrewSave';
@@ -65,7 +65,7 @@ const INDIVIDUALS_COUNT = 6;
 const CUSTOM_ITEM_INDICES = [0, 1, 2, 3];
 
 const normalizeCustomItems = (raw: { checked: boolean; text: string }[] | undefined): { checked: boolean; text: string }[] =>
-  Array.from({ length: 8 }, (_, i) => raw?.[i] ?? { checked: false, text: '' });
+  Array.from({ length: CUSTOM_ITEM_INDICES.length * 2 }, (_, i) => raw?.[i] ?? { checked: false, text: '' });
 
 
 interface InventoryRowProps {
@@ -217,9 +217,9 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
   const [instinctCustom, setInstinctCustom] = useState<string>(() => features.crewInstinctCustom ?? '');
   const [cost, setCost] = useState<string>(() => features.crewCost ?? '');
   const [costCustom, setCostCustom] = useState<string>(() => features.crewCostCustom ?? '');
-  const [instinctCollapsed, setInstinctCollapsed] = useState(false);
+  const [isInstinctCollapsed, setIsInstinctCollapsed] = useState(false);
   const hasInitInstinctCollapse = useRef(false);
-  const [costCollapsed, setCostCollapsed] = useState(false);
+  const [isCostCollapsed, setIsCostCollapsed] = useState(false);
   const hasInitCostCollapse = useRef(false);
   const [loyalty, setLoyalty] = useState<number>(() => features.crewLoyalty ?? 0);
   const [inventoryChecked, setInventoryChecked] = useState<Record<string, boolean>>(() => features.crewInventoryChecked ?? {});
@@ -259,7 +259,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
     if (f.crewCustomItems !== undefined) setCustomItems(normalizeCustomItems(f.crewCustomItems));
     if (f.crewSuppliesUses !== undefined) setSuppliesUses(f.crewSuppliesUses);
     if (f.crewIndividuals !== undefined) setIndividuals(parseIndividuals(f.crewIndividuals));
-  }, [data]);
+  }, [data?.playbookFeatures, data?.typeMoves, data?.typeMoveCheckList]);
 
   const { saveDebounced, saveImmediate, flushDebounce, dataRef, onSaveRef } = useCrewSave(data, onSave);
 
@@ -315,25 +315,25 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
   useEffect(() => {
     if (instinct && !hasInitInstinctCollapse.current) {
       hasInitInstinctCollapse.current = true;
-      setInstinctCollapsed(true);
+      setIsInstinctCollapsed(true);
     }
   }, [instinct]);
 
   useEffect(() => {
     if (cost && !hasInitCostCollapse.current) {
       hasInitCostCollapse.current = true;
-      setCostCollapsed(true);
+      setIsCostCollapsed(true);
     }
   }, [cost]);
 
-  const handleToggleInstinctCollapse = useCallback(() => setInstinctCollapsed((v) => !v), []);
-  const handleToggleCostCollapse = useCallback(() => setCostCollapsed((v) => !v), []);
+  const handleToggleInstinctCollapse = useCallback(() => setIsInstinctCollapsed((v) => !v), []);
+  const handleToggleCostCollapse = useCallback(() => setIsCostCollapsed((v) => !v), []);
 
   const handleInstinctChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setInstinct(val);
     setInstinctCustom('');
-    setInstinctCollapsed(true);
+    setIsInstinctCollapsed(true);
     saveImmediate({ crewInstinct: val, crewInstinctCustom: '' });
   }, [saveImmediate]);
 
@@ -354,7 +354,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
     const val = e.target.value;
     setCost(val);
     setCostCustom('');
-    setCostCollapsed(true);
+    setIsCostCollapsed(true);
     saveImmediate({ crewCost: val, crewCostCustom: '' });
   }, [saveImmediate]);
 
@@ -425,15 +425,15 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
     flushDebounce({ crewIndividuals: individualsRef.current });
   }, [flushDebounce]);
 
-  const instinctOptionsVisible = instinctCollapsed && instinct && instinct !== 'custom'
+  const instinctOptionsVisible = isInstinctCollapsed && instinct && instinct !== 'custom'
     ? INSTINCT_OPTIONS.filter((opt) => opt === instinct)
     : INSTINCT_OPTIONS;
-  const showInstinctCustom = !instinctCollapsed || instinct === 'custom';
+  const showInstinctCustom = !isInstinctCollapsed || instinct === 'custom';
 
-  const costOptionsVisible = costCollapsed && cost && cost !== 'custom'
+  const costOptionsVisible = isCostCollapsed && cost && cost !== 'custom'
     ? COST_OPTIONS.filter((opt) => opt === cost)
     : COST_OPTIONS;
-  const showCostCustom = !costCollapsed || cost === 'custom';
+  const showCostCustom = !isCostCollapsed || cost === 'custom';
 
   const hasHeroesToTheLast = data?.typeMoves?.['marshal-heroes-to-the-last'] === true;
   const isExceptional = data?.typeMoveCheckList?.['marshal-heroes-to-the-last']?.['marshal-httl-exceptional'] === true;
@@ -541,7 +541,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
           choose={1}
           warn={!instinct}
           collapsible={!!instinct}
-          isCollapsed={instinctCollapsed}
+          isCollapsed={isInstinctCollapsed}
           onToggleCollapse={handleToggleInstinctCollapse}
         >
           <div className={styles.radioList}>
@@ -563,6 +563,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
                   checked={instinct === 'custom'}
                   onChange={handleInstinctChange}
                   label={null}
+                  aria-label="Custom instinct"
                 />
                 <Input
                   type="text"
@@ -584,7 +585,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
           choose={1}
           warn={!cost}
           collapsible={!!cost}
-          isCollapsed={costCollapsed}
+          isCollapsed={isCostCollapsed}
           onToggleCollapse={handleToggleCostCollapse}
         >
           <div className={styles.loyaltyRow}>
@@ -610,6 +611,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
                   checked={cost === 'custom'}
                   onChange={handleCostChange}
                   label={null}
+                  aria-label="Custom cost"
                 />
                 <Input
                   type="text"
@@ -688,9 +690,9 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
       </PlaybookSection>
 
       <PlaybookSection title="Individuals">
-        <p className={styles.prose}>
+        <Text as="p" size="sm" className={styles.prose}>
           When one stands out, give them a name, a tag, and one or more traits.
-        </p>
+        </Text>
         <p className={styles.prose}>
           {parseInlineMarkdown('**Names:** Aled, Culhwich, Eira, Gerat, Glaw, Harri, Lowri, Mervyn, Nesta')}
         </p>

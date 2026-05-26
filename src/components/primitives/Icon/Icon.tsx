@@ -83,6 +83,20 @@ const icons = {
       <path strokeLinecap="round" strokeLinejoin="round" d="m8 12 3 3 5-5" />
     </>
   ),
+  plus: (
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M12 4.5v15m7.5-7.5h-15"
+    />
+  ),
+  minus: (
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M19.5 12h-15"
+    />
+  ),
   close: (
     <path
       strokeLinecap="round"

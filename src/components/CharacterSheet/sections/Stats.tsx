@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import clsx from 'clsx';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
-import { Checkbox } from '@/components/primitives';
+import { Checkbox, Input } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
 import type { CharacterData } from '@/types';
 import styles from './Stats.module.css';
@@ -15,27 +15,33 @@ interface StatBoxProps {
   onBlur: () => void;
 }
 
-const StatBox = ({ label, abbr, statKey, value, onChange, onBlur }: StatBoxProps) => (
-  <div className={styles.statBox}>
-    <label className={styles.statLabel} htmlFor={`stat-${abbr}`}>{label}</label>
-    <input
-      id={`stat-${abbr}`}
-      className={styles.statInput}
-      type="number"
-      value={value}
-      max={3}
-      onChange={(e) => {
-        const raw = e.target.value;
-        if (raw === '' || raw === '-') { onChange(statKey, raw); return; }
-        const n = parseInt(raw, 10);
-        if (!isNaN(n)) onChange(statKey, String(Math.min(n, 3)));
-      }}
-      onBlur={onBlur}
-      onWheel={(e) => e.currentTarget.blur()}
-    />
-    <span className={styles.statAbbr}>({abbr})</span>
-  </div>
-);
+const handleStatWheel = (e: React.WheelEvent<HTMLInputElement>) => e.currentTarget.blur();
+
+const StatBox = ({ label, abbr, statKey, value, onChange, onBlur }: StatBoxProps) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    if (raw === '' || raw === '-') { onChange(statKey, raw); return; }
+    const n = parseInt(raw, 10);
+    if (!isNaN(n)) onChange(statKey, String(Math.min(n, 3)));
+  }, [onChange, statKey]);
+
+  return (
+    <div className={styles.statBox}>
+      <label className={styles.statLabel} htmlFor={`stat-${abbr}`}>{label}</label>
+      <Input
+        id={`stat-${abbr}`}
+        className={styles.statInput}
+        type="number"
+        value={value}
+        max={3}
+        onChange={handleChange}
+        onBlur={onBlur}
+        onWheel={handleStatWheel}
+      />
+      <span className={styles.statAbbr}>({abbr})</span>
+    </div>
+  );
+};
 
 interface InfoBoxProps {
   label: string;
@@ -52,7 +58,7 @@ const InfoBox = ({ label, statKey, value, isStatic, min, onChange, onBlur }: Inf
     {isStatic ? (
       <span className={styles.infoStatic}>{value}</span>
     ) : (
-      <input
+      <Input
         className={styles.infoInput}
         type="number"
         value={value}
@@ -76,6 +82,7 @@ interface DebilityRowProps {
 
 const DebilityRow = ({ label, debilityKey, checked, onChange }: DebilityRowProps) => {
   const braceCx = clsx(styles.debilityBrace, checked && styles.debilityBraceActive);
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onChange(debilityKey, e.target.checked), [onChange, debilityKey]);
   return (
     <div className={styles.debility}>
       <div className={braceCx} />
@@ -83,7 +90,7 @@ const DebilityRow = ({ label, debilityKey, checked, onChange }: DebilityRowProps
         name={`debility-${label}`}
         value={label}
         checked={checked}
-        onChange={(e) => onChange(debilityKey, e.target.checked)}
+        onChange={handleChange}
         label={<span className={styles.debilityLabel}>{label}</span>}
       />
     </div>
@@ -165,6 +172,7 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
   const onSaveRef = useRef(onSave);
   const statsRef = useRef(stats);
   const debilitiesRef = useRef(debilities);
+  const hasAutoInitialized = useRef(false);
   onSaveRef.current = onSave;
   statsRef.current = stats;
   debilitiesRef.current = debilities;
@@ -172,11 +180,14 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
   useEffect(() => {
     setStats(statsFromData(data, hpMax));
     setDebilities(debilitiesFromData(data));
-    if (!data) return;
+    if (!data || hasAutoInitialized.current) return;
     const patch: Partial<CharacterData> = {};
     if (hpMax !== undefined && !data.statHp) patch.statHp = String(hpMax);
     if (!data.statXp) patch.statXp = '0';
-    if (Object.keys(patch).length > 0) onSaveRef.current?.(patch);
+    if (Object.keys(patch).length > 0) {
+      hasAutoInitialized.current = true;
+      onSaveRef.current?.(patch);
+    }
   }, [
     data?.statStr, data?.statDex, data?.statInt, data?.statWis, data?.statCon, data?.statCha,
     data?.statHp, data?.statArmor, data?.statXp, data?.statLevel,

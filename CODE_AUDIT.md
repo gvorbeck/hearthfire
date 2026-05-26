@@ -155,22 +155,15 @@ Every item from the B− audit is resolved. The remaining gap to A+ is three rea
 
 ## High — Address Soon
 
-### 1. `Input` has no keyboard focus indicator
+### ~~1. `Input` has no keyboard focus indicator~~
 
-**File:** `src/components/primitives/Input/Input.module.css:17,28`
+~~**File:** `src/components/primitives/Input/Input.module.css:17,28`~~
 
-```css
-outline: none;       /* line 17 — kills the browser default */
+~~`outline: none` removes the browser's default focus ring unconditionally. The `:focus` rule fires on mouse clicks as well as keyboard, so it isn't a replacement — it's just a border tint. A keyboard user tabbing into a text field gets no visible indicator that it's focused.~~
 
-.input:focus {       /* line 28 — fires on mouse clicks too */
-  border-color: var(--color-gold-500);
-  background-color: var(--surface-overlay);
-}
-```
+~~Every other interactive primitive in the codebase (`Checkbox`, `Radio`, `Toggle`, `Tabs`, `UseDots`) uses `:focus-visible` correctly. `Input` is the exception.~~
 
-`outline: none` removes the browser's default focus ring unconditionally. The `:focus` rule fires on mouse clicks as well as keyboard, so it isn't a replacement — it's just a border tint. A keyboard user tabbing into a text field gets no visible indicator that it's focused.
-
-Every other interactive primitive in the codebase (`Checkbox`, `Radio`, `Toggle`, `Tabs`, `UseDots`) uses `:focus-visible` correctly. `Input` is the exception.
+**Resolved:** `outline: none` moved into `:focus` (suppresses browser default only when focused), and a `:focus-visible` rule added with `outline: 2px solid var(--color-gold-400); outline-offset: 2px` — matching every other primitive.
 
 **Fix:** Replace `:focus` with `:focus-visible` and restore an outline:
 

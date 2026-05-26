@@ -1,0 +1,49 @@
+.page {
+  position: relative;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: var(--surface-page);
+}
+
+.page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("/404-village.webp");
+  background-size: cover;
+  background-position: center 30%;
+  opacity: 0.6;
+  mask-image: radial-gradient(
+    ellipse 80% 70% at 50% 40%,
+    black 20%,
+    transparent 80%
+  );
+  -webkit-mask-image: radial-gradient(
+    ellipse 80% 70% at 50% 40%,
+    black 20%,
+    transparent 80%
+  );
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-4);
+  text-align: center;
+  padding: var(--spacing-8);
+  max-width: 36rem;
+}
+
+.code {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  color: var(--text-accent);
+  letter-spacing: 0.15em;
+  line-height: 1;
+}

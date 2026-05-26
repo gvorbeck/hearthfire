@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { arrayUnion, doc, onSnapshot, runTransaction, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { GAMES_COLLECTION } from '@/lib/constants';
-import type { Character, CharacterData, ContentLists, GameSession } from '@/types';
+import type { Character, CharacterData, ContentLists, GameSession, SteadingData } from '@/types';
 
 interface UseGameResult {
   game: GameSession | null;
@@ -13,6 +13,7 @@ interface UseGameResult {
   updateCharacterData: (characterId: string, data: Partial<CharacterData>) => Promise<void>;
   updateContent: (field: keyof ContentLists, value: string) => Promise<void>;
   updateField: (field: keyof Pick<GameSession, 'threats' | 'iWonder'>, value: string) => Promise<void>;
+  updateSteading: (patch: Partial<SteadingData>) => Promise<void>;
   addCharacter: (character: Character) => Promise<void>;
   removeCharacter: (characterId: string) => Promise<void>;
 }
@@ -30,6 +31,29 @@ const parseContent = (raw: unknown): ContentLists | undefined => {
   };
 };
 
+const VALID_SIZES = new Set(['hamlet', 'village', 'town', 'city']);
+
+const parseSteading = (raw: unknown): SteadingData | undefined => {
+  if (typeof raw !== 'object' || raw === null) return undefined;
+  const r = raw as Record<string, unknown>;
+  return {
+    size: VALID_SIZES.has(r.size as string) ? r.size as SteadingData['size'] : undefined,
+    fortunes: typeof r.fortunes === 'number' ? r.fortunes : undefined,
+    population: typeof r.population === 'number' ? r.population : undefined,
+    prosperity: typeof r.prosperity === 'number' ? r.prosperity : undefined,
+    defenses: typeof r.defenses === 'number' ? r.defenses : undefined,
+    surplus: typeof r.surplus === 'number' ? r.surplus : undefined,
+    debilities: typeof r.debilities === 'object' && r.debilities !== null ? r.debilities as SteadingData['debilities'] : undefined,
+    resources: typeof r.resources === 'string' ? r.resources : undefined,
+    fortifications: typeof r.fortifications === 'string' ? r.fortifications : undefined,
+    improvements: typeof r.improvements === 'object' && r.improvements !== null ? r.improvements as Record<string, boolean> : undefined,
+    assets: typeof r.assets === 'string' ? r.assets : undefined,
+    residents: Array.isArray(r.residents) ? r.residents : undefined,
+    neighbors: Array.isArray(r.neighbors) ? r.neighbors : undefined,
+    neighborNotes: typeof r.neighborNotes === 'object' && r.neighborNotes !== null ? r.neighborNotes as Record<string, string> : undefined,
+  };
+};
+
 const parseGameSession = (raw: Record<string, unknown>, id: string): GameSession => {
   if (typeof raw.name !== 'string') throw new Error('Game document missing required field: name');
   return {
@@ -40,7 +64,7 @@ const parseGameSession = (raw: Record<string, unknown>, id: string): GameSession
     content: parseContent(raw.content),
     threats: typeof raw.threats === 'string' ? raw.threats : undefined,
     iWonder: typeof raw.iWonder === 'string' ? raw.iWonder : undefined,
-    prosperity: typeof raw.prosperity === 'number' ? raw.prosperity : undefined,
+    steading: parseSteading(raw.steading),
   };
 };
 
@@ -117,5 +141,13 @@ export const useGame = (gameId: string): UseGameResult => {
     await withCharacters(doc(db, GAMES_COLLECTION, gameId), (chars) => chars.map((c) => c.id === characterId ? { ...c, data: { ...c.data, ...data } } : c));
   }, [gameId]);
 
-  return { game, loading, error, updateGameName, updateCharacterName, updateCharacterData, updateContent, updateField, addCharacter, removeCharacter };
+  const updateSteading = useCallback(async (patch: Partial<SteadingData>) => {
+    // patch values must be flat scalars, arrays, or plain objects — not nested Firestore special types
+    const dotted = Object.fromEntries(
+      Object.entries(patch).map(([k, v]) => [`steading.${k}`, v])
+    );
+    await updateDoc(doc(db, GAMES_COLLECTION, gameId), dotted);
+  }, [gameId]);
+
+  return { game, loading, error, updateGameName, updateCharacterName, updateCharacterData, updateContent, updateField, updateSteading, addCharacter, removeCharacter };
 };

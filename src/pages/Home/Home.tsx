@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageMeta } from '@/components/PageMeta/PageMeta';
 import { createGame } from '@/lib/game';
@@ -12,7 +12,7 @@ export const Home = () => {
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState('');
 
-  const handleCreate = async () => {
+  const handleCreate = useCallback(async () => {
     setCreating(true);
     setCreateError('');
     try {
@@ -23,9 +23,9 @@ export const Home = () => {
     } finally {
       setCreating(false);
     }
-  };
+  }, [navigate]);
 
-  const handleJoin = (e: React.FormEvent) => {
+  const handleJoin = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = joinId.trim();
     if (!trimmed) {
@@ -33,12 +33,12 @@ export const Home = () => {
       return;
     }
     navigate(`/game/${trimmed}`);
-  };
+  }, [joinId, navigate]);
 
-  const handleJoinIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleJoinIdChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setJoinId(e.target.value);
     setJoinError('');
-  };
+  }, []);
 
   return (
     <main className={styles.page}>
