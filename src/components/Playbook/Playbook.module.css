@@ -157,6 +157,12 @@
   border-top: 1px solid var(--border-subtle);
 }
 
+.contentFieldNoBorderTop {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
 .contentFieldHeader {
   display: flex;
   align-items: baseline;

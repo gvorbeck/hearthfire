@@ -206,8 +206,8 @@ export interface SteadingData {
   defenses?: number;
   surplus?: number;
   debilities?: SteadingDebilities;
-  resources?: string;
-  fortifications?: string;
+  resources?: string[];
+  fortifications?: string[];
   improvements?: Record<string, boolean>;
   assets?: string;
   residents?: SteadingNPC[];
