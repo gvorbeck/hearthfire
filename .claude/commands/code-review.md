@@ -19,17 +19,19 @@ Design system: primitives in `src/components/primitives/` (Button, Text, Heading
 ## Review Categories
 
 ### Code Style (Project Conventions — Non-Negotiable)
+
 - `function` declarations used instead of arrow functions — every function must be an arrow function, including exports, components, and utilities
 - `clsx(...)` inlined inside JSX instead of hoisted above the return as `const cx = clsx(...)`
 - Styling done outside CSS Modules (inline styles, Tailwind, styled-components, etc.)
 - CSS class names accessed as `styles.foo` instead of importing `styles` from the module
 - TypeScript `any` usage — strict mode is required throughout
-- Comments that describe *what* instead of *why* (naming, visible logic); only add comments when the WHY is genuinely non-obvious
+- Comments that describe _what_ instead of _why_ (naming, visible logic); only add comments when the WHY is genuinely non-obvious
 - Hardcoded `rem` values for `font-size` instead of type scale tokens — all font sizes must use `--text-xs` through `--text-3xl` from the Major Third scale defined in `src/index.css`; raw `rem` values are only acceptable for layout dimensions (widths, heights, spacing) and responsive `clamp()` display sizes
 - Game text written as JSX fragments instead of plain strings — all move/possession text with bold, italic, or inline icons must be written as a plain string and rendered through `parseInlineMarkdown` in `src/lib/parseMarkdown.tsx`
 - `◊` or `◈` rendered as raw Unicode characters instead of icons — `◊` maps to `empty-provisions` (diamond outline), `◈` maps to `filled-provisions` (diamond with checkmark); both are handled automatically by `parseInlineMarkdown`
 
 ### Correctness & Bugs
+
 - Logic errors, off-by-one mistakes, incorrect conditionals
 - Async/await misuse (missing await, unhandled promise rejections, race conditions)
 - Stale closure bugs in hooks — missing or incorrect dependency arrays
@@ -37,6 +39,7 @@ Design system: primitives in `src/components/primitives/` (Button, Text, Heading
 - Optimistic UI updates not rolled back on Firestore write failure
 
 ### Firestore Efficiency & Cost
+
 - Reads triggered inside loops or per-item (should batch or denormalize)
 - `onSnapshot` listeners not cleaned up on component unmount (leaked listeners = ongoing billing)
 - Overly broad reads (fetching full collection when a single doc suffices)
@@ -47,6 +50,7 @@ Design system: primitives in `src/components/primitives/` (Button, Text, Heading
 - Re-subscribing to `onSnapshot` on every render instead of once in a stable `useEffect`
 
 ### React Performance & Fine-Tuning
+
 - Anonymous functions or object literals created inline in JSX props on components that re-render frequently (causes unnecessary re-renders of children)
 - `useMemo` / `useCallback` added without a measurable need — premature optimization counts as a finding
 - `useMemo` / `useCallback` missing where they are clearly warranted (expensive computation or stable reference required for `React.memo` child)
@@ -57,6 +61,7 @@ Design system: primitives in `src/components/primitives/` (Button, Text, Heading
 - Missing `React.memo` on pure presentational components that receive stable props
 
 ### Architecture & Separation of Responsibilities
+
 - Firestore calls made directly inside JSX components — data access should live in custom hooks or a data layer
 - Business logic embedded in render functions or event handlers that could be extracted to pure utilities
 - Shared logic copy-pasted across components (DRY violation — extract to hook or utility)
@@ -64,12 +69,14 @@ Design system: primitives in `src/components/primitives/` (Button, Text, Heading
 - Route-level concerns (path params, navigation) leaking into presentational components
 
 ### DRY Violations
+
 - Duplicated logic that should be extracted into a shared utility or custom hook
 - Inline constants (Firestore collection names, field paths, magic strings/numbers) that should be named constants
 - Repeated JSX structures that should be a shared component
 - Copy-pasted type definitions that should be a shared interface
 
 ### Naming & Readability
+
 - Variables, functions, components, or files that don't clearly describe their intent
 - Unnecessary abbreviations that reduce clarity
 - Boolean variables or props not prefixed with `is`, `has`, `can`, `should`
@@ -77,6 +84,7 @@ Design system: primitives in `src/components/primitives/` (Button, Text, Heading
 - Component files that don't match the component name they export
 
 ### Security
+
 - `dangerouslySetInnerHTML` usage
 - User-supplied input rendered as HTML without sanitization
 - Firestore security rules bypassed client-side (reminder: no-auth model requires careful rule design)
@@ -84,6 +92,7 @@ Design system: primitives in `src/components/primitives/` (Button, Text, Heading
 - Missing input validation on user-facing fields before writing to Firestore
 
 ### Accessibility (Non-Negotiable — treat violations as [Standards Violation] or higher, never [Suggestion])
+
 - Non-semantic HTML (`<div onClick>` instead of `<button>` or `<a>`)
 - Missing `aria-label` on icon-only interactive elements
 - Elements hidden visually (`opacity: 0`, `visibility: hidden`) but still reachable via keyboard — must also have `tabIndex={-1}` and `aria-hidden`
@@ -95,6 +104,7 @@ Design system: primitives in `src/components/primitives/` (Button, Text, Heading
 - Images missing `alt` attributes
 
 ### SEO & Web Performance
+
 - `<title>` and `<meta name="description">` not updated per route — every page shares the same static head
 - Open Graph tags (`og:title`, `og:description`, `og:image`, `og:url`) missing or incomplete
 - `<meta name="twitter:card">` and related tags absent
@@ -110,6 +120,7 @@ Design system: primitives in `src/components/primitives/` (Button, Text, Heading
 - Structured data (JSON-LD) absent where page content is well-defined enough to warrant it (e.g., application landing page)
 
 ### Code Quality & Leanness
+
 - Dead code, commented-out blocks, `console.log` / `console.error` left in
 - Functions longer than ~40 lines with more than one responsibility
 - Over-engineered abstractions for a single use case — three similar lines beats a premature abstraction
@@ -119,24 +130,26 @@ Design system: primitives in `src/components/primitives/` (Button, Text, Heading
 
 ## Output Format
 
-No emojis. Plain language throughout — write as if explaining to a junior developer who is learning, not a senior engineer who needs technical depth.
+No emojis. Very simple and concise language throughout — write as if explaining to a who has no understanding of the problem, not a senior engineer who needs technical depth.
 
 Group findings by file, then by severity:
 
 **[Bug / Security]** — must fix before merge  
 **[Standards Violation]** — should fix  
-**[Suggestion]** — worth considering  
+**[Suggestion]** — worth considering
 
 Number each finding sequentially across all files (1, 2, 3, ...) so findings can be referenced by number.
 
 For each finding:
+
 ```
-N. [SEVERITY] file-path:line — what the problem is, in plain English (one sentence, no jargon)
+N. [SEVERITY] file-path:line — what the problem is, in very simple language (one sentence, no jargon)
    Fix: what to do instead (one sentence, concrete and specific)
 ```
 
 Rules for writing findings:
-- Lead with what the problem *does wrong*, not what pattern it violates
+
+- Lead with what the problem _does wrong_, not what pattern it violates
 - No acronyms or framework jargon unless unavoidable — if you must use a term like `useEffect`, briefly say what it does
 - No passive voice ("this could cause" → "this will cause")
 - No academic phrasing ("it is worth noting", "one may observe")

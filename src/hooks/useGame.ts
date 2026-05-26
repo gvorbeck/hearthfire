@@ -44,10 +44,16 @@ const parseSteading = (raw: unknown): SteadingData | undefined => {
     defenses: typeof r.defenses === 'number' ? r.defenses : undefined,
     surplus: typeof r.surplus === 'number' ? r.surplus : undefined,
     debilities: typeof r.debilities === 'object' && r.debilities !== null ? r.debilities as SteadingData['debilities'] : undefined,
-    resources: typeof r.resources === 'string' ? r.resources : undefined,
-    fortifications: typeof r.fortifications === 'string' ? r.fortifications : undefined,
+    resources: Array.isArray(r.resources) ? r.resources as string[] : typeof r.resources === 'string' && r.resources ? r.resources.split('\n').filter(Boolean) : undefined,
+    fortifications: Array.isArray(r.fortifications) ? r.fortifications as string[] : typeof r.fortifications === 'string' && r.fortifications ? r.fortifications.split('\n').filter(Boolean) : undefined,
     improvements: typeof r.improvements === 'object' && r.improvements !== null ? r.improvements as Record<string, boolean> : undefined,
-    assets: typeof r.assets === 'string' ? r.assets : undefined,
+    assetsList: Array.isArray(r.assetsList) ? r.assetsList as string[] : undefined,
+    silverPurses: typeof r.silverPurses === 'number' ? r.silverPurses : undefined,
+    silverHandfuls: typeof r.silverHandfuls === 'number' ? r.silverHandfuls : undefined,
+    silverCoins: typeof r.silverCoins === 'number' ? r.silverCoins : undefined,
+    goldPurses: typeof r.goldPurses === 'number' ? r.goldPurses : undefined,
+    goldHandfuls: typeof r.goldHandfuls === 'number' ? r.goldHandfuls : undefined,
+    goldCoins: typeof r.goldCoins === 'number' ? r.goldCoins : undefined,
     residents: Array.isArray(r.residents) ? r.residents : undefined,
     neighbors: Array.isArray(r.neighbors) ? r.neighbors : undefined,
     neighborNotes: typeof r.neighborNotes === 'object' && r.neighborNotes !== null ? r.neighborNotes as Record<string, string> : undefined,
@@ -142,7 +148,6 @@ export const useGame = (gameId: string): UseGameResult => {
   }, [gameId]);
 
   const updateSteading = useCallback(async (patch: Partial<SteadingData>) => {
-    // patch values must be flat scalars, arrays, or plain objects — not nested Firestore special types
     const dotted = Object.fromEntries(
       Object.entries(patch).map(([k, v]) => [`steading.${k}`, v])
     );

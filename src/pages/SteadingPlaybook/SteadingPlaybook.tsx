@@ -1,9 +1,10 @@
-import { useCallback, useMemo, useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { PageMeta } from '@/components/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { Heading, ScrollToTop, Tabs, RuleDivider } from '@/components/primitives';
-import { TextareaField } from '@/components/Playbook';
+import { SteadingResources } from '@/components/Playbook/sections/SteadingResources';
+import { SteadingFortifications } from '@/components/Playbook/sections/SteadingFortifications';
 import { PlaybookSection } from '@/components/CharacterSheet/PlaybookSection';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
 import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
@@ -27,15 +28,12 @@ const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
   const gameName = g.name || DEFAULT_GAME_NAME;
   const steading = g.steading ?? {};
 
-  const saveResources = useCallback((value: string) => updateSteading({ resources: value }), [updateSteading]);
-  const saveFortifications = useCallback((value: string) => updateSteading({ fortifications: value }), [updateSteading]);
-
   const crumbs = useMemo(() => [
     { label: gameName, to: `/game/${id}` },
     { label: 'Steading Playbook' },
   ], [gameName, id]);
 
-  const tabs = [
+  const tabs = useMemo(() => [
     {
       label: 'Steading',
       content: (
@@ -48,25 +46,31 @@ const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
             </div>
             <div className={styles.colRight}>
               <PlaybookSection title="Resources">
-                <TextareaField
-                  label="Resources"
-                  note="(Farming, hunting/trapping, stone from the Old Wall, etc.)"
-                  value={steading.resources ?? ''}
-                  onSave={saveResources}
-                  rows={4}
+                <SteadingResources
+                  resources={steading.resources}
+                  improvements={steading.improvements}
+                  onSave={updateSteading}
                 />
               </PlaybookSection>
               <PlaybookSection title="Fortifications">
-                <TextareaField
-                  label="Fortifications"
-                  note="(Ringwall, village militia, palisade, etc.)"
-                  value={steading.fortifications ?? ''}
-                  onSave={saveFortifications}
-                  rows={4}
+                <SteadingFortifications
+                  fortifications={steading.fortifications}
+                  improvements={steading.improvements}
+                  onSave={updateSteading}
                 />
               </PlaybookSection>
               <PlaybookSection title="Assets">
-                <SteadingAssets assets={steading.assets} onSave={updateSteading} />
+                <SteadingAssets
+                  assetsList={steading.assetsList}
+                  improvements={steading.improvements}
+                  silverPurses={steading.silverPurses}
+                  silverHandfuls={steading.silverHandfuls}
+                  silverCoins={steading.silverCoins}
+                  goldPurses={steading.goldPurses}
+                  goldHandfuls={steading.goldHandfuls}
+                  goldCoins={steading.goldCoins}
+                  onSave={updateSteading}
+                />
               </PlaybookSection>
             </div>
           </div>
@@ -114,7 +118,7 @@ const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
         </div>
       ),
     },
-  ];
+  ], [steading, updateSteading]);
 
   return (
     <main className={styles.page}>

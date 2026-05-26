@@ -20,7 +20,6 @@ export const TextareaField = ({ value, label, note, onSave, rows = 6 }: Textarea
   const isDirtyRef = useRef(false);
   const id = useId();
 
-  // Only sync incoming prop value when the user has no unsaved edits in flight.
   useEffect(() => {
     if (!isDirtyRef.current) setLocal(value);
   }, [value]);
