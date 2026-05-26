@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react';
 import clsx from 'clsx';
-import { Heading, Text, Checkbox } from '@/components/primitives';
+import { Heading, List, Text, Checkbox } from '@/components/primitives';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { SteadingData } from '@/types';
 import styles from './SteadingImprovements.module.css';
@@ -20,6 +20,7 @@ interface Improvement {
   summary: string;
   requirements: RequirementBlock[];
   benefits: string[];
+  list?: string[];
 }
 
 const IMPROVEMENTS: Improvement[] = [
@@ -74,11 +75,13 @@ const IMPROVEMENTS: Improvement[] = [
     benefits: [
       'Add "Aurochs hunting (meat, hide, horn)" to the Resources list.',
       'Henceforth, when you **lead the aurochs hunt in spring**, roll +Defenses: **on a 10+**, gain 1d4 Surplus; **on a 7-9**, gain 1d4 Surplus but pick 1 from the list below; **on a 6−**, pick 1 from the list below, or pick 2 and gain 1d4 Surplus.',
-      "— 1d4 of the town's horses are lamed or killed",
-      '— A number of locals are injured; the steading marks *diminished* (disadvantage to Deploy, Muster, or Pull Together)',
-      '— The GM picks an NPC present for the hunt; they are killed',
-      '— The Hillfolk are somehow offended',
-      "— The herd is weak; if you hunt next year they'll be wiped out",
+    ],
+    list: [
+      "1d4 of the town's horses are lamed or killed",
+      'A number of locals are injured; the steading marks *diminished* (disadvantage to Deploy, Muster, or Pull Together)',
+      'The GM picks an NPC present for the hunt; they are killed',
+      'The Hillfolk are somehow offended',
+      "The herd is weak; if you hunt next year they'll be wiped out",
     ],
   },
   {
@@ -454,26 +457,23 @@ interface SteadingImprovementsProps {
   onSave: (patch: Partial<SteadingData>) => Promise<void>;
 }
 
+const makeReqKeys = (impId: string, blockIdx: number, itemIdx: number, count: number) =>
+  Array.from({ length: count }, (_, i) => `${impId}__req__b${blockIdx}i${itemIdx}__${i}`);
+
 const ReqCheckItem = ({
-  impId, blockIdx, itemIdx, item, checked, onToggle,
+  item, keys, checkedValues, onToggle,
 }: {
-  impId: string;
-  blockIdx: number;
-  itemIdx: number;
   item: CheckItem;
-  checked: Record<string, boolean>;
+  keys: string[];
+  checkedValues: boolean[];
   onToggle: (key: string) => void;
 }) => {
-  const count = item.count ?? 1;
-  const keys = Array.from({ length: count }, (_, i) => `${impId}__req__b${blockIdx}i${itemIdx}__${i}`);
-
-  if (count === 1) {
-    const key = keys[0];
+  if (keys.length === 1) {
     return (
       <div className={styles.checkRow}>
         <Checkbox
-          checked={!!checked[key]}
-          onChange={() => onToggle(key)}
+          checked={checkedValues[0]}
+          onChange={() => onToggle(keys[0])}
           label={<span>{parseInlineMarkdown(item.label)}</span>}
         />
       </div>
@@ -483,11 +483,11 @@ const ReqCheckItem = ({
   return (
     <div className={styles.checkRow}>
       <div className={styles.multiBoxes}>
-        {keys.map((key) => (
+        {keys.map((key, i) => (
           <Checkbox
             key={key}
             aria-label={item.label}
-            checked={!!checked[key]}
+            checked={checkedValues[i]}
             onChange={() => onToggle(key)}
           />
         ))}
@@ -522,28 +522,30 @@ export const SteadingImprovements = ({ improvements = {}, onSave }: SteadingImpr
                   className={styles.itemCheckbox}
                 />
               </div>
-              <p className={styles.itemSummary}>{imp.summary}</p>
+              <p className={styles.itemSummary}>{parseInlineMarkdown(imp.summary)}</p>
 
               <div className={styles.section}>
                 <Heading as="h4" size="label">Requirements</Heading>
-                <div>
+                <div className={styles.requirementBlocks}>
                   {imp.requirements.map((block, blockIdx) => {
                     if (block.type === 'text') {
                       return <Text key={`${imp.id}-req-${blockIdx}`} size="sm" color="muted">{parseInlineMarkdown(block.content)}</Text>;
                     }
                     return (
                       <div key={`${imp.id}-cb-${blockIdx}`} className={styles.checkList}>
-                        {block.items.map((item, itemIdx) => (
+                        {block.items.map((item, itemIdx) => {
+                          const keys = makeReqKeys(imp.id, blockIdx, itemIdx, item.count ?? 1);
+                          const checkedValues = keys.map((k) => !!improvements[k]);
+                          return (
                           <ReqCheckItem
                             key={`${imp.id}-b${blockIdx}i${itemIdx}`}
-                            impId={imp.id}
-                            blockIdx={blockIdx}
-                            itemIdx={itemIdx}
                             item={item}
-                            checked={improvements}
+                            keys={keys}
+                            checkedValues={checkedValues}
                             onToggle={toggleKey}
                           />
-                        ))}
+                          );
+                        })}
                       </div>
                     );
                   })}
@@ -555,6 +557,9 @@ export const SteadingImprovements = ({ improvements = {}, onSave }: SteadingImpr
                 {imp.benefits.map((line, i) => (
                   <p key={`${imp.id}-benefit-${i}`} className={styles.bodyLine}>{parseInlineMarkdown(line)}</p>
                 ))}
+                {imp.list && (
+                  <List variant="bullet" items={imp.list.map((item) => <span>{parseInlineMarkdown(item)}</span>)} />
+                )}
               </div>
             </div>
           );
