@@ -4,6 +4,7 @@ import { GAMES_COLLECTION } from './constants';
 
 export const createGame = async (): Promise<string> => {
   const ref = await addDoc(collection(db, GAMES_COLLECTION), {
+    name: '',
     createdAt: Date.now(),
     characters: [],
   });
