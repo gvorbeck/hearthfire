@@ -52,7 +52,7 @@ Every item from the B− audit is resolved. The remaining gap to A+ is three rea
 
 ## Medium — Address Before Next Review
 
-### 3. Save calls in `MarshalCrew` and `FollowersInsert` have no error handling
+### ~~3. Save calls in `MarshalCrew` and `FollowersInsert` have no error handling~~
 
 **Files:** `src/components/CharacterSheet/playbooks/marshal/MarshalCrew.tsx`, `src/components/CharacterSheet/playbooks/followers/FollowersInsert.tsx`
 
@@ -316,7 +316,7 @@ The `×` multiplication sign has no semantic meaning and some screen readers ann
 | ~~P3~~   | ~~aria-label uses question format~~                                      | ~~`RevenantInsert.tsx:330`~~                              |
 | ~~P1~~   | ~~`Input` has no keyboard focus indicator~~                              | ~~`src/components/primitives/Input/Input.module.css`~~    |
 | ~~P1~~   | ~~`Button` has no keyboard focus indicator~~                             | ~~`src/components/primitives/Button/Button.module.css`~~  |
-| P2       | Marshal/Followers save calls have no error handling                      | `MarshalCrew.tsx`, `FollowersInsert.tsx`                  |
+| ~~P2~~   | ~~Marshal/Followers save calls have no error handling~~                  | ~~`MarshalCrew.tsx`, `FollowersInsert.tsx`~~               |
 | P3       | Instinct/Cost radio-with-custom pattern is duplicated                    | `AnimalInstinct.tsx`, `AnimalCost.tsx`, `MarshalCrew.tsx` |
 | ~~P1~~   | ~~Button has no `:focus-visible` rule~~                                  | ~~`Button/Button.module.css`~~                            |
 | P1       | Collapse trigger has no `:focus-visible` rule                            | `Collapse/Collapse.module.css`                            |
