@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect, memo, useId } from 'react';
 import clsx from 'clsx';
-import { Button, Checkbox, Heading, Input, Modal, Text, Tooltip, UseDots } from '@/components/primitives';
+import { Button, Checkbox, Heading, Input, Modal, Text, Tooltip, UseDots, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
 import { useCrewSave } from '../shared/useCrewSave';
@@ -375,6 +375,7 @@ interface FollowersInsertProps {
 }
 
 export const FollowersInsert = ({ data, onSave }: FollowersInsertProps) => {
+  const { addToast } = useToast();
   const features = resolvePlaybookFeatures(data);
 
   const [followers, setFollowers] = useState<FollowerData[]>(() =>
@@ -399,42 +400,44 @@ export const FollowersInsert = ({ data, onSave }: FollowersInsertProps) => {
 
   const { saveDebounced, saveImmediate, flushDebounce } = useCrewSave(data, onSave);
 
-  const saveFollowers = useCallback((next: FollowerData[]) => {
-    saveImmediate({ followers: next });
-  }, [saveImmediate]);
+  const saveFollowers = useCallback((next: FollowerData[], prev?: FollowerData[]) => {
+    saveImmediate({ followers: next }).catch(() => {
+      if (prev) setFollowers(prev);
+      addToast('Failed to save.');
+    });
+  }, [saveImmediate, addToast]);
 
   const saveFollowersDebounced = useCallback((next: FollowerData[]) => {
-    saveDebounced({ followers: next });
-  }, [saveDebounced]);
+    saveDebounced({ followers: next }, () => addToast('Failed to save.'));
+  }, [saveDebounced, addToast]);
 
   const flushFollowers = useCallback(() => {
-    flushDebounce({ followers: followersRef.current });
-  }, [flushDebounce]);
+    flushDebounce({ followers: followersRef.current }).catch(() => addToast('Failed to save.'));
+  }, [flushDebounce, addToast]);
 
   const handleAdd = useCallback(() => {
-    const next = [...followersRef.current, normalizeFollower(undefined, generateId())];
+    const prev = followersRef.current;
+    const next = [...prev, normalizeFollower(undefined, generateId())];
     setFollowers(next);
-    saveFollowers(next);
+    saveFollowers(next, prev);
   }, [saveFollowers]);
 
   const handleRemove = useCallback((id: string) => {
-    setFollowers((prev) => {
-      const next = prev.filter((f) => f.id !== id);
-      saveFollowers(next);
-      return next;
-    });
+    const prev = followersRef.current;
+    const next = prev.filter((f) => f.id !== id);
+    setFollowers(next);
+    saveFollowers(next, prev);
   }, [saveFollowers]);
 
   const handleFieldChange = useCallback((fi: number, field: keyof FollowerData, val: unknown) => {
-    setFollowers((prev) => {
-      const next = prev.map((f, i) => i === fi ? { ...f, [field]: val } : f);
-      if (field === 'exceptional' || field === 'group' || field === 'loyalty') {
-        saveFollowers(next);
-      } else {
-        saveFollowersDebounced(next);
-      }
-      return next;
-    });
+    const prev = followersRef.current;
+    const next = prev.map((f, i) => i === fi ? { ...f, [field]: val } : f);
+    setFollowers(next);
+    if (field === 'exceptional' || field === 'group' || field === 'loyalty') {
+      saveFollowers(next, prev);
+    } else {
+      saveFollowersDebounced(next);
+    }
   }, [saveFollowers, saveFollowersDebounced]);
 
   const handleBlur = useCallback(() => {
@@ -442,50 +445,46 @@ export const FollowersInsert = ({ data, onSave }: FollowersInsertProps) => {
   }, [flushFollowers]);
 
   const handleGearCheckedChange = useCallback((fi: number, gi: number, checked: boolean) => {
-    setFollowers((prev) => {
-      const next = prev.map((f, i) => {
-        if (i !== fi) return f;
-        const gear = [...(f.gear ?? emptyGear())];
-        gear[gi] = { ...gear[gi], checked };
-        return { ...f, gear };
-      });
-      saveFollowers(next);
-      return next;
+    const prev = followersRef.current;
+    const next = prev.map((f, i) => {
+      if (i !== fi) return f;
+      const gear = [...(f.gear ?? emptyGear())];
+      gear[gi] = { ...gear[gi], checked };
+      return { ...f, gear };
     });
+    setFollowers(next);
+    saveFollowers(next, prev);
   }, [saveFollowers]);
 
   const handleGearTextChange = useCallback((fi: number, gi: number, text: string) => {
-    setFollowers((prev) => {
-      const next = prev.map((f, i) => {
-        if (i !== fi) return f;
-        const gear = [...(f.gear ?? emptyGear())];
-        gear[gi] = { ...gear[gi], text };
-        return { ...f, gear };
-      });
-      saveFollowersDebounced(next);
-      return next;
+    const prev = followersRef.current;
+    const next = prev.map((f, i) => {
+      if (i !== fi) return f;
+      const gear = [...(f.gear ?? emptyGear())];
+      gear[gi] = { ...gear[gi], text };
+      return { ...f, gear };
     });
+    setFollowers(next);
+    saveFollowersDebounced(next);
   }, [saveFollowersDebounced]);
 
   const handleMoveChange = useCallback((fi: number, mi: number, val: string) => {
-    setFollowers((prev) => {
-      const next = prev.map((f, i) => {
-        if (i !== fi) return f;
-        const moves = [...(f.moves ?? Array(MOVES_COUNT).fill(''))];
-        moves[mi] = val;
-        return { ...f, moves };
-      });
-      saveFollowersDebounced(next);
-      return next;
+    const prev = followersRef.current;
+    const next = prev.map((f, i) => {
+      if (i !== fi) return f;
+      const moves = [...(f.moves ?? Array(MOVES_COUNT).fill(''))];
+      moves[mi] = val;
+      return { ...f, moves };
     });
+    setFollowers(next);
+    saveFollowersDebounced(next);
   }, [saveFollowersDebounced]);
 
   const handleLoyaltyChange = useCallback((fi: number, n: number) => {
-    setFollowers((prev) => {
-      const next = prev.map((f, i) => i === fi ? { ...f, loyalty: n } : f);
-      saveFollowers(next);
-      return next;
-    });
+    const prev = followersRef.current;
+    const next = prev.map((f, i) => i === fi ? { ...f, loyalty: n } : f);
+    setFollowers(next);
+    saveFollowers(next, prev);
   }, [saveFollowers]);
 
   return (
