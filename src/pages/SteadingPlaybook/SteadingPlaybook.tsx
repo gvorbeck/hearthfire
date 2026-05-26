@@ -33,7 +33,7 @@ const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
     { label: 'Steading Playbook' },
   ], [gameName, id]);
 
-  const tabs = [
+  const tabs = useMemo(() => [
     {
       label: 'Steading',
       content: (
@@ -118,7 +118,7 @@ const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
         </div>
       ),
     },
-  ];
+  ], [steading, updateSteading]);
 
   return (
     <main className={styles.page}>
