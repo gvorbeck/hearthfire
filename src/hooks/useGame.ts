@@ -148,9 +148,16 @@ export const useGame = (gameId: string): UseGameResult => {
   }, [gameId]);
 
   const updateSteading = useCallback(async (patch: Partial<SteadingData>) => {
-    const dotted = Object.fromEntries(
-      Object.entries(patch).map(([k, v]) => [`steading.${k}`, v])
-    );
+    const dotted: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(patch)) {
+      if (k === 'improvements' && v !== null && typeof v === 'object') {
+        for (const [ik, iv] of Object.entries(v as Record<string, boolean>)) {
+          dotted[`steading.improvements.${ik}`] = iv;
+        }
+      } else {
+        dotted[`steading.${k}`] = v;
+      }
+    }
     await updateDoc(doc(db, GAMES_COLLECTION, gameId), dotted);
   }, [gameId]);
 
