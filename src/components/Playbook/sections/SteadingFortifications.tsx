@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import { List, Icon, Tooltip, RepeaterField } from '@/components/primitives';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { SteadingData } from '@/types';
@@ -38,18 +37,18 @@ export const SteadingFortifications = ({ fortifications = [], improvements = {},
     ...improvementItems.map(({ label }) => ({ label, fromImprovement: true })),
   ];
 
-  const handleSave = useCallback((items: string[]) => onSave({ fortifications: items }), [onSave]);
+  const handleSave = (items: string[]) => onSave({ fortifications: items });
 
   return (
     <div className={styles.root}>
       <List
         variant="bullet"
         items={allFixed.map(({ label, fromImprovement }) => (
-          <span className={styles.fixedItem}>
+          <span key={label} className={styles.fixedItem}>
             {parseInlineMarkdown(label)}
             {fromImprovement && (
               <Tooltip text="Added by a completed improvement" side="top">
-                <Icon name="info" size="small" className={styles.infoIcon} aria-label="Added by a completed improvement" />
+                <Icon name="info" size="small" className={styles.infoIcon} />
               </Tooltip>
             )}
           </span>

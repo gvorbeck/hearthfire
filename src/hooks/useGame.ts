@@ -142,7 +142,6 @@ export const useGame = (gameId: string): UseGameResult => {
   }, [gameId]);
 
   const updateSteading = useCallback(async (patch: Partial<SteadingData>) => {
-    // patch values must be flat scalars, arrays, or plain objects — not nested Firestore special types
     const dotted = Object.fromEntries(
       Object.entries(patch).map(([k, v]) => [`steading.${k}`, v])
     );

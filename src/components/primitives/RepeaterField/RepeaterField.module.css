@@ -39,14 +39,15 @@
   transition: border-color 0.15s ease;
 }
 
-.input:focus {
+.input:focus-visible {
   border-bottom-color: var(--border-accent);
+  box-shadow: 0 2px 0 0 var(--border-accent);
 }
 
 .removeBtn {
   flex-shrink: 0;
   color: var(--color-stone-500);
-  opacity: 0;
+  opacity: 0.2;
   transition: opacity 0.1s ease;
 }
 

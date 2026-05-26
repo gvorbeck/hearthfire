@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useCallback, useId } from 'react';
-import clsx from 'clsx';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import styles from './Playbook.module.css';
 
@@ -9,10 +8,9 @@ interface TextareaFieldProps {
   note?: string;
   onSave: (value: string) => Promise<void>;
   rows?: number;
-  noBorderTop?: boolean;
 }
 
-export const TextareaField = ({ value, label, note, onSave, rows = 6, noBorderTop }: TextareaFieldProps) => {
+export const TextareaField = ({ value, label, note, onSave, rows = 6 }: TextareaFieldProps) => {
   const [local, setLocal] = useState(value);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -22,7 +20,6 @@ export const TextareaField = ({ value, label, note, onSave, rows = 6, noBorderTo
   const isDirtyRef = useRef(false);
   const id = useId();
 
-  // Only sync incoming prop value when the user has no unsaved edits in flight.
   useEffect(() => {
     if (!isDirtyRef.current) setLocal(value);
   }, [value]);
@@ -55,10 +52,8 @@ export const TextareaField = ({ value, label, note, onSave, rows = 6, noBorderTo
     flushOnBlur(local);
   }, [flushOnBlur, local]);
 
-  const fieldCx = clsx(styles.contentField, noBorderTop && styles.contentFieldNoBorderTop);
-
   return (
-    <div className={fieldCx}>
+    <div className={styles.contentField}>
       <div className={styles.contentFieldHeader}>
         <label className={styles.contentFieldLabel} htmlFor={id}>{label}</label>
         {note && <span className={styles.contentFieldNote}>{note}</span>}
