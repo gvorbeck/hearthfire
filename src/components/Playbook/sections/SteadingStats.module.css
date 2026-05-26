@@ -30,6 +30,13 @@
   gap: var(--spacing-4);
 }
 
+@media (max-width: 1279px) {
+  .statsGrid .statTop {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
 @media (max-width: 480px) {
   .statsGrid {
     grid-template-columns: 1fr;

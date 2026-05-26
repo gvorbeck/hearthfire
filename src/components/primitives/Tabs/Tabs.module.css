@@ -8,7 +8,7 @@
   align-items: center;
   border-bottom: 1px solid var(--border-subtle);
   overflow-x: auto;
-  overflow-y: visible;
+  overflow-y: hidden;
 }
 
 .tablist {
@@ -144,7 +144,8 @@
   text-transform: none;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.12s ease, transform 0.12s ease;
+  visibility: hidden;
+  transition: opacity 0.12s ease, transform 0.12s ease, visibility 0s 0.12s;
   white-space: normal;
   text-align: center;
 }
@@ -157,6 +158,8 @@
 
 .tabTooltip.bottom.tabTooltipVisible {
   opacity: 1;
+  visibility: visible;
+  transition: opacity 0.12s ease, transform 0.12s ease, visibility 0s 0s;
   transform: translateX(calc(-50% + var(--nudge-x, 0px))) translateY(0);
 }
 
@@ -168,6 +171,8 @@
 
 .tabTooltip.top.tabTooltipVisible {
   opacity: 1;
+  visibility: visible;
+  transition: opacity 0.12s ease, transform 0.12s ease, visibility 0s 0s;
   transform: translateX(calc(-50% + var(--nudge-x, 0px))) translateY(0);
 }
 
