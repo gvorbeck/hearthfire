@@ -209,7 +209,13 @@ export interface SteadingData {
   resources?: string[];
   fortifications?: string[];
   improvements?: Record<string, boolean>;
-  assets?: string;
+  assetsList?: string[];
+  silverPurses?: number;
+  silverHandfuls?: number;
+  silverCoins?: number;
+  goldPurses?: number;
+  goldHandfuls?: number;
+  goldCoins?: number;
   residents?: SteadingNPC[];
   neighbors?: SteadingNPC[];
   neighborNotes?: Record<string, string>;

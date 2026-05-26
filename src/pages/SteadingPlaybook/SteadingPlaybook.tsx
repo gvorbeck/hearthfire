@@ -60,7 +60,17 @@ const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
                 />
               </PlaybookSection>
               <PlaybookSection title="Assets">
-                <SteadingAssets assets={steading.assets} onSave={updateSteading} />
+                <SteadingAssets
+                  assetsList={steading.assetsList}
+                  improvements={steading.improvements}
+                  silverPurses={steading.silverPurses}
+                  silverHandfuls={steading.silverHandfuls}
+                  silverCoins={steading.silverCoins}
+                  goldPurses={steading.goldPurses}
+                  goldHandfuls={steading.goldHandfuls}
+                  goldCoins={steading.goldCoins}
+                  onSave={updateSteading}
+                />
               </PlaybookSection>
             </div>
           </div>
