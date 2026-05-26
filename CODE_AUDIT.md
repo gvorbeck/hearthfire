@@ -7,144 +7,6 @@ The fundamentals are solid. TypeScript coverage is strong, CSS Modules disciplin
 
 ---
 
-## Critical — Fix Before Real Users
-
-### ~~1. Race condition in character updates~~
-
-~~**File:** `src/hooks/useGame.ts`~~
-
-~~Every character mutation — `removeCharacter`, `updateCharacterName`, `updateCharacterData` — reads `gameRef.current` and rewrites the full characters array. Two concurrent writes in the same tick means last write wins and the other change is silently discarded.~~
-
-~~This is a **known bug**. The code comments acknowledge it. It hasn't been fixed.~~
-
-~~**Fix:** Move to per-character Firestore writes using dot-notation paths (`characters.0.name`) or restructure characters as a sub-collection so writes don't collide.~~
-
-**Resolved:** All three mutations now use `runTransaction` — they read live Firestore state inside the transaction before writing, so concurrent saves can never clobber each other.
-
----
-
-### ~~2. Unsafe type cast bypasses the compiler~~
-
-~~**File:** `src/hooks/useGame.ts:38`~~
-
-~~`as unknown as T` is a full escape hatch — it tells TypeScript to trust you unconditionally. This exists because the Firestore data shape doesn't actually match `GameSession`. If a document is malformed or a field type has drifted, you won't find out until a runtime crash in a user session.~~
-
-**Resolved:** `parseGameSession` and `parseContent` now validate every field before constructing the typed object. Bad data throws with a clear message, caught by a `try/catch` that routes the error to the UI. No casts remain except the honest `snapshot.data() as Record<string, unknown>`.
-
----
-
-### ~~3. Save failures are invisible to users~~
-
-~~**File:** Multiple — `src/components/CharacterSheet/sections/Moves.tsx` and others~~
-
-~~`.catch()` blocks silently roll back local state. The user's input reverts with no explanation. The `error` state in `useGame.ts` is set but never surfaced anywhere in the UI.~~
-
-~~This is a multi-player tool where data matters. Users need to know when a save fails.~~
-
-~~**Fix:** At minimum, `console.error` on failure. Better: a dismissible error banner or toast that tells the user their change didn't save and to try again.~~
-
-**Resolved:** `ToastProvider` is wired into `App.tsx` and all save `.catch()` blocks now call `addToast(...)` with a user-visible error message.
-
----
-
-## High — Address Soon
-
-### ~~4. No error boundary in App.tsx~~
-
-~~**File:** `src/App.tsx`~~
-
-~~`<Suspense fallback={null}>` wraps all lazy routes. If any route throws, the app goes blank with no recovery path and no message to the user.~~
-
-~~**Fix:** Wrap lazy routes in an `<ErrorBoundary>` with a fallback UI.~~
-
-**Resolved:** `ErrorBoundary` added as a primitive (`src/components/primitives/ErrorBoundary/`) and wraps `<Suspense>` in `App.tsx`. Uses `Stack` + `Text` primitives, arrow-function class methods, and a `role="alert"` live region.
-
----
-
-### ~~5. RangerAnimalCompanion.tsx is 689 lines~~
-
-~~**File:** `src/components/CharacterSheet/playbooks/ranger/RangerAnimalCompanion.tsx`~~
-
-~~Type selection, HP/armor display, instinct, cost, loyalty, and beast of legend are all in one file. This isn't a premature abstraction problem — it's the opposite. It's too big to reason about safely and too large to modify without risk of breakage.~~
-
-~~**Fix:** Extract distinct concerns into sub-components: `AnimalTypeSelector`, `AnimalStats`, `AnimalInstinct`, etc. Each should be independently readable.~~
-
-**Resolved:** Split into `AnimalStats`, `AnimalType`, `AnimalInstinct`, `AnimalCost`, and `BeastOfLegend` sub-components. `RangerAnimalCompanion` is now a thin composer holding all state and handlers.
-
----
-
-### ~~6. Three different debouncing patterns~~
-
-~~The codebase has:~~
-
-~~- `useDebouncedSave` — simple, stateless, single string~~
-~~- `useDebouncedAnswers` — uses `useLayoutEffect` for ref sync (unusual, suggests timing concerns)~~
-~~- Inline debounce logic in individual components (`Stats`, `Background`)~~
-
-~~Having three patterns means three places to find bugs and three behaviors to keep in sync.~~
-
-~~**Fix:** Pick one pattern and consolidate. The `useLayoutEffect` in `useDebouncedAnswers` warrants a comment explaining why it's not `useEffect`.~~
-
-**Resolved:** `useDebouncedSave` generalized to `<T>` and is now the single debouncing pattern. `useDebouncedAnswers` deleted. Inline debounce removed from `Stats.tsx` and `Background.tsx`.
-
----
-
-## Low — Polish
-
-### ~~7. Unnecessary memo/useCallback on leaf components~~
-
-~~**Files:** `src/components/CharacterSheet/sections/Stats.tsx`, `Inventory.tsx`~~
-
-~~Small presentational components (`StatBox`, `InfoBox`, `DebilityRow`) are all wrapped in `memo()` with `useCallback` for every handler. Without profiling data showing these re-renders are a problem, this adds noise without benefit. React 18's auto-batching makes this even less necessary.~~
-
-~~**Fix:** Remove unless you have profiling evidence. Re-add if you do.~~
-
-**Resolved:** `memo()` removed from all leaf sub-components in both files. `useCallback` removed from sub-component handlers and from all parent-level handlers in `Inventory.tsx` (none had `memo` children to serve). Parent `useCallback`s in `Stats.tsx` retained — `savePayload` provides the stable reference `useDebouncedSave` needs on mount.
-
----
-
-### ~~8. aria-label uses a question instead of a label~~
-
-~~**File:** `src/components/CharacterSheet/playbooks/revenant/RevenantInsert.tsx:330`~~
-
-```tsx
-aria-label={opt.namePrompt}  // "Name the person or persons…"
-```
-
-~~Screen readers announce `aria-label` as the field's name. A question reads strangely in that context.~~
-
-~~**Fix:** Use a short, descriptive label ("Purpose name") and move the prompt text to `aria-describedby` if it needs to be associated.~~
-
-**Resolved:** The `namePrompt` pattern no longer exists in `RevenantInsert.tsx` — the file was refactored and the offending `aria-label` usage is gone.
-
----
-
-## What's Working Well
-
-- TypeScript coverage is strong with minimal `any` usage
-- CSS token discipline (`--text-xs` through `--text-3xl`) is consistent across all components
-- `resolvePlaybookFeatures()` validates untrusted Firestore data defensively
-- Accessibility has genuine effort — `aria-label`, role attributes, modal focus trapping are all present
-- Arrow functions, clsx hoisting, and stated style rules are followed across the board
-- Separation of concerns is clean: game state in hooks, UI in components, data in lib
-
----
-
-## Priority Order
-
-| Priority | Issue                                                                | File                                              |
-| -------- | -------------------------------------------------------------------- | ------------------------------------------------- |
-| ~~P0~~   | ~~Race condition — character updates can silently overwrite each other~~ | ~~`src/hooks/useGame.ts`~~                    |
-| ~~P0~~   | ~~`as unknown as GameSession` — compiler is being lied to~~          | ~~`src/hooks/useGame.ts:38`~~                     |
-| ~~P1~~   | ~~Save errors are invisible to users~~                               | ~~Multiple~~                                      |
-| ~~P1~~   | ~~No error boundary — app goes blank on route throw~~                | ~~`src/App.tsx`~~                                 |
-| ~~P2~~   | ~~RangerAnimalCompanion is 689 lines~~                               | ~~`src/components/CharacterSheet/playbooks/ranger/`~~ |
-| ~~P2~~   | ~~Three debouncing patterns — pick one~~                             | ~~Multiple~~                                      |
-| ~~P3~~   | ~~Unnecessary memo on leaf components~~                              | ~~`Stats.tsx`, `Inventory.tsx`~~                  |
-| ~~P3~~   | ~~aria-label uses question format~~                                  | ~~`RevenantInsert.tsx:330`~~                      |
-
----
-
 # Round 2 Audit — 2026-05-25
 
 **Grade: A−**
@@ -178,20 +40,13 @@ Every item from the B− audit is resolved. The remaining gap to A+ is three rea
 
 ---
 
-### 2. `Button` has no keyboard focus indicator
+### ~~2. `Button` has no keyboard focus indicator~~
 
-**File:** `src/components/primitives/Button/Button.module.css`
+~~**File:** `src/components/primitives/Button/Button.module.css`~~
 
-No `:focus` or `:focus-visible` rule exists anywhere in the file. The browser default outline is not suppressed here, so most browsers will show *something*, but it will be inconsistent (browser-default blue ring on a dark themed UI) and not match the design system. More importantly, it's an accident — if `outline: none` is ever added globally or to a parent, `Button` becomes inaccessible silently.
+~~No `:focus` or `:focus-visible` rule exists anywhere in the file. The browser default outline is not suppressed here, so most browsers will show _something_, but it will be inconsistent (browser-default blue ring on a dark themed UI) and not match the design system. More importantly, it's an accident — if `outline: none` is ever added globally or to a parent, `Button` becomes inaccessible silently.~~
 
-**Fix:** Add an explicit `:focus-visible` rule consistent with the rest of the primitives:
-
-```css
-.base:focus-visible {
-  outline: 2px solid var(--color-gold-400);
-  outline-offset: 2px;
-}
-```
+**Resolved:** Added `:focus-visible` to `.base` with `outline: 2px solid var(--color-gold-400); outline-offset: 2px`, matching every other primitive.
 
 ---
 
@@ -241,20 +96,20 @@ This isn't a premature abstraction candidate — the pattern is already duplicat
 
 ## Updated Priority Order
 
-| Priority | Issue | File |
-| -------- | ----- | ---- |
-| ~~P0~~   | ~~Race condition — character updates can silently overwrite each other~~ | ~~`src/hooks/useGame.ts`~~ |
-| ~~P0~~   | ~~`as unknown as GameSession` — compiler is being lied to~~ | ~~`src/hooks/useGame.ts:38`~~ |
-| ~~P1~~   | ~~Save errors are invisible to users~~ | ~~Multiple~~ |
-| ~~P1~~   | ~~No error boundary — app goes blank on route throw~~ | ~~`src/App.tsx`~~ |
-| ~~P2~~   | ~~RangerAnimalCompanion is 689 lines~~ | ~~`src/components/CharacterSheet/playbooks/ranger/`~~ |
-| ~~P2~~   | ~~Three debouncing patterns — pick one~~ | ~~Multiple~~ |
-| ~~P3~~   | ~~Unnecessary memo on leaf components~~ | ~~`Stats.tsx`, `Inventory.tsx`~~ |
-| ~~P3~~   | ~~aria-label uses question format~~ | ~~`RevenantInsert.tsx:330`~~ |
-| P1 | `Input` has no keyboard focus indicator | `src/components/primitives/Input/Input.module.css` |
-| P1 | `Button` has no keyboard focus indicator | `src/components/primitives/Button/Button.module.css` |
-| P2 | Marshal/Followers save calls have no error handling | `MarshalCrew.tsx`, `FollowersInsert.tsx` |
-| P3 | Instinct/Cost radio-with-custom pattern is duplicated | `AnimalInstinct.tsx`, `AnimalCost.tsx`, `MarshalCrew.tsx` |
+| Priority | Issue                                                                    | File                                                      |
+| -------- | ------------------------------------------------------------------------ | --------------------------------------------------------- |
+| ~~P0~~   | ~~Race condition — character updates can silently overwrite each other~~ | ~~`src/hooks/useGame.ts`~~                                |
+| ~~P0~~   | ~~`as unknown as GameSession` — compiler is being lied to~~              | ~~`src/hooks/useGame.ts:38`~~                             |
+| ~~P1~~   | ~~Save errors are invisible to users~~                                   | ~~Multiple~~                                              |
+| ~~P1~~   | ~~No error boundary — app goes blank on route throw~~                    | ~~`src/App.tsx`~~                                         |
+| ~~P2~~   | ~~RangerAnimalCompanion is 689 lines~~                                   | ~~`src/components/CharacterSheet/playbooks/ranger/`~~     |
+| ~~P2~~   | ~~Three debouncing patterns — pick one~~                                 | ~~Multiple~~                                              |
+| ~~P3~~   | ~~Unnecessary memo on leaf components~~                                  | ~~`Stats.tsx`, `Inventory.tsx`~~                          |
+| ~~P3~~   | ~~aria-label uses question format~~                                      | ~~`RevenantInsert.tsx:330`~~                              |
+| P1       | `Input` has no keyboard focus indicator                                  | `src/components/primitives/Input/Input.module.css`        |
+| ~~P1~~   | ~~`Button` has no keyboard focus indicator~~                             | ~~`src/components/primitives/Button/Button.module.css`~~  |
+| P2       | Marshal/Followers save calls have no error handling                      | `MarshalCrew.tsx`, `FollowersInsert.tsx`                  |
+| P3       | Instinct/Cost radio-with-custom pattern is duplicated                    | `AnimalInstinct.tsx`, `AnimalCost.tsx`, `MarshalCrew.tsx` |
 
 ---
 
@@ -266,19 +121,13 @@ This isn't a premature abstraction candidate — the pattern is already duplicat
 
 ## High — Fix Before Real Users
 
-### 1. Button has no `:focus-visible` rule
+### ~~1. Button has no `:focus-visible` rule~~
 
-**File:** `src/components/primitives/Button/Button.module.css`
+~~**File:** `src/components/primitives/Button/Button.module.css`~~
 
-No `:focus-visible` rule exists on `.base`. The browser default outline is not explicitly suppressed here, but it will be inconsistent on a dark-themed UI and will silently break if a parent ever adds `outline: none`.
+~~No `:focus-visible` rule exists on `.base`. The browser default outline is not explicitly suppressed here, but it will be inconsistent on a dark-themed UI and will silently break if a parent ever adds `outline: none`.~~
 
-**Fix:**
-```css
-.base:focus-visible {
-  outline: 2px solid var(--color-gold-400);
-  outline-offset: 2px;
-}
-```
+**Resolved:** Added `:focus-visible` to `.base` with `outline: 2px solid var(--color-gold-400); outline-offset: 2px`.
 
 ---
 
@@ -289,6 +138,7 @@ No `:focus-visible` rule exists on `.base`. The browser default outline is not e
 The `.trigger` button has no `:focus-visible` rule. Keyboard users tabbing to a Collapse header get no visible indicator.
 
 **Fix:**
+
 ```css
 .trigger:focus-visible {
   outline: 2px solid var(--color-gold-400);
@@ -454,37 +304,37 @@ The `×` multiplication sign has no semantic meaning and some screen readers ann
 
 ## Updated Priority Order
 
-| Priority | Issue | File |
-| -------- | ----- | ---- |
-| ~~P0~~   | ~~Race condition — character updates can silently overwrite each other~~ | ~~`src/hooks/useGame.ts`~~ |
-| ~~P0~~   | ~~`as unknown as GameSession` — compiler is being lied to~~ | ~~`src/hooks/useGame.ts:38`~~ |
-| ~~P1~~   | ~~Save errors are invisible to users~~ | ~~Multiple~~ |
-| ~~P1~~   | ~~No error boundary — app goes blank on route throw~~ | ~~`src/App.tsx`~~ |
-| ~~P2~~   | ~~RangerAnimalCompanion is 689 lines~~ | ~~`src/components/CharacterSheet/playbooks/ranger/`~~ |
-| ~~P2~~   | ~~Three debouncing patterns — pick one~~ | ~~Multiple~~ |
-| ~~P3~~   | ~~Unnecessary memo on leaf components~~ | ~~`Stats.tsx`, `Inventory.tsx`~~ |
-| ~~P3~~   | ~~aria-label uses question format~~ | ~~`RevenantInsert.tsx:330`~~ |
-| ~~P1~~   | ~~`Input` has no keyboard focus indicator~~ | ~~`src/components/primitives/Input/Input.module.css`~~ |
-| ~~P1~~   | ~~`Button` has no keyboard focus indicator~~ | ~~`src/components/primitives/Button/Button.module.css`~~ |
-| P2 | Marshal/Followers save calls have no error handling | `MarshalCrew.tsx`, `FollowersInsert.tsx` |
-| P3 | Instinct/Cost radio-with-custom pattern is duplicated | `AnimalInstinct.tsx`, `AnimalCost.tsx`, `MarshalCrew.tsx` |
-| P1 | Button has no `:focus-visible` rule | `Button/Button.module.css` |
-| P1 | Collapse trigger has no `:focus-visible` rule | `Collapse/Collapse.module.css` |
-| P1 | CheckboxGroup uses no group semantics | `CheckboxGroup/CheckboxGroup.tsx` |
-| P1 | Radio has no group semantics | `Radio/Radio.tsx` |
-| P1 | Modal background content is not inert | `Modal/Modal.tsx` |
-| P1 | Modal has no required accessible name | `Modal/Modal.tsx` |
-| P1 | Icon-only Button has no enforced accessible name | `Button/Button.tsx` |
-| P1 | Toggle `label` is optional — toggle can be unnamed | `Toggle/Toggle.tsx` |
-| P2 | Input error not linked via `aria-describedby` | `Input/Input.tsx` |
-| P2 | Input without label generates no `id` | `Input/Input.tsx` |
-| P2 | Tooltip wrapper `<span>` is focusable but has no role | `Tooltip/Tooltip.tsx` |
-| P2 | Tooltip `aria-describedby` lost when `noTabStop` is true | `Tooltip/Tooltip.tsx` |
-| P2 | Tabs missing `Home`/`End` keyboard navigation | `Tabs/Tabs.tsx` |
-| P2 | Tabs add button is outside the tablist landmark | `Tabs/Tabs.tsx` |
-| P3 | Toast region missing `role="region"` | `Toast/Toast.tsx` |
-| P3 | Toast redundant `aria-live`/`aria-atomic` on `role="alert"` | `Toast/Toast.tsx` |
-| P3 | Tab remove button uses `×` Unicode character | `Tabs/Tabs.tsx` |
+| Priority | Issue                                                                    | File                                                      |
+| -------- | ------------------------------------------------------------------------ | --------------------------------------------------------- |
+| ~~P0~~   | ~~Race condition — character updates can silently overwrite each other~~ | ~~`src/hooks/useGame.ts`~~                                |
+| ~~P0~~   | ~~`as unknown as GameSession` — compiler is being lied to~~              | ~~`src/hooks/useGame.ts:38`~~                             |
+| ~~P1~~   | ~~Save errors are invisible to users~~                                   | ~~Multiple~~                                              |
+| ~~P1~~   | ~~No error boundary — app goes blank on route throw~~                    | ~~`src/App.tsx`~~                                         |
+| ~~P2~~   | ~~RangerAnimalCompanion is 689 lines~~                                   | ~~`src/components/CharacterSheet/playbooks/ranger/`~~     |
+| ~~P2~~   | ~~Three debouncing patterns — pick one~~                                 | ~~Multiple~~                                              |
+| ~~P3~~   | ~~Unnecessary memo on leaf components~~                                  | ~~`Stats.tsx`, `Inventory.tsx`~~                          |
+| ~~P3~~   | ~~aria-label uses question format~~                                      | ~~`RevenantInsert.tsx:330`~~                              |
+| ~~P1~~   | ~~`Input` has no keyboard focus indicator~~                              | ~~`src/components/primitives/Input/Input.module.css`~~    |
+| ~~P1~~   | ~~`Button` has no keyboard focus indicator~~                             | ~~`src/components/primitives/Button/Button.module.css`~~  |
+| P2       | Marshal/Followers save calls have no error handling                      | `MarshalCrew.tsx`, `FollowersInsert.tsx`                  |
+| P3       | Instinct/Cost radio-with-custom pattern is duplicated                    | `AnimalInstinct.tsx`, `AnimalCost.tsx`, `MarshalCrew.tsx` |
+| ~~P1~~   | ~~Button has no `:focus-visible` rule~~                                  | ~~`Button/Button.module.css`~~                            |
+| P1       | Collapse trigger has no `:focus-visible` rule                            | `Collapse/Collapse.module.css`                            |
+| P1       | CheckboxGroup uses no group semantics                                    | `CheckboxGroup/CheckboxGroup.tsx`                         |
+| P1       | Radio has no group semantics                                             | `Radio/Radio.tsx`                                         |
+| P1       | Modal background content is not inert                                    | `Modal/Modal.tsx`                                         |
+| P1       | Modal has no required accessible name                                    | `Modal/Modal.tsx`                                         |
+| P1       | Icon-only Button has no enforced accessible name                         | `Button/Button.tsx`                                       |
+| P1       | Toggle `label` is optional — toggle can be unnamed                       | `Toggle/Toggle.tsx`                                       |
+| P2       | Input error not linked via `aria-describedby`                            | `Input/Input.tsx`                                         |
+| P2       | Input without label generates no `id`                                    | `Input/Input.tsx`                                         |
+| P2       | Tooltip wrapper `<span>` is focusable but has no role                    | `Tooltip/Tooltip.tsx`                                     |
+| P2       | Tooltip `aria-describedby` lost when `noTabStop` is true                 | `Tooltip/Tooltip.tsx`                                     |
+| P2       | Tabs missing `Home`/`End` keyboard navigation                            | `Tabs/Tabs.tsx`                                           |
+| P2       | Tabs add button is outside the tablist landmark                          | `Tabs/Tabs.tsx`                                           |
+| P3       | Toast region missing `role="region"`                                     | `Toast/Toast.tsx`                                         |
+| P3       | Toast redundant `aria-live`/`aria-atomic` on `role="alert"`              | `Toast/Toast.tsx`                                         |
+| P3       | Tab remove button uses `×` Unicode character                             | `Tabs/Tabs.tsx`                                           |
 
 ---
 

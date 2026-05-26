@@ -26,7 +26,7 @@ interface SteadingContentProps {
 const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
   const headerRef = useRef<HTMLDivElement>(null);
   const gameName = g.name || DEFAULT_GAME_NAME;
-  const steading = g.steading ?? {};
+  const steading = useMemo(() => g.steading ?? {}, [g.steading]);
 
   const crumbs = useMemo(() => [
     { label: gameName, to: `/game/${id}` },
@@ -49,6 +49,7 @@ const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
                 <SteadingResources
                   resources={steading.resources}
                   improvements={steading.improvements}
+                  gmImprovements={steading.gmImprovements}
                   onSave={updateSteading}
                 />
               </PlaybookSection>
@@ -56,21 +57,12 @@ const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
                 <SteadingFortifications
                   fortifications={steading.fortifications}
                   improvements={steading.improvements}
+                  gmImprovements={steading.gmImprovements}
                   onSave={updateSteading}
                 />
               </PlaybookSection>
               <PlaybookSection title="Assets">
-                <SteadingAssets
-                  assetsList={steading.assetsList}
-                  improvements={steading.improvements}
-                  silverPurses={steading.silverPurses}
-                  silverHandfuls={steading.silverHandfuls}
-                  silverCoins={steading.silverCoins}
-                  goldPurses={steading.goldPurses}
-                  goldHandfuls={steading.goldHandfuls}
-                  goldCoins={steading.goldCoins}
-                  onSave={updateSteading}
-                />
+                <SteadingAssets steading={steading} onSave={updateSteading} />
               </PlaybookSection>
             </div>
           </div>
@@ -83,7 +75,7 @@ const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
         <div className={styles.layout}>
           <div className={styles.colFull}>
             <PlaybookSection title="Improvements">
-              <SteadingImprovements improvements={steading.improvements} onSave={updateSteading} />
+              <SteadingImprovements improvements={steading.improvements} gmImprovements={steading.gmImprovements} onSave={updateSteading} />
             </PlaybookSection>
           </div>
         </div>

@@ -31,6 +31,10 @@ const parseContent = (raw: unknown): ContentLists | undefined => {
   };
 };
 
+const num = (v: unknown): number | undefined => typeof v === 'number' ? v : undefined;
+const strArr = (v: unknown): string[] | undefined =>
+  Array.isArray(v) ? v as string[] : typeof v === 'string' && v ? v.split('\n').filter(Boolean) : undefined;
+
 const VALID_SIZES = new Set(['hamlet', 'village', 'town', 'city']);
 
 const parseSteading = (raw: unknown): SteadingData | undefined => {
@@ -38,24 +42,27 @@ const parseSteading = (raw: unknown): SteadingData | undefined => {
   const r = raw as Record<string, unknown>;
   return {
     size: VALID_SIZES.has(r.size as string) ? r.size as SteadingData['size'] : undefined,
-    fortunes: typeof r.fortunes === 'number' ? r.fortunes : undefined,
-    population: typeof r.population === 'number' ? r.population : undefined,
-    prosperity: typeof r.prosperity === 'number' ? r.prosperity : undefined,
-    defenses: typeof r.defenses === 'number' ? r.defenses : undefined,
-    surplus: typeof r.surplus === 'number' ? r.surplus : undefined,
+    fortunes: num(r.fortunes),
+    population: num(r.population),
+    prosperity: num(r.prosperity),
+    defenses: num(r.defenses),
+    surplus: num(r.surplus),
     debilities: typeof r.debilities === 'object' && r.debilities !== null ? r.debilities as SteadingData['debilities'] : undefined,
-    resources: Array.isArray(r.resources) ? r.resources as string[] : typeof r.resources === 'string' && r.resources ? r.resources.split('\n').filter(Boolean) : undefined,
-    fortifications: Array.isArray(r.fortifications) ? r.fortifications as string[] : typeof r.fortifications === 'string' && r.fortifications ? r.fortifications.split('\n').filter(Boolean) : undefined,
+    resources: strArr(r.resources),
+    fortifications: strArr(r.fortifications),
     improvements: typeof r.improvements === 'object' && r.improvements !== null ? r.improvements as Record<string, boolean> : undefined,
+    gmImprovements: Array.isArray(r.gmImprovements)
+      ? (r.gmImprovements as SteadingData['gmImprovements'])!.map((g, i) => ({ ...g, id: g.id ?? `gm-imp-legacy-${i}` }))
+      : undefined,
     assetsList: Array.isArray(r.assetsList) ? r.assetsList as string[] : undefined,
-    silverPurses: typeof r.silverPurses === 'number' ? r.silverPurses : undefined,
-    silverHandfuls: typeof r.silverHandfuls === 'number' ? r.silverHandfuls : undefined,
-    silverCoins: typeof r.silverCoins === 'number' ? r.silverCoins : undefined,
-    goldPurses: typeof r.goldPurses === 'number' ? r.goldPurses : undefined,
-    goldHandfuls: typeof r.goldHandfuls === 'number' ? r.goldHandfuls : undefined,
-    goldCoins: typeof r.goldCoins === 'number' ? r.goldCoins : undefined,
-    residents: Array.isArray(r.residents) ? r.residents : undefined,
-    neighbors: Array.isArray(r.neighbors) ? r.neighbors : undefined,
+    silverPurses: num(r.silverPurses),
+    silverHandfuls: num(r.silverHandfuls),
+    silverCoins: num(r.silverCoins),
+    goldPurses: num(r.goldPurses),
+    goldHandfuls: num(r.goldHandfuls),
+    goldCoins: num(r.goldCoins),
+    residents: Array.isArray(r.residents) ? r.residents as SteadingData['residents'] : undefined,
+    neighbors: Array.isArray(r.neighbors) ? r.neighbors as SteadingData['neighbors'] : undefined,
     neighborNotes: typeof r.neighborNotes === 'object' && r.neighborNotes !== null ? r.neighborNotes as Record<string, string> : undefined,
   };
 };

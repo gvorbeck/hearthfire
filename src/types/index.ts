@@ -198,6 +198,16 @@ export interface SteadingNPC {
 
 export type SteadingSize = 'hamlet' | 'village' | 'town' | 'city';
 
+export interface GmImprovement {
+  id: string;
+  title: string;
+  summary: string;
+  requirements: string;
+  effects: string;
+  completed: boolean;
+  category?: 'resource' | 'fortification' | 'asset' | null;
+}
+
 export interface SteadingData {
   size?: SteadingSize;
   fortunes?: number;
@@ -209,6 +219,7 @@ export interface SteadingData {
   resources?: string[];
   fortifications?: string[];
   improvements?: Record<string, boolean>;
+  gmImprovements?: GmImprovement[];
   assetsList?: string[];
   silverPurses?: number;
   silverHandfuls?: number;

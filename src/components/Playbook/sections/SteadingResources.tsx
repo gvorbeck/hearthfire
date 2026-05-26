@@ -1,7 +1,6 @@
-import { List, Icon, Tooltip, RepeaterField } from '@/components/primitives';
-import { parseInlineMarkdown } from '@/lib/parseMarkdown';
-import type { SteadingData } from '@/types';
-import styles from './SteadingResources.module.css';
+import { useCallback, useMemo } from 'react';
+import type { GmImprovement, SteadingData } from '@/types';
+import { ImprovementList } from './ImprovementList';
 
 const FIXED_RESOURCES = [
   'Farming (beans, potatoes, oats, barley)',
@@ -14,7 +13,7 @@ const FIXED_RESOURCES = [
   'Trade: Marshedge (textiles, herbs, glass)',
 ];
 
-const IMPROVEMENT_RESOURCES: { id: string; label: string }[] = [
+const IMPROVEMENT_RESOURCES = [
   { id: 'aurochs-hunting', label: 'Aurochs hunting (meat, hide, horn)' },
   { id: 'harnessing-the-stream', label: 'Harnessing the Stream' },
   { id: 'inn', label: 'The Inn' },
@@ -25,40 +24,28 @@ const IMPROVEMENT_RESOURCES: { id: string; label: string }[] = [
 interface SteadingResourcesProps {
   resources: string[] | undefined;
   improvements: Record<string, boolean> | undefined;
+  gmImprovements: GmImprovement[] | undefined;
   onSave: (patch: Partial<SteadingData>) => Promise<void>;
 }
 
-export const SteadingResources = ({ resources = [], improvements = {}, onSave }: SteadingResourcesProps) => {
-  const improvementItems = IMPROVEMENT_RESOURCES.filter((imp) => improvements[imp.id]);
+export const SteadingResources = ({ resources, improvements = {}, gmImprovements, onSave }: SteadingResourcesProps) => {
+  const handleSave = useCallback((items: string[]) => onSave({ resources: items }), [onSave]);
 
-  const allFixed = [
-    ...FIXED_RESOURCES.map((label) => ({ label, fromImprovement: false })),
-    ...improvementItems.map(({ label }) => ({ label, fromImprovement: true })),
-  ];
-
-  const handleSave = (items: string[]) => onSave({ resources: items });
+  const extraItems = useMemo(
+    () => (gmImprovements ?? []).filter((g) => g.completed && g.category === 'resource' && g.title).map((g) => g.title),
+    [gmImprovements],
+  );
 
   return (
-    <div className={styles.root}>
-      <List
-        variant="bullet"
-        items={allFixed.map(({ label, fromImprovement }) => (
-          <span key={label} className={styles.fixedItem}>
-            {parseInlineMarkdown(label)}
-            {fromImprovement && (
-              <Tooltip text="Added by a completed improvement" side="top">
-                <Icon name="info" size="small" className={styles.infoIcon} />
-              </Tooltip>
-            )}
-          </span>
-        ))}
-      />
-      <RepeaterField
-        items={resources}
-        onSave={handleSave}
-        addLabel="Add resource"
-        itemLabel="Custom resource"
-      />
-    </div>
+    <ImprovementList
+      fixedItems={FIXED_RESOURCES}
+      improvementItems={IMPROVEMENT_RESOURCES}
+      extraItems={extraItems}
+      customItems={resources}
+      improvements={improvements}
+      onSave={handleSave}
+      addLabel="Add resource"
+      itemLabel="Custom resource"
+    />
   );
 };

@@ -39,11 +39,6 @@
   border-color: var(--border-accent);
 }
 
-.itemBlank {
-  background: none;
-  border-style: dashed;
-}
-
 /* ── Header row ───────────────────────────────────────── */
 .itemHeader {
   display: flex;
@@ -126,17 +121,80 @@
   line-height: 1.45;
 }
 
+/* ── GM improvement category radios ──────────────────── */
+.categoryRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+  padding: var(--spacing-3) 0;
+}
+
+.categoryRadio {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  gap: var(--spacing-2);
+}
+
 /* ── GM slots ─────────────────────────────────────────── */
 .gmSlots {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2);
+  gap: var(--spacing-3);
   border-top: 1px solid var(--border-subtle);
   padding-top: var(--spacing-4);
 }
 
-.blankLabel {
-  font-size: var(--text-xs);
+.gmGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-3);
+}
+
+@media (min-width: 768px) {
+  .gmGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.gmItem {
+  background: none;
+  border-style: dashed;
+}
+
+.gmTitleInput {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-subtle);
+  border-radius: 0;
+  padding: 0 0 2px;
+  width: 100%;
+  color: var(--text-primary);
+}
+
+.gmTitleInput:focus {
+  outline: none;
+  border-bottom-color: var(--border-accent);
+}
+
+.gmTextarea {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-subtle);
+  border-radius: 0;
+  padding: 2px 0;
+  width: 100%;
+  resize: none;
   color: var(--text-secondary);
-  font-style: italic;
+  line-height: 1.45;
+}
+
+.gmTextarea:focus {
+  outline: none;
+  border-bottom-color: var(--border-accent);
 }
