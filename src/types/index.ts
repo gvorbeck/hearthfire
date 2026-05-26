@@ -193,6 +193,7 @@ export interface SteadingNPC {
   name: string;
   pronouns?: string;
   occupation?: string;
+  traits?: string[];
   notes?: string;
 }
 

@@ -1,18 +1,45 @@
 import { useState, useCallback, useId, useRef } from 'react';
-import { Heading, Text, Button, Modal, Input } from '@/components/primitives';
+import { Heading, Text, Button, Modal, Input, TagInput } from '@/components/primitives';
 import type { SteadingData, SteadingNPC } from '@/types';
 import styles from './SteadingNPCs.module.css';
 
 const generateId = () => `npc-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 
+const NPC_TRAITS = [
+  'all thumbs', 'ambitious', 'beloved by everyone', 'beautiful singing voice', 'best cook',
+  'best weaver', 'blind', 'braved the Ruined Tower', 'cautious', 'cheery', 'chronic cough',
+  'complains too much', 'cowardly', 'craves recognition', 'curious',
+  'dallied with the Fae years ago', 'deaf', 'desperately wants a child', 'distills the best whisky',
+  "doesn't pull their weight", 'drunkard', 'eagle-eye', 'fearless', 'foundling',
+  'gathers herbs from the Wood', 'gets the best deals', 'gifted storyteller', 'gods-fearing',
+  'good with children', 'happy-go-lucky',
+  'has a beef with Marshedge', 'has a good heart', 'has a lot of backbone', 'has a wandering eye',
+  'has a way with animals', 'has Fae blood in their veins', 'has just terrible luck',
+  'has lost their nerve', 'has no respect for their elders', 'has terrible nightmares',
+  'has the most children', 'has their head in the clouds', 'hates the Hillfolk', 'hears voices',
+  'humorless',
+  'immaculate appearance', 'jealous', 'just got married', 'keeps to themselves',
+  'knows all the gossip', 'lame', 'likes to hurt things', 'lived among the Forest Folk',
+  'lost all their children', 'lovesick', 'loves their dogs', 'loyal friend',
+  'most handsome', 'moved here recently', 'must approve any marriages',
+  'mute', 'not afraid of deep water', 'not too bright', 'oldest', 'orphan',
+  'overprotective', 'prettiest', 'prideful', 'reckless', 'refuses to marry',
+  'resents their lot in life', 'runs everywhere', 'sensitive', 'simpleton',
+  'slew many crinwin', 'stoic', 'stubborn', 'suffers from fits',
+  'swears they met the Pale Hunter', 'tells the best jokes', 'tender-hearted',
+  "tends the Gods' Pavilion", 'tends to the sick & injured', 'touched', 'very strong',
+  'wants to have kids', 'well-read', 'well-traveled', 'widowed', 'will eat anything',
+];
+
 interface NpcFormState {
   name: string;
   pronouns: string;
   occupation: string;
+  traits: string[];
   notes: string;
 }
 
-const EMPTY_FORM: NpcFormState = { name: '', pronouns: '', occupation: '', notes: '' };
+const EMPTY_FORM: NpcFormState = { name: '', pronouns: '', occupation: '', traits: [], notes: '' };
 
 interface NpcModalProps {
   open: boolean;
@@ -32,6 +59,10 @@ const NpcModal = ({ open, onClose, onSave, initial = EMPTY_FORM, title }: NpcMod
     [],
   );
 
+  const handleTraitsChange = useCallback((traits: string[]) => {
+    setForm((f) => ({ ...f, traits }));
+  }, []);
+
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name.trim()) return;
@@ -48,13 +79,20 @@ const NpcModal = ({ open, onClose, onSave, initial = EMPTY_FORM, title }: NpcMod
         <Input label="Name *" value={form.name} onChange={makeFieldHandler('name')} autoFocus required />
         <Input label="Pronouns" value={form.pronouns} onChange={makeFieldHandler('pronouns')} placeholder="e.g. she/her" />
         <Input label="Occupation" value={form.occupation} onChange={makeFieldHandler('occupation')} placeholder="e.g. farmer, smith, midwife" />
+        <TagInput
+          label="Traits"
+          value={form.traits}
+          onChange={handleTraitsChange}
+          suggestions={NPC_TRAITS}
+          placeholder="Type or pick a trait…"
+        />
         <Input
           multiline
-          label="Traits, relations, notes"
+          label="Relations & notes"
           value={form.notes}
           onChange={makeFieldHandler('notes')}
           rows={3}
-          placeholder="Traits and relationships (e.g. cautious, Nolwen's sister)"
+          placeholder="Relationships and other notes (e.g. Nolwen's sister)"
         />
         <div className={styles.formActions}>
           <Button variant="ghost" size="md" type="button" onClick={onClose}>Cancel</Button>
@@ -81,6 +119,13 @@ const NpcRow = ({ npc, onEdit, onRemove }: NpcRowProps) => {
       <div className={styles.npcInfo}>
         <span className={styles.npcName}>{label}</span>
         {npc.occupation && <span className={styles.npcOccupation}>{npc.occupation}</span>}
+        {npc.traits && npc.traits.length > 0 && (
+          <div className={styles.npcTraits}>
+            {npc.traits.map((t) => (
+              <span key={t} className={styles.npcTrait}>{t}</span>
+            ))}
+          </div>
+        )}
         {npc.notes && <span className={styles.npcNotes}>{npc.notes}</span>}
       </div>
       <div className={styles.npcActions}>
@@ -112,7 +157,13 @@ const NpcSection = ({ title, description, npcs, onUpdate }: NpcSectionProps) => 
   }, [npcs, onUpdate]);
 
   const handleEdit = useCallback((npc: SteadingNPC) => {
-    editFormRef.current = { name: npc.name, pronouns: npc.pronouns ?? '', occupation: npc.occupation ?? '', notes: npc.notes ?? '' };
+    editFormRef.current = {
+      name: npc.name,
+      pronouns: npc.pronouns ?? '',
+      occupation: npc.occupation ?? '',
+      traits: npc.traits ?? [],
+      notes: npc.notes ?? '',
+    };
     setEditNpc(npc);
   }, []);
 

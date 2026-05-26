@@ -48,6 +48,25 @@
   font-style: italic;
 }
 
+.npcTraits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-1);
+}
+
+.npcTrait {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--spacing-2);
+  height: 1.375rem;
+  background: var(--color-stone-700);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
 .npcNotes {
   font-size: var(--text-xs);
   color: var(--text-secondary);
