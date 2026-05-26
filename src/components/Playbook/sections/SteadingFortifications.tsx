@@ -1,7 +1,6 @@
-import { List, Icon, Tooltip, RepeaterField } from '@/components/primitives';
-import { parseInlineMarkdown } from '@/lib/parseMarkdown';
-import type { SteadingData } from '@/types';
-import styles from './SteadingResources.module.css';
+import { useCallback, useMemo } from 'react';
+import type { GmImprovement, SteadingData } from '@/types';
+import { ImprovementList } from './ImprovementList';
 
 const FIXED_FORTIFICATIONS = [
   'Village militia',
@@ -22,44 +21,35 @@ const IMPROVEMENT_FORTIFICATIONS: { id: string; label: string; replaces?: string
 interface SteadingFortificationsProps {
   fortifications: string[] | undefined;
   improvements: Record<string, boolean> | undefined;
+  gmImprovements: GmImprovement[] | undefined;
   onSave: (patch: Partial<SteadingData>) => Promise<void>;
 }
 
-export const SteadingFortifications = ({ fortifications = [], improvements = {}, onSave }: SteadingFortificationsProps) => {
-  const improvementItems = IMPROVEMENT_FORTIFICATIONS.filter((imp) => {
-    if (!improvements[imp.id]) return false;
-    if (imp.id === 'palisade' && IMPROVEMENT_FORTIFICATIONS.some((a) => a.replaces === 'palisade' && improvements[a.id])) return false;
-    return true;
-  });
+export const SteadingFortifications = ({ fortifications, improvements = {}, gmImprovements, onSave }: SteadingFortificationsProps) => {
+  const handleSave = useCallback((items: string[]) => onSave({ fortifications: items }), [onSave]);
 
-  const allFixed = [
-    ...FIXED_FORTIFICATIONS.map((label) => ({ label, fromImprovement: false })),
-    ...improvementItems.map(({ label }) => ({ label, fromImprovement: true })),
-  ];
+  const improvementItems = useMemo(() => {
+    const replaced = new Set(
+      IMPROVEMENT_FORTIFICATIONS.filter((imp) => imp.replaces && improvements[imp.id]).map((imp) => imp.replaces!)
+    );
+    return IMPROVEMENT_FORTIFICATIONS.filter((imp) => improvements[imp.id] && !replaced.has(imp.id));
+  }, [improvements]);
 
-  const handleSave = (items: string[]) => onSave({ fortifications: items });
+  const extraItems = useMemo(
+    () => (gmImprovements ?? []).filter((g) => g.completed && g.category === 'fortification' && g.title).map((g) => g.title),
+    [gmImprovements],
+  );
 
   return (
-    <div className={styles.root}>
-      <List
-        variant="bullet"
-        items={allFixed.map(({ label, fromImprovement }) => (
-          <span key={label} className={styles.fixedItem}>
-            {parseInlineMarkdown(label)}
-            {fromImprovement && (
-              <Tooltip text="Added by a completed improvement" side="top">
-                <Icon name="info" size="small" className={styles.infoIcon} />
-              </Tooltip>
-            )}
-          </span>
-        ))}
-      />
-      <RepeaterField
-        items={fortifications}
-        onSave={handleSave}
-        addLabel="Add fortification"
-        itemLabel="Custom fortification"
-      />
-    </div>
+    <ImprovementList
+      fixedItems={FIXED_FORTIFICATIONS}
+      improvementItems={improvementItems}
+      extraItems={extraItems}
+      customItems={fortifications}
+      improvements={improvements}
+      onSave={handleSave}
+      addLabel="Add fortification"
+      itemLabel="Custom fortification"
+    />
   );
 };

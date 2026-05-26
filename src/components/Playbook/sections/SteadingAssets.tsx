@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { List, Icon, Tooltip, RepeaterField, Heading, Text, Input } from '@/components/primitives';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { SteadingData } from '@/types';
@@ -73,36 +73,33 @@ const CurrencyField = ({ label, savedValue, onSave }: CurrencyFieldProps) => {
 type CurrencyKey = 'silverPurses' | 'silverHandfuls' | 'silverCoins' | 'goldPurses' | 'goldHandfuls' | 'goldCoins';
 
 interface SteadingAssetsProps {
-  assetsList: string[] | undefined;
-  improvements: Record<string, boolean> | undefined;
-  silverPurses: number | undefined;
-  silverHandfuls: number | undefined;
-  silverCoins: number | undefined;
-  goldPurses: number | undefined;
-  goldHandfuls: number | undefined;
-  goldCoins: number | undefined;
+  steading: Pick<SteadingData, 'assetsList' | 'improvements' | 'gmImprovements' | CurrencyKey>;
   onSave: (patch: Partial<SteadingData>) => Promise<void>;
 }
 
-export const SteadingAssets = ({
-  assetsList = [],
-  improvements = {},
-  silverPurses = 0,
-  silverHandfuls = 0,
-  silverCoins = 0,
-  goldPurses = 0,
-  goldHandfuls = 0,
-  goldCoins = 0,
-  onSave,
-}: SteadingAssetsProps) => {
+export const SteadingAssets = ({ steading, onSave }: SteadingAssetsProps) => {
+  const {
+    assetsList = [],
+    improvements = {},
+    gmImprovements = [],
+    silverPurses = 0,
+    silverHandfuls = 0,
+    silverCoins = 0,
+    goldPurses = 0,
+    goldHandfuls = 0,
+    goldCoins = 0,
+  } = steading;
   const hasHerdOfHorses = !!improvements['herd-of-horses'];
 
-  const allFixed = [
+  const allFixed = useMemo(() => [
     ...(hasHerdOfHorses ? [{ id: 'herd-of-horses', label: HERD_OF_HORSES, fromImprovement: true }] : []),
     ...FIXED_ASSETS
       .filter(({ id }) => !(id === 'draft-horses' && hasHerdOfHorses))
       .map(({ id, label }) => ({ id, label, fromImprovement: false })),
-  ];
+    ...gmImprovements
+      .filter((g) => g.completed && g.category === 'asset' && g.title)
+      .map((g) => ({ id: g.id, label: g.title, fromImprovement: true })),
+  ], [hasHerdOfHorses, gmImprovements]);
 
   const handleSaveList = useCallback((items: string[]) => onSave({ assetsList: items }), [onSave]);
   const handleCurrencySave = useCallback((key: CurrencyKey, v: number) => onSave({ [key]: v }), [onSave]);
