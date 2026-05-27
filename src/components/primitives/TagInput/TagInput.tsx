@@ -1,5 +1,6 @@
 import { useState, useRef, useId, useCallback, useEffect, useMemo, memo } from 'react';
 import clsx from 'clsx';
+import { Button } from '../Button/Button';
 import styles from './TagInput.module.css';
 
 interface TagInputProps {
@@ -155,27 +156,40 @@ export const TagInput = ({ label, value, onChange, suggestions = [], placeholder
       {label && (
         <label htmlFor={inputId} className={styles.label}>{label}</label>
       )}
-      <div className={styles.field}>
-        {value.map((tag) => (
-          <TagChip key={tag} tag={tag} onRemove={removeTag} />
-        ))}
-        <input
-          ref={inputRef}
-          id={inputId}
-          type="text"
-          className={styles.input}
-          value={inputVal}
-          placeholder={value.length === 0 ? placeholder : ''}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
-          onFocus={handleFocus}
-          autoComplete="off"
-          role="combobox"
-          aria-expanded={open}
-          aria-autocomplete="list"
-          aria-controls={listboxId}
-          aria-activedescendant={activeIndex >= 0 ? `${listboxId}-option-${activeIndex}` : undefined}
-        />
+      <div className={styles.fieldRow}>
+        <div className={styles.field}>
+          {value.map((tag) => (
+            <TagChip key={tag} tag={tag} onRemove={removeTag} />
+          ))}
+          <input
+            ref={inputRef}
+            id={inputId}
+            type="text"
+            className={styles.input}
+            value={inputVal}
+            placeholder={value.length === 0 ? placeholder : ''}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            onFocus={handleFocus}
+            autoComplete="off"
+            role="combobox"
+            aria-expanded={open}
+            aria-autocomplete="list"
+            aria-controls={listboxId}
+            aria-activedescendant={activeIndex >= 0 ? `${listboxId}-option-${activeIndex}` : undefined}
+          />
+        </div>
+        {suggestions.length > 0 && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            icon="dice"
+            onClick={assignRandom}
+            disabled={unusedCount === 0}
+            aria-label="Assign random trait"
+          />
+        )}
       </div>
       <ul
         id={listboxId}
@@ -195,16 +209,6 @@ export const TagInput = ({ label, value, onChange, suggestions = [], placeholder
           />
         ))}
       </ul>
-      {suggestions.length > 0 && (
-        <button
-          type="button"
-          className={styles.randomBtn}
-          onClick={assignRandom}
-          disabled={unusedCount === 0}
-        >
-          Assign random
-        </button>
-      )}
     </div>
   );
 };

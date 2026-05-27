@@ -1,11 +1,7 @@
 import { useCallback } from 'react';
-import { CheckboxGroup, Radio, Text } from '@/components/primitives';
-import { PlaybookSection } from '../../PlaybookSection';
-import { Move } from '../../Move';
+import { Radio, Text } from '@/components/primitives';
+import { InsertLayout } from '../shared/InsertLayout';
 import type { MoveDefinition } from '../../Move';
-import { useInsertSections } from '../shared/useInsertSections';
-import { useConsequenceCheckboxes } from '../shared/useConsequenceCheckboxes';
-import { InsertInstinctSection, InsertPurposeSection } from '../shared/InsertSections';
 import type { CharacterData } from '@/types';
 import styles from './RevenantInsert.module.css';
 
@@ -86,6 +82,7 @@ const CONSEQUENCE_LABELS: { id: string; label: string }[] = [
 
 const STRANGE_APPETITES_ID = 'strange-appetites';
 const INSATIABLE_ID = 'insatiable';
+
 const STRANGE_APPETITE_PICKS = [
   { id: 'blood', label: 'still-warm blood' },
   { id: 'marrow', label: 'bone & marrow' },
@@ -101,113 +98,70 @@ const REVENANT_KEYS = {
   purposeName: 'revenantPurposeName',
 } as const;
 
+const isConsequenceDisabled = (id: string, checked: Record<string, boolean>) =>
+  (id === INSATIABLE_ID && !checked[STRANGE_APPETITES_ID]) ||
+  (id === 'unstable' && !checked['breakdown']);
+
 interface RevenantInsertProps {
   data: CharacterData | undefined;
   onSave: (data: Partial<CharacterData>) => Promise<void>;
 }
 
 export const RevenantInsert = ({ data, onSave }: RevenantInsertProps) => {
-  const {
-    instinct, purpose, purposeNames,
-    instinctCollapsed, purposeCollapsed,
-    handleToggleInstinctCollapse, handleTogglePurposeCollapse,
-    handleInstinctChange, handlePurposeChange,
-    handlePurposeNameChange, handlePurposeNameBlur,
-    saveImmediate,
-  } = useInsertSections(data, onSave, REVENANT_KEYS);
-
-  const isConsequenceDisabled = useCallback((id: string, checked: Record<string, boolean>) =>
-    (id === INSATIABLE_ID && !checked[STRANGE_APPETITES_ID]) ||
-    (id === 'unstable' && !checked['breakdown']),
-  []);
-
-  const {
-    checked: consequences,
-    items: consequenceCheckboxItems,
-    onChange: handleConsequenceChange,
+  const consequenceAddon = useCallback(({
+    consequences,
     updateChecked,
-  } = useConsequenceCheckboxes(
-    data,
-    saveImmediate,
-    'revenantConsequences',
-    CONSEQUENCE_LABELS,
-    isConsequenceDisabled,
-  );
+  }: Parameters<NonNullable<React.ComponentProps<typeof InsertLayout>['consequenceAddon']>>[0]) => {
+    if (!consequences[STRANGE_APPETITES_ID]) return null;
 
-  const handleAppetitePickChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    updateChecked((prev) => {
-      const next: Record<string, boolean> = {};
-      for (const [k, v] of Object.entries(prev)) {
-        if (!k.startsWith('appetite:')) next[k] = v;
-      }
-      next[`appetite:${val}`] = true;
-      return next;
-    });
-  }, [updateChecked]);
+    const currentPick = Object.keys(consequences)
+      .find((k) => k.startsWith('appetite:'))
+      ?.replace('appetite:', '') ?? '';
 
-  const hasStrangeAppetites = consequences[STRANGE_APPETITES_ID] === true;
+    const handleAppetitePickChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const val = e.target.value;
+      updateChecked((prev) => {
+        const next: Record<string, boolean> = {};
+        for (const [k, v] of Object.entries(prev)) {
+          if (!k.startsWith('appetite:')) next[k] = v;
+        }
+        next[`appetite:${val}`] = true;
+        return next;
+      });
+    };
 
-  const currentAppetitePick = Object.keys(consequences).find((k) => k.startsWith('appetite:'))?.replace('appetite:', '') ?? '';
-
-  return (
-    <div className={styles.root}>
-      <InsertInstinctSection
-        radioName="revenant-instinct"
-        instinct={instinct}
-        instinctCollapsed={instinctCollapsed}
-        onToggleCollapse={handleToggleInstinctCollapse}
-        onChange={handleInstinctChange}
-      />
-
-      <PlaybookSection title="Moves">
-        <Text as="p" size="sm" color="muted" className={styles.prose}>
-          You gain all of the following:
+    return (
+      <div className={styles.appetiteSection}>
+        <Text as="p" size="sm" color="muted" className={styles.appetitePrompt}>
+          Strange Appetites — Pick 1:
         </Text>
-        <div className={styles.moveList}>
-          {REVENANT_MOVES.map((move) => (
-            <Move key={move.id} move={move} />
+        <div className={styles.appetiteGrid}>
+          {STRANGE_APPETITE_PICKS.map((pick) => (
+            <Radio
+              key={pick.id}
+              name="revenant-appetite"
+              value={pick.id}
+              checked={currentPick === pick.id}
+              onChange={handleAppetitePickChange}
+              label={<Text as="span" size="sm" color="muted">{pick.label}</Text>}
+            />
           ))}
         </div>
-      </PlaybookSection>
+      </div>
+    );
+  }, []);
 
-      <InsertPurposeSection
-        radioName="revenant-purpose"
-        purpose={purpose}
-        purposeNames={purposeNames}
-        purposeCollapsed={purposeCollapsed}
-        onToggleCollapse={handleTogglePurposeCollapse}
-        onPurposeChange={handlePurposeChange}
-        onNameChange={handlePurposeNameChange}
-        onNameBlur={handlePurposeNameBlur}
-      />
-
-      <PlaybookSection title="Consequences" chooseNote="choose 1 to start; more as play demands">
-        <CheckboxGroup
-          items={consequenceCheckboxItems}
-          checked={consequences}
-          onChange={handleConsequenceChange}
-        />
-        {hasStrangeAppetites && (
-          <div className={styles.appetiteSection}>
-            <Text as="p" size="sm" color="muted" className={styles.appetitePrompt}>
-              Strange Appetites — Pick 1:
-            </Text>
-            <div className={styles.appetiteGrid}>
-              {STRANGE_APPETITE_PICKS.map((pick) => (
-                <Radio
-                  key={pick.id}
-                  name="revenant-appetite"
-                  value={pick.id}
-                  checked={currentAppetitePick === pick.id}
-                  onChange={handleAppetitePickChange}
-                  label={<Text as="span" size="sm" color="muted">{pick.label}</Text>}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-      </PlaybookSection>
-    </div>
+  return (
+    <InsertLayout
+      playbookName="revenant"
+      data={data}
+      onSave={onSave}
+      sectionKeys={REVENANT_KEYS}
+      moves={REVENANT_MOVES}
+      consequenceKey="revenantConsequences"
+      consequenceLabels={CONSEQUENCE_LABELS}
+      isConsequenceDisabled={isConsequenceDisabled}
+      consequenceAddon={consequenceAddon}
+    />
   );
 };

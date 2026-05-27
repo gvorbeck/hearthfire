@@ -87,6 +87,18 @@
 }
 
 /* ── Add/Edit form (inside Modal) ─────────────────────── */
+.nameRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: var(--spacing-2);
+}
+
+.diceBtn {
+  flex-shrink: 0;
+  color: var(--text-secondary);
+}
+
 .form {
   display: flex;
   flex-direction: column;

@@ -1,5 +1,6 @@
-import { useState, useCallback, useId, useRef } from 'react';
+import { useState, useCallback, useId } from 'react';
 import { Heading, Text, Button, Modal, Input, TagInput } from '@/components/primitives';
+import { randomNpcName } from '@/lib/npcNames';
 import type { SteadingData, SteadingNPC } from '@/types';
 import styles from './SteadingNPCs.module.css';
 
@@ -53,14 +54,15 @@ const NpcModal = ({ open, onClose, onSave, initial = EMPTY_FORM, title }: NpcMod
   const headingId = useId();
   const [form, setForm] = useState<NpcFormState>(initial);
 
-  const makeFieldHandler = useCallback(
-    (field: keyof NpcFormState): React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> =>
-      (e) => setForm((f) => ({ ...f, [field]: e.target.value })),
-    [],
-  );
+  const makeFieldHandler = (field: keyof NpcFormState): React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> =>
+    (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
 
   const handleTraitsChange = useCallback((traits: string[]) => {
     setForm((f) => ({ ...f, traits }));
+  }, []);
+
+  const handleRandomName = useCallback(() => {
+    setForm((f) => ({ ...f, name: randomNpcName() }));
   }, []);
 
   const handleSubmit = useCallback((e: React.FormEvent) => {
@@ -76,7 +78,10 @@ const NpcModal = ({ open, onClose, onSave, initial = EMPTY_FORM, title }: NpcMod
     <Modal open={open} onClose={onClose} aria-labelledby={headingId}>
       <Heading as="h2" size="sm" id={headingId}>{title}</Heading>
       <form onSubmit={handleSubmit} className={styles.form}>
-        <Input label="Name *" value={form.name} onChange={makeFieldHandler('name')} autoFocus required />
+        <div className={styles.nameRow}>
+          <Input label="Name *" value={form.name} onChange={makeFieldHandler('name')} autoFocus required />
+          <Button variant="ghost" size="sm" type="button" icon="dice" onClick={handleRandomName} aria-label="Random name" className={styles.diceBtn} />
+        </div>
         <Input label="Pronouns" value={form.pronouns} onChange={makeFieldHandler('pronouns')} placeholder="e.g. she/her" />
         <Input label="Occupation" value={form.occupation} onChange={makeFieldHandler('occupation')} placeholder="e.g. farmer, smith, midwife" />
         <TagInput
@@ -147,7 +152,6 @@ interface NpcSectionProps {
 const NpcSection = ({ title, description, npcs, onUpdate }: NpcSectionProps) => {
   const [addOpen, setAddOpen] = useState(false);
   const [editNpc, setEditNpc] = useState<SteadingNPC | null>(null);
-  const editFormRef = useRef<NpcFormState>(EMPTY_FORM);
 
   const openAdd = useCallback(() => setAddOpen(true), []);
   const closeAdd = useCallback(() => setAddOpen(false), []);
@@ -158,13 +162,6 @@ const NpcSection = ({ title, description, npcs, onUpdate }: NpcSectionProps) => 
   }, [npcs, onUpdate]);
 
   const handleEdit = useCallback((npc: SteadingNPC) => {
-    editFormRef.current = {
-      name: npc.name,
-      pronouns: npc.pronouns ?? '',
-      occupation: npc.occupation ?? '',
-      traits: npc.traits ?? [],
-      notes: npc.notes ?? '',
-    };
     setEditNpc(npc);
   }, []);
 
@@ -198,7 +195,7 @@ const NpcSection = ({ title, description, npcs, onUpdate }: NpcSectionProps) => 
         open={editNpc !== null}
         onClose={closeEdit}
         onSave={handleSaveEdit}
-        initial={editFormRef.current}
+        initial={editNpc ? { name: editNpc.name, pronouns: editNpc.pronouns ?? '', occupation: editNpc.occupation ?? '', traits: editNpc.traits ?? [], notes: editNpc.notes ?? '' } : undefined}
         title="Edit NPC"
       />
     </div>
