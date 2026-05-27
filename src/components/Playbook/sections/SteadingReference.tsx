@@ -1,5 +1,6 @@
-import { Heading, Text } from '@/components/primitives';
+import { Heading, Text, RepeaterField } from '@/components/primitives';
 import playbookStyles from '@/components/Playbook/Playbook.module.css';
+import type { SteadingData } from '@/types';
 import styles from './SteadingReference.module.css';
 
 const STONETOP_NAMES = 'Aderyn, Aeronwen, Afanen, Afon, Alun, Andras, Aneirin, Awstin, Bedwyr, Berwyn, Betrys, Braith, Briallen, Bronwen, Bryn, Cadi, Cadoc, Cadwygan, Caron, Cefin, Ceinwen, Ceridwyn, Cerys, Colwyn, Deiniol, Dilwen, Dylis, Eifion, Eirlys, Eluned, Emrys, Enfys, Eurwen, Gaenor, Garet, Gethin, Glyndir, Heledd, Hywel, Ifan, Iorwerth, Iwan, Leuca, Lewela, Linos, Mado, Maldwyn, Malon, Mared, Marged, Martyn, Meirion, Menwen, Mererid, Neirin, Nia, Ofydd, Olwyn, Owain, Padrig, Parry, Pryce, Pryder, Rheinal, Rhisiart, Rhosyn, Rydderch, Sawyl, Siana, Sioned, Talfryn, Tegid, Tiwlip, Tomos, Tudyr, Winifred, Yorath';
@@ -35,7 +36,7 @@ const TRAITS_COL_B = [
   'will eat anything',
 ];
 
-const PLACES_OF_INTEREST = [
+const BUILT_IN_PLACES = [
   'The Stone',
   'The Granary',
   'Public House & Stables',
@@ -44,46 +45,60 @@ const PLACES_OF_INTEREST = [
   'Watchtowers',
 ];
 
-export const SteadingReference = () => (
-  <div className={styles.root}>
-    <div>
-      <Heading as="h3" size="sm">Places of interest</Heading>
-      <Text size="sm" color="muted">Key locations on the village map. Add PC homes and notable NPC homes as established in play.</Text>
-      <ul className={styles.placesList} aria-label="Places of interest">
-        {PLACES_OF_INTEREST.map((place) => (
-          <li key={place} className={styles.place}>{place}</li>
-        ))}
-        {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-          <li key={n} className={styles.placeBlank} aria-label={`Empty location ${n}`} />
-        ))}
-      </ul>
-    </div>
+interface SteadingReferenceProps {
+  placesOfInterest: string[] | undefined;
+  onSave: (patch: Partial<SteadingData>) => Promise<void>;
+}
 
-    <div className={styles.subsection}>
-      <Heading as="h3" size="sm">Names</Heading>
-      <Text size="sm" color="muted">Pick one, make one up, or ask a player to.</Text>
-      <div className={playbookStyles.paragraphs}>
-        <Text size="sm"><strong>Stonetop</strong> (Welsh): {STONETOP_NAMES}</Text>
-        <Text size="sm"><strong>Marshedge</strong> (Irish): {MARSHEDGE_NAMES}</Text>
-        <Text size="sm"><strong>Hillfolk</strong> (Breton, clipped): {HILLFOLK_NAMES}</Text>
-        <Text size="sm"><strong>Southern</strong> (Greek, Hebrew, Persian, Arabic): {SOUTHERN_NAMES}</Text>
-        <Text size="sm"><strong>Manmarch</strong> (Germanic): {MANMARCH_NAMES}</Text>
-        <Text size="sm"><strong>Barrier Pass</strong> (Tibetan, Nepali): {BARRIER_PASS_NAMES}</Text>
-        <Text size="sm" color="muted"><em>Gordin's Delve: choose from other lists; everyone there comes from somewhere else.</em></Text>
+export const SteadingReference = ({ placesOfInterest, onSave }: SteadingReferenceProps) => {
+  const savePlaces = (items: string[]) => onSave({ placesOfInterest: items });
+
+  return (
+    <div className={styles.root}>
+      <div>
+        <Heading as="h3" size="sm">Places of interest</Heading>
+        <Text size="sm" color="muted">Key locations on the village map. Add PC homes and notable NPC homes as established in play.</Text>
+        <ul className={styles.placesList} aria-label="Built-in places of interest">
+          {BUILT_IN_PLACES.map((place) => (
+            <li key={place} className={styles.place}>{place}</li>
+          ))}
+        </ul>
+        <div className={styles.customPlaces}>
+          <RepeaterField
+            items={placesOfInterest ?? []}
+            onSave={savePlaces}
+            addLabel="Add location"
+            itemLabel="Location"
+          />
+        </div>
+      </div>
+
+      <div className={styles.subsection}>
+        <Heading as="h3" size="sm">Names</Heading>
+        <Text size="sm" color="muted">Pick one, make one up, or ask a player to.</Text>
+        <div className={playbookStyles.paragraphs}>
+          <Text size="sm"><strong>Stonetop</strong> (Welsh): {STONETOP_NAMES}</Text>
+          <Text size="sm"><strong>Marshedge</strong> (Irish): {MARSHEDGE_NAMES}</Text>
+          <Text size="sm"><strong>Hillfolk</strong> (Breton, clipped): {HILLFOLK_NAMES}</Text>
+          <Text size="sm"><strong>Southern</strong> (Greek, Hebrew, Persian, Arabic): {SOUTHERN_NAMES}</Text>
+          <Text size="sm"><strong>Manmarch</strong> (Germanic): {MANMARCH_NAMES}</Text>
+          <Text size="sm"><strong>Barrier Pass</strong> (Tibetan, Nepali): {BARRIER_PASS_NAMES}</Text>
+          <Text size="sm" color="muted"><em>Gordin's Delve: choose from other lists; everyone there comes from somewhere else.</em></Text>
+        </div>
+      </div>
+
+      <div className={styles.subsection}>
+        <Heading as="h3" size="sm">NPC Traits</Heading>
+        <Text size="sm" color="muted">Assign as needed; choose from this list or make up your own.</Text>
+        <div className={styles.traitsGrid}>
+          <ul className={styles.traitsList} aria-label="NPC traits (first half)">
+            {TRAITS_COL_A.map((t) => <li key={t} className={styles.trait}>{t}</li>)}
+          </ul>
+          <ul className={styles.traitsList} aria-label="NPC traits (second half)">
+            {TRAITS_COL_B.map((t) => <li key={t} className={styles.trait}>{t}</li>)}
+          </ul>
+        </div>
       </div>
     </div>
-
-    <div className={styles.subsection}>
-      <Heading as="h3" size="sm">NPC Traits</Heading>
-      <Text size="sm" color="muted">Assign as needed; choose from this list or make up your own.</Text>
-      <div className={styles.traitsGrid}>
-        <ul className={styles.traitsList} aria-label="NPC traits (first half)">
-          {TRAITS_COL_A.map((t) => <li key={t} className={styles.trait}>{t}</li>)}
-        </ul>
-        <ul className={styles.traitsList} aria-label="NPC traits (second half)">
-          {TRAITS_COL_B.map((t) => <li key={t} className={styles.trait}>{t}</li>)}
-        </ul>
-      </div>
-    </div>
-  </div>
-);
+  );
+};

@@ -105,7 +105,7 @@ const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
       content: (
         <div className={styles.layout}>
           <div className={styles.colFull}>
-            <SteadingReference />
+            <SteadingReference placesOfInterest={steading.placesOfInterest} onSave={updateSteading} />
           </div>
         </div>
       ),
