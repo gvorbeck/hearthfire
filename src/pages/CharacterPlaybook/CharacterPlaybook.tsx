@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { PageMeta } from '@/components/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
-import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Modal, Radio } from '@/components/primitives';
+import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Modal, Radio, Icon } from '@/components/primitives';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
 import { PageHeader } from '@/components/PageHeader/PageHeader';
 import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, Moves, SpecialPossessions, Introductions, Inventory } from '@/components/CharacterSheet/sections';
@@ -373,6 +373,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
           title={characterName || playbookLabel}
           titleLabel="Edit character name"
           subtitle={characterName ? playbookLabel : undefined}
+          icon={<Icon playbookIcon={character.playbook} />}
           gameId={id}
           onSaveTitle={handleSaveCharacterName}
         />
