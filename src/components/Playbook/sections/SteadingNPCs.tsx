@@ -112,12 +112,13 @@ interface NpcRowProps {
 const NpcRow = ({ npc, onEdit, onRemove }: NpcRowProps) => {
   const handleEdit = useCallback(() => onEdit(npc), [onEdit, npc]);
   const handleRemove = useCallback(() => onRemove(npc.id), [onRemove, npc.id]);
-  const label = [npc.name, npc.pronouns].filter(Boolean).join(' ');
-
   return (
     <div className={styles.npcRow} role="listitem">
       <div className={styles.npcInfo}>
-        <span className={styles.npcName}>{label}</span>
+        <span className={styles.npcName}>
+          {npc.name}
+          {npc.pronouns && <span className={styles.npcPronouns}>{npc.pronouns}</span>}
+        </span>
         {npc.occupation && <span className={styles.npcOccupation}>{npc.occupation}</span>}
         {npc.traits && npc.traits.length > 0 && (
           <div className={styles.npcTraits}>

@@ -42,6 +42,12 @@
   color: var(--text-primary);
 }
 
+.npcPronouns {
+  font-weight: 400;
+  color: var(--text-secondary);
+  margin-left: var(--spacing-1);
+}
+
 .npcOccupation {
   font-size: var(--text-xs);
   color: var(--text-secondary);
