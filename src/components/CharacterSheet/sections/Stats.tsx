@@ -115,7 +115,7 @@ const statsFromData = (data: CharacterData | undefined, hpMax?: number): StatsSt
   statCon: data?.statCon ?? '',
   statCha: data?.statCha ?? '',
   statHp: data?.statHp ?? (hpMax !== undefined ? String(hpMax) : ''),
-  statArmor: data?.statArmor ?? '',
+  statArmor: data?.statArmor ?? '0',
   statXp: data?.statXp ?? '0',
   statLevel: data?.statLevel || '1',
 });
