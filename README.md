@@ -24,6 +24,7 @@ A digital companion for [Stonetop](https://www.kickstarter.com/projects/19561016
 | Build     | Vite                             |
 | Routing   | React Router v6                  |
 | Database  | Firebase Firestore               |
+| Testing   | Vitest + Testing Library         |
 | Styling   | CSS Modules + clsx               |
 | Hosting   | Firebase Hosting (custom domain) |
 
@@ -68,6 +69,20 @@ npm run dev
 ```
 
 Starts a Vite dev server at `http://localhost:5173`.
+
+### Testing
+
+```bash
+npm test
+```
+
+Runs the full test suite once with [Vitest](https://vitest.dev). For watch mode during development:
+
+```bash
+npm run test:watch
+```
+
+Tests use jsdom + `@testing-library/react`. All Firebase calls are mocked — no `.env` required to run tests. The CI pipeline runs `npm test` on every pull request to `main` before building.
 
 ### Production Build
 
@@ -158,7 +173,7 @@ The app deploys automatically to Firebase Hosting via GitHub Actions on every pu
   - [x] Ghost
   - [x] Revenant
   - [x] Thrall
-- [ ] Steading Playbook
+- [x] Steading Playbook
 - [ ] Arcana reference sheets
 
 ---

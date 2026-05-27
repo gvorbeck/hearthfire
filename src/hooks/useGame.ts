@@ -18,10 +18,10 @@ interface UseGameResult {
   removeCharacter: (characterId: string) => Promise<void>;
 }
 
-const parseCharacters = (raw: { characters?: unknown }): Character[] =>
+export const parseCharacters = (raw: { characters?: unknown }): Character[] =>
   Array.isArray(raw?.characters) ? (raw.characters as Character[]).filter(Boolean) : [];
 
-const parseContent = (raw: unknown): ContentLists | undefined => {
+export const parseContent = (raw: unknown): ContentLists | undefined => {
   if (typeof raw !== 'object' || raw === null) return undefined;
   const r = raw as Record<string, unknown>;
   return {
@@ -37,7 +37,7 @@ const strArr = (v: unknown): string[] | undefined =>
 
 const VALID_SIZES = new Set(['hamlet', 'village', 'town', 'city']);
 
-const parseSteading = (raw: unknown): SteadingData | undefined => {
+export const parseSteading = (raw: unknown): SteadingData | undefined => {
   if (typeof raw !== 'object' || raw === null) return undefined;
   const r = raw as Record<string, unknown>;
   return {

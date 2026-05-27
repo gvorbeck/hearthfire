@@ -1,0 +1,37 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { renderHook, act } from '@testing-library/react';
+import { useDebouncedSave } from '../useDebouncedSave';
+
+beforeEach(() => { vi.useFakeTimers(); });
+afterEach(() => { vi.useRealTimers(); });
+
+describe('useDebouncedSave', () => {
+  it('does not call onSave until the delay elapses', async () => {
+    const onSave = vi.fn().mockResolvedValue(undefined);
+    const { result } = renderHook(() => useDebouncedSave(onSave, 1500));
+
+    act(() => { result.current.onChange('hello'); });
+    expect(onSave).not.toHaveBeenCalled();
+
+    await act(async () => { vi.advanceTimersByTime(1500); });
+    expect(onSave).toHaveBeenCalledOnce();
+    expect(onSave).toHaveBeenCalledWith('hello');
+  });
+
+  it('does not fire a second call when the same value is submitted twice', async () => {
+    const onSave = vi.fn().mockResolvedValue(undefined);
+    const { result } = renderHook(() => useDebouncedSave(onSave, 1500));
+
+    await act(async () => {
+      result.current.onChange('same');
+      vi.advanceTimersByTime(1500);
+    });
+    expect(onSave).toHaveBeenCalledOnce();
+
+    await act(async () => {
+      result.current.onChange('same');
+      vi.advanceTimersByTime(1500);
+    });
+    expect(onSave).toHaveBeenCalledOnce();
+  });
+});

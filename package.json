@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "migrate:dry": "GOOGLE_APPLICATION_CREDENTIALS=./service-account.json tsx --tsconfig scripts/tsconfig.json scripts/migrate-playbook-features.ts",
@@ -21,12 +23,18 @@
     "react-router-dom": "^6.26.2"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
+    "@vitest/ui": "^4.1.7",
     "firebase-admin": "^13.10.0",
+    "jsdom": "^29.1.1",
     "tsx": "^4.22.3",
     "typescript": "^5.5.4",
-    "vite": "^5.4.8"
+    "vite": "^5.4.8",
+    "vitest": "^4.1.7"
   }
 }
