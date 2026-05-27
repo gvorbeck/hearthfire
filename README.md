@@ -182,7 +182,7 @@ The app deploys automatically to Firebase Hosting via GitHub Actions on every pu
 
 This project is unofficial fan content. _Stonetop_ is designed by Jeremy Strandberg. All game content belongs to its respective owners. This tool is not affiliated with or endorsed by the Stonetop team.
 
-The source code is available under the [MIT License](LICENSE).
+This project is released under the [CC BY-SA 4.0 License](LICENSE).
 
 ---
 
