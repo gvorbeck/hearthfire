@@ -4,14 +4,23 @@ import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
 import type { Crumb } from '@/components/Breadcrumb/Breadcrumb';
 import styles from './PageHeader.module.css';
 
-interface Props {
-  crumbs: Crumb[];
-  title: string;
-  titleLabel: string;
-  subtitle?: string;
-  gameId: string;
-  onSaveTitle: (value: string) => Promise<void>;
-}
+type Props =
+  | {
+      crumbs: Crumb[];
+      title: string;
+      subtitle?: string;
+      gameId: string;
+      onSaveTitle: (value: string) => Promise<void>;
+      titleLabel: string;
+    }
+  | {
+      crumbs: Crumb[];
+      title: string;
+      subtitle?: string;
+      gameId: string;
+      onSaveTitle?: never;
+      titleLabel?: never;
+    };
 
 export const PageHeader = ({ crumbs, title, titleLabel, subtitle, gameId, onSaveTitle }: Props) => {
   const { addToast } = useToast();
@@ -41,7 +50,7 @@ export const PageHeader = ({ crumbs, title, titleLabel, subtitle, gameId, onSave
   const commit = useCallback(async () => {
     const trimmed = value.trim();
     try {
-      if (trimmed && trimmed !== title) await onSaveTitle(trimmed);
+      if (trimmed && trimmed !== title) await onSaveTitle?.(trimmed);
     } catch {
       addToast('Failed to save game name. Try again.');
     } finally {
@@ -70,7 +79,7 @@ export const PageHeader = ({ crumbs, title, titleLabel, subtitle, gameId, onSave
     <div className={styles.header}>
       <Breadcrumb crumbs={crumbs} />
       <div className={styles.titleRow}>
-        {editing ? (
+        {onSaveTitle && editing ? (
           <input
             ref={inputRef}
             className={styles.titleInput}
@@ -83,17 +92,19 @@ export const PageHeader = ({ crumbs, title, titleLabel, subtitle, gameId, onSave
         ) : (
           <>
             <Heading as="h1" size="xl">{title}</Heading>
-            <Tooltip text="Edit name" side="top" noTabStop tooltipId={editTooltipId}>
-              <Button
-                variant="ghost"
-                icon="pencil"
-                size="sm"
-                className={styles.editBtn}
-                onClick={startEditing}
-                aria-label={titleLabel}
-                aria-describedby={editTooltipId}
-              />
-            </Tooltip>
+            {onSaveTitle && (
+              <Tooltip text="Edit name" side="top" noTabStop tooltipId={editTooltipId}>
+                <Button
+                  variant="ghost"
+                  icon="pencil"
+                  size="sm"
+                  className={styles.editBtn}
+                  onClick={startEditing}
+                  aria-label={titleLabel}
+                  aria-describedby={editTooltipId}
+                />
+              </Tooltip>
+            )}
           </>
         )}
       </div>

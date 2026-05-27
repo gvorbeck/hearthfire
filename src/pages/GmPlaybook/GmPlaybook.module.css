@@ -1,84 +1,42 @@
 .page {
   flex: 1;
   padding: var(--spacing-8) var(--spacing-6);
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
   width: 100%;
 }
 
-.header {
-  margin-top: var(--spacing-6);
-  margin-bottom: var(--spacing-8);
+.tabs {
+  margin-top: 0;
 }
 
-.title {
-  margin: var(--spacing-3) 0 0;
-  letter-spacing: 0.01em;
-}
-
-.titleRule {
-  margin-top: var(--spacing-6);
-}
-
-.sections {
-  background-color: var(--surface-panel);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-md);
-}
-
-.subsection {
-  margin-top: var(--spacing-8);
-  padding-top: var(--spacing-6);
-  border-top: 1px solid var(--border-subtle);
-}
-
-.placeholder {
-  height: var(--spacing-4);
-}
-
-.contentRules {
+.layout {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4);
-  font-size: var(--text-sm);
-  color: var(--color-stone-200);
-  line-height: 1.6;
+  gap: var(--spacing-6);
 }
 
-.contentRules strong {
-  color: var(--text-primary);
-  font-style: italic;
-}
-
-
-.threatMovesGrid {
+.columns {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-6) var(--spacing-8);
-  margin-top: var(--spacing-4);
+  grid-template-columns: 1fr;
+  gap: var(--spacing-6);
+  align-items: start;
 }
 
-.threatType {
-  font-style: italic;
-  margin-bottom: var(--spacing-1);
+@media (min-width: 768px) {
+  .columns {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
-.weatherGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-6) var(--spacing-8);
-  margin-top: var(--spacing-4);
-}
-
-.seasonHeading {
+.colLeft {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-2);
+  flex-direction: column;
+  gap: var(--spacing-6);
 }
 
-.seasonIcon {
-  color: var(--color-gold-500);
-  flex-shrink: 0;
+.colRight {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
 }
