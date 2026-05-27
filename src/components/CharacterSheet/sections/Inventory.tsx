@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react';
 import clsx from 'clsx';
-import { Checkbox, Divider, Input, UseDots } from '@/components/primitives';
+import { Checkbox, Divider, Heading, Input, Stack, UseDots, RepeaterField } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { CharacterData } from '@/types';
@@ -78,26 +78,8 @@ const SMALL_ITEMS: SmallItem[] = [
   { id: 'whistle', label: '**Whistle**' },
 ];
 
-const UNDEFINED_MAIN_COUNT = 3;
-const UNDEFINED_SMALL_COUNT = 5;
-const CUSTOM_MAIN_COUNT = 5;
-const CUSTOM_SMALL_COUNT = 10;
-const POSSESSION_COUNT = 5;
-
-const normalizeCustomMain = (
-  raw: { checked: boolean; text: string; weight: 1 | 2 }[] | undefined,
-): { checked: boolean; text: string; weight: 1 | 2 }[] =>
-  Array.from({ length: CUSTOM_MAIN_COUNT }, (_, i) => raw?.[i] ?? { checked: false, text: '', weight: 1 });
-
-const normalizeCustomSmall = (
-  raw: { checked: boolean; text: string }[] | undefined,
-): { checked: boolean; text: string }[] =>
-  Array.from({ length: CUSTOM_SMALL_COUNT }, (_, i) => raw?.[i] ?? { checked: false, text: '' });
-
-const normalizePossessions = (
-  raw: { checked: boolean; text: string; weight: 1 | 2 }[] | undefined,
-): { checked: boolean; text: string; weight: 1 | 2 }[] =>
-  Array.from({ length: POSSESSION_COUNT }, (_, i) => raw?.[i] ?? { checked: false, text: '', weight: 1 });
+const UNDEFINED_MAIN_COUNT = 9;
+const UNDEFINED_SMALL_COUNT = 6;
 
 interface MainItemRowProps {
   item: MainItem;
@@ -108,24 +90,26 @@ interface MainItemRowProps {
   onUsesChange: (id: string, n: number) => void;
 }
 
-const MainItemRow = ({ item, checked, uses, prosperity, onCheckedChange, onUsesChange }: MainItemRowProps) => {
+const MainItemRow = memo(({ item, checked, uses, prosperity, onCheckedChange, onUsesChange }: MainItemRowProps) => {
   const isSupplies = item.id.startsWith('supplies-');
   const hasUses = isSupplies || item.uses !== undefined;
   const effectiveTotal = isSupplies ? 4 + prosperity : (item.uses ?? 0);
-  const rowCx = clsx(styles.mainItemRow, item.weight === 2 && styles.mainItemRowDouble);
+  const rowCx = clsx(styles.mainItemRow);
+  const handleChecked = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onCheckedChange(item.id, e.target.checked), [item.id, onCheckedChange]);
+  const handleUses = useCallback((n: number) => onUsesChange(item.id, n), [item.id, onUsesChange]);
   return (
     <div className={rowCx}>
       <Checkbox
         variant="provision"
         weight={item.weight}
         checked={checked}
-        onChange={(e) => onCheckedChange(item.id, e.target.checked)}
+        onChange={handleChecked}
         label={
           <span className={styles.itemLabel}>
             {parseInlineMarkdown(item.label)}
             {hasUses && checked && (
               <span className={styles.itemDots}>
-                <UseDots total={effectiveTotal} checked={uses} onChange={(n) => onUsesChange(item.id, n)} />
+                <UseDots total={effectiveTotal} checked={uses} onChange={handleUses} />
               </span>
             )}
           </span>
@@ -133,7 +117,7 @@ const MainItemRow = ({ item, checked, uses, prosperity, onCheckedChange, onUsesC
       />
     </div>
   );
-};
+});
 
 interface SmallItemRowProps {
   item: SmallItem;
@@ -141,109 +125,18 @@ interface SmallItemRowProps {
   onCheckedChange: (id: string, checked: boolean) => void;
 }
 
-const SmallItemRow = ({ item, checked, onCheckedChange }: SmallItemRowProps) => (
-  <div className={styles.smallItemRow}>
-    <Checkbox
-      checked={checked}
-      onChange={(e) => onCheckedChange(item.id, e.target.checked)}
-      label={<span className={styles.itemLabel}>{parseInlineMarkdown(item.label)}</span>}
-    />
-  </div>
-);
-
-interface CustomMainItemProps {
-  index: number;
-  checked: boolean;
-  text: string;
-  weight: 1 | 2;
-  onCheckedChange: (i: number, checked: boolean) => void;
-  onTextChange: (i: number, text: string) => void;
-  onWeightChange: (i: number, weight: 1 | 2) => void;
-  onBlur: () => void;
-}
-
-const CustomMainItem = ({ index, checked, text, weight, onCheckedChange, onTextChange, onWeightChange, onBlur }: CustomMainItemProps) => (
-  <div className={styles.customMainItem}>
-    <Checkbox variant="provision" weight={weight} checked={checked} onChange={(e) => onCheckedChange(index, e.target.checked)} aria-label={`Custom item ${index + 1}`} />
-    <Input
-      className={styles.customInput}
-      type="text"
-      value={text}
-      placeholder="Item…"
-      aria-label={`Custom item ${index + 1} name`}
-      onChange={(e) => onTextChange(index, e.target.value)}
-      onBlur={onBlur}
-    />
-    <select
-      className={styles.weightSelect}
-      value={weight}
-      aria-label={`Custom item ${index + 1} weight`}
-      onChange={(e) => onWeightChange(index, Number(e.target.value) as 1 | 2)}
-    >
-      <option value={1}>◇</option>
-      <option value={2}>◇◇</option>
-    </select>
-  </div>
-);
-
-interface CustomSmallItemProps {
-  index: number;
-  checked: boolean;
-  text: string;
-  onCheckedChange: (i: number, checked: boolean) => void;
-  onTextChange: (i: number, text: string) => void;
-  onBlur: () => void;
-}
-
-const CustomSmallItem = ({ index, checked, text, onCheckedChange, onTextChange, onBlur }: CustomSmallItemProps) => (
-  <div className={styles.customSmallItem}>
-    <Checkbox checked={checked} onChange={(e) => onCheckedChange(index, e.target.checked)} aria-label={`Custom small item ${index + 1}`} />
-    <Input
-      className={styles.customInput}
-      type="text"
-      value={text}
-      placeholder="Item…"
-      aria-label={`Custom small item ${index + 1} name`}
-      onChange={(e) => onTextChange(index, e.target.value)}
-      onBlur={onBlur}
-    />
-  </div>
-);
-
-interface PossessionRowProps {
-  index: number;
-  checked: boolean;
-  text: string;
-  weight: 1 | 2;
-  onCheckedChange: (i: number, checked: boolean) => void;
-  onTextChange: (i: number, text: string) => void;
-  onWeightChange: (i: number, weight: 1 | 2) => void;
-  onBlur: () => void;
-}
-
-const PossessionRow = ({ index, checked, text, weight, onCheckedChange, onTextChange, onWeightChange, onBlur }: PossessionRowProps) => (
-  <div className={styles.possessionRow}>
-    <Checkbox variant="provision" weight={weight} checked={checked} onChange={(e) => onCheckedChange(index, e.target.checked)} aria-label={`Possession ${index + 1}`} />
-    <Input
-      className={styles.customInput}
-      type="text"
-      value={text}
-      placeholder="Item…"
-      aria-label={`Possession ${index + 1} name`}
-      onChange={(e) => onTextChange(index, e.target.value)}
-      onBlur={onBlur}
-    />
-    <select
-      className={styles.weightSelect}
-      value={weight}
-      aria-label={`Possession ${index + 1} weight`}
-      onChange={(e) => onWeightChange(index, Number(e.target.value) as 1 | 2)}
-    >
-      <option value={1}>◇</option>
-      <option value={2}>◇◇</option>
-    </select>
-  </div>
-);
+const SmallItemRow = memo(({ item, checked, onCheckedChange }: SmallItemRowProps) => {
+  const handleChecked = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onCheckedChange(item.id, e.target.checked), [item.id, onCheckedChange]);
+  return (
+    <div className={styles.smallItemRow}>
+      <Checkbox
+        checked={checked}
+        onChange={handleChecked}
+        label={<span className={styles.itemLabel}>{parseInlineMarkdown(item.label)}</span>}
+      />
+    </div>
+  );
+});
 
 interface InventoryProps {
   data: CharacterData | undefined;
@@ -254,30 +147,17 @@ interface InventoryProps {
 export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
   const [inventoryChecked, setInventoryChecked] = useState<Record<string, boolean>>(() => data?.inventoryChecked ?? {});
   const [inventoryUses, setInventoryUses] = useState<Record<string, number>>(() => data?.inventoryUses ?? {});
-  const [customItems, setCustomItems] = useState(() => normalizeCustomMain(data?.inventoryCustomItems));
   const [smallChecked, setSmallChecked] = useState<Record<string, boolean>>(() => data?.inventorySmallChecked ?? {});
-  const [smallCustom, setSmallCustom] = useState(() => normalizeCustomSmall(data?.inventorySmallCustom));
   const [undefinedMain, setUndefinedMain] = useState<number>(() => data?.inventoryUndefined ?? 0);
   const [undefinedSmall, setUndefinedSmall] = useState<number>(() => data?.inventorySmallUndefined ?? 0);
   const [otherThings, setOtherThings] = useState<string>(() => data?.inventoryOtherThings ?? '');
-  const [possessions, setPossessions] = useState(() => normalizePossessions(data?.inventoryPossessions));
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onSaveRef = useRef(onSave);
   onSaveRef.current = onSave;
 
-  const customItemsRef = useRef(customItems);
-  customItemsRef.current = customItems;
-  const smallCustomRef = useRef(smallCustom);
-  smallCustomRef.current = smallCustom;
-  const possessionsRef = useRef(possessions);
-  possessionsRef.current = possessions;
-
   useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
 
-  // Only sync toggle/counter fields from Firestore; text-heavy fields (custom items, possessions,
-  // other things) are left as local state after mount to prevent Firestore round-trips overwriting
-  // in-flight keystrokes before the debounce flushes.
   useEffect(() => {
     if (data?.inventoryChecked !== undefined) setInventoryChecked(data.inventoryChecked);
     if (data?.inventoryUses !== undefined) setInventoryUses(data.inventoryUses);
@@ -335,54 +215,6 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
     });
   }, [saveImmediate]);
 
-  const handleCustomMainChecked = useCallback((i: number, val: boolean) => {
-    setCustomItems((prev) => {
-      const next = prev.map((item, idx) => idx === i ? { ...item, checked: val } : item);
-      saveImmediate({ inventoryCustomItems: next });
-      return next;
-    });
-  }, [saveImmediate]);
-
-  const handleCustomMainText = useCallback((i: number, text: string) => {
-    setCustomItems((prev) => {
-      const next = prev.map((item, idx) => idx === i ? { ...item, text } : item);
-      saveDebounced({ inventoryCustomItems: next });
-      return next;
-    });
-  }, [saveDebounced]);
-
-  const handleCustomMainWeight = useCallback((i: number, weight: 1 | 2) => {
-    setCustomItems((prev) => {
-      const next = prev.map((item, idx) => idx === i ? { ...item, weight } : item);
-      saveImmediate({ inventoryCustomItems: next });
-      return next;
-    });
-  }, [saveImmediate]);
-
-  const handleCustomMainBlur = useCallback(() => {
-    flushDebounce({ inventoryCustomItems: customItemsRef.current });
-  }, [flushDebounce]);
-
-  const handleSmallCustomChecked = useCallback((i: number, val: boolean) => {
-    setSmallCustom((prev) => {
-      const next = prev.map((item, idx) => idx === i ? { ...item, checked: val } : item);
-      saveImmediate({ inventorySmallCustom: next });
-      return next;
-    });
-  }, [saveImmediate]);
-
-  const handleSmallCustomText = useCallback((i: number, text: string) => {
-    setSmallCustom((prev) => {
-      const next = prev.map((item, idx) => idx === i ? { ...item, text } : item);
-      saveDebounced({ inventorySmallCustom: next });
-      return next;
-    });
-  }, [saveDebounced]);
-
-  const handleSmallCustomBlur = useCallback(() => {
-    flushDebounce({ inventorySmallCustom: smallCustomRef.current });
-  }, [flushDebounce]);
-
   const handleOtherThingsChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value;
     setOtherThings(val);
@@ -393,39 +225,18 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
     flushDebounce({ inventoryOtherThings: e.target.value });
   }, [flushDebounce]);
 
-  const handlePossessionChecked = useCallback((i: number, val: boolean) => {
-    setPossessions((prev) => {
-      const next = prev.map((item, idx) => idx === i ? { ...item, checked: val } : item);
-      saveImmediate({ inventoryPossessions: next });
-      return next;
-    });
-  }, [saveImmediate]);
+  const handleSavePossessions = useCallback(async (items: { checked: boolean; text: string; weight: 1 | 2 }[]) => {
+    await onSaveRef.current({ inventoryPossessions: items });
+  }, []);
 
-  const handlePossessionText = useCallback((i: number, text: string) => {
-    setPossessions((prev) => {
-      const next = prev.map((item, idx) => idx === i ? { ...item, text } : item);
-      saveDebounced({ inventoryPossessions: next });
-      return next;
-    });
-  }, [saveDebounced]);
-
-  const handlePossessionWeight = useCallback((i: number, weight: 1 | 2) => {
-    setPossessions((prev) => {
-      const next = prev.map((item, idx) => idx === i ? { ...item, weight } : item);
-      saveImmediate({ inventoryPossessions: next });
-      return next;
-    });
-  }, [saveImmediate]);
-
-  const handlePossessionBlur = useCallback(() => {
-    flushDebounce({ inventoryPossessions: possessionsRef.current });
-  }, [flushDebounce]);
+  const handleSaveSmallCustom = useCallback(async (items: { checked: boolean; text: string }[]) => {
+    await onSaveRef.current({ inventorySmallCustom: items });
+  }, []);
 
   const { totalLoad, loadLabel, loadCx } = useMemo(() => {
-    const load = MAIN_ITEMS.reduce((sum, item) => inventoryChecked[item.id] ? sum + item.weight : sum, 0) +
-      customItems.reduce((sum, item) => item.checked ? sum + item.weight : sum, 0) +
-      possessions.reduce((sum, item) => item.checked ? sum + item.weight : sum, 0) +
-      undefinedMain;
+    const namedLoad = MAIN_ITEMS.reduce((sum, item) => inventoryChecked[item.id] ? sum + item.weight : sum, 0);
+    const possessionLoad = (data?.inventoryPossessions ?? []).reduce((sum, item) => item.checked ? sum + item.weight : sum, 0);
+    const load = namedLoad + possessionLoad + undefinedMain;
     return {
       totalLoad: load,
       loadLabel: load <= 3 ? 'light load' : load <= 6 ? 'normal load' : 'heavy load',
@@ -436,9 +247,8 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
         load > 6 && styles.loadHeavy,
       ),
     };
-  }, [inventoryChecked, customItems, possessions, undefinedMain]);
+  }, [inventoryChecked, data?.inventoryPossessions, undefinedMain]);
 
-  const possessionsHeadingCx = clsx(styles.prose, styles.possessionsHeading);
 
   return (
     <div className={styles.root}>
@@ -462,19 +272,19 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
 
             <Divider />
 
-            <div className={styles.undefinedSection}>
-              <div className={styles.undefinedHeader}>
+            <Stack gap={2}>
+              <Stack direction="row" gap={3} align="center">
                 <span className={styles.undefinedLabel}>Undefined</span>
                 <UseDots total={UNDEFINED_MAIN_COUNT} checked={undefinedMain} onChange={handleUndefinedMain} />
-              </div>
+              </Stack>
               <p className={styles.prose}>
                 {parseInlineMarkdown('When you **Have What You Need**, move ◈ from here to ◊ below.')}
               </p>
-            </div>
+            </Stack>
 
             <Divider />
 
-            <div className={styles.itemList}>
+            <Stack gap={2}>
               {MAIN_ITEMS.map((item) => (
                 <MainItemRow
                   key={item.id}
@@ -486,53 +296,25 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
                   onUsesChange={handleMainUses}
                 />
               ))}
-            </div>
+            </Stack>
 
             <Divider />
 
-            <div className={styles.possessionsSection}>
-              <p className={possessionsHeadingCx}>Possessions, items, loot</p>
-              <div className={styles.possessionList}>
-                {possessions.map((item, i) => (
-                  <PossessionRow
-                    key={`possession-${i}`}
-                    index={i}
-                    checked={item.checked}
-                    text={item.text}
-                    weight={item.weight}
-                    onCheckedChange={handlePossessionChecked}
-                    onTextChange={handlePossessionText}
-                    onWeightChange={handlePossessionWeight}
-                    onBlur={handlePossessionBlur}
-                  />
-                ))}
-              </div>
-            </div>
+            <Stack gap={2}>
+              <Heading as="h4" size="sm">Possessions, items, loot</Heading>
+              <RepeaterField
+                variant="checked-weight"
+                items={data?.inventoryPossessions ?? []}
+                onSave={handleSavePossessions}
+                addLabel="Add possession"
+                itemLabel="Possession"
+              />
+            </Stack>
 
             <Divider />
 
-            <div className={styles.customSection}>
-              <div className={styles.customItemList}>
-                {customItems.map((item, i) => (
-                  <CustomMainItem
-                    key={`custom-main-${i}`}
-                    index={i}
-                    checked={item.checked}
-                    text={item.text}
-                    weight={item.weight}
-                    onCheckedChange={handleCustomMainChecked}
-                    onTextChange={handleCustomMainText}
-                    onWeightChange={handleCustomMainWeight}
-                    onBlur={handleCustomMainBlur}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <Divider />
-
-            <div className={styles.otherSection}>
-              <p className={possessionsHeadingCx}>Other things <em>(animals, kits, stashed items, etc.)</em></p>
+            <Stack gap={2}>
+              <Heading as="h4" size="sm">{parseInlineMarkdown('Other things *(animals, kits, stashed items, etc.)*')}</Heading>
               <Input
                 multiline
                 value={otherThings}
@@ -542,7 +324,7 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
                 onChange={handleOtherThingsChange}
                 onBlur={handleOtherThingsBlur}
               />
-            </div>
+            </Stack>
           </PlaybookSection>
         </div>
 
@@ -555,19 +337,19 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
 
             <Divider />
 
-            <div className={styles.undefinedSection}>
-              <div className={styles.undefinedHeader}>
+            <Stack gap={2}>
+              <Stack direction="row" gap={3} align="center">
                 <span className={styles.undefinedLabel}>Undefined</span>
                 <UseDots total={UNDEFINED_SMALL_COUNT} checked={undefinedSmall} onChange={handleUndefinedSmall} />
-              </div>
+              </Stack>
               <p className={styles.prose}>
                 {parseInlineMarkdown("When you **Have What You Need**, move ◈ from here to items below, or expend supplies to mark an additional □.")}
               </p>
-            </div>
+            </Stack>
 
             <Divider />
 
-            <div className={styles.smallItemList}>
+            <Stack gap={1}>
               {SMALL_ITEMS.map((item) => (
                 <SmallItemRow
                   key={item.id}
@@ -576,18 +358,14 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
                   onCheckedChange={handleSmallChecked}
                 />
               ))}
-              {smallCustom.map((item, i) => (
-                <CustomSmallItem
-                  key={`small-custom-${i}`}
-                  index={i}
-                  checked={item.checked}
-                  text={item.text}
-                  onCheckedChange={handleSmallCustomChecked}
-                  onTextChange={handleSmallCustomText}
-                  onBlur={handleSmallCustomBlur}
-                />
-              ))}
-            </div>
+              <RepeaterField
+                variant="checked"
+                items={data?.inventorySmallCustom ?? []}
+                onSave={handleSaveSmallCustom}
+                addLabel="Add small item"
+                itemLabel="Small item"
+              />
+            </Stack>
           </PlaybookSection>
 
           <PlaybookSection title="Prosperity">

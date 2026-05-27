@@ -78,19 +78,6 @@
   color: var(--color-danger, #ef4444);
 }
 
-/* Undefined */
-.undefinedSection {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-}
-
-.undefinedHeader {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-3);
-}
-
 .undefinedLabel {
   font-family: var(--font-serif);
   font-size: var(--text-sm);
@@ -99,21 +86,12 @@
 }
 
 /* Main item list */
-.itemList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-}
-
 .mainItemRow {
   display: flex;
   align-items: baseline;
   flex-wrap: wrap;
 }
 
-.mainItemRowDouble {
-  padding-left: 0;
-}
 
 .itemLabel {
   font-family: var(--font-serif);
@@ -134,118 +112,10 @@
   align-items: center;
 }
 
-/* Possessions */
-.possessionsSection {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-}
-
-.possessionsHeading {
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.possessionList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-}
-
-.possessionRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2);
-}
-
-/* Custom items */
-.customSection {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-}
-
-.customItemList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-}
-
-.customMainItem {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2);
-}
-
-.customInput {
-  flex: 1;
-  min-width: 0;
-  padding: var(--spacing-1) var(--spacing-2);
-  background-color: var(--surface-raised);
-  border: none;
-  border-bottom: 1px solid var(--border-subtle);
-  color: var(--text-primary);
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  outline: none;
-  transition: border-color 0.15s ease;
-}
-
-.customInput::placeholder {
-  color: var(--color-stone-500);
-  font-style: italic;
-}
-
-.customInput:focus-visible {
-  border-color: var(--border-accent);
-  outline: 2px solid var(--border-accent);
-  outline-offset: 2px;
-}
-
-.weightSelect {
-  padding: var(--spacing-1);
-  background-color: var(--surface-raised);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary);
-  font-family: var(--font-serif);
-  font-size: var(--text-xs);
-  outline: none;
-  cursor: pointer;
-  transition: border-color 0.15s ease;
-}
-
-.weightSelect:focus-visible {
-  border-color: var(--border-accent);
-  outline: 2px solid var(--border-accent);
-  outline-offset: 2px;
-}
-
-/* Other things */
-.otherSection {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-}
-
-
 /* Small items */
-.smallItemList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-1);
-}
-
 .smallItemRow {
   display: flex;
   align-items: baseline;
-}
-
-.customSmallItem {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2);
-  margin-top: var(--spacing-1);
 }
 
 /* Prosperity */
@@ -262,12 +132,6 @@
   gap: var(--spacing-3);
   padding: var(--spacing-1) var(--spacing-2);
   border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: background-color 0.1s ease;
-}
-
-.prosperityOption:hover {
-  background-color: var(--surface-raised);
 }
 
 .prosperitySelected {
