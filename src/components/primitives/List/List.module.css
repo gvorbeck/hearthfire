@@ -27,6 +27,7 @@
   flex-shrink: 0;
   font-size: var(--text-xs);
   line-height: 1.6;
+  font-family: var(--font-sans);
 }
 
 /* ── Dash variant ────────────────────────────────────── */

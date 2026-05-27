@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import clsx from 'clsx';
 import { Button } from '../Button/Button';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
@@ -27,7 +27,7 @@ interface RowProps {
   onRemove: (id: number) => void;
 }
 
-const Row = ({ item, position, itemLabel, pendingFocusId, onPendingFocusConsumed, onChange, onBlur, onRemove }: RowProps) => {
+const Row = memo(({ item, position, itemLabel, pendingFocusId, onPendingFocusConsumed, onChange, onBlur, onRemove }: RowProps) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => onChange(item.id, e.target.value);
   const handleBlur = () => onBlur(item.id);
   const handleRemove = () => onRemove(item.id);
@@ -54,7 +54,7 @@ const Row = ({ item, position, itemLabel, pendingFocusId, onPendingFocusConsumed
       />
     </li>
   );
-};
+});
 
 const toItems = (values: string[], startId: number): RepeaterItem[] =>
   values.map((value, i) => ({ id: startId + i, value }));
@@ -65,25 +65,30 @@ export const RepeaterField = ({ items, onSave, addLabel, itemLabel }: RepeaterFi
   const nextId = useRef(items.length);
   const [local, setLocal] = useState<RepeaterItem[]>(() => toItems(items, 0));
   const [pendingFocusId, setPendingFocusId] = useState<number | null>(null);
-  const isDirtyRef = useRef(false);
+  const lastSavedValuesRef = useRef<string[]>(items);
   const onSaveRef = useRef(onSave);
   onSaveRef.current = onSave;
 
   useEffect(() => {
-    if (!isDirtyRef.current) {
-      setLocal(toItems(items, nextId.current));
-    }
+    const inSync = items.length === lastSavedValuesRef.current.length &&
+      items.every((v, i) => v === lastSavedValuesRef.current[i]);
+    if (!inSync) return;
+    setLocal((prev) => {
+      if (prev.length === items.length) return prev;
+      nextId.current = items.length;
+      return toItems(items, 0);
+    });
   }, [items]);
 
   const wrappedSave = useCallback(async (next: RepeaterItem[]) => {
-    await onSaveRef.current(toValues(next));
-    isDirtyRef.current = false;
+    const values = toValues(next);
+    await onSaveRef.current(values);
+    lastSavedValuesRef.current = values;
   }, []);
 
   const { onChange: debouncedChange, flush } = useDebouncedSave(wrappedSave, 1500);
 
   const handleChange = useCallback((id: number, value: string) => {
-    isDirtyRef.current = true;
     const next = local.map((r) => (r.id === id ? { ...r, value } : r));
     setLocal(next);
     debouncedChange(next);
@@ -96,25 +101,21 @@ export const RepeaterField = ({ items, onSave, addLabel, itemLabel }: RepeaterFi
   }, [local, flush]);
 
   const handleAdd = useCallback(() => {
-    isDirtyRef.current = true;
     const id = nextId.current++;
     setPendingFocusId(id);
-    const next = [...local, { id, value: '' }];
-    setLocal(next);
-    debouncedChange(next);
-  }, [local, debouncedChange]);
+    setLocal((prev) => [...prev, { id, value: '' }]);
+  }, []);
 
   const handleRemove = useCallback((id: number) => {
-    isDirtyRef.current = true;
     const next = local.filter((r) => r.id !== id);
     setLocal(next);
-    debouncedChange(next);
-  }, [local, debouncedChange]);
+    flush(next);
+  }, [local, flush]);
 
   const handlePendingFocusConsumed = useCallback(() => setPendingFocusId(null), []);
 
   return (
-    <div className={styles.root}>
+    <>
       {local.length > 0 && (
         <ul className={styles.list} aria-label={addLabel}>
           {local.map((item, i) => (
@@ -138,10 +139,10 @@ export const RepeaterField = ({ items, onSave, addLabel, itemLabel }: RepeaterFi
         size="sm"
         icon="plus"
         onClick={handleAdd}
-        className={clsx(styles.addBtn, local.length > 0 && styles.addBtnOffset)}
+        className={clsx(styles.addBtn, styles.addBtnOffset)}
       >
         {addLabel}
       </Button>
-    </div>
+    </>
   );
 };

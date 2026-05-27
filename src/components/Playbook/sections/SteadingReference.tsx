@@ -1,4 +1,6 @@
-import { Heading, Text, RepeaterField } from '@/components/primitives';
+import { useCallback } from 'react';
+import { Heading, Text } from '@/components/primitives';
+import { ImprovementList } from './ImprovementList';
 import playbookStyles from '@/components/Playbook/Playbook.module.css';
 import {
   STONETOP_NAMES_STR,
@@ -52,26 +54,22 @@ interface SteadingReferenceProps {
 }
 
 export const SteadingReference = ({ placesOfInterest, onSave }: SteadingReferenceProps) => {
-  const savePlaces = (items: string[]) => onSave({ placesOfInterest: items });
+  const savePlaces = useCallback((items: string[]) => onSave({ placesOfInterest: items }), [onSave]);
 
   return (
     <div className={styles.root}>
-      <div>
+      <div className={styles.places}>
         <Heading as="h3" size="sm">Places of interest</Heading>
         <Text size="sm" color="muted">Key locations on the village map. Add PC homes and notable NPC homes as established in play.</Text>
-        <ul className={styles.placesList} aria-label="Built-in places of interest">
-          {BUILT_IN_PLACES.map((place) => (
-            <li key={place} className={styles.place}>{place}</li>
-          ))}
-        </ul>
-        <div className={styles.customPlaces}>
-          <RepeaterField
-            items={placesOfInterest ?? []}
-            onSave={savePlaces}
-            addLabel="Add location"
-            itemLabel="Location"
-          />
-        </div>
+        <ImprovementList
+          fixedItems={BUILT_IN_PLACES}
+          improvementItems={[]}
+          customItems={placesOfInterest}
+          improvements={{}}
+          onSave={savePlaces}
+          addLabel="Add location"
+          itemLabel="Location"
+        />
       </div>
 
       <div className={styles.subsection}>

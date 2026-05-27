@@ -1,19 +1,10 @@
 .root {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4);
 }
 
-/* ── Fixed asset list ─────────────────────────────────── */
-.fixedItem {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-1);
-}
-
-.infoIcon {
-  color: var(--color-stone-500);
-  flex-shrink: 0;
+.description {
+  margin-bottom: var(--spacing-3);
 }
 
 /* ── Currency ─────────────────────────────────────────── */
@@ -22,6 +13,7 @@
   flex-direction: column;
   gap: var(--spacing-3);
   border-top: 1px solid var(--border-subtle);
+  margin-top: var(--spacing-4);
   padding-top: var(--spacing-4);
 }
 
