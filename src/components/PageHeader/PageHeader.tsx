@@ -9,6 +9,7 @@ type Props =
       crumbs: Crumb[];
       title: string;
       subtitle?: string;
+      icon?: React.ReactElement<SVGSVGElement>;
       gameId: string;
       onSaveTitle: (value: string) => Promise<void>;
       titleLabel: string;
@@ -17,12 +18,13 @@ type Props =
       crumbs: Crumb[];
       title: string;
       subtitle?: string;
+      icon?: React.ReactElement<SVGSVGElement>;
       gameId: string;
       onSaveTitle?: never;
       titleLabel?: never;
     };
 
-export const PageHeader = ({ crumbs, title, titleLabel, subtitle, gameId, onSaveTitle }: Props) => {
+export const PageHeader = ({ crumbs, title, titleLabel, subtitle, icon, gameId, onSaveTitle }: Props) => {
   const { addToast } = useToast();
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState('');
@@ -79,6 +81,7 @@ export const PageHeader = ({ crumbs, title, titleLabel, subtitle, gameId, onSave
     <div className={styles.header}>
       <Breadcrumb crumbs={crumbs} />
       <div className={styles.titleRow}>
+        {icon && <span className={styles.titleIcon} aria-hidden="true">{icon}</span>}
         {onSaveTitle && editing ? (
           <input
             ref={inputRef}

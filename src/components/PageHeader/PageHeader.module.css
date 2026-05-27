@@ -8,6 +8,19 @@
   gap: var(--spacing-3);
 }
 
+.titleIcon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  height: var(--text-3xl);
+  color: var(--text-heading);
+}
+
+.titleIcon svg {
+  height: 100%;
+  width: auto;
+}
+
 .titleInput {
   font-family: var(--font-serif);
   font-size: var(--text-display);
