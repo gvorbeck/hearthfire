@@ -183,3 +183,11 @@ The app deploys automatically to Firebase Hosting via GitHub Actions on every pu
 This project is unofficial fan content. _Stonetop_ is designed by Jeremy Strandberg. All game content belongs to its respective owners. This tool is not affiliated with or endorsed by the Stonetop team.
 
 The source code is available under the [MIT License](LICENSE).
+
+---
+
+## Artwork & Trade Dress
+
+The playbook icons, Seasons Change move icons, and monster/artifact/etc. icons used in this project are part of the official _Stonetop_ trade dress. Jeremy Strandberg has [confirmed](https://discord.com/channels/538756448914767872/825767574176137226/1506483106109063208) that the trade dress is free to use in fan projects, provided any such works are released under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) with proper attribution.
+
+Maps and illustrations by Lucie are copyright their respective creator and are **not** included in this project.
