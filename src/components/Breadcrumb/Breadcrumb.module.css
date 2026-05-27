@@ -21,7 +21,7 @@
 }
 
 .separator {
-  color: var(--color-stone-700);
+  color: var(--color-stone-500);
   font-size: var(--text-xs);
 }
 
