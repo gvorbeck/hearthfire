@@ -9,6 +9,21 @@
   border-bottom: 1px solid var(--border-subtle);
   overflow-x: auto;
   overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-gold-400) transparent;
+}
+
+.tablistRow::-webkit-scrollbar {
+  height: 3px;
+}
+
+.tablistRow::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tablistRow::-webkit-scrollbar-thumb {
+  background: var(--color-gold-400);
+  border-radius: 2px;
 }
 
 .tablist {
@@ -125,7 +140,6 @@
               0 0 10px 2px color-mix(in srgb, var(--color-gold-400) 30%, transparent);
 }
 
-/* ── Per-tab tooltip (rendered inside button, anchored via position:relative) ── */
 .tabTooltip {
   position: absolute;
   z-index: 100;

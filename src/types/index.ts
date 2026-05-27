@@ -231,6 +231,7 @@ export interface SteadingData {
   residents?: SteadingNPC[];
   neighbors?: SteadingNPC[];
   neighborNotes?: Record<string, string>;
+  placesOfInterest?: string[];
 }
 
 export interface GameSession {

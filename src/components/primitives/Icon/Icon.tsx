@@ -112,6 +112,16 @@ const icons = {
   info: (
     <path strokeLinecap="round" strokeLinejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
   ),
+  dice: (
+    <>
+      <rect x="3" y="3" width="18" height="18" rx="3" ry="3" />
+      <circle cx="8.5" cy="8.5" r="1" fill="currentColor" stroke="none" />
+      <circle cx="15.5" cy="8.5" r="1" fill="currentColor" stroke="none" />
+      <circle cx="8.5" cy="15.5" r="1" fill="currentColor" stroke="none" />
+      <circle cx="15.5" cy="15.5" r="1" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" />
+    </>
+  ),
 };
 
 export type IconName = keyof typeof icons;

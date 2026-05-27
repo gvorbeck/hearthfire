@@ -64,6 +64,7 @@ const parseSteading = (raw: unknown): SteadingData | undefined => {
     residents: Array.isArray(r.residents) ? r.residents as SteadingData['residents'] : undefined,
     neighbors: Array.isArray(r.neighbors) ? r.neighbors as SteadingData['neighbors'] : undefined,
     neighborNotes: typeof r.neighborNotes === 'object' && r.neighborNotes !== null ? r.neighborNotes as Record<string, string> : undefined,
+    placesOfInterest: Array.isArray(r.placesOfInterest) ? r.placesOfInterest as string[] : undefined,
   };
 };
 

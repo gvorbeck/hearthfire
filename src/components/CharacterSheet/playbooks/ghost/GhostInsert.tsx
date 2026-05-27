@@ -1,12 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { CheckboxGroup, Text } from '@/components/primitives';
-import { PlaybookSection } from '../../PlaybookSection';
 import { Move } from '../../Move';
 import type { MoveDefinition } from '../../Move';
+import { InsertLayout } from '../shared/InsertLayout';
 import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
-import { useInsertSections } from '../shared/useInsertSections';
-import { useConsequenceCheckboxes } from '../shared/useConsequenceCheckboxes';
-import { InsertInstinctSection, InsertPurposeSection } from '../shared/InsertSections';
 import type { CharacterData } from '@/types';
 import styles from './GhostInsert.module.css';
 
@@ -92,15 +88,18 @@ const CONSEQUENCE_LABELS: { id: string; label: string }[] = [
   },
 ];
 
-const POLTERGEIST_ID = 'poltergeist';
-const BREAKDOWN_ID = 'breakdown';
-const UNSTABLE_ID = 'unstable';
-
 const GHOST_KEYS = {
   instinct: 'ghostInstinct',
   purpose: 'ghostPurpose',
   purposeName: 'ghostPurposeName',
 } as const;
+
+const POLTERGEIST_ID = 'poltergeist';
+const BREAKDOWN_ID = 'breakdown';
+const UNSTABLE_ID = 'unstable';
+
+const isConsequenceDisabled = (id: string, checked: Record<string, boolean>) =>
+  id === UNSTABLE_ID && !checked[BREAKDOWN_ID];
 
 interface GhostInsertProps {
   data: CharacterData | undefined;
@@ -108,15 +107,6 @@ interface GhostInsertProps {
 }
 
 export const GhostInsert = ({ data, onSave }: GhostInsertProps) => {
-  const {
-    instinct, purpose, purposeNames,
-    instinctCollapsed, purposeCollapsed,
-    handleToggleInstinctCollapse, handleTogglePurposeCollapse,
-    handleInstinctChange, handlePurposeChange,
-    handlePurposeNameChange, handlePurposeNameBlur,
-    saveImmediate,
-  } = useInsertSections(data, onSave, GHOST_KEYS);
-
   const [furyChecked, setFuryChecked] = useState<number>(
     () => resolvePlaybookFeatures(data).ghostPoltergeistFury ?? 0,
   );
@@ -126,78 +116,38 @@ export const GhostInsert = ({ data, onSave }: GhostInsertProps) => {
     if (f.ghostPoltergeistFury !== undefined) setFuryChecked(f.ghostPoltergeistFury);
   }, [data]);
 
-  const isConsequenceDisabled = useCallback((id: string, checked: Record<string, boolean>) =>
-    id === UNSTABLE_ID && !checked[BREAKDOWN_ID],
-  []);
-
-  const {
-    checked: consequences,
-    items: consequenceCheckboxItems,
-    onChange: handleConsequenceChange,
-  } = useConsequenceCheckboxes(
-    data,
+  const consequenceAddon = useCallback(({
+    consequences,
     saveImmediate,
-    'ghostConsequences',
-    CONSEQUENCE_LABELS,
-    isConsequenceDisabled,
-  );
-
-  const handleFuryChange = useCallback((count: number) => {
-    setFuryChecked(count);
-    saveImmediate({ ghostPoltergeistFury: count });
-  }, [saveImmediate]);
-
-  const hasPoltergeist = consequences[POLTERGEIST_ID] === true;
+  }: Parameters<NonNullable<React.ComponentProps<typeof InsertLayout>['consequenceAddon']>>[0]) => {
+    if (!consequences[POLTERGEIST_ID]) return null;
+    const handleFuryChange = (count: number) => {
+      setFuryChecked(count);
+      saveImmediate({ ghostPoltergeistFury: count });
+    };
+    return (
+      <div className={styles.furySection}>
+        <Move
+          move={POLTERGEIST_MOVE}
+          usesChecked={furyChecked}
+          onUsesChange={handleFuryChange}
+        />
+      </div>
+    );
+  }, [furyChecked]);
 
   return (
-    <div className={styles.root}>
-      <InsertInstinctSection
-        radioName="ghost-instinct"
-        instinct={instinct}
-        instinctCollapsed={instinctCollapsed}
-        onToggleCollapse={handleToggleInstinctCollapse}
-        onChange={handleInstinctChange}
-      />
-
-      <PlaybookSection title="Moves">
-        <Text as="p" size="sm" color="muted" className={styles.prose}>
-          You gain all of the following:
-        </Text>
-        <div className={styles.moveList}>
-          {GHOST_MOVES.map((move) => (
-            <Move key={move.id} move={move} />
-          ))}
-        </div>
-      </PlaybookSection>
-
-      <InsertPurposeSection
-        radioName="ghost-purpose"
-        purpose={purpose}
-        purposeNames={purposeNames}
-        purposeCollapsed={purposeCollapsed}
-        onToggleCollapse={handleTogglePurposeCollapse}
-        onPurposeChange={handlePurposeChange}
-        onNameChange={handlePurposeNameChange}
-        onNameBlur={handlePurposeNameBlur}
-      />
-
-      <PlaybookSection title="Consequences" chooseNote="choose 1 to start; more as play demands">
-        <CheckboxGroup
-          items={consequenceCheckboxItems}
-          checked={consequences}
-          onChange={handleConsequenceChange}
-          itemGap="md"
-        />
-        {hasPoltergeist && (
-          <div className={styles.furySection}>
-            <Move
-              move={POLTERGEIST_MOVE}
-              usesChecked={furyChecked}
-              onUsesChange={handleFuryChange}
-            />
-          </div>
-        )}
-      </PlaybookSection>
-    </div>
+    <InsertLayout
+      playbookName="ghost"
+      data={data}
+      onSave={onSave}
+      sectionKeys={GHOST_KEYS}
+      moves={GHOST_MOVES}
+      consequenceKey="ghostConsequences"
+      consequenceLabels={CONSEQUENCE_LABELS}
+      isConsequenceDisabled={isConsequenceDisabled}
+      consequenceAddon={consequenceAddon}
+      checkboxGroupItemGap="md"
+    />
   );
 };

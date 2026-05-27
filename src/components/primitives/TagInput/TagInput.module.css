@@ -2,6 +2,13 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-1);
+}
+
+.fieldRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: var(--spacing-2);
   position: relative;
 }
 
@@ -123,34 +130,3 @@
   background: var(--color-stone-700);
 }
 
-/* ── Random button ────────────────────────────────────────── */
-
-.randomBtn {
-  align-self: flex-start;
-  padding: 0;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-family: var(--font-sans);
-  font-size: var(--text-xs);
-  color: var(--color-gold-500);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  transition: color 0.1s ease;
-}
-
-.randomBtn:hover {
-  color: var(--color-gold-400);
-}
-
-.randomBtn:focus-visible {
-  outline: 2px solid var(--color-gold-400);
-  outline-offset: 2px;
-  border-radius: var(--radius-sm);
-}
-
-.randomBtn:disabled {
-  color: var(--text-secondary);
-  cursor: not-allowed;
-  text-decoration: none;
-}

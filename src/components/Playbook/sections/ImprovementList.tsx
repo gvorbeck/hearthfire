@@ -1,6 +1,6 @@
 import { List, Icon, Tooltip, RepeaterField } from '@/components/primitives';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
-import styles from './SteadingResources.module.css';
+import styles from './ImprovementList.module.css';
 
 interface ImprovementItem {
   id: string;
@@ -34,21 +34,20 @@ export const ImprovementList = ({
     ...extraItems.map((label) => ({ label, fromImprovement: true })),
   ];
 
+  const listItems = allFixed.map(({ label, fromImprovement }, i) => (
+    <span key={i} className={styles.fixedItem}>
+      {parseInlineMarkdown(label)}
+      {fromImprovement && (
+        <Tooltip text="Added by a completed improvement" side="top">
+          <Icon name="info" size="small" className={styles.infoIcon} />
+        </Tooltip>
+      )}
+    </span>
+  ));
+
   return (
     <div className={styles.root}>
-      <List
-        variant="bullet"
-        items={allFixed.map(({ label, fromImprovement }) => (
-          <span key={label} className={styles.fixedItem}>
-            {parseInlineMarkdown(label)}
-            {fromImprovement && (
-              <Tooltip text="Added by a completed improvement" side="top">
-                <Icon name="info" size="small" className={styles.infoIcon} />
-              </Tooltip>
-            )}
-          </span>
-        ))}
-      />
+      <List variant="bullet" items={listItems} />
       <RepeaterField
         items={customItems}
         onSave={onSave}
