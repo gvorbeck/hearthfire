@@ -16,6 +16,7 @@ interface UseGameResult {
   updateSteading: (patch: Partial<SteadingData>) => Promise<void>;
   addCharacter: (character: Character) => Promise<void>;
   removeCharacter: (characterId: string) => Promise<void>;
+  reorderCharacters: (characters: Character[]) => Promise<void>;
 }
 
 export const parseCharacters = (raw: { characters?: unknown }): Character[] =>
@@ -147,6 +148,14 @@ export const useGame = (gameId: string): UseGameResult => {
     await withCharacters(doc(db, GAMES_COLLECTION, gameId), (chars) => chars.filter((c) => c.id !== characterId));
   }, [gameId]);
 
+  const reorderCharacters = useCallback(async (characters: Character[]) => {
+    const ids = characters.map((c) => c.id);
+    await withCharacters(doc(db, GAMES_COLLECTION, gameId), (current) => {
+      const lookup = new Map(current.map((c) => [c.id, c]));
+      return ids.map((id) => lookup.get(id)).filter(Boolean) as Character[];
+    });
+  }, [gameId]);
+
   const updateCharacterName = useCallback(async (characterId: string, name: string) => {
     await withCharacters(doc(db, GAMES_COLLECTION, gameId), (chars) => chars.map((c) => c.id === characterId ? { ...c, name } : c));
   }, [gameId]);
@@ -169,5 +178,5 @@ export const useGame = (gameId: string): UseGameResult => {
     await updateDoc(doc(db, GAMES_COLLECTION, gameId), dotted);
   }, [gameId]);
 
-  return { game, loading, error, updateGameName, updateCharacterName, updateCharacterData, updateContent, updateField, updateSteading, addCharacter, removeCharacter };
+  return { game, loading, error, updateGameName, updateCharacterName, updateCharacterData, updateContent, updateField, updateSteading, addCharacter, removeCharacter, reorderCharacters };
 };
