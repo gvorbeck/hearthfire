@@ -235,7 +235,7 @@ const GameContent = ({
                 ))}
               </Stack>
             )}
-            <Button variant="secondary" size="xl" fullWidth onClick={onOpenAddCharacter}>
+            <Button variant="secondary" size="xl" fullWidth onClick={onOpenAddCharacter} disabled={existingPlaybooks.length >= PLAYBOOKS.length}>
               Add Character
             </Button>
           </div>
