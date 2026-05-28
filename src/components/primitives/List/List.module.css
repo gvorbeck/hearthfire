@@ -51,6 +51,24 @@
   font-weight: 700;
 }
 
+/* When a dash list is nested inside a numbered item, add breathing room above */
+.numbered > .item .list {
+  margin-top: var(--spacing-2);
+}
+
+/* When a dash list is nested inside a numbered item, use the bullet glyph */
+.numbered > .item .dash .item {
+  padding-left: var(--spacing-5);
+}
+
+.numbered > .item .dash .item::before {
+  content: '\2609';
+  font-weight: normal;
+  font-size: var(--text-xs);
+  line-height: 1.6;
+  font-family: var(--font-sans);
+}
+
 /* ── Numbered variant ────────────────────────────────── */
 .numbered {
   gap: var(--spacing-4);
@@ -58,13 +76,13 @@
   counter-reset: step-counter;
 }
 
-.numbered .item {
+.numbered > .item {
   position: relative;
   padding-left: var(--spacing-10);
   counter-increment: step-counter;
 }
 
-.numbered .item::before {
+.numbered > .item::before {
   content: counter(step-counter);
   position: absolute;
   left: 0;
