@@ -27,18 +27,6 @@
   gap: var(--spacing-6);
 }
 
-.prose {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  margin: 0;
-  line-height: 1.5;
-}
-
-.prose strong {
-  color: var(--text-primary);
-}
-
 .outfitList {
   margin: var(--spacing-2) 0 0 var(--spacing-4);
   padding: 0;

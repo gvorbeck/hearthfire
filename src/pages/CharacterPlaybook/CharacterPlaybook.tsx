@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { PageMeta } from '@/components/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
-import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Modal, Radio, Icon } from '@/components/primitives';
+import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Modal, Radio, Icon, Text } from '@/components/primitives';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
 import { PageHeader } from '@/components/PageHeader/PageHeader';
 import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, Moves, SpecialPossessions, Introductions, Inventory } from '@/components/CharacterSheet/sections';
@@ -162,10 +162,10 @@ const RemoveInsertModal = ({ open, insert, onClose, onConfirm }: { open: boolean
   return (
     <Modal open={open} onClose={onClose} aria-labelledby={headingId}>
       <Heading as="h2" size="md" id={headingId}>Remove {insert}?</Heading>
-      <p className={styles.removeInsertWarning}>
+      <Text font="serif" color="muted" className={styles.removeInsertWarning}>
         This will remove the <strong>{insert}</strong> tab from this character sheet.
         {warning && ` ${warning}`}
-      </p>
+      </Text>
       <div className={styles.insertActions}>
         <Button variant="secondary" onClick={onClose}>Cancel</Button>
         <Button variant="primary" onClick={onConfirm}>Remove</Button>
@@ -379,7 +379,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
         />
       </div>
       {playbookOption.description && (
-        <p className={styles.description}>{playbookOption.description}</p>
+        <Text font="serif" size="lg" italic className={styles.description}>{playbookOption.description}</Text>
       )}
       <Tabs
         aria-label="Character sections"

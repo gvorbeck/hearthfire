@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
-import { Input, Radio, UseDots, CheckboxGroup } from '@/components/primitives';
+import { Input, Radio, Text, UseDots, CheckboxGroup } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { CharacterData } from '@/types';
@@ -167,27 +167,27 @@ const InitiateSection = memo(({
           />
           <span className={styles.hpLabel}>HP (max {config.hpMax})</span>
         </div>
-        <p className={styles.tags}>{config.tags}</p>
-        <p className={styles.stat}><strong>HP</strong> {config.hpMax} <strong>Armor</strong> {config.armor}</p>
-        <p className={styles.stat}>
+        <Text font="serif" color="muted" italic className={styles.tags}>{config.tags}</Text>
+        <Text font="serif" color="muted" className={styles.stat}><strong>HP</strong> {config.hpMax} <strong>Armor</strong> {config.armor}</Text>
+        <Text font="serif" color="muted" className={styles.stat}>
           <strong>Damage</strong> {config.damage}
-        </p>
-        <p className={styles.stat}>
+        </Text>
+        <Text font="serif" color="muted" className={styles.stat}>
           <strong>Instinct</strong> {config.instinct}
-        </p>
+        </Text>
         <ul className={styles.moves}>
           {config.moves.map((m) => (
             <li key={m}>{parseInlineMarkdown(m)}</li>
           ))}
         </ul>
-        <p className={styles.stat}><strong>Cost</strong> {config.cost}</p>
+        <Text font="serif" color="muted" className={styles.stat}><strong>Cost</strong> {config.cost}</Text>
         <div className={styles.loyaltyRow}>
-          <p className={styles.stat}><strong>Loyalty</strong></p>
+          <Text font="serif" color="muted" className={styles.stat}><strong>Loyalty</strong></Text>
           <UseDots total={3} checked={loyalty} onChange={onLoyaltyChange} />
         </div>
       </div>
       <div className={styles.rows}>
-        <p className={styles.pickInstruction}>Pick 1 on each line:</p>
+        <Text font="serif" color="muted" italic className={styles.pickInstruction}>Pick 1 on each line:</Text>
         {config.pickLines.map((line) => (
           <div key={line.key} className={styles.row}>
             <div className={styles.options}>

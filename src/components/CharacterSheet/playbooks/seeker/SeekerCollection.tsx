@@ -31,12 +31,12 @@ export const SeekerCollection = ({ data, onSave }: SeekerCollectionProps) => {
 
   return (
     <PlaybookSection title="Collection">
-      <Text as="p" size="sm" color="muted">
+      <Text as="p" size="xs" color="muted">
         In your travels and investigations you have acquired arcana—artifacts of power and mystery.
       </Text>
       <Divider />
-      <Text as="p" size="sm" color="muted">{parseInlineMarkdown('**MAJOR ARCANA**')}</Text>
-      <Text as="p" size="sm" color="muted">
+      <Text as="p" size="xs" color="muted">{parseInlineMarkdown('**MAJOR ARCANA**')}</Text>
+      <Text as="p" size="xs" color="muted">
         Your Background grants you 1 major arcanum. Answer at least 2 questions about it:
       </Text>
       <CheckboxGroup
@@ -46,8 +46,8 @@ export const SeekerCollection = ({ data, onSave }: SeekerCollectionProps) => {
       />
       <AnswerPrompts prompts={ANSWER_PROMPTS.slice(0, 1)} answers={answers} onAnswer={handleAnswer} onFlush={flushAnswers} />
       <Divider />
-      <Text as="p" size="sm" color="muted">{parseInlineMarkdown('**MINOR ARCANA**')}</Text>
-      <Text as="p" size="sm" color="muted">
+      <Text as="p" size="xs" color="muted">{parseInlineMarkdown('**MINOR ARCANA**')}</Text>
+      <Text as="p" size="xs" color="muted">
         Ask the GM for the minor arcana cards. Draw 3 at random and review both sides. Choose one
         whose secrets you have unlocked, one you have not yet mastered, and one you have not yet
         found.

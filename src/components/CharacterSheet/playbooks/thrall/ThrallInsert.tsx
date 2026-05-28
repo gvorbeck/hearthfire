@@ -324,7 +324,7 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
   return (
     <div className={styles.root}>
       <PlaybookSection title="Your Master">
-        <Text as="p" size="sm" color="muted" className={styles.prose}>
+        <Text as="p" size="xs" color="muted" leading="normal">
           {parseInlineMarkdown('The Thing Below that you called upon? The one that plucked your soul from the Last Door and hides you from the Pale Hunter? It owns you now.')}
         </Text>
         <Input
@@ -418,7 +418,7 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
       </PlaybookSection>
 
       <PlaybookSection title="Moves">
-        <Text as="p" size="sm" color="muted" className={styles.prose}>
+        <Text as="p" size="xs" color="muted" leading="normal">
           You gain all of the following:
         </Text>
         <div className={styles.moveList}>
@@ -434,7 +434,7 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
       </PlaybookSection>
 
       <PlaybookSection title="Marks">
-        <Text as="p" size="sm" color="muted" className={styles.prose}>
+        <Text as="p" size="xs" color="muted" leading="normal">
           When you first gain this insert, the GM will choose 1 Mark for you, based on your master's nature. Gain more when a move tells you.
         </Text>
         <div className={styles.markList}>

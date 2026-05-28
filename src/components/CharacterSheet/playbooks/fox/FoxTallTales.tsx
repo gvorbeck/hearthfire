@@ -1,9 +1,8 @@
 import { useCallback } from 'react';
-import { Checkbox, CheckboxGroup, Divider } from '@/components/primitives';
+import { Checkbox, CheckboxGroup, Divider, Text } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { usePlaybookChecked } from '@/hooks/usePlaybookChecked';
 import type { CharacterData } from '@/types';
-import styles from '../playbookSection.module.css';
 import localStyles from './FoxTallTales.module.css';
 
 const LOCATION_ITEMS = [
@@ -63,13 +62,13 @@ export const FoxTallTales = ({ data, onSave }: FoxTallTalesProps) => {
 
   return (
     <PlaybookSection title="Tall Tales">
-      <p className={styles.prose}>
+      <Text font="serif" color="muted" leading="normal">
         Someone like you gets into all sorts of trouble, whether you mean to or not. Mix and match
         the following to come up with a couple of your more memorable adventures, and write them
         down in the space at the bottom of this column.
-      </p>
+      </Text>
       <div className={localStyles.taleGroup}>
-        <p className={localStyles.groupLabel}>There was that time that you… (choose 1 per tale)</p>
+        <Text font="serif" color="muted" leading="normal">There was that time that you… (choose 1 per tale)</Text>
         <div className={localStyles.list}>
           <div className={localStyles.lostRow}>
             <Checkbox

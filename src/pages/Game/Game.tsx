@@ -44,7 +44,7 @@ const RemoveCharacterModal = ({ character, onClose, onConfirm }: RemoveCharacter
   return (
     <Modal open={character !== null} onClose={onClose} aria-labelledby={headingId}>
       <Heading as="h2" size="sm" id={headingId}>Remove character?</Heading>
-      <Text size="sm" color="muted">
+      <Text size="xs" color="muted">
         <strong>{displayName}</strong> will be permanently removed from this game. All character data will be lost and cannot be recovered.
       </Text>
       <div className={styles.modalActions}>

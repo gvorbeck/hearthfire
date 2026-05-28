@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react';
 import clsx from 'clsx';
-import { Checkbox, Divider, Heading, Input, Stack, UseDots, RepeaterField } from '@/components/primitives';
+import { Checkbox, Divider, Heading, Input, Stack, Text, UseDots, RepeaterField } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { CharacterData } from '@/types';
@@ -255,13 +255,13 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
       <div className={styles.columns}>
         <div className={styles.mainCol}>
           <PlaybookSection title="Inventory">
-            <p className={styles.prose}>
+            <Text font="serif" color="muted" leading="normal">
               {parseInlineMarkdown('When you **Outfit**, mark a number of ◊ below, on specific items or Undefined.')}
-            </p>
+            </Text>
             <ul className={styles.outfitList}>
-              <li className={styles.prose}>{parseInlineMarkdown('For a **light load** *(quick & quiet)*, mark up to 3 ◈')}</li>
-              <li className={styles.prose}>{parseInlineMarkdown('For a **normal load**, mark 4–6 ◈')}</li>
-              <li className={styles.prose}>{parseInlineMarkdown('For a **heavy load** *(noisy, slow, hot, quick to tire)*, mark 7–9 ◈')}</li>
+              <Text as="li" font="serif" color="muted" leading="normal">{parseInlineMarkdown('For a **light load** *(quick & quiet)*, mark up to 3 ◈')}</Text>
+              <Text as="li" font="serif" color="muted" leading="normal">{parseInlineMarkdown('For a **normal load**, mark 4–6 ◈')}</Text>
+              <Text as="li" font="serif" color="muted" leading="normal">{parseInlineMarkdown('For a **heavy load** *(noisy, slow, hot, quick to tire)*, mark 7–9 ◈')}</Text>
             </ul>
 
             <div className={styles.loadRow}>
@@ -277,9 +277,9 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
                 <span className={styles.undefinedLabel}>Undefined</span>
                 <UseDots total={UNDEFINED_MAIN_COUNT} checked={undefinedMain} onChange={handleUndefinedMain} />
               </Stack>
-              <p className={styles.prose}>
+              <Text font="serif" color="muted" leading="normal">
                 {parseInlineMarkdown('When you **Have What You Need**, move ◈ from here to ◊ below.')}
-              </p>
+              </Text>
             </Stack>
 
             <Divider />
@@ -330,10 +330,10 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
 
         <div className={styles.sideCol}>
           <PlaybookSection title="Small items">
-            <p className={styles.prose}>Fit in a pocket, pouch, or boot.</p>
-            <p className={styles.prose}>
+            <Text font="serif" color="muted" leading="normal">Fit in a pocket, pouch, or boot.</Text>
+            <Text font="serif" color="muted" leading="normal">
               {parseInlineMarkdown('When you **Outfit**, mark □ below equal to 4+Prosperity.')}
-            </p>
+            </Text>
 
             <Divider />
 
@@ -342,9 +342,9 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
                 <span className={styles.undefinedLabel}>Undefined</span>
                 <UseDots total={UNDEFINED_SMALL_COUNT} checked={undefinedSmall} onChange={handleUndefinedSmall} />
               </Stack>
-              <p className={styles.prose}>
+              <Text font="serif" color="muted" leading="normal">
                 {parseInlineMarkdown("When you **Have What You Need**, move ◈ from here to items below, or expend supplies to mark an additional □.")}
-              </p>
+              </Text>
             </Stack>
 
             <Divider />
@@ -369,9 +369,9 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
           </PlaybookSection>
 
           <PlaybookSection title="Prosperity">
-            <p className={styles.prose}>
+            <Text font="serif" color="muted" leading="normal">
               Affects uses from Supplies, HP from Recover, and piercing on iron weapons. Set by the GM.
-            </p>
+            </Text>
             <div className={styles.prosperityList}>
               {([-1, 0, 1, 2] as const).map((val) => {
                 const prosperityOptionCx = clsx(styles.prosperityOption, prosperity === val && styles.prosperitySelected);

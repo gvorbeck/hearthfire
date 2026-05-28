@@ -116,7 +116,7 @@ export const SteadingAssets = ({ steading, onSave }: SteadingAssetsProps) => {
 
   return (
     <div className={styles.root}>
-      <Text size="sm" color="muted" className={styles.description}>
+      <Text size="xs" color="muted" className={styles.description}>
         Owned by the residents of Stonetop in common. To take them on an expedition or otherwise put them at risk, you must Requisition.
       </Text>
 

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import clsx from 'clsx';
 import { Checkbox } from '../Checkbox/Checkbox';
+import { Text } from '../Text/Text';
 import styles from './CheckboxGroup.module.css';
 
 export interface CheckboxGroupItem {
@@ -51,8 +52,8 @@ export const CheckboxGroup = ({
 
   return (
     <div className={styles.root}>
-      {label && <p className={styles.label}>{label}</p>}
-      {pickNote && <p className={styles.pickNote}>{pickNote}</p>}
+      {label && <Text font="serif" color="muted" leading="normal">{label}</Text>}
+      {pickNote && <Text size="xs" color="tertiary" italic>{pickNote}</Text>}
       <div className={gridClass}>
         {items.map(({ id, label: itemLabel, disabled: itemDisabled }) => {
           const isChecked = checked[id] ?? false;

@@ -1,7 +1,6 @@
 import { CheckboxGroup, Text } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
-import styles from './RangerAnimalCompanion.module.css';
 
 const BEAST_OF_LEGEND_ITEMS = [
   { id: 'bol-exceptional', label: 'They are *exceptional* (see Order Followers below)' },
@@ -19,7 +18,7 @@ interface BeastOfLegendProps {
 
 export const BeastOfLegend = ({ beastOfLegend, onBeastOfLegendChange }: BeastOfLegendProps) => (
   <PlaybookSection title="Beast of Legend">
-    <Text as="p" size="sm" color="muted" className={styles.prose}>
+    <Text as="p" size="xs" color="muted" leading="normal">
       Each time you take Beast of Legend, pick 1:
     </Text>
     <CheckboxGroup

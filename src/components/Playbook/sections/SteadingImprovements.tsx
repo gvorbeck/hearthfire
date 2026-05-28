@@ -698,7 +698,7 @@ export const SteadingImprovements = ({ improvements = {}, gmImprovements, onSave
 
   return (
     <div className={styles.root}>
-      <Text size="sm" color="muted">Check an improvement when all requirements are met. The GM may reveal additional improvements in play.</Text>
+      <Text size="xs" color="muted">Check an improvement when all requirements are met. The GM may reveal additional improvements in play.</Text>
       <div className={styles.list}>
         {IMPROVEMENTS.map((imp) => {
           const completed = !!improvements[imp.id];
@@ -713,14 +713,14 @@ export const SteadingImprovements = ({ improvements = {}, gmImprovements, onSave
                   className={styles.itemCheckbox}
                 />
               </div>
-              <p className={styles.itemSummary}>{parseInlineMarkdown(imp.summary)}</p>
+              <Text font="serif" color="muted" italic leading="tight">{parseInlineMarkdown(imp.summary)}</Text>
 
               <div className={styles.section}>
                 <Heading as="h4" size="label">Requirements</Heading>
                 <div className={styles.requirementBlocks}>
                   {imp.requirements.map((block, blockIdx) => {
                     if (block.type === 'text') {
-                      return <Text key={`${imp.id}-req-${blockIdx}`} size="sm" color="muted">{parseInlineMarkdown(block.content)}</Text>;
+                      return <Text key={`${imp.id}-req-${blockIdx}`} size="xs" color="muted">{parseInlineMarkdown(block.content)}</Text>;
                     }
                     return (
                       <div key={`${imp.id}-cb-${blockIdx}`} className={styles.checkList}>
@@ -746,7 +746,7 @@ export const SteadingImprovements = ({ improvements = {}, gmImprovements, onSave
               <div className={styles.section}>
                 <Heading as="h4" size="label">When you meet the requirements</Heading>
                 {imp.benefits.map((line, i) => (
-                  <p key={`${imp.id}-benefit-${i}`} className={styles.bodyLine}>{parseInlineMarkdown(line)}</p>
+                  <Text key={`${imp.id}-benefit-${i}`} font="serif" color="muted" leading="tight">{parseInlineMarkdown(line)}</Text>
                 ))}
                 {imp.list && (
                   <List variant="bullet" items={imp.list.map((item) => <span>{parseInlineMarkdown(item)}</span>)} />
@@ -759,7 +759,7 @@ export const SteadingImprovements = ({ improvements = {}, gmImprovements, onSave
 
       <div className={styles.gmSlots}>
         <Heading as="h3" size="sm">Other improvements</Heading>
-        <Text size="sm" color="muted">Additional possible improvements to Stonetop, revealed by the GM.</Text>
+        <Text size="xs" color="muted">Additional possible improvements to Stonetop, revealed by the GM.</Text>
         {localSlots.length > 0 && (
           <div className={styles.gmGrid}>
             {localSlots.map((slot, i) => (

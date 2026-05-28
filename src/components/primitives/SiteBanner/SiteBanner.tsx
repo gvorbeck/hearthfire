@@ -8,6 +8,6 @@ interface SiteBannerProps {
 
 export const SiteBanner = ({ children }: SiteBannerProps) => (
   <div className={styles.banner}>
-    <Text size="sm">{children}</Text>
+    <Text size="xs">{children}</Text>
   </div>
 );

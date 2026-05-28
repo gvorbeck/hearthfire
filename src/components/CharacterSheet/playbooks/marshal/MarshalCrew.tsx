@@ -483,9 +483,9 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
   return (
     <div className={styles.root}>
       <PlaybookSection title="Crew">
-        <p className={styles.prose}>
+        <Text font="serif" color="muted" leading="normal">
           {parseInlineMarkdown('Your Crew is a half-dozen strong by default. Treat them as a follower with the *group* tag. All starting values here are subject to change in play.')}
-        </p>
+        </Text>
         <div className={styles.infoBoxes}>
           <div className={styles.infoBox}>
             <Input
@@ -522,9 +522,9 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
       </PlaybookSection>
 
       <PlaybookSection title="Tags">
-        <p className={styles.prose}>
+        <Text font="serif" color="muted" leading="normal">
           {parseInlineMarkdown('Your crew starts with *group*, a tag granted by your background, plus 2 more of your choice.')}
-        </p>
+        </Text>
         <CheckboxGroup
           items={tagItemsWithDisable}
           checked={{ ...tags, group: true }}
@@ -651,9 +651,9 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
       </div>
 
       <PlaybookSection title="Inventory">
-        <p className={styles.prose}>
+        <Text font="serif" color="muted" leading="normal">
           {parseInlineMarkdown('3 ◈ or fewer is a light load; 4-6 ◈ is a normal load; 7-9 ◈ is a heavy load.')}
-        </p>
+        </Text>
         <Divider />
         <div className={styles.inventoryList}>
           {INVENTORY_ITEMS.map((item) => (
@@ -711,18 +711,18 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
       </PlaybookSection>
 
       <PlaybookSection title="Individuals">
-        <Text as="p" size="sm" className={styles.prose}>
+        <Text as="p" size="xs" font="serif" color="muted" leading="normal">
           When one stands out, give them a name, a tag, and one or more traits.
         </Text>
-        <p className={styles.prose}>
+        <Text font="serif" color="muted" leading="normal">
           {parseInlineMarkdown('**Names:** Aled, Culhwich, Eira, Gerat, Glaw, Harri, Lowri, Mervyn, Nesta')}
-        </p>
-        <p className={styles.prose}>
+        </Text>
+        <Text font="serif" color="muted" leading="normal">
           {parseInlineMarkdown('**Tags:** *animal-lover, big, bully, cynical, drunkard, eager, gambler, greedy, grumpy, gullible, heartthrob, honest, kind, lewd, little, naive, old, popular, proud, rookie, reckless, shameless, sharp-eyed, short-tempered*')}
-        </p>
-        <p className={styles.prose}>
+        </Text>
+        <Text font="serif" color="muted" leading="normal">
           {parseInlineMarkdown("**Traits:** __'s kid/sibling/parent/cousin/__, bald, crush on __, grudge against __, hates __, idolizes __, jokes, messy, missing eye/finger/hand/__, misses their kids, nightmares, recently married, religious, scars, skinny, sharp-tongued, sings, snores, tells tall tales, too serious, troubles at home, whistles, whittler")}
-        </p>
+        </Text>
         <div className={styles.individualsGrid}>
           {individuals.map((ind, i) => (
             <IndividualSlot

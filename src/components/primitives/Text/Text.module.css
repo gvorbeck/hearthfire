@@ -1,21 +1,39 @@
 .base {
-  font-family: var(--font-sans);
   line-height: 1.6;
   margin: 0;
 }
 
-.sm {
+/* Size */
+.xs {
   font-size: var(--text-xs);
 }
 
-.md {
+.sm {
   font-size: var(--text-sm);
 }
 
-.lg {
+.md {
   font-size: var(--text-md);
 }
 
+.lg {
+  font-size: var(--text-lg);
+}
+
+.xl {
+  font-size: var(--text-xl);
+}
+
+/* Font family */
+.sans {
+  font-family: var(--font-sans);
+}
+
+.serif {
+  font-family: var(--font-serif);
+}
+
+/* Color */
 .default {
   color: var(--text-primary);
 }
@@ -24,6 +42,41 @@
   color: var(--text-secondary);
 }
 
+.muted strong {
+  color: var(--text-primary);
+}
+
+.tertiary {
+  color: var(--text-tertiary);
+}
+
 .accent {
   color: var(--text-accent);
+}
+
+/* Weight */
+.semibold {
+  font-weight: 600;
+}
+
+.bold {
+  font-weight: 700;
+}
+
+/* Style */
+.italic {
+  font-style: italic;
+}
+
+/* Leading */
+.leadingTight {
+  line-height: 1.45;
+}
+
+.leadingNormal {
+  line-height: 1.5;
+}
+
+.leadingLoose {
+  line-height: 1.6;
 }

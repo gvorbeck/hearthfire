@@ -4,14 +4,6 @@
   gap: var(--spacing-6);
 }
 
-.prose {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  margin: 0;
-  line-height: 1.5;
-}
-
 .moveList {
   display: flex;
   flex-direction: column;

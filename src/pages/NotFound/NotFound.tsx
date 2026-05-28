@@ -18,7 +18,7 @@ export const NotFound = () => {
         <Heading as="h1" size="xl" className={styles.heading}>
           You've wandered off the path.
         </Heading>
-        <Text color="muted" className={styles.body}>
+        <Text color="muted">
           Nothing here but cold ash.
         </Text>
         <Button onClick={handleReturnHome} size="lg">

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import clsx from 'clsx';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
-import { Checkbox, Input } from '@/components/primitives';
+import { Checkbox, Input, Text } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
 import type { CharacterData } from '@/types';
 import styles from './Stats.module.css';
@@ -224,7 +224,7 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
 
   return (
     <PlaybookSection title="Stats" warn={warn} warnText="All stat fields must be filled in before play.">
-      <p className={styles.statsInstruction}>{scoreInstruction}</p>
+      <Text color="muted" className={styles.statsInstruction}>{scoreInstruction}</Text>
       <div className={styles.statsSection}>
         <div className={styles.statRow}>
           {STAT_GROUPS.map((group) => (

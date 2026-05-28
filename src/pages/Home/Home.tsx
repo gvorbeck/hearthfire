@@ -57,13 +57,13 @@ export const Home = () => {
         <div className={styles.card}>
           <Heading as="h2" size="label">New Game</Heading>
           <div className={styles.cardBody}>
-            <Text color="muted" size="sm">
+            <Text color="muted" size="xs">
               Start a new session. Share the generated ID with your players.
             </Text>
             <Button onClick={handleCreate} disabled={creating} size="lg" fullWidth>
               {creating ? 'Creating…' : 'Create Game'}
             </Button>
-            {createError && <Text color="muted" size="sm">{createError}</Text>}
+            {createError && <Text color="muted" size="xs">{createError}</Text>}
           </div>
         </div>
 

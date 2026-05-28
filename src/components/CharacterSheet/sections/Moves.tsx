@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PlaybookSection } from '../PlaybookSection';
-import { Collapse, Toggle, useToast } from '@/components/primitives';
+import { Collapse, Text, Toggle, useToast } from '@/components/primitives';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { Move } from '../Move';
 import type { MoveDefinition } from '../Move';
@@ -66,7 +66,7 @@ interface MoveSectionProps {
 
 const MoveSection = ({ label, helperText, moves, emptyText }: MoveSectionProps) => (
   <Collapse label={label}>
-    <p className={styles.helperText}>{parseInlineMarkdown(helperText)}</p>
+    <Text color="muted" className={styles.helperText}>{parseInlineMarkdown(helperText)}</Text>
     {moves.length > 0 ? (
       <div className={styles.moveGrid}>
         {moves.map((move) => (
@@ -74,7 +74,7 @@ const MoveSection = ({ label, helperText, moves, emptyText }: MoveSectionProps) 
         ))}
       </div>
     ) : (
-      <p className={styles.empty}>{emptyText}</p>
+      <Text color="muted">{emptyText}</Text>
     )}
   </Collapse>
 );
@@ -309,16 +309,16 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
           }
         >
           {PLAYBOOK_HELPER_TEXT[playbook] && (
-            <p className={styles.helperText}>{parseInlineMarkdown(PLAYBOOK_HELPER_TEXT[playbook]!)}</p>
+            <Text color="muted" className={styles.helperText}>{parseInlineMarkdown(PLAYBOOK_HELPER_TEXT[playbook]!)}</Text>
           )}
           {visibleTypeMoves.length > 0 ? (
             <div className={styles.moveGrid}>{moveNodes}</div>
           ) : (
-            <p className={styles.empty}>
+            <Text color="muted">
               {sortedTypeMoves.length === 0
                 ? `No moves for ${playbookLabel} have been defined yet.`
                 : 'No moves selected.'}
-            </p>
+            </Text>
           )}
         </Collapse>
       </div>

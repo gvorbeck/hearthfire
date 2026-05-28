@@ -8,10 +8,6 @@
 }
 
 .tags {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  font-style: italic;
-  color: var(--text-secondary);
   margin: 0;
 }
 
@@ -64,9 +60,6 @@
 }
 
 .stat {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
   margin: 0;
 }
 
@@ -95,10 +88,6 @@
 }
 
 .pickInstruction {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  font-style: italic;
-  color: var(--text-secondary);
   margin: 0;
 }
 

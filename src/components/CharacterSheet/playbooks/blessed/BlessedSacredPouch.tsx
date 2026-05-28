@@ -66,19 +66,19 @@ export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) =>
   return (
     <PlaybookSection title="Sacred Pouch">
       <div className={styles.body}>
-        <Text as="p" size="sm" color="muted" className={styles.prose}>
+        <Text as="p" size="xs" color="muted" leading="normal">
           {parseInlineMarkdown("Your sacred pouch (*magical*) doesn't take up space in your inventory. It can hold up to 3 Stock (sacred herbs, powders, stones, pigments, chalks, clay, and so forth). Each time you gain an even-numbered level, your pouch can hold +1 Stock. When ***anyone but you looks inside your sacred pouch and touches the materials therein***, the Stock is ruined.")}
         </Text>
-        <Text as="p" size="sm" color="muted" className={styles.prose}>
+        <Text as="p" size="xs" color="muted" leading="normal">
           {parseInlineMarkdown('When you **have a few days of downtime in familiar terrain**, you may replenish your Stock.')}
         </Text>
-        <Text as="p" size="sm" color="muted" className={styles.prose}>
+        <Text as="p" size="xs" color="muted" leading="normal">
           {parseInlineMarkdown('When you **Forage**, you can produce Stock instead of provisions.')}
         </Text>
 
         <Divider />
 
-        <Text as="p" size="sm" color="muted" className={styles.instruction}>Your sacred pouch is… (choose 1 on each line)</Text>
+        <Text as="p" size="xs" color="muted" className={styles.instruction}>Your sacred pouch is… (choose 1 on each line)</Text>
         <div className={styles.isLines}>
           {IS_LINES.map((line) => (
             <div key={line.key} className={styles.optionRow}>
@@ -98,7 +98,7 @@ export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) =>
 
         <Divider />
 
-        <Text as="p" size="sm" color="muted" className={styles.instruction}>What remarkable trait does it possess? (choose 1)</Text>
+        <Text as="p" size="xs" color="muted" className={styles.instruction}>What remarkable trait does it possess? (choose 1)</Text>
         <div className={styles.traits}>
           {TRAITS.map((t) => (
             <Radio

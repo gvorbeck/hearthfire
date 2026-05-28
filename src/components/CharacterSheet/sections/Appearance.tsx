@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
-import { Checkbox, Radio, useToast } from '@/components/primitives';
+import { Checkbox, Radio, Text, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
 import type { AppearanceRows } from '@/lib/appearanceOptions';
 import type { CharacterData } from '@/types';
@@ -105,7 +105,7 @@ export const Appearance = ({ rows, data, onSave }: AppearanceProps = {}) => {
       onToggleCollapse={handleToggleCollapse}
     >
       {isCollapsed && isComplete ? (
-        <p className={styles.summary}>{summary}</p>
+        <Text color="muted" className={styles.summary}>{summary}</Text>
       ) : (
         <div className={styles.rows}>
           {rows.map((options, rowIndex) => (

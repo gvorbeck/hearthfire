@@ -132,7 +132,7 @@ export const RevenantInsert = ({ data, onSave }: RevenantInsertProps) => {
 
     return (
       <div className={styles.appetiteSection}>
-        <Text as="p" size="sm" color="muted" className={styles.appetitePrompt}>
+        <Text as="p" size="xs" color="muted" className={styles.appetitePrompt}>
           Strange Appetites — Pick 1:
         </Text>
         <div className={styles.appetiteGrid}>
@@ -143,7 +143,7 @@ export const RevenantInsert = ({ data, onSave }: RevenantInsertProps) => {
               value={pick.id}
               checked={currentPick === pick.id}
               onChange={handleAppetitePickChange}
-              label={<Text as="span" size="sm" color="muted">{pick.label}</Text>}
+              label={<Text as="span" size="xs" color="muted">{pick.label}</Text>}
             />
           ))}
         </div>

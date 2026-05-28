@@ -29,7 +29,7 @@ const BoundedCheckboxList = ({ choices, level, disabled, selected, onSave }: Bou
   const items = useMemo<CheckboxGroupItem[]>(() =>
     choices.items.map((c) => ({
       id: c.value,
-      label: <Text as="span" size="md">{parseInlineMarkdown(c.label)}</Text>,
+      label: <Text as="span" size="sm">{parseInlineMarkdown(c.label)}</Text>,
       disabled: disabled || c.locked,
     })),
     [choices.items, disabled]

@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { Checkbox, CheckboxGroup, Icon, List, UseDots } from '@/components/primitives';
+import { Checkbox, CheckboxGroup, Icon, List, Text, UseDots } from '@/components/primitives';
 import type { IconName } from '@/components/primitives';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import styles from './Move.module.css';
@@ -208,24 +208,24 @@ export const Move = ({
           <div className={styles.headerAction}>{headerAction}</div>
         )}
       </div>
-      {lockReason && <p className={styles.moveLockLabel}>{lockReason}</p>}
+      {lockReason && <Text font="serif" size="xs" color="tertiary" italic>{lockReason}</Text>}
       {(move.triggerOverride || move.trigger) && (
-        <p className={styles.moveTrigger}>
+        <Text font="serif" color="muted" leading="tight">
           {move.triggerOverride
             ? parseInlineMarkdown(move.triggerOverride)
             : <><span>When you </span><strong>{move.trigger}</strong>,</>
           }
-        </p>
+        </Text>
       )}
       {bodyParagraphs.map((p, i) => {
         const icon = move.bodyIcons?.[i];
         return icon ? (
           <div key={`${move.id}-body-${i}`} className={styles.moveBodyWithIcon}>
             <Icon name={icon} size="small" className={styles.moveBodyIcon} aria-hidden="true" />
-            <p className={styles.moveBody}>{parseInlineMarkdown(p)}</p>
+            <Text font="serif" color="muted" leading="tight">{parseInlineMarkdown(p)}</Text>
           </div>
         ) : (
-          <p key={`${move.id}-body-${i}`} className={styles.moveBody}>{parseInlineMarkdown(p)}</p>
+          <Text key={`${move.id}-body-${i}`} font="serif" color="muted" leading="tight">{parseInlineMarkdown(p)}</Text>
         );
       })}
       {move.list && (
@@ -246,12 +246,12 @@ export const Move = ({
         />
       )}
       {footerParagraphs.map((p, i) => (
-        <p key={`${move.id}-footer-${i}`} className={styles.moveBody}>{parseInlineMarkdown(p)}</p>
+        <Text key={`${move.id}-footer-${i}`} font="serif" color="muted" leading="tight">{parseInlineMarkdown(p)}</Text>
       ))}
       {move.list2 && (
         <List variant="bullet" items={move.list2.map((item) => parseInlineMarkdown(item))} />
       )}
-      {move.citation && <p className={styles.moveCitation}>{move.citation}</p>}
+      {move.citation && <Text font="serif" size="xs" color="tertiary" italic className={styles.moveCitation}>{move.citation}</Text>}
     </div>
   );
 };

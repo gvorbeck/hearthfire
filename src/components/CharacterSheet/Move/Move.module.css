@@ -50,27 +50,6 @@
 }
 
 /* ── Trigger + body text ─────────────────────────────── */
-.moveTrigger {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  margin: 0;
-  line-height: 1.45;
-}
-
-.moveTrigger strong,
-.moveBody strong,
-.moveListItem strong {
-  color: var(--text-primary);
-}
-
-.moveBody {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  margin: 0;
-  line-height: 1.45;
-}
 
 /* ── Body with icon ──────────────────────────────────── */
 .moveBodyWithIcon {
@@ -85,22 +64,10 @@
   margin-top: 0.1em;
 }
 
-/* ── Locked (unmet prerequisites) ───────────────────── */
-.moveLockLabel {
-  font-family: var(--font-serif);
-  font-size: var(--text-xs);
-  color: var(--text-tertiary, var(--text-secondary));
-  font-style: italic;
-  margin: 0;
-}
 
 /* ── Citation ────────────────────────────────────────── */
 .moveCitation {
-  font-family: var(--font-serif);
-  font-size: var(--text-xs);
-  color: var(--text-tertiary, var(--text-secondary));
   margin-top: var(--spacing-1);
-  font-style: italic;
   text-align: right;
 }
 

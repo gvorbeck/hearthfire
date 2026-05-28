@@ -1,23 +1,42 @@
-import { type ReactNode } from 'react';
+import { type ComponentPropsWithoutRef } from 'react';
 import clsx from 'clsx';
 import styles from './Text.module.css';
 
-interface TextProps {
-  as?: 'p' | 'span' | 'label' | 'li';
-  size?: 'sm' | 'md' | 'lg';
-  color?: 'muted' | 'default' | 'accent';
-  className?: string;
-  children: ReactNode;
+interface TextProps extends ComponentPropsWithoutRef<'span'> {
+  as?: 'p' | 'span' | 'li';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  color?: 'default' | 'muted' | 'tertiary' | 'accent';
+  font?: 'sans' | 'serif';
+  weight?: 'normal' | 'semibold' | 'bold';
+  leading?: 'tight' | 'normal' | 'loose';
+  italic?: boolean;
 }
 
 export const Text = ({
   as: Tag = 'p',
-  size = 'md',
+  size = 'sm',
   color = 'default',
+  font = 'sans',
+  weight = 'normal',
+  italic = false,
+  leading,
   className,
   children,
+  ...props
 }: TextProps) => {
-  const cx = clsx(styles.base, styles[size], styles[color], className);
+  const cx = clsx(
+    styles.base,
+    styles[size],
+    styles[color],
+    styles[font],
+    weight === 'semibold' && styles.semibold,
+    weight === 'bold' && styles.bold,
+    italic && styles.italic,
+    leading === 'tight' && styles.leadingTight,
+    leading === 'normal' && styles.leadingNormal,
+    leading === 'loose' && styles.leadingLoose,
+    className,
+  );
 
-  return <Tag className={cx}>{children}</Tag>;
+  return <Tag className={cx} {...props}>{children}</Tag>;
 };

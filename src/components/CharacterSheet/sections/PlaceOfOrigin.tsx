@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, memo } from 'react';
-import { Radio, useToast } from '@/components/primitives';
+import { Radio, Text, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
 import type { PlaceOfOriginOptions } from '@/lib/placeOfOriginOptions';
 import type { CharacterData } from '@/types';
@@ -84,15 +84,15 @@ export const PlaceOfOrigin = ({ options, data, onSave }: PlaceOfOriginProps = {}
       onToggleCollapse={handleToggleCollapse}
     >
       {isCollapsed && selectedOption ? (
-        <p className={styles.summary}>
+        <Text color="muted" className={styles.summary}>
           <span className={styles.optionTitle}>{selectedOption.label}</span>
-        </p>
+        </Text>
       ) : (
         <>
-          <p className={styles.instruction}>
+          <Text color="muted" className={styles.instruction}>
             Stonetop is your home, or close enough, but where are you (or your family) from originally?
             Pick an origin, then choose a matching name or make up your own — edit it in the header above.
-          </p>
+          </Text>
           <div className={styles.options}>
             {options.map((opt) => (
               <OriginOption
