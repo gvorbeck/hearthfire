@@ -8,6 +8,14 @@ const TOOLTIP_GAP = 8;
 export interface UseTooltipOptions {
   side?: TooltipSide;
   tooltipId?: string;
+  portal?: boolean;
+}
+
+interface PositionState {
+  resolvedSide: TooltipSide;
+  nudgeX: number;
+  arrowOffset: string;
+  fixedCoords: { top: number; left: number } | null;
 }
 
 export interface UseTooltipResult {
@@ -16,7 +24,8 @@ export interface UseTooltipResult {
   resolvedSide: TooltipSide;
   nudgeX: number;
   arrowOffset: string;
-  anchorRef: React.RefObject<HTMLElement>;
+  fixedCoords: { top: number; left: number } | null;
+  anchorRef: React.MutableRefObject<HTMLElement | null>;
   tooltipRef: React.RefObject<HTMLSpanElement>;
   anchorProps: {
     onMouseEnter: () => void;
@@ -26,13 +35,16 @@ export interface UseTooltipResult {
   };
 }
 
-export const useTooltip = ({ side = 'top', tooltipId: externalId }: UseTooltipOptions = {}): UseTooltipResult => {
+export const useTooltip = ({ side = 'top', tooltipId: externalId, portal = false }: UseTooltipOptions = {}): UseTooltipResult => {
   const [visible, setVisible] = useState(false);
-  const [resolvedSide, setResolvedSide] = useState<TooltipSide>(side);
-  const [nudgeX, setNudgeX] = useState(0);
-  const [arrowOffset, setArrowOffset] = useState('50%');
+  const [position, setPosition] = useState<PositionState>({
+    resolvedSide: side,
+    nudgeX: 0,
+    arrowOffset: '50%',
+    fixedCoords: null,
+  });
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const anchorRef = useRef<HTMLElement>(null);
+  const anchorRef = useRef<HTMLElement | null>(null);
   const tooltipRef = useRef<HTMLSpanElement>(null);
   const generatedId = useId();
   const tooltipId = externalId ?? generatedId;
@@ -47,8 +59,9 @@ export const useTooltip = ({ side = 'top', tooltipId: externalId }: UseTooltipOp
 
     if (anchor && tip) {
       const anchorRect = anchor.getBoundingClientRect();
-      const tipWidth = tip.offsetWidth;
-      const tipHeight = tip.offsetHeight;
+      const tipRect = tip.getBoundingClientRect();
+      const tipWidth = tipRect.width;
+      const tipHeight = tipRect.height;
       const vw = window.innerWidth;
 
       if (side === 'top' || side === 'bottom') {
@@ -67,24 +80,45 @@ export const useTooltip = ({ side = 'top', tooltipId: externalId }: UseTooltipOp
           : side === 'bottom' && anchorRect.bottom + tipHeight + TOOLTIP_GAP > window.innerHeight - SCREEN_MARGIN ? 'top'
           : side;
 
-        setResolvedSide(flippedSide);
-        setNudgeX(shift);
-        setArrowOffset(shift !== 0 ? `${50 - (shift / tipWidth) * 100}%` : '50%');
+        if (portal) {
+          const tipTop = flippedSide === 'bottom'
+            ? anchorRect.bottom + TOOLTIP_GAP
+            : anchorRect.top - tipHeight - TOOLTIP_GAP;
+          setPosition({
+            resolvedSide: flippedSide,
+            nudgeX: 0,
+            arrowOffset: '50%',
+            fixedCoords: { top: tipTop, left: anchorRect.left + anchorRect.width / 2 },
+          });
+        } else {
+          setPosition({
+            resolvedSide: flippedSide,
+            nudgeX: shift,
+            arrowOffset: shift !== 0 ? `${50 - (shift / tipWidth) * 100}%` : '50%',
+            fixedCoords: null,
+          });
+        }
       } else if (side === 'right') {
         const naturalRight = anchorRect.right + TOOLTIP_GAP + tipWidth;
-        setResolvedSide(naturalRight > vw - SCREEN_MARGIN ? 'left' : 'right');
-        setNudgeX(0);
-        setArrowOffset('50%');
+        setPosition({
+          resolvedSide: naturalRight > vw - SCREEN_MARGIN ? 'left' : 'right',
+          nudgeX: 0,
+          arrowOffset: '50%',
+          fixedCoords: null,
+        });
       } else {
         const naturalLeft = anchorRect.left - TOOLTIP_GAP - tipWidth;
-        setResolvedSide(naturalLeft < SCREEN_MARGIN ? 'right' : 'left');
-        setNudgeX(0);
-        setArrowOffset('50%');
+        setPosition({
+          resolvedSide: naturalLeft < SCREEN_MARGIN ? 'right' : 'left',
+          nudgeX: 0,
+          arrowOffset: '50%',
+          fixedCoords: null,
+        });
       }
     }
 
     setVisible(true);
-  }, [side]);
+  }, [side, portal]);
 
   const hide = useCallback(() => {
     timeoutRef.current = setTimeout(() => setVisible(false), 100);
@@ -93,9 +127,10 @@ export const useTooltip = ({ side = 'top', tooltipId: externalId }: UseTooltipOp
   return {
     tooltipId,
     visible,
-    resolvedSide,
-    nudgeX,
-    arrowOffset,
+    resolvedSide: position.resolvedSide,
+    nudgeX: position.nudgeX,
+    arrowOffset: position.arrowOffset,
+    fixedCoords: position.fixedCoords,
     anchorRef,
     tooltipRef,
     anchorProps: {
