@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react';
 import clsx from 'clsx';
-import { Checkbox, Divider, Heading, Input, Stack, Text, UseDots, RepeaterField } from '@/components/primitives';
+import { Checkbox, Divider, Heading, Input, List, Stack, Text, UseDots, RepeaterField } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { MINOR_ARCANA } from '@/lib/arcanaMinor';
+import { MAJOR_ARCANA } from '@/lib/arcanaMajor';
 import type { CharacterData } from '@/types';
 import styles from './Inventory.module.css';
 
@@ -86,12 +87,17 @@ export const computeTotalLoad = (data: CharacterData | undefined): number => {
   const checked = data?.inventoryChecked ?? {};
   const namedLoad = MAIN_ITEMS.reduce((sum, item) => checked[item.id] ? sum + item.weight : sum, 0);
   const possessionLoad = (data?.inventoryPossessions ?? []).reduce((sum, item) => item.checked ? sum + item.weight : sum, 0);
-  const arcanaLoad = (data?.arcanaMinor ?? []).reduce((sum, entry) => {
+  const arcanaMinorLoad = (data?.arcanaMinor ?? []).reduce((sum, entry) => {
     if (!entry.carried) return sum;
     const arcanum = MINOR_ARCANA.find((a) => a.id === entry.id);
     return arcanum?.weight ? sum + arcanum.weight : sum;
   }, 0);
-  return namedLoad + possessionLoad + arcanaLoad + (data?.inventoryUndefined ?? 0);
+  const arcanaMajorLoad = (data?.arcanaMajor ?? []).reduce((sum, entry) => {
+    if (!entry.carried) return sum;
+    const arcanum = MAJOR_ARCANA.find((a) => a.id === entry.id);
+    return arcanum?.weight ? sum + arcanum.weight : sum;
+  }, 0);
+  return namedLoad + possessionLoad + arcanaMinorLoad + arcanaMajorLoad + (data?.inventoryUndefined ?? 0);
 };
 
 interface MainItemRowProps {
@@ -173,6 +179,23 @@ const ArcanaItemRow = memo(({ id, name, weight, carried, onCarriedChange }: Arca
   );
 });
 
+interface ProsperityOptionRowProps {
+  val: -1 | 0 | 1 | 2;
+  selected: boolean;
+}
+
+const PROSPERITY_NOTES: Record<number, string> = { [-1]: 'Gear is crude', 0: 'Standard', 1: 'x = 1 piercing', 2: 'x = 2 piercing' };
+
+const ProsperityOptionRow = memo(({ val, selected }: ProsperityOptionRowProps) => {
+  const cx = clsx(styles.prosperityOption, selected && styles.prosperitySelected);
+  return (
+    <div className={cx}>
+      <span className={styles.prosperityValue}>{val > 0 ? `+${val}` : val}</span>
+      <span className={styles.prosperityNote}>{PROSPERITY_NOTES[val]}</span>
+    </div>
+  );
+});
+
 interface InventoryProps {
   data: CharacterData | undefined;
   prosperity: number;
@@ -187,7 +210,9 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
   const [undefinedSmall, setUndefinedSmall] = useState<number>(() => data?.inventorySmallUndefined ?? 0);
   const [otherThings, setOtherThings] = useState<string>(() => data?.inventoryOtherThings ?? '');
   const [arcanaMinor, setArcanaMinor] = useState(() => data?.arcanaMinor ?? []);
-  const arcanaPendingRef = useRef(false);
+  const [arcanaMajor, setArcanaMajor] = useState(() => data?.arcanaMajor ?? []);
+  const arcanaMinorPendingRef = useRef(false);
+  const arcanaMajorPendingRef = useRef(false);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onSaveRef = useRef(onSave);
@@ -205,9 +230,14 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
   }, [data]);
 
   useEffect(() => {
-    if (arcanaPendingRef.current) return;
+    if (arcanaMinorPendingRef.current) return;
     setArcanaMinor(data?.arcanaMinor ?? []);
   }, [data?.arcanaMinor]);
+
+  useEffect(() => {
+    if (arcanaMajorPendingRef.current) return;
+    setArcanaMajor(data?.arcanaMajor ?? []);
+  }, [data?.arcanaMajor]);
 
   const saveDebounced = useCallback((patch: Partial<CharacterData>) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -277,20 +307,30 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
   }, []);
 
   const handleArcanaCarried = useCallback((id: string, carried: boolean) => {
-    const rollback = data?.arcanaMinor ?? [];
     setArcanaMinor((prev) => {
       const next = prev.map((e) => e.id === id ? { ...e, carried } : e);
-      arcanaPendingRef.current = true;
+      arcanaMinorPendingRef.current = true;
       onSaveRef.current({ arcanaMinor: next })
-        .catch(() => setArcanaMinor(rollback))
-        .finally(() => { arcanaPendingRef.current = false; });
+        .catch(() => setArcanaMinor(prev))
+        .finally(() => { arcanaMinorPendingRef.current = false; });
       return next;
     });
-  }, [data?.arcanaMinor]);
+  }, []);
+
+  const handleArcanaMajorCarried = useCallback((id: string, carried: boolean) => {
+    setArcanaMajor((prev) => {
+      const next = prev.map((e) => e.id === id ? { ...e, carried } : e);
+      arcanaMajorPendingRef.current = true;
+      onSaveRef.current({ arcanaMajor: next })
+        .catch(() => setArcanaMajor(prev))
+        .finally(() => { arcanaMajorPendingRef.current = false; });
+      return next;
+    });
+  }, []);
 
   const totalLoad = useMemo(
-    () => computeTotalLoad({ ...data, inventoryChecked, inventoryUndefined: undefinedMain }),
-    [inventoryChecked, data, undefinedMain],
+    () => computeTotalLoad({ ...data, inventoryChecked, inventoryUndefined: undefinedMain, arcanaMinor, arcanaMajor }),
+    [inventoryChecked, data, undefinedMain, arcanaMinor, arcanaMajor],
   );
   const loadLabel = totalLoad <= 3 ? 'light load' : totalLoad <= 6 ? 'normal load' : 'heavy load';
   const loadCx = clsx(
@@ -309,11 +349,14 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
             <Text font="serif" color="muted" leading="normal">
               {parseInlineMarkdown('When you **Outfit**, mark a number of ◊ below, on specific items or Undefined.')}
             </Text>
-            <ul className={styles.outfitList}>
-              <Text as="li" font="serif" color="muted" leading="normal">{parseInlineMarkdown('For a **light load** *(quick & quiet)*, mark up to 3 ◈')}</Text>
-              <Text as="li" font="serif" color="muted" leading="normal">{parseInlineMarkdown('For a **normal load**, mark 4–6 ◈')}</Text>
-              <Text as="li" font="serif" color="muted" leading="normal">{parseInlineMarkdown('For a **heavy load** *(noisy, slow, hot, quick to tire)*, mark 7–9 ◈')}</Text>
-            </ul>
+            <List
+              variant="bullet"
+              items={[
+                parseInlineMarkdown('For a **light load** *(quick & quiet)*, mark up to 3 ◈'),
+                parseInlineMarkdown('For a **normal load**, mark 4–6 ◈'),
+                parseInlineMarkdown('For a **heavy load** *(noisy, slow, hot, quick to tire)*, mark 7–9 ◈'),
+              ]}
+            />
 
             <div className={styles.loadRow}>
               <span className={loadCx}>
@@ -364,6 +407,20 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
                     weight={arcanum.weight}
                     carried={!!entry.carried}
                     onCarriedChange={handleArcanaCarried}
+                  />
+                );
+              })}
+              {arcanaMajor.map((entry) => {
+                const arcanum = MAJOR_ARCANA.find((a) => a.id === entry.id);
+                if (!arcanum?.weight) return null;
+                return (
+                  <ArcanaItemRow
+                    key={entry.id}
+                    id={entry.id}
+                    name={arcanum.name}
+                    weight={arcanum.weight}
+                    carried={!!entry.carried}
+                    onCarriedChange={handleArcanaMajorCarried}
                   />
                 );
               })}
@@ -438,20 +495,9 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
               Affects uses from Supplies, HP from Recover, and piercing on iron weapons. Set by the GM.
             </Text>
             <div className={styles.prosperityList}>
-              {([-1, 0, 1, 2] as const).map((val) => {
-                const prosperityOptionCx = clsx(styles.prosperityOption, prosperity === val && styles.prosperitySelected);
-                return (
-                <div key={val} className={prosperityOptionCx}>
-                  <span className={styles.prosperityValue}>{val > 0 ? `+${val}` : val}</span>
-                  <span className={styles.prosperityNote}>
-                    {val === -1 && 'Gear is crude'}
-                    {val === 0 && 'Standard'}
-                    {val === 1 && 'x = 1 piercing'}
-                    {val === 2 && 'x = 2 piercing'}
-                  </span>
-                </div>
-                );
-              })}
+              {([-1, 0, 1, 2] as const).map((val) => (
+                <ProsperityOptionRow key={val} val={val} selected={prosperity === val} />
+              ))}
             </div>
           </PlaybookSection>
         </div>

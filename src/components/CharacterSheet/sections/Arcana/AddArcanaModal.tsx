@@ -1,60 +1,75 @@
 import { useState, useId, useMemo, useCallback, memo } from 'react';
 import clsx from 'clsx';
 import { Modal, Heading, Button, Text } from '@/components/primitives';
-import { MINOR_ARCANA, type MinorArcanum } from '@/lib/arcanaMinor';
-import styles from './AddMinorArcanaModal.module.css';
+import styles from './AddArcanaModal.module.css';
 
-interface AddMinorArcanaModalProps {
+interface ArcanaItem {
+  id: string;
+  name: string;
+  tags?: string;
+}
+
+interface AddArcanaModalProps<T extends ArcanaItem> {
   open: boolean;
   onClose: () => void;
-  onAdd: (arcanum: MinorArcanum) => void;
+  onAdd: (item: T) => void;
+  items: T[];
   existingIds: string[];
+  title: string;
+  noun: string;
+  placeholder: string;
 }
 
-interface ArcanaOptionProps {
-  arcanum: MinorArcanum;
+interface ArcanaOptionProps<T extends ArcanaItem> {
+  item: T;
   isSelected: boolean;
-  onSelect: (arcanum: MinorArcanum) => void;
+  onSelect: (item: T) => void;
+  idPrefix: string;
 }
 
-const ArcanaOption = memo(({ arcanum, isSelected, onSelect }: ArcanaOptionProps) => {
-  const cx = clsx(styles.item, isSelected && styles.itemSelected);
-  const handleClick = useCallback(() => onSelect(arcanum), [onSelect, arcanum]);
-  return (
-    <button
-      id={`arcana-option-${arcanum.id}`}
-      role="option"
-      aria-selected={isSelected}
-      className={cx}
-      onClick={handleClick}
-    >
-      <span className={styles.itemName}>{arcanum.name}</span>
-      {arcanum.tags && (
-        <span className={styles.itemTags}>{arcanum.tags}</span>
-      )}
-    </button>
-  );
-});
+const ArcanaOption = memo(
+  <T extends ArcanaItem>({ item, isSelected, onSelect, idPrefix }: ArcanaOptionProps<T>) => {
+    const cx = clsx(styles.item, isSelected && styles.itemSelected);
+    const handleClick = useCallback(() => onSelect(item), [onSelect, item]);
+    return (
+      <button
+        id={`${idPrefix}-${item.id}`}
+        role="option"
+        aria-selected={isSelected}
+        className={cx}
+        onClick={handleClick}
+      >
+        <span className={styles.itemName}>{item.name}</span>
+        {item.tags && <span className={styles.itemTags}>{item.tags}</span>}
+      </button>
+    );
+  },
+) as <T extends ArcanaItem>(props: ArcanaOptionProps<T>) => React.ReactElement;
 
-export const AddMinorArcanaModal = ({
+export const AddArcanaModal = <T extends ArcanaItem>({
   open,
   onClose,
   onAdd,
+  items,
   existingIds,
-}: AddMinorArcanaModalProps) => {
+  title,
+  noun,
+  placeholder,
+}: AddArcanaModalProps<T>) => {
   const headingId = useId();
   const inputId = useId();
+  const idPrefix = useId();
   const [query, setQuery] = useState('');
-  const [selected, setSelected] = useState<MinorArcanum | null>(null);
+  const [selected, setSelected] = useState<T | null>(null);
 
   const existing = useMemo(() => new Set(existingIds), [existingIds]);
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return MINOR_ARCANA.filter(
+    return items.filter(
       (a) => !existing.has(a.id) && (q === '' || a.name.toLowerCase().includes(q)),
     );
-  }, [query, existing]);
+  }, [query, existing, items]);
 
   const handleAdd = useCallback(() => {
     if (!selected) return;
@@ -75,11 +90,12 @@ export const AddMinorArcanaModal = ({
   }, []);
 
   const listCx = clsx(styles.list, results.length === 0 && styles.listEmpty);
+  const allAdded = existing.size === items.length;
 
   return (
     <Modal open={open} onClose={handleClose} aria-labelledby={headingId} className={styles.modal}>
       <Heading as="h2" size="md" id={headingId}>
-        Add Minor Arcanum
+        {title}
       </Heading>
 
       <div className={styles.searchRow}>
@@ -90,7 +106,7 @@ export const AddMinorArcanaModal = ({
           id={inputId}
           type="search"
           className={styles.searchInput}
-          placeholder="e.g. scroll, wolf pelt, cave…"
+          placeholder={placeholder}
           value={query}
           onChange={handleQueryChange}
           autoComplete="off"
@@ -100,22 +116,21 @@ export const AddMinorArcanaModal = ({
       <div
         className={listCx}
         role="listbox"
-        aria-label="Minor arcana"
-        aria-activedescendant={selected ? `arcana-option-${selected.id}` : undefined}
+        aria-label={title}
+        aria-activedescendant={selected ? `${idPrefix}-${selected.id}` : undefined}
       >
         {results.length === 0 ? (
           <Text as="p" size="sm" color="muted" className={styles.empty}>
-            {existing.size === MINOR_ARCANA.length
-              ? 'All minor arcana have been added.'
-              : 'No matches found.'}
+            {allAdded ? `All ${noun} have been added.` : 'No matches found.'}
           </Text>
         ) : (
           results.map((a) => (
             <ArcanaOption
               key={a.id}
-              arcanum={a}
+              item={a}
               isSelected={selected?.id === a.id}
               onSelect={setSelected}
+              idPrefix={idPrefix}
             />
           ))
         )}

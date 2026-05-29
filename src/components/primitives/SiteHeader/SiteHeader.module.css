@@ -1,0 +1,9 @@
+.header {
+  width: 100%;
+  padding: var(--spacing-3) var(--spacing-6);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.wordmark {
+  letter-spacing: 0.03em;
+}
