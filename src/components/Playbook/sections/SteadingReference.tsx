@@ -60,7 +60,7 @@ export const SteadingReference = ({ placesOfInterest, onSave }: SteadingReferenc
     <div className={styles.root}>
       <div className={styles.places}>
         <Heading as="h3" size="sm">Places of interest</Heading>
-        <Text size="sm" color="muted">Key locations on the village map. Add PC homes and notable NPC homes as established in play.</Text>
+        <Text size="xs" color="muted">Key locations on the village map. Add PC homes and notable NPC homes as established in play.</Text>
         <ImprovementList
           fixedItems={BUILT_IN_PLACES}
           improvementItems={[]}
@@ -74,21 +74,21 @@ export const SteadingReference = ({ placesOfInterest, onSave }: SteadingReferenc
 
       <div className={styles.subsection}>
         <Heading as="h3" size="sm">Names</Heading>
-        <Text size="sm" color="muted">Pick one, make one up, or ask a player to.</Text>
+        <Text size="xs" color="muted">Pick one, make one up, or ask a player to.</Text>
         <div className={playbookStyles.paragraphs}>
-          <Text size="sm"><strong>Stonetop</strong> (Welsh): {STONETOP_NAMES_STR}</Text>
-          <Text size="sm"><strong>Marshedge</strong> (Irish): {MARSHEDGE_NAMES_STR}</Text>
-          <Text size="sm"><strong>Hillfolk</strong> (Breton, clipped): {HILLFOLK_NAMES_STR}</Text>
-          <Text size="sm"><strong>Southern</strong> (Greek, Hebrew, Persian, Arabic): {SOUTHERN_NAMES_STR}</Text>
-          <Text size="sm"><strong>Manmarch</strong> (Germanic): {MANMARCH_NAMES_STR}</Text>
-          <Text size="sm"><strong>Barrier Pass</strong> (Tibetan, Nepali): {BARRIER_PASS_NAMES_STR}</Text>
-          <Text size="sm" color="muted"><em>Gordin's Delve: choose from other lists; everyone there comes from somewhere else.</em></Text>
+          <Text size="xs"><strong>Stonetop</strong> (Welsh): {STONETOP_NAMES_STR}</Text>
+          <Text size="xs"><strong>Marshedge</strong> (Irish): {MARSHEDGE_NAMES_STR}</Text>
+          <Text size="xs"><strong>Hillfolk</strong> (Breton, clipped): {HILLFOLK_NAMES_STR}</Text>
+          <Text size="xs"><strong>Southern</strong> (Greek, Hebrew, Persian, Arabic): {SOUTHERN_NAMES_STR}</Text>
+          <Text size="xs"><strong>Manmarch</strong> (Germanic): {MANMARCH_NAMES_STR}</Text>
+          <Text size="xs"><strong>Barrier Pass</strong> (Tibetan, Nepali): {BARRIER_PASS_NAMES_STR}</Text>
+          <Text size="xs" color="muted"><em>Gordin's Delve: choose from other lists; everyone there comes from somewhere else.</em></Text>
         </div>
       </div>
 
       <div className={styles.subsection}>
         <Heading as="h3" size="sm">NPC Traits</Heading>
-        <Text size="sm" color="muted">Assign as needed; choose from this list or make up your own.</Text>
+        <Text size="xs" color="muted">Assign as needed; choose from this list or make up your own.</Text>
         <div className={styles.traitsGrid}>
           <ul className={styles.traitsList} aria-label="NPC traits (first half)">
             {TRAITS_COL_A.map((t) => <li key={t} className={styles.trait}>{t}</li>)}

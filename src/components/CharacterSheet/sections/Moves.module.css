@@ -18,16 +18,7 @@
   gap: var(--spacing-2);
 }
 
-.empty {
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  margin: 0;
-}
-
 .helperText {
-  font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  color: var(--color-stone-400);
   margin: 0 0 var(--spacing-4);
   line-height: 1.5;
 }

@@ -111,10 +111,10 @@ export const PageHeader = ({ crumbs, title, titleLabel, subtitle, icon, gameId, 
           </>
         )}
       </div>
-      {subtitle && <Text color="muted" size="sm" className={styles.subtitle}>{subtitle}</Text>}
+      {subtitle && <Text color="muted" size="xs" className={styles.subtitle}>{subtitle}</Text>}
       <div className={styles.gameId}>
-        <Text color="muted" size="sm">
-          Game ID: <Text as="span" color="accent" size="sm">{gameId}</Text>
+        <Text color="muted" size="xs">
+          Game ID: <Text as="span" color="accent" size="xs">{gameId}</Text>
         </Text>
         <Tooltip text={copyLabel} side="top" noTabStop tooltipId={copyTooltipId}>
           <Button

@@ -34,7 +34,7 @@ export const RangerSomethingWicked = ({ data, onSave }: RangerSomethingWickedPro
 
   return (
     <PlaybookSection title="Something Wicked This Way Comes">
-      <Text as="p" size="sm" color="muted">
+      <Text as="p" size="xs" color="muted">
         You know firsthand that trouble is out there, and like it or not, one of these days the
         folk of Stonetop are going to have to face it. What is it that you're so worried about?
         (choose 1)
@@ -46,7 +46,7 @@ export const RangerSomethingWicked = ({ data, onSave }: RangerSomethingWickedPro
         max={1}
       />
       <Divider />
-      <Text as="p" size="sm" color="muted">
+      <Text as="p" size="xs" color="muted">
         Then, answer at least 3 of the following questions about this threat:
       </Text>
       <AnswerPrompts prompts={ANSWER_PROMPTS} answers={answers} onAnswer={handleAnswer} onFlush={flushAnswers} />

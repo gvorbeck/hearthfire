@@ -1,3 +1,4 @@
+import { useState, useCallback } from 'react';
 import clsx from 'clsx';
 import { Button, Heading, Icon, Tooltip } from '@/components/primitives';
 import styles from './CharacterSheet.module.css';
@@ -10,7 +11,13 @@ interface PlaybookSectionProps {
   chooseNote?: string;
   warn?: boolean;
   warnText?: string;
+  /**
+   * When true without onToggleCollapse, the section manages its own open/closed state (uncontrolled).
+   * When true with onToggleCollapse, the caller controls state (controlled). Do not switch modes after mount.
+   */
   collapsible?: boolean;
+  /** Honored only on first render; changes after mount are ignored. */
+  defaultOpen?: boolean;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
   overrideNote?: string;
@@ -24,13 +31,22 @@ export const PlaybookSection = ({
   warn,
   warnText = DEFAULT_WARN_TEXT,
   collapsible,
+  defaultOpen = true,
   isCollapsed,
   onToggleCollapse,
   overrideNote,
   children,
 }: PlaybookSectionProps) => {
-  const showCollapse = collapsible && !!onToggleCollapse && !overrideNote;
-  const chevronCx = clsx(styles.collapseChevron, !isCollapsed && styles.collapseChevronOpen);
+  const isUncontrolled = collapsible && !onToggleCollapse;
+  const [selfOpen, setSelfOpen] = useState(defaultOpen);
+
+  const handleSelfToggle = useCallback(() => setSelfOpen(v => !v), []);
+
+  const collapsed = isUncontrolled ? !selfOpen : !!isCollapsed;
+  const handleToggle = isUncontrolled ? handleSelfToggle : onToggleCollapse;
+
+  const showCollapse = collapsible && !overrideNote;
+  const chevronCx = clsx(styles.collapseChevron, !collapsed && styles.collapseChevronOpen);
   const collapseCx = clsx(styles.collapseToggle, warn && styles.collapseToggleHidden);
   const chooseCx = clsx(styles.sectionTitleChoose, (!warn || !!overrideNote) && styles.sectionTitleChooseHidden);
   const warnCx = clsx(styles.sectionTitleWarn, (!warn || !!overrideNote) && styles.sectionTitleWarnHidden);
@@ -58,9 +74,9 @@ export const PlaybookSection = ({
             variant="ghost"
             size="sm"
             className={collapseCx}
-            onClick={warn ? undefined : onToggleCollapse}
-            aria-expanded={!isCollapsed}
-            aria-label={isCollapsed ? `Expand ${title}` : `Collapse ${title}`}
+            onClick={warn ? undefined : handleToggle}
+            aria-expanded={!collapsed}
+            aria-label={collapsed ? `Expand ${title}` : `Collapse ${title}`}
             tabIndex={warn ? -1 : undefined}
             aria-hidden={warn || undefined}
           >
@@ -68,7 +84,7 @@ export const PlaybookSection = ({
           </Button>
         )}
       </div>
-      {children}
+      {!collapsed && children}
     </section>
   );
 };

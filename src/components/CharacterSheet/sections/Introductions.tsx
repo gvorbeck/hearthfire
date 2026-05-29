@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { CheckboxGroup, List, useToast } from '@/components/primitives';
+import { CheckboxGroup, List, Text, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
 import type { CharacterData } from '@/types';
 import styles from './Introductions.module.css';
@@ -22,35 +22,35 @@ interface IntroductionsProps {
 }
 
 const STEP_1 = (
-  <p key="step-1" className={styles.stepText}>
+  <Text key="step-1" font="serif" color="muted" leading="tight">
     On your first turn, <strong>introduce yourself</strong> by name, pronouns, background,
     origin, and appearance.
-  </p>
+  </Text>
 );
 
 const STEP_2 = (
-  <p key="step-2" className={styles.stepText}>
+  <Text key="step-2" font="serif" color="muted" leading="tight">
     On your second turn, <strong>describe your special possessions</strong> and how you
     contribute to the village (beyond working the fields).
-  </p>
+  </Text>
 );
 
 const STEP_5 = (
-  <p key="step-5" className={styles.stepText}>
+  <Text key="step-5" font="serif" color="muted" leading="tight">
     Go around again. Answer another question from 4, or pass. When everyone has passed, go on.
-  </p>
+  </Text>
 );
 
 const STEP_7 = (
-  <p key="step-7" className={styles.stepText}>
+  <Text key="step-7" font="serif" color="muted" leading="tight">
     Go around again. Ask another question from 6, or pass. When everyone has passed, go on.
-  </p>
+  </Text>
 );
 
 const STEP_8 = (
-  <p key="step-8" className={styles.stepText}>
+  <Text key="step-8" font="serif" color="muted" leading="tight">
     Add your home to the steading playbook. When everyone is done, let spring break forth!
-  </p>
+  </Text>
 );
 
 export const Introductions = ({ config, data, onSave }: IntroductionsProps = {}) => {
@@ -77,12 +77,12 @@ export const Introductions = ({ config, data, onSave }: IntroductionsProps = {})
     return [
       STEP_1,
       STEP_2,
-      <p key="step-3" className={styles.stepText}>{step3}</p>,
+      <Text key="step-3" font="serif" color="muted" leading="tight">{step3}</Text>,
       <div key="step-4">
-        <p className={styles.stepText}>
+        <Text font="serif" color="muted" leading="tight">
           On your next turn, <strong>answer one of the following</strong>, naming one or more
           NPCs who live in Stonetop.
-        </p>
+        </Text>
         <div className={styles.questionList}>
           <CheckboxGroup
             items={step4Questions.map(({ id, text }) => ({ id, label: <span className={styles.questionText}>{text}</span> }))}
@@ -93,10 +93,10 @@ export const Introductions = ({ config, data, onSave }: IntroductionsProps = {})
       </div>,
       STEP_5,
       <div key="step-6">
-        <p className={styles.stepText}>
+        <Text font="serif" color="muted" leading="tight">
           On your next turn, <strong>ask your fellow PCs one of these</strong>. When others ask
           you, answer as you like.
-        </p>
+        </Text>
         <div className={styles.questionList}>
           <CheckboxGroup
             items={step6Questions.map(({ id, text }) => ({ id, label: <span className={styles.questionText}>{text}</span> }))}
@@ -114,11 +114,11 @@ export const Introductions = ({ config, data, onSave }: IntroductionsProps = {})
 
   return (
     <PlaybookSection title="Introductions">
-      <p className={styles.intro}>
+      <Text font="serif" color="muted" className={styles.intro}>
         Wait here for everyone else. When everyone&apos;s ready, take turns introducing your
         characters. When <strong>someone reveals something and you want to know more</strong>, ask
         them about it. When <strong>someone asks you a question</strong>, answer it truthfully.
-      </p>
+      </Text>
       <List variant="numbered" items={items} />
     </PlaybookSection>
   );

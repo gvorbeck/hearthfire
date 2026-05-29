@@ -3,11 +3,11 @@ import {
   useId,
   useRef,
   useCallback,
-  useMemo,
   type ReactNode,
   type KeyboardEvent,
   type MouseEvent,
 } from "react";
+import { createPortal } from "react-dom";
 import clsx from "clsx";
 import { useTooltip } from "../Tooltip/useTooltip";
 import { Button } from "../Button/Button";
@@ -34,6 +34,57 @@ interface TabsProps {
 
 export const tabBadgeClass = styles.tabBadge;
 
+const portalTarget = typeof document !== "undefined" ? document.body : null;
+
+const PortalTooltip = ({
+  tooltipRef,
+  tooltipId,
+  visible,
+  fixedCoords,
+  arrowOffset,
+  resolvedSide,
+  children,
+}: {
+  tooltipRef: React.RefObject<HTMLSpanElement>;
+  tooltipId: string;
+  visible: boolean;
+  fixedCoords: { top: number; left: number } | null;
+  arrowOffset: string;
+  resolvedSide: string;
+  children: ReactNode;
+}) => {
+  if (!portalTarget) return null;
+
+  const tipCx = clsx(
+    styles.tabTooltip,
+    styles.portalFixed,
+    styles[resolvedSide],
+    visible && styles.tabTooltipVisible,
+  );
+
+  return createPortal(
+    <span
+      ref={tooltipRef}
+      role="tooltip"
+      id={tooltipId}
+      aria-hidden={!visible}
+      className={tipCx}
+      style={
+        {
+          top: fixedCoords?.top ?? 0,
+          left: fixedCoords?.left ?? 0,
+          "--nudge-x": "0px",
+          "--arrow-offset": arrowOffset,
+        } as React.CSSProperties
+      }
+    >
+      {children}
+      <span className={styles.tabTooltipArrow} />
+    </span>,
+    portalTarget,
+  );
+};
+
 const TabRemoveButton = ({
   tab,
   index,
@@ -48,30 +99,18 @@ const TabRemoveButton = ({
   const removeTooltip = useTooltip({
     side: "bottom",
     tooltipId: `${baseId}-tab-${index}-remove-tooltip`,
+    portal: true,
   });
 
-  const handleClick = useCallback(
-    (e: MouseEvent<HTMLButtonElement>) => {
-      e.stopPropagation();
-      onRemove();
-    },
-    [onRemove],
-  );
-
-  const tipCx = clsx(
-    styles.tabTooltip,
-    styles[removeTooltip.resolvedSide],
-    removeTooltip.visible && styles.tabTooltipVisible,
-  );
+  const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    onRemove();
+  };
 
   return (
     <span className={styles.tabRemoveWrapper}>
       <button
-        ref={(el) => {
-          (
-            removeTooltip.anchorRef as React.MutableRefObject<HTMLElement | null>
-          ).current = el;
-        }}
+        ref={removeTooltip.anchorRef as React.MutableRefObject<HTMLButtonElement | null>}
         type="button"
         className={styles.tabRemove}
         aria-label={tab.removeTooltip ?? `Remove ${tab.label} tab`}
@@ -81,23 +120,61 @@ const TabRemoveButton = ({
       >
         ×
       </button>
-      <span
-        ref={removeTooltip.tooltipRef}
-        role="tooltip"
-        id={removeTooltip.tooltipId}
-        aria-hidden={!removeTooltip.visible}
-        className={tipCx}
-        style={
-          {
-            "--nudge-x": `${removeTooltip.nudgeX}px`,
-            "--arrow-offset": removeTooltip.arrowOffset,
-          } as React.CSSProperties
-        }
+      <PortalTooltip
+        tooltipRef={removeTooltip.tooltipRef}
+        tooltipId={removeTooltip.tooltipId}
+        visible={removeTooltip.visible}
+        fixedCoords={removeTooltip.fixedCoords}
+        arrowOffset={removeTooltip.arrowOffset}
+        resolvedSide={removeTooltip.resolvedSide}
       >
         {tab.removeTooltip ?? `Remove ${tab.label}`}
-        <span className={styles.tabTooltipArrow} />
-      </span>
+      </PortalTooltip>
     </span>
+  );
+};
+
+const AddTabButton = ({
+  baseId,
+  onAdd,
+}: {
+  baseId: string;
+  onAdd: () => void;
+}) => {
+  const addTooltip = useTooltip({
+    side: "bottom",
+    tooltipId: `${baseId}-add-tooltip`,
+    portal: true,
+  });
+
+  return (
+    <>
+      <span
+        ref={addTooltip.anchorRef as React.MutableRefObject<HTMLSpanElement | null>}
+        className={styles.addTabWrapper}
+        {...addTooltip.anchorProps}
+      >
+        <Button
+          variant="ghost"
+          size="sm"
+          icon="plus"
+          onClick={onAdd}
+          aria-label="Add an insert"
+          aria-describedby={addTooltip.tooltipId}
+          className={styles.addTab}
+        />
+      </span>
+      <PortalTooltip
+        tooltipRef={addTooltip.tooltipRef}
+        tooltipId={addTooltip.tooltipId}
+        visible={addTooltip.visible}
+        fixedCoords={addTooltip.fixedCoords}
+        arrowOffset={addTooltip.arrowOffset}
+        resolvedSide={addTooltip.resolvedSide}
+      >
+        Add an Insert
+      </PortalTooltip>
+    </>
   );
 };
 
@@ -131,15 +208,10 @@ const TabButton = ({
     tooltip.visible && styles.tabTooltipVisible,
   );
 
-  const handleClick = useCallback(() => onActivate(index), [onActivate, index]);
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent<HTMLButtonElement>) => onKeyDown(e, index),
-    [onKeyDown, index],
-  );
-  const handleRef = useCallback((el: HTMLButtonElement | null) => {
+  const handleRef = (el: HTMLButtonElement | null) => {
     buttonRef(el);
-    (tooltip.anchorRef as React.MutableRefObject<HTMLElement | null>).current = el;
-  }, [buttonRef, tooltip.anchorRef]);
+    tooltip.anchorRef.current = el;
+  };
 
   const badgeTooltipEl = tab.badgeTooltip ? (
     <span
@@ -170,8 +242,8 @@ const TabButton = ({
       aria-describedby={tab.badgeTooltip ? tooltip.tooltipId : undefined}
       tabIndex={isActive ? 0 : -1}
       className={cx}
-      onClick={handleClick}
-      onKeyDown={handleKeyDown}
+      onClick={() => onActivate(index)}
+      onKeyDown={(e) => onKeyDown(e, index)}
       {...(tab.badgeTooltip ? tooltip.anchorProps : {})}
     >
       {tab.label}
@@ -212,13 +284,7 @@ export const Tabs = ({
 
   const cx = clsx(styles.root, className);
 
-  const handleActivate = useCallback((i: number) => setActive(i), [setActive]);
-
-  const buttonRefSetters = useMemo(
-    () => tabs.map((_, i) => (el: HTMLButtonElement | null) => { tabRefs.current[i] = el; }),
-    // Keyed by tab count — recreates only when tabs are added or removed, not on every render.
-    [tabs.length],
-  );
+  const buttonRefSetters = tabs.map((_, i) => (el: HTMLButtonElement | null) => { tabRefs.current[i] = el; });
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLButtonElement>, i: number) => {
@@ -238,25 +304,16 @@ export const Tabs = ({
   return (
     <div className={cx}>
       <div className={styles.tablistRow}>
-        {onAdd && (
-          <Button
-            variant="ghost"
-            size="sm"
-            icon="plus"
-            onClick={onAdd}
-            aria-label="Add an insert"
-            className={styles.addTab}
-          />
-        )}
+        {onAdd && <AddTabButton baseId={baseId} onAdd={onAdd} />}
         <div className={styles.tablist} role="tablist" aria-label={ariaLabel}>
           {tabs.map((tab, i) => (
             <TabButton
-              key={tab.label}
+              key={i}
               tab={tab}
               index={i}
               baseId={baseId}
               isActive={active === i}
-              onActivate={handleActivate}
+              onActivate={setActive}
               onKeyDown={handleKeyDown}
               buttonRef={buttonRefSetters[i]}
               onRemove={tab.onRemove}
@@ -266,7 +323,7 @@ export const Tabs = ({
       </div>
       {tabs.map((tab, i) => (
         <div
-          key={tab.label}
+          key={i}
           role="tabpanel"
           id={`${baseId}-panel-${i}`}
           aria-labelledby={`${baseId}-tab-${i}`}

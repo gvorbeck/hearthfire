@@ -3,10 +3,11 @@ import { useParams, Link } from 'react-router-dom';
 import { PageMeta } from '@/components/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
-import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Modal, Radio, Icon } from '@/components/primitives';
+import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Modal, Radio, Icon, Text } from '@/components/primitives';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
 import { PageHeader } from '@/components/PageHeader/PageHeader';
 import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, Moves, SpecialPossessions, Introductions, Inventory } from '@/components/CharacterSheet/sections';
+import { ArcanaTab } from '@/components/CharacterSheet/sections/Arcana/ArcanaTab';
 import { BACKGROUND_OPTIONS, FOX_LIFE_OF_CRIME_BACKGROUND } from '@/lib/backgroundOptions';
 import { INSTINCT_OPTIONS } from '@/lib/instinctOptions';
 import { APPEARANCE_OPTIONS } from '@/lib/appearanceOptions';
@@ -64,21 +65,14 @@ const INSERT_INSTINCT_KEYS: { feature: keyof PlaybookFeatures; label: string }[]
   { feature: 'thrallInstinct', label: 'Thrall' },
 ];
 
-const getInsertInstinctNote = (data: CharacterData | undefined): string | undefined => {
-  const features = resolvePlaybookFeatures(data);
-  const match = INSERT_INSTINCT_KEYS.find(({ feature }) => !!features[feature]);
-  return match ? `Replaced by your ${match.label} instinct` : undefined;
-};
 
-const PCPlaybookTab = ({ character, playbookOption, onSave }: { character: Character; playbookOption: (typeof PLAYBOOKS)[number]; onSave: (data: Partial<CharacterData>) => Promise<void> }) => {
+const PCPlaybookTab = ({ character, playbookOption, onSave, insertInstinctNote }: { character: Character; playbookOption: (typeof PLAYBOOKS)[number]; onSave: (data: Partial<CharacterData>) => Promise<void>; insertInstinctNote: string | undefined }) => {
   const level = getCharacterLevel(character);
   const { playbook, data } = character;
 
   const foxChooseOverride = playbook === 'fox' && data?.background === FOX_LIFE_OF_CRIME_BACKGROUND
     ? { count: 3, note: '+1 from A Life of Crime' }
     : undefined;
-
-  const insertInstinctNote = getInsertInstinctNote(data);
 
   return (
     <div className={styles.layout}>
@@ -162,10 +156,10 @@ const RemoveInsertModal = ({ open, insert, onClose, onConfirm }: { open: boolean
   return (
     <Modal open={open} onClose={onClose} aria-labelledby={headingId}>
       <Heading as="h2" size="md" id={headingId}>Remove {insert}?</Heading>
-      <p className={styles.removeInsertWarning}>
+      <Text font="serif" color="muted" className={styles.removeInsertWarning}>
         This will remove the <strong>{insert}</strong> tab from this character sheet.
         {warning && ` ${warning}`}
-      </p>
+      </Text>
       <div className={styles.insertActions}>
         <Button variant="secondary" onClick={onClose}>Cancel</Button>
         <Button variant="primary" onClick={onConfirm}>Remove</Button>
@@ -223,6 +217,7 @@ const resolvePlaybookTabContent = (
   if (id === 'crew') return <MarshalCrew data={data} prosperity={prosperity} onSave={onSave} />;
   if (id === 'animal-companion') return <RangerAnimalCompanion data={data} onSave={onSave} />;
   if (id === 'inventory') return <Inventory data={data} prosperity={prosperity} onSave={onSave} />;
+  if (id === 'arcana') return <ArcanaTab data={data} onSave={onSave} />;
   if (id === 'Revenant') return <RevenantInsert data={data} onSave={onSave} />;
   if (id === 'Ghost') return <GhostInsert data={data} onSave={onSave} />;
   if (id === 'Thrall') return <ThrallInsert data={data} onSave={onSave} />;
@@ -230,7 +225,6 @@ const resolvePlaybookTabContent = (
   return fallback;
 };
 
-// Separated from CharacterPlaybookContent because hooks cannot be called after conditional early returns (Rules of Hooks).
 const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, updateCharacterName, updateCharacterData }: SheetProps) => {
   const headerRef = useRef<HTMLDivElement>(null);
   const hasAutoAddedFollowersRef = useRef(false);
@@ -251,6 +245,8 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
     [updateCharacterName, character.id]
   );
 
+  // One-shot: auto-add the Followers tab the first time a dog possession is detected.
+  // The ref prevents re-triggering if the snapshot fires again before the write lands.
   useEffect(() => {
     if (hasAutoAddedFollowersRef.current) return;
     const possessions = character.data?.specialPossessions ?? {};
@@ -279,9 +275,13 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
     const resolved = resolvePlaybookFeatures(character.data);
     const { followers: _removed, ...restFeatures } = resolved;
     const playbookFeatures = removeInsert === 'Followers' ? restFeatures : resolved;
-    await handleSaveCharacterData({ inserts: next, playbookFeatures });
-    setActiveIndex(0);
-    setRemoveInsert(null);
+    try {
+      await handleSaveCharacterData({ inserts: next, playbookFeatures });
+      setActiveIndex(0);
+      setRemoveInsert(null);
+    } catch {
+      setRemoveInsert(null);
+    }
   }, [removeInsert, character.data, handleSaveCharacterData]);
 
   const handleAddInsert = useCallback(async (insert: InsertOption) => {
@@ -291,10 +291,13 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
       return;
     }
     const next = [...current, insert];
-    const fixedTabCount = 2 + getPlaybookTabs(character.playbook, character.data).length;
-    await handleSaveCharacterData({ inserts: next });
-    setActiveIndex(fixedTabCount + next.length - 1);
-    setAddTabOpen(false);
+    const fixedTabCount = 3 + getPlaybookTabs(character.playbook, character.data).length;
+    try {
+      await handleSaveCharacterData({ inserts: next });
+      setActiveIndex(fixedTabCount + next.length - 1);
+    } finally {
+      setAddTabOpen(false);
+    }
   }, [character.data, character.playbook, handleSaveCharacterData]);
 
   const characterName = character.name?.trim();
@@ -313,6 +316,8 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
 
   const level = getCharacterLevel(character);
   const features = resolvePlaybookFeatures(character.data);
+  const insertInstinctMatch = INSERT_INSTINCT_KEYS.find(({ feature }) => !!features[feature]);
+  const insertInstinctNote = insertInstinctMatch ? `Replaced by your ${insertInstinctMatch.label} instinct` : undefined;
   const knownInvocations = Object.values(features.lightbearerInvocations ?? {}).filter(Boolean).length;
   const invocationsAllowed = 2 + Math.floor(level / 2);
   const dismissedAt = features.lightbearerInvocationsBadgeDismissedAt ?? 0;
@@ -326,19 +331,24 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
 
   const handleActiveChange = useCallback((i: number) => {
     setActiveIndex(i);
-    if (showInvocationsBadge && invocationsTabIndex !== -1 && i === 2 + invocationsTabIndex) {
-      handleSaveCharacterData(featurePatch(character.data, { lightbearerInvocationsBadgeDismissedAt: level }));
+    if (showInvocationsBadge && invocationsTabIndex !== -1 && i === 3 + invocationsTabIndex) {
+      // Fire-and-forget: badge dismissal is best-effort, losing it on failure is acceptable UX
+      handleSaveCharacterData(featurePatch(character.data, { lightbearerInvocationsBadgeDismissedAt: level })).catch(() => {});
     }
   }, [showInvocationsBadge, invocationsTabIndex, handleSaveCharacterData, character.data, level]);
 
   const tabs = useMemo(() => [
     {
       label: 'PC Playbook',
-      content: <PCPlaybookTab character={character} playbookOption={playbookOption} onSave={handleSaveCharacterData} />,
+      content: <PCPlaybookTab character={character} playbookOption={playbookOption} onSave={handleSaveCharacterData} insertInstinctNote={insertInstinctNote} />,
     },
     {
       label: 'Inventory',
       content: resolvePlaybookTabContent('inventory', null, character.data, prosperity, handleSaveCharacterData),
+    },
+    {
+      label: 'Arcana',
+      content: resolvePlaybookTabContent('arcana', null, character.data, prosperity, handleSaveCharacterData),
     },
     ...playbookTabs.map(({ id: tabId, label, content }) => ({
       label,
@@ -379,7 +389,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
         />
       </div>
       {playbookOption.description && (
-        <p className={styles.description}>{playbookOption.description}</p>
+        <Text font="serif" size="lg" italic className={styles.description}>{playbookOption.description}</Text>
       )}
       <Tabs
         aria-label="Character sections"

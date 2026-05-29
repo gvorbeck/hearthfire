@@ -1,8 +1,7 @@
-import { CheckboxGroup, Divider } from '@/components/primitives';
+import { CheckboxGroup, Divider, Text } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { usePlaybookChecked } from '@/hooks/usePlaybookChecked';
 import type { CharacterData } from '@/types';
-import styles from '../playbookSection.module.css';
 
 const SHRINE_ITEMS = [
   { id: 'shrine-hub', label: '… a hub of the community, a place of frequent rites, petitions, and celebrations' },
@@ -30,10 +29,10 @@ export const JudgeLawkeeper = ({ data, onSave }: JudgeLawkeeperProps) => {
 
   return (
     <PlaybookSection title="The Lawkeeper">
-      <p className={styles.prose}>
+      <Text font="serif" color="muted" leading="normal">
         Her Judges say that Aratis has been with humanity since they first stacked one stone upon
         another and called it home.
-      </p>
+      </Text>
       <CheckboxGroup
         label="In Stonetop's Pavillion of the Gods, Aratis's shrine is… (pick 1)"
         items={SHRINE_ITEMS}

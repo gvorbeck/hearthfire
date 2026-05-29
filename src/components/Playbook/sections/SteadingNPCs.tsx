@@ -177,7 +177,7 @@ const NpcSection = ({ title, description, npcs, onUpdate }: NpcSectionProps) => 
   return (
     <div className={styles.section}>
       <div className={styles.addRow}>
-        <Text size="sm" color="muted">{description}</Text>
+        <Text size="xs" color="muted">{description}</Text>
         <Button variant="secondary" size="sm" onClick={openAdd}>Add NPC</Button>
       </div>
 

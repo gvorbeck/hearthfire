@@ -17,10 +17,10 @@ export const ContentSection = ({ content, onSave }: ContentSectionProps) => {
   return (
     <div>
       <div className={styles.contentRules}>
-        <Text size="sm">Keep this in sync with the steading playbook. Review it at the start of each session.</Text>
-        <Text size="sm">When <strong>anyone calls "time out,"</strong> play stops. Step out of character, check in with each other, maybe take a break. Discuss what's wrong, player-to-player.</Text>
-        <Text size="sm">If <strong>content was included that shouldn't have been</strong>, acknowledge the mistake, fix the fiction, and move on.</Text>
-        <Text size="sm">If <strong>someone realizes they need content to be excluded, veiled, or handled in a particular way</strong>, then update the lists. Clarify specifics, now or later, but don't ask for reasons. Fix the fiction. Check in with the player(s). When everyone is ready, move on.</Text>
+        <Text size="xs">Keep this in sync with the steading playbook. Review it at the start of each session.</Text>
+        <Text size="xs">When <strong>anyone calls "time out,"</strong> play stops. Step out of character, check in with each other, maybe take a break. Discuss what's wrong, player-to-player.</Text>
+        <Text size="xs">If <strong>content was included that shouldn't have been</strong>, acknowledge the mistake, fix the fiction, and move on.</Text>
+        <Text size="xs">If <strong>someone realizes they need content to be excluded, veiled, or handled in a particular way</strong>, then update the lists. Clarify specifics, now or later, but don't ask for reasons. Fix the fiction. Check in with the player(s). When everyone is ready, move on.</Text>
       </div>
       <TextareaField label="Excluded content" note="(Not part of the game, on-camera or off)" value={content?.excluded ?? ''} onSave={saveExcluded} />
       <TextareaField label="Veiled content" note="(Part of the fiction, but only off-camera)" value={content?.veiled ?? ''} onSave={saveVeiled} />

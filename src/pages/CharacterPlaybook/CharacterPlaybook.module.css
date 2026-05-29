@@ -7,9 +7,6 @@
 }
 
 .description {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-size: var(--text-lg);
   margin: var(--spacing-6) 0 0;
   line-height: 1.6;
   text-align: center;
@@ -77,8 +74,5 @@
 }
 
 .removeInsertWarning {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
   margin: var(--spacing-4) 0;
 }

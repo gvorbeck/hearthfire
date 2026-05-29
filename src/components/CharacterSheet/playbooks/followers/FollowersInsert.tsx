@@ -194,7 +194,7 @@ const FollowerCard = memo(({
 
       <Modal open={confirmOpen} onClose={handleCancelRemove} aria-labelledby={confirmHeadingId}>
         <Heading as="h2" size="sm" id={confirmHeadingId}>Remove follower?</Heading>
-        <Text size="sm" color="muted">
+        <Text size="xs" color="muted">
           <strong>{followerLabel}</strong> will be permanently removed. All follower data will be lost and cannot be recovered.
         </Text>
         <div className={styles.confirmActions}>
@@ -207,12 +207,12 @@ const FollowerCard = memo(({
         <Checkbox
           checked={follower.exceptional ?? false}
           onChange={handleExceptional}
-          label={<Text as="span" size="sm" color="muted" className={styles.flagLabel}>exceptional</Text>}
+          label={<Text as="span" size="xs" color="muted" font="serif" italic>exceptional</Text>}
         />
         <Checkbox
           checked={follower.group ?? false}
           onChange={handleGroup}
-          label={<Text as="span" size="sm" color="muted" className={styles.flagLabel}>group</Text>}
+          label={<Text as="span" size="xs" color="muted" font="serif" italic>group</Text>}
         />
       </div>
 
@@ -229,9 +229,9 @@ const FollowerCard = memo(({
             onWheel={handleWheel}
           />
           <span className={styles.statLabel}>
-            <Text as="span" size="sm" color="muted">HP</Text>
+            <Text as="span" size="xs" color="muted">HP</Text>
             <span className={styles.statMaxRow}>
-              <Text as="span" size="sm" color="muted" className={styles.statNote}>Max</Text>
+              <Text as="span" size="xs" color="muted" italic className={styles.statNote}>Max</Text>
               <Input
                 className={styles.maxHpInput}
                 type="number"
@@ -254,7 +254,7 @@ const FollowerCard = memo(({
             onChange={handleArmor}
             onBlur={handleBlur}
           />
-          <Text as="span" size="sm" color="muted" className={styles.statLabel}>Armor</Text>
+          <Text as="span" size="xs" color="muted" className={styles.statLabel}>Armor</Text>
         </div>
         <div className={styles.statBox}>
           <Input
@@ -265,12 +265,12 @@ const FollowerCard = memo(({
             onChange={handleDamage}
             onBlur={handleBlur}
           />
-          <Text as="span" size="sm" color="muted" className={styles.statLabel}>Damage</Text>
+          <Text as="span" size="xs" color="muted" className={styles.statLabel}>Damage</Text>
         </div>
       </div>
 
       <div className={styles.fieldRow}>
-        <Text as="span" size="sm" color="muted" className={styles.fieldLabel}>Instinct</Text>
+        <Text as="span" size="xs" color="muted" className={styles.fieldLabel}>Instinct</Text>
         <Input
           className={styles.fieldInput}
           type="text"
@@ -283,7 +283,7 @@ const FollowerCard = memo(({
       </div>
 
       <div className={styles.movesSection}>
-        <Text as="span" size="sm" color="muted" className={styles.fieldLabel}>Moves</Text>
+        <Text as="span" size="xs" color="muted" className={styles.fieldLabel}>Moves</Text>
         <div className={styles.movesList}>
           {(follower.moves ?? []).map((mv, mi) => (
             <MoveRow
@@ -300,7 +300,7 @@ const FollowerCard = memo(({
 
       <div className={styles.costLoyaltyRow}>
         <div className={styles.fieldRow}>
-          <Text as="span" size="sm" color="muted" className={styles.fieldLabel}>Cost</Text>
+          <Text as="span" size="xs" color="muted" className={styles.fieldLabel}>Cost</Text>
           <Input
             className={styles.fieldInput}
             type="text"
@@ -312,13 +312,13 @@ const FollowerCard = memo(({
           />
         </div>
         <div className={styles.loyaltyRow}>
-          <Text as="span" size="sm" color="muted" className={clsx(styles.fieldLabel, styles.loyaltyLabel)}>Loyalty</Text>
+          <Text as="span" size="xs" color="muted" className={clsx(styles.fieldLabel, styles.loyaltyLabel)}>Loyalty</Text>
           <UseDots total={LOYALTY_MAX} checked={follower.loyalty ?? 0} onChange={handleLoyalty} />
         </div>
       </div>
 
       <div className={styles.gearSection}>
-        <Text as="span" size="sm" color="muted" className={styles.fieldLabel}>Gear</Text>
+        <Text as="span" size="xs" color="muted" className={styles.fieldLabel}>Gear</Text>
         <div className={styles.gearColumns}>
           <div className={styles.gearCol}>
             {singleGear.map((item, gi) => (
@@ -354,7 +354,7 @@ const FollowerCard = memo(({
       </div>
 
       <div className={styles.fieldRow}>
-        <Text as="span" size="sm" color="muted" className={styles.fieldLabel}>Notes</Text>
+        <Text as="span" size="xs" color="muted" className={styles.fieldLabel}>Notes</Text>
         <Input
           className={styles.fieldInput}
           type="text"
@@ -491,7 +491,7 @@ export const FollowersInsert = ({ data, onSave }: FollowersInsertProps) => {
     <div className={styles.root}>
       <PlaybookSection title="Followers">
         {followers.length === 0 && (
-          <Text as="p" size="sm" color="muted" className={styles.empty}>No followers yet. Add one below.</Text>
+          <Text as="p" size="xs" font="serif" color="muted" italic className={styles.empty}>No followers yet. Add one below.</Text>
         )}
         {followers.map((follower, index) => (
           <FollowerCard

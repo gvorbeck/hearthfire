@@ -1,8 +1,7 @@
-import { CheckboxGroup, Divider } from '@/components/primitives';
+import { CheckboxGroup, Divider, Text } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { usePlaybookChecked } from '@/hooks/usePlaybookChecked';
 import type { CharacterData } from '@/types';
-import styles from '../playbookSection.module.css';
 
 const DEEDS_ITEMS = [
   { id: 'deeds-drake', label: '… drove off a thunder drake that got too close to town.' },
@@ -43,9 +42,9 @@ export const HeavyViolence = ({ data, onSave }: HeavyViolenceProps) => {
 
   return (
     <PlaybookSection title="A History of Violence">
-      <p className={styles.prose}>
+      <Text font="serif" color="muted" leading="normal">
         Just about everyone here talks about the time you… (pick 1 or 2)
-      </p>
+      </Text>
       <CheckboxGroup
         items={DEEDS_ITEMS}
         checked={checked}

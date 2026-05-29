@@ -1,7 +1,4 @@
 .statsInstruction {
-  font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
   margin-bottom: var(--spacing-4);
   text-align: center;
 }

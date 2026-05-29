@@ -4,21 +4,6 @@
   gap: var(--spacing-2);
 }
 
-.label {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  margin: 0;
-  line-height: 1.5;
-}
-
-.pickNote {
-  font-family: var(--font-sans);
-  font-size: var(--text-xs);
-  color: var(--text-tertiary);
-  font-style: italic;
-  margin: 0;
-}
 
 .list {
   display: flex;

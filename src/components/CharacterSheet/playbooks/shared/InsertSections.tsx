@@ -80,7 +80,7 @@ const PurposeDetail = ({ opt, nameValue, onNameChange, onNameBlur }: PurposeDeta
       <ul className={styles.triggerList}>
         {opt.triggers.map((t) => (
           <li key={t} className={styles.triggerItem}>
-            <Text as="span" size="sm" color="muted">{parseInlineMarkdown(t)}</Text>
+            <Text as="span" size="xs" color="muted">{parseInlineMarkdown(t)}</Text>
           </li>
         ))}
       </ul>

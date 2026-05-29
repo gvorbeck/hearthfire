@@ -1,4 +1,5 @@
 import { useCallback, memo } from 'react';
+import { Text } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { Move } from '../../Move';
 import { usePlaybookChecked } from '@/hooks/usePlaybookChecked';
@@ -54,7 +55,7 @@ export const LightbearerInvocations = ({
     <PlaybookSection title="Invocations">
       <div className={styles.intro}>
         {INTRO_LINES.map((line) => (
-          <p key={line}>{parseInlineMarkdown(line)}</p>
+          <Text key={line} font="serif" color="muted">{parseInlineMarkdown(line)}</Text>
         ))}
       </div>
       <div className={styles.grid}>

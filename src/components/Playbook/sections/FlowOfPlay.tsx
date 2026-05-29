@@ -1,4 +1,4 @@
-import { List } from '@/components/primitives';
+import { List, Text } from '@/components/primitives';
 import styles from './FlowOfPlay.module.css';
 
 const NodeLabel = ({ id }: { id: string }) => (
@@ -11,7 +11,7 @@ const GoTo = ({ node }: { node: string }) => (
 
 export const FlowOfPlay = () => (
   <div className={styles.flow}>
-    <p className={styles.intro}>Over multiple sessions, a game of <em>Stonetop</em> generally follows this pattern. Each node is labeled — follow the connections to see where play goes next.</p>
+    <Text color="muted" italic className={styles.intro}>Over multiple sessions, a game of <em>Stonetop</em> generally follows this pattern. Each node is labeled — follow the connections to see where play goes next.</Text>
 
     <div className={styles.nodes}>
 

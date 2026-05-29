@@ -34,10 +34,6 @@
 }
 
 .summary {
-  font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  margin: 0;
   padding: var(--spacing-2) 0;
 }
 

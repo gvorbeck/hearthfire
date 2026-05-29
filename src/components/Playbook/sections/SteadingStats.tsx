@@ -174,7 +174,7 @@ export const SteadingStats = ({ steading, onSave }: SteadingStatsProps) => {
               checked={!!debilities.diminished}
               onChange={toggleDiminished}
             />
-            <Text size="sm" color="muted">Disadvantage to Deploy, Muster, or Pull Together.</Text>
+            <Text size="xs" color="muted">Disadvantage to Deploy, Muster, or Pull Together.</Text>
           </div>
           <div className={styles.debility}>
             <Checkbox
@@ -182,7 +182,7 @@ export const SteadingStats = ({ steading, onSave }: SteadingStatsProps) => {
               checked={!!debilities.lacking}
               onChange={toggleLacking}
             />
-            <Text size="sm" color="muted">Treat Prosperity as if it's 1 lower than it is.</Text>
+            <Text size="xs" color="muted">Treat Prosperity as if it's 1 lower than it is.</Text>
           </div>
           <div className={styles.debility}>
             <Checkbox
@@ -190,7 +190,7 @@ export const SteadingStats = ({ steading, onSave }: SteadingStatsProps) => {
               checked={!!debilities.malcontent}
               onChange={toggleMalcontent}
             />
-            <Text size="sm" color="muted">Fortunes reset to +0 each season, not +1; folks need Persuading more often than usual.</Text>
+            <Text size="xs" color="muted">Fortunes reset to +0 each season, not +1; folks need Persuading more often than usual.</Text>
           </div>
         </div>
       </div>

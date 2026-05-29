@@ -1,8 +1,7 @@
-import { CheckboxGroup, Divider } from '@/components/primitives';
+import { CheckboxGroup, Divider, Text } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { usePlaybookChecked } from '@/hooks/usePlaybookChecked';
 import type { CharacterData } from '@/types';
-import styles from '../playbookSection.module.css';
 
 const PLUS_ITEMS = [
   { id: 'plus-vault', label: '… is a sturdy vault from the time of the Makers.' },
@@ -32,12 +31,12 @@ export const JudgeChronicle = ({ data, onSave }: JudgeChronicleProps) => {
 
   return (
     <PlaybookSection title="The Chronicle">
-      <p className={styles.prose}>
+      <Text font="serif" color="muted" leading="normal">
         The Judge of Aratis is charged with maintaining the Chronicle, a history of the community,
         its people, their knowledge, and their traditions. The nature of the lore contained in the
         Chronicle depends on your Background, but it is more than a mere book; it is a physical
         place. Decide on its physical structure.
-      </p>
+      </Text>
       <CheckboxGroup
         label="On the plus side, it… (choose 3)"
         items={PLUS_ITEMS}
@@ -53,9 +52,9 @@ export const JudgeChronicle = ({ data, onSave }: JudgeChronicleProps) => {
         onChange={handleChange}
         max={2}
       />
-      <p className={styles.prose}>
+      <Text font="serif" color="muted" leading="normal">
         Mark the location of the Chronicle on the Stonetop Playbook map.
-      </p>
+      </Text>
     </PlaybookSection>
   );
 };

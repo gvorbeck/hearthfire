@@ -4,9 +4,9 @@ import styles from '@/pages/GmPlaybook/GmPlaybook.module.css';
 
 export const Threats = memo(() => (
   <div>
-    <Text size="sm">Threats are the lingering problems that cause trouble for the PCs, the steading, the region, or even the world.</Text>
+    <Text size="xs">Threats are the lingering problems that cause trouble for the PCs, the steading, the region, or even the world.</Text>
     <div className={styles.subsection}>
-      <Text size="sm">Write up threats after the first session, based on what the players told you as they introduced their characters. Write new threats between sessions when…</Text>
+      <Text size="xs">Write up threats after the first session, based on what the players told you as they introduced their characters. Write new threats between sessions when…</Text>
       <List variant="dash" items={[
         'the Seasons Change move results in a threat, and you choose to create one instead of make an existing one worse.',
         'you introduced a monster, NPC, or thing and you think it might cause trouble later.',
@@ -16,19 +16,19 @@ export const Threats = memo(() => (
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Write up a threat</Heading>
       <List variant="numbered" items={[
-        <Text size="sm">Give it a name and pick its type.</Text>,
-        <Text size="sm">Add it (and its type) to a threat tracker (Homefront, Nearby, or Distant).</Text>,
-        <Text size="sm">Give it an instinct (if it doesn't already have one). How does it cause problems for others? Write it as "to __" (e.g., "to enrich himself").</Text>,
-        <Text size="sm">Write a quick description, including related threats or NPCs.</Text>,
-        <Text size="sm">If it has momentum: write its impending doom and 2–4 grim portents.</Text>,
-        <Text size="sm">Optional: write some stakes questions.</Text>,
-        <Text size="sm">Optional: pick or write 2–4 GM moves.</Text>,
-        <Text size="sm">Optional: write custom player moves.</Text>,
+        <Text size="xs">Give it a name and pick its type.</Text>,
+        <Text size="xs">Add it (and its type) to a threat tracker (Homefront, Nearby, or Distant).</Text>,
+        <Text size="xs">Give it an instinct (if it doesn't already have one). How does it cause problems for others? Write it as "to __" (e.g., "to enrich himself").</Text>,
+        <Text size="xs">Write a quick description, including related threats or NPCs.</Text>,
+        <Text size="xs">If it has momentum: write its impending doom and 2–4 grim portents.</Text>,
+        <Text size="xs">Optional: write some stakes questions.</Text>,
+        <Text size="xs">Optional: pick or write 2–4 GM moves.</Text>,
+        <Text size="xs">Optional: write custom player moves.</Text>,
       ]} />
     </div>
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Update threats</Heading>
-      <Text size="sm">Between sessions, review each threat. If…</Text>
+      <Text size="xs">Between sessions, review each threat. If…</Text>
       <List variant="dash" items={[
         'it is no longer a threat, then cross it off.',
         'grim portents occurred, then mark them.',

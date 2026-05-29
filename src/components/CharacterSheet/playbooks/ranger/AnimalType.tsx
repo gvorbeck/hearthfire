@@ -206,10 +206,10 @@ const TypePicksSection = memo(({
 
   return (
     <div className={styles.typePicksSection}>
-      <Text as="span" size="sm" color="muted" className={styles.prose}>
+      <Text as="span" size="xs" color="muted" leading="normal">
         {parseInlineMarkdown(`**HP** ${typeConfig.hp} **Armor** ${typeConfig.armor} (size) **Damage** ${typeConfig.damage} *(hand)*`)}
       </Text>
-      <Text as="span" size="sm" color="muted" className={styles.prose}>Pick {typeConfig.pickCount} more:</Text>
+      <Text as="span" size="xs" color="muted" leading="normal">Pick {typeConfig.pickCount} more:</Text>
       <CheckboxGroup
         items={items}
         checked={checkedMap}

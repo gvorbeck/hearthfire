@@ -42,7 +42,7 @@ export const AnimalCost = ({
     onToggleCollapse={onToggleCollapse}
   >
     <div className={styles.loyaltyRow}>
-      <Text as="span" size="md" color="muted" className={styles.loyaltyLabel}>Loyalty</Text>
+      <Text as="span" size="sm" color="muted" className={styles.loyaltyLabel}>Loyalty</Text>
       <UseDots total={3} checked={loyalty} onChange={onLoyaltyChange} />
     </div>
     <div className={styles.radioList}>
@@ -54,7 +54,7 @@ export const AnimalCost = ({
           value={opt}
           checked={cost === opt}
           onChange={onCostChange}
-          label={<Text as="span" size="md" color="muted">{opt}</Text>}
+          label={<Text as="span" size="sm" color="muted">{opt}</Text>}
         />
       ))}
       <Radio

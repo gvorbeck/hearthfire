@@ -50,7 +50,7 @@ export const AnimalInstinct = ({
           value={opt}
           checked={instinct === opt}
           onChange={onInstinctChange}
-          label={<Text as="span" size="md" color="muted">{opt}</Text>}
+          label={<Text as="span" size="sm" color="muted">{opt}</Text>}
         />
       ))}
       <Radio

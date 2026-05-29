@@ -48,11 +48,11 @@ export const GameIdModal = ({ gameId, open, onClose }: GameIdModalProps) => {
       </div>
 
       {copyError && (
-        <Text size="sm" color="muted">Could not copy — please copy the ID manually.</Text>
+        <Text size="xs" color="muted">Could not copy — please copy the ID manually.</Text>
       )}
 
       <div className={styles.warning}>
-        <Text size="sm" color="muted">
+        <Text size="xs" color="muted">
           <strong className={styles.warningLabel}>Save this ID somewhere safe.</strong>{' '}
           It's the only way to access this game. If you lose it, there's no way to recover it.
         </Text>

@@ -72,6 +72,23 @@
   gap: var(--spacing-2);
 }
 
+.dragging {
+  opacity: 0.4;
+}
+
+.gripHandle {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--spacing-1);
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+  cursor: grab;
+}
+
+.gripHandle:active {
+  cursor: grabbing;
+}
+
 .characterLink {
   flex: 1;
   min-width: 0;

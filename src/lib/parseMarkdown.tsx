@@ -1,4 +1,4 @@
-import { Icon } from '@/components/primitives';
+import { Icon, Text } from '@/components/primitives';
 import styles from './parseMarkdown.module.css';
 
 const INLINE_RE = /(\*\*\*[^*]+\*\*\*|\*\*[^*]+\*\*|\*[^*]+\*|◊|◈|on a 10\+|on a 7[-–]9|on a 6[-–]|either way)/i;
@@ -30,6 +30,6 @@ export const parseMarkdown = (markdown: string): React.ReactNode[] => {
         </ul>
       );
     }
-    return <p key={blockIndex}>{parseInlineMarkdown(block)}</p>;
+    return <Text key={blockIndex} font="serif" color="muted">{parseInlineMarkdown(block)}</Text>;
   });
 };

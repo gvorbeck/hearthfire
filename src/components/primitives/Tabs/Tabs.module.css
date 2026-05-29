@@ -32,6 +32,11 @@
   min-width: 0;
 }
 
+.addTabWrapper {
+  display: inline-flex;
+  align-items: center;
+}
+
 .addTab {
   background: none;
   border: 1px solid var(--color-gold-400);
@@ -138,6 +143,10 @@
   flex-shrink: 0;
   box-shadow: 0 0 4px 1px color-mix(in srgb, var(--color-gold-400) 60%, transparent),
               0 0 10px 2px color-mix(in srgb, var(--color-gold-400) 30%, transparent);
+}
+
+.tabTooltip.portalFixed {
+  position: fixed;
 }
 
 .tabTooltip {

@@ -7,4 +7,4 @@ export { Stats } from './Stats';
 export { Moves } from './Moves';
 export { SpecialPossessions } from './SpecialPossessions';
 export { Introductions } from './Introductions';
-export { Inventory } from './Inventory';
+export { Inventory, computeTotalLoad } from './Inventory';

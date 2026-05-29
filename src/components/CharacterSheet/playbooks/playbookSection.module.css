@@ -4,15 +4,4 @@
   gap: var(--spacing-3);
 }
 
-.prose {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  margin: 0;
-  line-height: 1.5;
-}
-
-.prose strong {
-  color: var(--text-primary);
-}
 

@@ -1,8 +1,7 @@
-import { CheckboxGroup, Divider } from '@/components/primitives';
+import { CheckboxGroup, Divider, Text } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { usePlaybookChecked } from '@/hooks/usePlaybookChecked';
 import type { CharacterData } from '@/types';
-import styles from '../playbookSection.module.css';
 
 const WORSHIP_ITEMS = [
   { id: 'worship-ancient', label: '… ancient, widespread, and well-known' },
@@ -59,10 +58,10 @@ export const LightbearerPraiseTheDay = ({ data, onSave }: LightbearerPraiseTheDa
 
   return (
     <PlaybookSection title="Praise the Day">
-      <p className={styles.prose}>
+      <Text font="serif" color="muted" leading="normal">
         You are the appointed servant of Helior the Daybringer, god of the sun and light, beacon
         of hope and mercy.
-      </p>
+      </Text>
       <CheckboxGroup
         label="The worship of Helior is… (choose 1)"
         items={WORSHIP_ITEMS}

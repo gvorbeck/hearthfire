@@ -5,10 +5,6 @@
 }
 
 .empty {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  font-style: italic;
   margin: 0 0 var(--spacing-4);
 }
 
@@ -60,12 +56,6 @@
   flex-wrap: wrap;
 }
 
-.flagLabel {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  font-style: italic;
-}
 
 .statsRow {
   display: flex;
@@ -133,7 +123,6 @@
 
 .statNote {
   font-size: var(--text-xs);
-  font-style: italic;
 }
 
 .maxHpInput {

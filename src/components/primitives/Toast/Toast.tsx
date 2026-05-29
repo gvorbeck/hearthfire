@@ -41,7 +41,7 @@ const ToastEntry = ({
         <Icon name={item.variant === 'error' ? 'warning' : 'check'} size="small" />
       </span>
       <span className={styles.body}>
-        <Text as="span" size="sm">{item.message}</Text>
+        <Text as="span" size="xs">{item.message}</Text>
       </span>
       <Button
         variant="ghost"

@@ -126,6 +126,16 @@ const icons = {
       <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" />
     </>
   ),
+  grip: (
+    <>
+      <circle cx="9" cy="7" r="1.25" fill="currentColor" stroke="none" />
+      <circle cx="15" cy="7" r="1.25" fill="currentColor" stroke="none" />
+      <circle cx="9" cy="12" r="1.25" fill="currentColor" stroke="none" />
+      <circle cx="15" cy="12" r="1.25" fill="currentColor" stroke="none" />
+      <circle cx="9" cy="17" r="1.25" fill="currentColor" stroke="none" />
+      <circle cx="15" cy="17" r="1.25" fill="currentColor" stroke="none" />
+    </>
+  ),
 };
 
 export type IconName = keyof typeof icons;

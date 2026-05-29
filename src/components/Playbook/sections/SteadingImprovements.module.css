@@ -59,15 +59,6 @@
 }
 
 /* ── Summary (italic trigger line) ───────────────────── */
-.itemSummary {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  margin: 0;
-  line-height: 1.45;
-  font-style: italic;
-}
-
 /* ── Requirements / Benefits sections ────────────────── */
 .requirementBlocks {
   display: flex;
@@ -82,18 +73,6 @@
   margin-top: var(--spacing-2);
 }
 
-
-.bodyLine {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  margin: 0;
-  line-height: 1.45;
-}
-
-.bodyLine strong {
-  color: var(--text-primary);
-}
 
 /* ── Checkbox list within a requirement block ─────────── */
 .checkList {

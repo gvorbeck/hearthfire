@@ -121,10 +121,17 @@ export interface FollowerData {
   notes?: string;
 }
 
+export interface ArcanaMinorEntry {
+  id: string;
+  requirementsChecked: Record<string, boolean>;
+  trackerValue?: number;
+  followerHp?: number[];
+  carried?: boolean;
+}
+
 export interface CharacterData {
   inventoryChecked?: Record<string, boolean>;
   inventoryUses?: Record<string, number>;
-  inventoryCustomItems?: { checked: boolean; text: string; weight: 1 | 2 }[];
   inventorySmallChecked?: Record<string, boolean>;
   inventorySmallCustom?: { checked: boolean; text: string }[];
   inventoryUndefined?: number;
@@ -166,6 +173,7 @@ export interface CharacterData {
   introductionQuestions?: Record<string, boolean>;
   inserts?: string[];
   playbookFeatures?: PlaybookFeatures;
+  arcanaMinor?: ArcanaMinorEntry[];
 }
 
 export interface Character {

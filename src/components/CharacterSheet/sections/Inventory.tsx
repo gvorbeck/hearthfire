@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react';
 import clsx from 'clsx';
-import { Checkbox, Divider, Heading, Input, Stack, UseDots, RepeaterField } from '@/components/primitives';
+import { Checkbox, Divider, Heading, Input, Stack, Text, UseDots, RepeaterField } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
+import { MINOR_ARCANA } from '@/lib/arcanaMinor';
 import type { CharacterData } from '@/types';
 import styles from './Inventory.module.css';
 
@@ -81,6 +82,18 @@ const SMALL_ITEMS: SmallItem[] = [
 const UNDEFINED_MAIN_COUNT = 9;
 const UNDEFINED_SMALL_COUNT = 6;
 
+export const computeTotalLoad = (data: CharacterData | undefined): number => {
+  const checked = data?.inventoryChecked ?? {};
+  const namedLoad = MAIN_ITEMS.reduce((sum, item) => checked[item.id] ? sum + item.weight : sum, 0);
+  const possessionLoad = (data?.inventoryPossessions ?? []).reduce((sum, item) => item.checked ? sum + item.weight : sum, 0);
+  const arcanaLoad = (data?.arcanaMinor ?? []).reduce((sum, entry) => {
+    if (!entry.carried) return sum;
+    const arcanum = MINOR_ARCANA.find((a) => a.id === entry.id);
+    return arcanum?.weight ? sum + arcanum.weight : sum;
+  }, 0);
+  return namedLoad + possessionLoad + arcanaLoad + (data?.inventoryUndefined ?? 0);
+};
+
 interface MainItemRowProps {
   item: MainItem;
   checked: boolean;
@@ -94,11 +107,10 @@ const MainItemRow = memo(({ item, checked, uses, prosperity, onCheckedChange, on
   const isSupplies = item.id.startsWith('supplies-');
   const hasUses = isSupplies || item.uses !== undefined;
   const effectiveTotal = isSupplies ? 4 + prosperity : (item.uses ?? 0);
-  const rowCx = clsx(styles.mainItemRow);
   const handleChecked = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onCheckedChange(item.id, e.target.checked), [item.id, onCheckedChange]);
   const handleUses = useCallback((n: number) => onUsesChange(item.id, n), [item.id, onUsesChange]);
   return (
-    <div className={rowCx}>
+    <div className={styles.mainItemRow}>
       <Checkbox
         variant="provision"
         weight={item.weight}
@@ -138,6 +150,29 @@ const SmallItemRow = memo(({ item, checked, onCheckedChange }: SmallItemRowProps
   );
 });
 
+interface ArcanaItemRowProps {
+  id: string;
+  name: string;
+  weight: 1 | 2;
+  carried: boolean;
+  onCarriedChange: (id: string, carried: boolean) => void;
+}
+
+const ArcanaItemRow = memo(({ id, name, weight, carried, onCarriedChange }: ArcanaItemRowProps) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onCarriedChange(id, e.target.checked), [id, onCarriedChange]);
+  return (
+    <div className={styles.mainItemRow}>
+      <Checkbox
+        variant="provision"
+        weight={weight}
+        checked={carried}
+        onChange={handleChange}
+        label={<span className={styles.itemLabel}>{parseInlineMarkdown(`**${name}** *(arcanum)*`)}</span>}
+      />
+    </div>
+  );
+});
+
 interface InventoryProps {
   data: CharacterData | undefined;
   prosperity: number;
@@ -151,6 +186,8 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
   const [undefinedMain, setUndefinedMain] = useState<number>(() => data?.inventoryUndefined ?? 0);
   const [undefinedSmall, setUndefinedSmall] = useState<number>(() => data?.inventorySmallUndefined ?? 0);
   const [otherThings, setOtherThings] = useState<string>(() => data?.inventoryOtherThings ?? '');
+  const [arcanaMinor, setArcanaMinor] = useState(() => data?.arcanaMinor ?? []);
+  const arcanaPendingRef = useRef(false);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onSaveRef = useRef(onSave);
@@ -164,7 +201,13 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
     if (data?.inventorySmallChecked !== undefined) setSmallChecked(data.inventorySmallChecked);
     if (data?.inventoryUndefined !== undefined) setUndefinedMain(data.inventoryUndefined);
     if (data?.inventorySmallUndefined !== undefined) setUndefinedSmall(data.inventorySmallUndefined);
+    if (data?.inventoryOtherThings !== undefined) setOtherThings(data.inventoryOtherThings);
   }, [data]);
+
+  useEffect(() => {
+    if (arcanaPendingRef.current) return;
+    setArcanaMinor(data?.arcanaMinor ?? []);
+  }, [data?.arcanaMinor]);
 
   const saveDebounced = useCallback((patch: Partial<CharacterData>) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -233,21 +276,29 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
     await onSaveRef.current({ inventorySmallCustom: items });
   }, []);
 
-  const { totalLoad, loadLabel, loadCx } = useMemo(() => {
-    const namedLoad = MAIN_ITEMS.reduce((sum, item) => inventoryChecked[item.id] ? sum + item.weight : sum, 0);
-    const possessionLoad = (data?.inventoryPossessions ?? []).reduce((sum, item) => item.checked ? sum + item.weight : sum, 0);
-    const load = namedLoad + possessionLoad + undefinedMain;
-    return {
-      totalLoad: load,
-      loadLabel: load <= 3 ? 'light load' : load <= 6 ? 'normal load' : 'heavy load',
-      loadCx: clsx(
-        styles.loadBadge,
-        load <= 3 && styles.loadLight,
-        load > 3 && load <= 6 && styles.loadNormal,
-        load > 6 && styles.loadHeavy,
-      ),
-    };
-  }, [inventoryChecked, data?.inventoryPossessions, undefinedMain]);
+  const handleArcanaCarried = useCallback((id: string, carried: boolean) => {
+    const rollback = data?.arcanaMinor ?? [];
+    setArcanaMinor((prev) => {
+      const next = prev.map((e) => e.id === id ? { ...e, carried } : e);
+      arcanaPendingRef.current = true;
+      onSaveRef.current({ arcanaMinor: next })
+        .catch(() => setArcanaMinor(rollback))
+        .finally(() => { arcanaPendingRef.current = false; });
+      return next;
+    });
+  }, [data?.arcanaMinor]);
+
+  const totalLoad = useMemo(
+    () => computeTotalLoad({ ...data, inventoryChecked, inventoryUndefined: undefinedMain }),
+    [inventoryChecked, data, undefinedMain],
+  );
+  const loadLabel = totalLoad <= 3 ? 'light load' : totalLoad <= 6 ? 'normal load' : 'heavy load';
+  const loadCx = clsx(
+    styles.loadBadge,
+    totalLoad <= 3 && styles.loadLight,
+    totalLoad > 3 && totalLoad <= 6 && styles.loadNormal,
+    totalLoad > 6 && styles.loadHeavy,
+  );
 
 
   return (
@@ -255,13 +306,13 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
       <div className={styles.columns}>
         <div className={styles.mainCol}>
           <PlaybookSection title="Inventory">
-            <p className={styles.prose}>
+            <Text font="serif" color="muted" leading="normal">
               {parseInlineMarkdown('When you **Outfit**, mark a number of ◊ below, on specific items or Undefined.')}
-            </p>
+            </Text>
             <ul className={styles.outfitList}>
-              <li className={styles.prose}>{parseInlineMarkdown('For a **light load** *(quick & quiet)*, mark up to 3 ◈')}</li>
-              <li className={styles.prose}>{parseInlineMarkdown('For a **normal load**, mark 4–6 ◈')}</li>
-              <li className={styles.prose}>{parseInlineMarkdown('For a **heavy load** *(noisy, slow, hot, quick to tire)*, mark 7–9 ◈')}</li>
+              <Text as="li" font="serif" color="muted" leading="normal">{parseInlineMarkdown('For a **light load** *(quick & quiet)*, mark up to 3 ◈')}</Text>
+              <Text as="li" font="serif" color="muted" leading="normal">{parseInlineMarkdown('For a **normal load**, mark 4–6 ◈')}</Text>
+              <Text as="li" font="serif" color="muted" leading="normal">{parseInlineMarkdown('For a **heavy load** *(noisy, slow, hot, quick to tire)*, mark 7–9 ◈')}</Text>
             </ul>
 
             <div className={styles.loadRow}>
@@ -277,9 +328,9 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
                 <span className={styles.undefinedLabel}>Undefined</span>
                 <UseDots total={UNDEFINED_MAIN_COUNT} checked={undefinedMain} onChange={handleUndefinedMain} />
               </Stack>
-              <p className={styles.prose}>
+              <Text font="serif" color="muted" leading="normal">
                 {parseInlineMarkdown('When you **Have What You Need**, move ◈ from here to ◊ below.')}
-              </p>
+              </Text>
             </Stack>
 
             <Divider />
@@ -302,6 +353,20 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
 
             <Stack gap={2}>
               <Heading as="h4" size="sm">Possessions, items, loot</Heading>
+              {arcanaMinor.map((entry) => {
+                const arcanum = MINOR_ARCANA.find((a) => a.id === entry.id);
+                if (!arcanum?.weight) return null;
+                return (
+                  <ArcanaItemRow
+                    key={entry.id}
+                    id={entry.id}
+                    name={arcanum.name}
+                    weight={arcanum.weight}
+                    carried={!!entry.carried}
+                    onCarriedChange={handleArcanaCarried}
+                  />
+                );
+              })}
               <RepeaterField
                 variant="checked-weight"
                 items={data?.inventoryPossessions ?? []}
@@ -330,10 +395,10 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
 
         <div className={styles.sideCol}>
           <PlaybookSection title="Small items">
-            <p className={styles.prose}>Fit in a pocket, pouch, or boot.</p>
-            <p className={styles.prose}>
+            <Text font="serif" color="muted" leading="normal">Fit in a pocket, pouch, or boot.</Text>
+            <Text font="serif" color="muted" leading="normal">
               {parseInlineMarkdown('When you **Outfit**, mark □ below equal to 4+Prosperity.')}
-            </p>
+            </Text>
 
             <Divider />
 
@@ -342,9 +407,9 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
                 <span className={styles.undefinedLabel}>Undefined</span>
                 <UseDots total={UNDEFINED_SMALL_COUNT} checked={undefinedSmall} onChange={handleUndefinedSmall} />
               </Stack>
-              <p className={styles.prose}>
+              <Text font="serif" color="muted" leading="normal">
                 {parseInlineMarkdown("When you **Have What You Need**, move ◈ from here to items below, or expend supplies to mark an additional □.")}
-              </p>
+              </Text>
             </Stack>
 
             <Divider />
@@ -369,9 +434,9 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
           </PlaybookSection>
 
           <PlaybookSection title="Prosperity">
-            <p className={styles.prose}>
+            <Text font="serif" color="muted" leading="normal">
               Affects uses from Supplies, HP from Recover, and piercing on iron weapons. Set by the GM.
-            </p>
+            </Text>
             <div className={styles.prosperityList}>
               {([-1, 0, 1, 2] as const).map((val) => {
                 const prosperityOptionCx = clsx(styles.prosperityOption, prosperity === val && styles.prosperitySelected);
