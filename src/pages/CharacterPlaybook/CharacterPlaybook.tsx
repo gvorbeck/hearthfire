@@ -6,7 +6,7 @@ import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
 import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Modal, Radio, Icon, Text } from '@/components/primitives';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
 import { PageHeader } from '@/components/PageHeader/PageHeader';
-import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, Moves, SpecialPossessions, Introductions, Inventory } from '@/components/CharacterSheet/sections';
+import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, Moves, SpecialPossessions, Introductions, Inventory, computeTotalLoad } from '@/components/CharacterSheet/sections';
 import { ArcanaTab } from '@/components/CharacterSheet/sections/Arcana/ArcanaTab';
 import { BACKGROUND_OPTIONS, FOX_LIFE_OF_CRIME_BACKGROUND } from '@/lib/backgroundOptions';
 import { INSTINCT_OPTIONS } from '@/lib/instinctOptions';
@@ -217,7 +217,7 @@ const resolvePlaybookTabContent = (
   if (id === 'crew') return <MarshalCrew data={data} prosperity={prosperity} onSave={onSave} />;
   if (id === 'animal-companion') return <RangerAnimalCompanion data={data} onSave={onSave} />;
   if (id === 'inventory') return <Inventory data={data} prosperity={prosperity} onSave={onSave} />;
-  if (id === 'arcana') return <ArcanaTab data={data} onSave={onSave} />;
+  if (id === 'arcana') return <ArcanaTab data={data} totalLoad={computeTotalLoad(data)} onSave={onSave} />;
   if (id === 'Revenant') return <RevenantInsert data={data} onSave={onSave} />;
   if (id === 'Ghost') return <GhostInsert data={data} onSave={onSave} />;
   if (id === 'Thrall') return <ThrallInsert data={data} onSave={onSave} />;

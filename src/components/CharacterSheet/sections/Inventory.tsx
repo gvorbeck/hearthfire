@@ -81,6 +81,14 @@ const SMALL_ITEMS: SmallItem[] = [
 const UNDEFINED_MAIN_COUNT = 9;
 const UNDEFINED_SMALL_COUNT = 6;
 
+export const computeTotalLoad = (data: CharacterData | undefined): number => {
+  const checked = data?.inventoryChecked ?? {};
+  const namedLoad = MAIN_ITEMS.reduce((sum, item) => checked[item.id] ? sum + item.weight : sum, 0);
+  const possessionLoad = (data?.inventoryPossessions ?? []).reduce((sum, item) => item.checked ? sum + item.weight : sum, 0);
+  const arcanaLoad = (data?.arcanaMinor ?? []).reduce((sum, entry) => entry.carried && entry.weight ? sum + entry.weight : sum, 0);
+  return namedLoad + possessionLoad + arcanaLoad + (data?.inventoryUndefined ?? 0);
+};
+
 interface MainItemRowProps {
   item: MainItem;
   checked: boolean;
@@ -234,9 +242,7 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
   }, []);
 
   const { totalLoad, loadLabel, loadCx } = useMemo(() => {
-    const namedLoad = MAIN_ITEMS.reduce((sum, item) => inventoryChecked[item.id] ? sum + item.weight : sum, 0);
-    const possessionLoad = (data?.inventoryPossessions ?? []).reduce((sum, item) => item.checked ? sum + item.weight : sum, 0);
-    const load = namedLoad + possessionLoad + undefinedMain;
+    const load = computeTotalLoad({ ...data, inventoryChecked, inventoryUndefined: undefinedMain });
     return {
       totalLoad: load,
       loadLabel: load <= 3 ? 'light load' : load <= 6 ? 'normal load' : 'heavy load',
@@ -247,7 +253,7 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
         load > 6 && styles.loadHeavy,
       ),
     };
-  }, [inventoryChecked, data?.inventoryPossessions, undefinedMain]);
+  }, [inventoryChecked, data, undefinedMain]);
 
 
   return (

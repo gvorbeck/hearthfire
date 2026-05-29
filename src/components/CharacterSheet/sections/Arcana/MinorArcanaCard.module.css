@@ -76,6 +76,45 @@
   padding-top: 2px;
 }
 
+.loadRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding-top: var(--spacing-2);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.weightLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.weightSelect {
+  background: var(--surface-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-serif);
+  font-size: var(--text-xs);
+  padding: 2px var(--spacing-2);
+  outline: none;
+  cursor: pointer;
+}
+
+.weightSelect:focus-visible {
+  border-color: var(--border-accent);
+  outline: 2px solid var(--border-accent);
+  outline-offset: 1px;
+}
+
+.carriedLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  cursor: pointer;
+}
+
 .moveReveal {
   display: flex;
   flex-direction: column;

@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import clsx from 'clsx';
 import { Button, Text } from '@/components/primitives';
+import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { MINOR_ARCANA, type MinorArcanum } from '@/lib/arcanaMinor';
 import type { ArcanaMinorEntry, CharacterData } from '@/types';
 import { MinorArcanaCard } from './MinorArcanaCard';
@@ -11,10 +12,11 @@ type ArcanaSubTab = 'minor' | 'major';
 
 interface ArcanaTabProps {
   data: CharacterData | undefined;
+  totalLoad?: number;
   onSave: (data: Partial<CharacterData>) => Promise<void>;
 }
 
-export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
+export const ArcanaTab = ({ data, totalLoad, onSave }: ArcanaTabProps) => {
   const [subTab, setSubTab] = useState<ArcanaSubTab>('minor');
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -104,26 +106,63 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
     [arcanaMinor, save],
   );
 
+  const handleCarriedChange = useCallback(
+    (id: string, carried: boolean) => {
+      const next = arcanaMinor.map((a) => (a.id === id ? { ...a, carried } : a));
+      setArcanaMinor(next);
+      save(next);
+    },
+    [arcanaMinor, save],
+  );
+
+  const handleWeightChange = useCallback(
+    (id: string, weight: 1 | 2 | undefined) => {
+      const next = arcanaMinor.map((a) => {
+        if (a.id !== id) return a;
+        const updated = { ...a, weight };
+        if (weight === undefined) delete updated.weight;
+        return updated;
+      });
+      setArcanaMinor(next);
+      save(next);
+    },
+    [arcanaMinor, save],
+  );
+
   const minorTabCx = clsx(styles.subTab, subTab === 'minor' && styles.subTabActive);
   const majorTabCx = clsx(styles.subTab, subTab === 'major' && styles.subTabActive);
 
+  const loadBadgeCx = clsx(
+    styles.loadBadge,
+    totalLoad !== undefined && totalLoad <= 3 && styles.loadLight,
+    totalLoad !== undefined && totalLoad > 3 && totalLoad <= 6 && styles.loadNormal,
+    totalLoad !== undefined && totalLoad > 6 && styles.loadHeavy,
+  );
+
   return (
     <div className={styles.root}>
-      <div className={styles.subTabBar}>
-        <button
-          className={minorTabCx}
-          onClick={() => setSubTab('minor')}
-          aria-pressed={subTab === 'minor'}
-        >
-          Minor Arcana
-        </button>
-        <button
-          className={majorTabCx}
-          onClick={() => setSubTab('major')}
-          aria-pressed={subTab === 'major'}
-        >
-          Major Arcana
-        </button>
+      <div className={styles.tabRow}>
+        <div className={styles.subTabBar}>
+          <button
+            className={minorTabCx}
+            onClick={() => setSubTab('minor')}
+            aria-pressed={subTab === 'minor'}
+          >
+            Minor Arcana
+          </button>
+          <button
+            className={majorTabCx}
+            onClick={() => setSubTab('major')}
+            aria-pressed={subTab === 'major'}
+          >
+            Major Arcana
+          </button>
+        </div>
+        {totalLoad !== undefined && (
+          <span className={loadBadgeCx}>
+            {parseInlineMarkdown(`${totalLoad} ◈ — ${totalLoad <= 3 ? 'light load' : totalLoad <= 6 ? 'normal load' : 'heavy load'}`)}
+          </span>
+        )}
       </div>
 
       {subTab === 'minor' && (
@@ -155,6 +194,8 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
                     requirementsChecked={entry.requirementsChecked}
                     trackerValue={entry.trackerValue}
                     followerHp={entry.followerHp}
+                    carried={entry.carried}
+                    weight={entry.weight}
                     onToggleRequirement={(key, checked) =>
                       handleToggleRequirement(entry.id, key, checked)
                     }
@@ -162,6 +203,8 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
                     onFollowerHpChange={(index, value) =>
                       handleFollowerHpChange(entry.id, index, value)
                     }
+                    onCarriedChange={(carried) => handleCarriedChange(entry.id, carried)}
+                    onWeightChange={(weight) => handleWeightChange(entry.id, weight)}
                     onRemove={() => handleRemove(entry.id)}
                   />
                 );

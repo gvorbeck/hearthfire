@@ -126,6 +126,8 @@ export interface ArcanaMinorEntry {
   requirementsChecked: Record<string, boolean>;
   trackerValue?: number;
   followerHp?: number[];
+  carried?: boolean;
+  weight?: 1 | 2;
 }
 
 export interface CharacterData {

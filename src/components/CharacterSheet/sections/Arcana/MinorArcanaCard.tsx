@@ -11,9 +11,13 @@ interface MinorArcanaCardProps {
   requirementsChecked: Record<string, boolean>;
   trackerValue?: number;
   followerHp?: number[];
+  carried?: boolean;
+  weight?: 1 | 2;
   onToggleRequirement: (key: string, checked: boolean) => void;
   onTrackerChange: (value: number) => void;
   onFollowerHpChange: (index: number, value: number) => void;
+  onCarriedChange: (carried: boolean) => void;
+  onWeightChange: (weight: 1 | 2 | undefined) => void;
   onRemove: () => void;
 }
 
@@ -22,9 +26,13 @@ export const MinorArcanaCard = ({
   requirementsChecked,
   trackerValue,
   followerHp,
+  carried,
+  weight,
   onToggleRequirement,
   onTrackerChange,
   onFollowerHpChange,
+  onCarriedChange,
+  onWeightChange,
   onRemove,
 }: MinorArcanaCardProps) => {
   const reqKeys = arcanum.requirements.map((_, i) => `req${i}`);
@@ -36,6 +44,19 @@ export const MinorArcanaCard = ({
       onToggleRequirement(key, e.target.checked);
     },
     [onToggleRequirement],
+  );
+
+  const handleCarried = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => onCarriedChange(e.target.checked),
+    [onCarriedChange],
+  );
+
+  const handleWeight = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const val = e.target.value;
+      onWeightChange(val === '1' ? 1 : val === '2' ? 2 : undefined);
+    },
+    [onWeightChange],
   );
 
   const handleHpChange = useCallback(
@@ -104,6 +125,32 @@ export const MinorArcanaCard = ({
             </Text>
           </label>
         ))}
+      </div>
+
+      <div className={styles.loadRow}>
+        <label className={styles.weightLabel}>
+          <Text as="span" font="serif" size="xs" color="muted">Weight</Text>
+          <select
+            className={styles.weightSelect}
+            value={weight ?? ''}
+            onChange={handleWeight}
+          >
+            <option value="">— small item</option>
+            <option value="1">◈ light</option>
+            <option value="2">◈◈ heavy</option>
+          </select>
+        </label>
+        {weight !== undefined && (
+          <label className={styles.carriedLabel}>
+            <Checkbox
+              variant="provision"
+              weight={weight}
+              checked={!!carried}
+              onChange={handleCarried}
+            />
+            <Text as="span" font="serif" size="xs" color="muted">Carried</Text>
+          </label>
+        )}
       </div>
 
       {allChecked && (

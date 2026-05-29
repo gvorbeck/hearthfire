@@ -22,6 +22,7 @@ export interface MinorArcanum {
   id: string;
   name: string;
   tags?: string;
+  weight?: 1 | 2;
   provisions?: number;
   description: string;
   requirements: string[];
