@@ -129,6 +129,16 @@ export interface ArcanaMinorEntry {
   carried?: boolean;
 }
 
+export interface ArcanaMajorEntry {
+  id: string;
+  marksValue: number;
+  mysteryMovesChecked: Record<string, boolean>;
+  consequencesMarked: Record<string, boolean>;
+  trackerValues?: Record<string, number>;
+  followerHp?: Record<string, number[]>;
+  carried?: boolean;
+}
+
 export interface CharacterData {
   inventoryChecked?: Record<string, boolean>;
   inventoryUses?: Record<string, number>;
@@ -174,6 +184,7 @@ export interface CharacterData {
   inserts?: string[];
   playbookFeatures?: PlaybookFeatures;
   arcanaMinor?: ArcanaMinorEntry[];
+  arcanaMajor?: ArcanaMajorEntry[];
 }
 
 export interface Character {
