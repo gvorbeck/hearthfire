@@ -94,7 +94,7 @@ export const PageHeader = ({ crumbs, title, titleLabel, subtitle, icon, gameId, 
           />
         ) : (
           <>
-            <Heading as="h1" size="xl">{title}</Heading>
+            <Heading as="h2" size="xl">{title}</Heading>
             {onSaveTitle && (
               <Tooltip text="Edit name" side="top" noTabStop tooltipId={editTooltipId}>
                 <Button

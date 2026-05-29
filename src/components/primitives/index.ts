@@ -20,6 +20,7 @@ export { CheckboxGroup } from './CheckboxGroup/CheckboxGroup';
 export type { CheckboxGroupItem } from './CheckboxGroup/CheckboxGroup';
 export { Tooltip } from './Tooltip/Tooltip';
 export { SiteBanner } from './SiteBanner/SiteBanner';
+export { SiteHeader } from './SiteHeader/SiteHeader';
 export { Toggle } from './Toggle/Toggle';
 export { ToastProvider, useToast } from './Toast/Toast';
 export { ErrorBoundary } from './ErrorBoundary/ErrorBoundary';
