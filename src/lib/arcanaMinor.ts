@@ -23,7 +23,6 @@ export interface MinorArcanum {
   name: string;
   tags?: string;
   weight?: 1 | 2;
-  provisions?: number;
   description: string;
   requirements: string[];
   move: ArcanaMove;
@@ -34,7 +33,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '1',
     name: 'An old scroll case',
     tags: 'fragile',
-    provisions: 1,
+    weight: 1,
     description: 'A leather scroll case, cracked and age-worn. Inside is a tattered letter and a pair of small, bluish ingots. It\'s a letter, in an older Hillfolk dialect, from an apprentice to their master. It describes a mental exercise to draw latent power from aetherium.\n\nYou can learn **Laoj Daveth\'s Galvanic Infusion** from the scroll, but…',
     requirements: [
       '…you must translate the letter.',
@@ -111,7 +110,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '6',
     name: 'A half-buried plaque',
     tags: 'cumbersome, magical',
-    provisions: 2,
+    weight: 2,
     description: 'A bronze plate poking out of the soil, somewhere in the Flats or near the Dread River. It\'s dented, a bit warped, with Maker-runes and esoteric diagrams etched into the surface. How the heck did it end up here?\n\nThe plate contains the workings of a spell, which you can learn but…',
     requirements: [
       '…you must first dig up & clean the plate.',
@@ -155,7 +154,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '9',
     name: 'A richly woven rug',
     tags: 'magical',
-    provisions: 2,
+    weight: 2,
     description: 'About 4 feet by 7 feet unfurled, woven with stylized patterns of fire and flame. Flickering Maker-runes can be seen in the weaving, always out of focus but hinting at power.\n\nYou can unlock the secrets of this rug, but you must first…',
     requirements: [
       '…be marked by fire, losing yourself to the panic or pain of burning.',
@@ -172,7 +171,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '10',
     name: 'A tattered mantle',
     tags: 'warm, magical',
-    provisions: 1,
+    weight: 1,
     description: 'Found on a skeleton that has been stripped clean of flesh and that bears what can only be described as bite marks all along its bones. Close inspection of the mantle reveals sigils woven in silvery thread and human teeth sewn into the fringe like decorative beads.\n\nYou can unlock the power of this mantle by…',
     requirements: [
       '…wearing it for three days and three long, long nights, suffering through the nightmares.',
@@ -236,7 +235,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '13',
     name: 'A scroll & a bone flute',
     tags: 'magical',
-    provisions: 1,
+    weight: 1,
     description: 'A scroll, written in a cramped hand and seemingly nonsensical script, with a series of graph-like diagrams. It is accompanied by a flute of bone (from a human arm?). The notes reveal themselves to be a cipher; the graph is perhaps the notation for a song.\n\nYou can unlock the secrets of the scroll and flute, but…',
     requirements: [
       '…you must first decipher the notes, which will take a few weeks of effort.',
@@ -295,7 +294,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '16',
     name: 'A chain of rusty locks',
     tags: 'magical',
-    provisions: 1,
+    weight: 1,
     description: 'A chain, six links long, each link hung with a corroded bronze padlock. 1d4+1 locks bear a stylized face, frozen in a rusty grimace. The keys to these locks are lost to the ages.\n\nWhen you **hold one of the face-adorned locks and look into its eyes**, you can hear the voice of the departed soul bound within: hateful, desperate, pleading to be set free.\n\nYou can master these locks by…',
     requirements: [
       '…convincing one of the shades to reveal how it was captured.',
@@ -344,7 +343,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '19',
     name: 'A giant oak leaf',
     tags: 'magical',
-    provisions: 1,
+    weight: 1,
     description: 'About 6 feet long, waxy and rigid, shimmering with golden iridescence. Is this truly a leaf from the Golden Oak?\n\nYou can turn the leaf into a wondrous cloak, but to do so you must…',
     requirements: [
       '…learn the secrets of its making (from a Fae, a spirit of the wild, or perhaps a favored servant of Danu).',
@@ -468,7 +467,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '27',
     name: 'A stretched vellum',
     tags: 'fragile',
-    provisions: 2,
+    weight: 2,
     description: 'Stretched taut on a wooden frame, this old vellum is filled with the intricate and looping glyphs of the Green Lords. Drawings show creatures changing to have traits of other beasts. It seems to be the foundation for some sort of spell.\n\nTo unlock its mysteries and learn the spell, you must…',
     requirements: [
       '…decipher the Green Lords\' glyphs.',
@@ -499,7 +498,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '29',
     name: 'A cloak, richly embroidered',
     tags: 'magical, warm',
-    provisions: 1,
+    weight: 1,
     description: 'An exquisitely fine wool, dyed a pale blue-gray and embroidered with stylized clouds. The edge boasts blue-white runes stitched with aetherium wire. It feels damp, smells of rain and ozone, and flutters in a breeze that isn\'t there.\n\nWhen you **don the cloak**, you become aware of the presence bound within, thrumming and impatient. To unlock the mysteries of the cloak, you must…',
     requirements: [
       '…learn the name of the bound spirit.',
@@ -530,7 +529,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '30',
     name: 'A beaded satchel',
     tags: 'magical',
-    provisions: 1,
+    weight: 1,
     description: 'Made of thick, stiff leather and decorated with impossibly fine beadwork. The pattern shows a fruit-laden tree sheltering various game and produce and grains. The specifics often change when you aren\'t looking.\n\nThe satchel is home to a number of spirits of autumn and plenty. To unlock the satchel\'s secrets and gain the spirits\' aid, you must…',
     requirements: [
       '…imbibe a prodigious, dangerous quantity of alcohol.',
@@ -546,7 +545,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '31',
     name: 'A cracked flute',
     tags: 'crude, magical',
-    provisions: 1,
+    weight: 1,
     description: 'A long, thick flute carved of redwood, with a thin but visible crack along the underside. It easily catches the wind and makes a piping sound. Anyone who plays a few notes on the flute can tell there\'s some magic here.\n\nWhen you **spend a few days practicing, playing the flute where the wind can hear you**, roll +CHA: on a 10+, mark 1 circle; on a 7-9, mark 1 circle, but you summon an irate zephyr spirit; on a 6-, you make no progress but do manage to summon an irate zephyr.\n\n◯◯◯\n\nWhen you **mark all three circles**, you unlock the mysteries of the flute.',
     requirements: [
       'When you **mark all three circles**, you unlock the mysteries of the flute.',
@@ -635,7 +634,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '35',
     name: 'A large wooden jar',
     tags: 'cumbersome, fragile, magical',
-    provisions: 2,
+    weight: 2,
     description: '30 inches tall and carved of yew, with a lid shaped like a horned lion and sealed with wax. Its surface is cracked and speared with shards of red crystal. When you touch it, you can feel great annoyance and just a hint of fear.\n\nTo unlock the jar\'s mysteries, you must…',
     requirements: [
       '…wash its surface with your own fresh blood (lose 1d10 HP and mark a debility).',
@@ -654,7 +653,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '36',
     name: 'A makerglass chime',
     tags: 'indestructible, magical, loud, dangerous',
-    provisions: 2,
+    weight: 2,
     description: 'A cylinder about 4 feet long and 3 inches wide, the glass surprisingly thin. It rings with a rich, sonorous chime when struck softly. When struck firmly, the sound is almost deafening and causes a rippling pattern to appear on the surface of nearby stone, crystal, or mundane glass.\n\nThe chime is a powerful tool, if you can unlock its secrets. To do so…',
     requirements: [
       '…grasp it firmly and deliver a solid, mighty blow, rolling +CON: on a 10+, you\'ve got it; on a 7-9, mark a debility and you\'ll need to try again; on a 6-, ask the GM what goes terribly wrong.',
@@ -670,7 +669,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '37',
     name: 'A fine ceramic urn',
     tags: 'beautiful, fragile, magical',
-    provisions: 1,
+    weight: 1,
     description: 'A jar of fine pottery, the size of a small cookpot. Its glaze is a wondrous blend of patterns and sheens. The lid fits snugly, though it\'s clumsy to manipulate and tricky to open once closed. You get the feeling it was made for much bigger hands than yours.\n\nTo unlock the secrets of the urn, you must…',
     requirements: [
       '…commune with the chthonic spirit that dwells within (**Instinct** to hoard secrets).',
@@ -688,7 +687,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '38',
     name: 'A length of prayer beads',
     tags: 'magical, beautiful',
-    provisions: 1,
+    weight: 1,
     description: 'A cord almost 10 feet long, strung with bronze beads. Each bead is carved with a different glyph and a figure in a unique meditative pose. If you run your fingers along the beads, you feel a sense of stillness—but also a merciless weight of judgement.\n\nTo unlock the secrets of the prayer beads, you must…',
     requirements: [
       '…decipher the Rime Lord glyphs embossed upon the beads.',
@@ -705,7 +704,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '39',
     name: 'A beautiful scroll',
     tags: 'beautiful, fragile',
-    provisions: 1,
+    weight: 1,
     description: 'Inside a case of carved ivory rests a scroll made of fine, almost gauzy wool. It is full of glyphs and diagrams, imprinted with rich dyes of red and black and yellow. The diagrams seem to depict some sort of meditative practice, resulting in some kind of familiar spirit?\n\nTo unlock the mysteries of this scroll, you must…',
     requirements: [
       '…have some talent for magic.',
@@ -739,7 +738,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '40',
     name: 'A gold butter lamp',
     tags: 'magical, beautiful, reach, area',
-    provisions: 2,
+    weight: 2,
     description: 'An oversized, highly decorated lamp, shaped like a chalice with a wide cup, like those lamps they use up north to burn mammoth-butter in their rituals.\n\nIt\'s worth a fortune (Value 4), but there\'s more to this lamp than meets the eye. To unlock its secrets, you must…',
     requirements: [
       '…consult with a disciple of the Rime Lords (or one of their troves of lore) to learn the recipe and mantra that makes the lamp work.',
@@ -755,7 +754,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '41',
     name: 'A ragged fur cloak',
     tags: 'warm, magical',
-    provisions: 1,
+    weight: 1,
     description: 'The hide of some unknown, black-furred beast. Its bristles are stiff and the air nearby is always chill.\n\nWhen you **don the cloak**, you can tolerate even the bitterest cold and can see in darkest shadow, but bright light hurts your eyes and the warmth of even a campfire is almost too much to bear.\n\nThere\'s more to this ragged fur, to be sure. To unlock its secrets, you must…',
     requirements: [
       '…wear it continuously for seven days and seven nights.',
@@ -803,7 +802,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '44',
     name: 'A silvery glass bottle',
     tags: 'fragile, magical',
-    provisions: 1,
+    weight: 1,
     description: 'About 10 inches tall, tapered at the top, made of old warped glass that\'s shot through with silvery streaks, like the trails that slugs leave. The patterns in the glass seem different each time you look, almost shifting as you watch. It makes you eyes water, your head spin.\n\nYou can unlock the secrets of this old glass bottle, but you must either…',
     requirements: [
       '…find one who knows its workings, and get them to teach you;',
@@ -820,7 +819,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '45',
     name: 'A vellum scroll',
     tags: 'fragile',
-    provisions: 1,
+    weight: 1,
     description: 'A remarkably supple scroll, given its age, found in an ivory tube. It bears writing in a strange alphabet, penned in a dark red ink. There are diagrams, too. You think it might be some sort of recipe? Or spell? Maybe both?\n\nTo unlock the secrets of this scroll, you must…',
     requirements: [
       '…determine the scroll\'s origin and be able to read the author\'s language.',
@@ -854,7 +853,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '47',
     name: 'A corroded spearhead',
     tags: 'magical',
-    provisions: 1,
+    weight: 1,
     description: 'Hidden away in some vault or cave or Maker-ruin is a length of copper, heavily corroded and coated with chunks of verdigris. If you squint, you vaguely make out the shape of a spearhead. Oh, and are those the faint traces of runes?\n\nTo unlock the secrets of this ancient weapon, you must…',
     requirements: [
       '…carefully clean away the corrosion with proper chemics, without destroying the runes as you do so.',
@@ -873,7 +872,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '48',
     name: 'A copper-banded staff',
     tags: 'magical',
-    provisions: 1,
+    weight: 1,
     description: 'A short staff, about 4 feet tall, tapering towards the tip and made of blackened oak with a strange metallic sheen. A dozen bands adorn it, made of corroded copper, caked in verdigris and crumbling away in spots. The bands are embossed with runes of power, some of them worn away or obscured.\n\nThe staff still tingles with power. To unlock its mysteries you must…',
     requirements: [
       '…figure out the shape of the missing and damaged runes.',
@@ -908,7 +907,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '50',
     name: 'A bow with no string',
     tags: 'magical',
-    provisions: 1,
+    weight: 1,
     description: 'A short flatbow made of pale blue metal, rigid and gracefully curved even though it\'s unstrung. There aren\'t even hooks where you *could* attach a string.\n\nIt seems to be of little use, but there is more to this bow than meets the eye. To unlock its mysteries, you must…',
     requirements: [
       '…acquire a glove of aetherium, properly attuned to the bow.',
@@ -973,7 +972,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '53',
     name: 'A rusty steel blade',
     tags: 'close, crude',
-    provisions: 1,
+    weight: 1,
     description: 'It was clearly once a fine, fine blade. The steel holds a pattern of rune-like sworls, at least where the rust hasn\'t taken over. The hilt is blackened, with hints of leather wrappings that long ago burned away. The metal is hot to the touch, like it\'s been left out for hours in the summer sun.\n\nTo unlock the mysteries of this weapon, you must…',
     requirements: [
       '…restore the blade, which requires access to a smithy, a few weeks of work, and no small amount of skill.',
@@ -991,7 +990,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '54',
     name: 'A runic branding iron',
     tags: 'magical',
-    provisions: 1,
+    weight: 1,
     description: 'Found in the workshop of some Forge Lord, still held in a vice-clamp. The head is a runic shape, 6 by 6 inches, with smaller runes etched into its surface. Or at least, most of its surface. A few inches are blank, the work clearly unfinished.\n\nTo unlock the mysteries of this iron and claim its power as your own, you must…',
     requirements: [
       '…decipher the meaning of the runes, and identify the missing ones.',
@@ -1025,7 +1024,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '56',
     name: 'A fine drinking horn',
     tags: 'beautiful, magical',
-    provisions: 1,
+    weight: 1,
     description: 'You got it off a stranger. Like, maybe on a bet, or in a contest, or as a gift in return for some kindness. Or maybe you took it without his consent? Regardless, he seemed a bit coy about the horn, almost glad to let you have it. And just before you parted ways, you noticed the missing finger on his left hand.\n\nSince then, the horn has seemed to call to you, daring you to drink heavily from it. To unlock its mysteries, you must…',
     requirements: [
       '…fill it with whisky or a similarly potent spirit.',
@@ -1060,7 +1059,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '58',
     name: 'A mummified hand',
     tags: 'magical, fragile',
-    provisions: 1,
+    weight: 1,
     description: 'Found in an engraved lead box, this grisly relic is adorned with three golden rings (Value 2). Each ring has an empty setting, as though it was meant to hold a stone. Only dark, rust-like flakes remain.\n\nThe hand still thrums with unholy vitality. To unlock its mysteries, you must…',
     requirements: [
       '…learn the name of the sorcerer whose hand this was.',
@@ -1076,7 +1075,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '59',
     name: 'A redwood basin',
     tags: 'magical, beautiful',
-    provisions: 2,
+    weight: 2,
     description: 'A wide, shallow bowl carved with flowers and thorny vines, twining through skulls of deer and other beasts. The pattern shifts when you aren\'t looking; it\'s never exactly the same twice.\n\nTo unlock the mysteries of the basin, you must…',
     requirements: [
       '…befriend the spirit of life and vitality that dwells within.',
@@ -1094,7 +1093,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '60',
     name: 'A humble broom',
     tags: 'magical, crude',
-    provisions: 1,
+    weight: 1,
     description: 'Just a well-worn stick of rowan wood, in need of some new bristles. You wouldn\'t give it another thought. Except… when you hold it, and sweep with it, you find yourself humming a half-remembered tune.\n\nClearly, there is more to this broom than meets the eye. To unlock its mysteries, you must…',
     requirements: [
       '…find a Fae who can hear the broom\'s song in its entirety.',
@@ -1112,7 +1111,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '61',
     name: 'A stone idol',
     tags: 'crude, magical',
-    provisions: 1,
+    weight: 1,
     description: 'Found at the back of some cave or grotto, obscured by roots and rubble, surrounded by desiccated, rotting offerings. A crude squat thing with a possum\'s sneering face, a thorny tail, and flowers for its ears.\n\nThe idol is, in fact, a narcissistic little Fae, stuck (hiding? stubbornly ensconced?) in the form of a stone idol. To unlock its "mysteries" and benefit from its patronage, you must…',
     requirements: [
       '…restore the shrine, while suffering the abuse of its angry little god.',
@@ -1165,7 +1164,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '63',
     name: 'An oversized crown',
     tags: 'beautiful, magical, fireproof',
-    provisions: 1,
+    weight: 1,
     description: 'A circlet of black, glossy metal set with eight spires of aetherium. It\'s sized for a head maybe twice as large as yours, and is always a bit chill to the touch. Even cast into the hottest furnace, it will not melt nor even heat.\n\nWhen you **touch the crown with bare flesh and open your mind**, you can speak to the primordial spirit to which the crown is attuned. But to fully unlock the mysteries of this crown, you must…',
     requirements: [
       '…risk your sense of self as you commune with this spirit of the void.',
@@ -1198,7 +1197,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '64',
     name: 'A metal puzzle box',
     tags: 'indestructible',
-    provisions: 1,
+    weight: 1,
     description: 'A 6" cube of dull gray metal, covered in hinges, knobs, dials, sliders, levers, and the like. A thing of mad genius, resisting all attempts to open it by brute force.\n\nTo unlock its mysteries, you must…',
     requirements: [
       '…roll +INT to open the box: on a 10+, it takes a few days of fiddling; on a 7-9, it takes a few obsessive weeks; on a 6-, it\'s beyond you.',

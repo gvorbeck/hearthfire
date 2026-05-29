@@ -1,7 +1,6 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, memo } from 'react';
 import clsx from 'clsx';
 import { Button, Text } from '@/components/primitives';
-import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { MINOR_ARCANA, type MinorArcanum } from '@/lib/arcanaMinor';
 import type { ArcanaMinorEntry, CharacterData } from '@/types';
 import { MinorArcanaCard } from './MinorArcanaCard';
@@ -10,17 +9,43 @@ import styles from './ArcanaTab.module.css';
 
 type ArcanaSubTab = 'minor' | 'major';
 
+interface MinorArcanaCardRowProps {
+  entry: ArcanaMinorEntry;
+  arcanum: MinorArcanum;
+  onToggleRequirement: (id: string, key: string, checked: boolean) => void;
+  onTrackerChange: (id: string, value: number) => void;
+  onFollowerHpChange: (id: string, index: number, value: number) => void;
+  onRemove: (id: string) => void;
+}
+
+const MinorArcanaCardRow = memo(({ entry, arcanum, onToggleRequirement, onTrackerChange, onFollowerHpChange, onRemove }: MinorArcanaCardRowProps) => {
+  const handleToggle = useCallback((key: string, checked: boolean) => onToggleRequirement(entry.id, key, checked), [entry.id, onToggleRequirement]);
+  const handleTracker = useCallback((value: number) => onTrackerChange(entry.id, value), [entry.id, onTrackerChange]);
+  const handleFollowerHp = useCallback((index: number, value: number) => onFollowerHpChange(entry.id, index, value), [entry.id, onFollowerHpChange]);
+  const handleRemove = useCallback(() => onRemove(entry.id), [entry.id, onRemove]);
+  return (
+    <MinorArcanaCard
+      arcanum={arcanum}
+      requirementsChecked={entry.requirementsChecked}
+      trackerValue={entry.trackerValue}
+      followerHp={entry.followerHp}
+      onToggleRequirement={handleToggle}
+      onTrackerChange={handleTracker}
+      onFollowerHpChange={handleFollowerHp}
+      onRemove={handleRemove}
+    />
+  );
+});
+
 interface ArcanaTabProps {
   data: CharacterData | undefined;
-  totalLoad?: number;
   onSave: (data: Partial<CharacterData>) => Promise<void>;
 }
 
-export const ArcanaTab = ({ data, totalLoad, onSave }: ArcanaTabProps) => {
+export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
   const [subTab, setSubTab] = useState<ArcanaSubTab>('minor');
   const [modalOpen, setModalOpen] = useState(false);
 
-  // Suppress re-sync from Firestore while a write is in-flight to avoid reverting rapid checkbox clicks.
   const [arcanaMinor, setArcanaMinor] = useState<ArcanaMinorEntry[]>(data?.arcanaMinor ?? []);
   const pendingRef = useRef(false);
 
@@ -106,38 +131,8 @@ export const ArcanaTab = ({ data, totalLoad, onSave }: ArcanaTabProps) => {
     [arcanaMinor, save],
   );
 
-  const handleCarriedChange = useCallback(
-    (id: string, carried: boolean) => {
-      const next = arcanaMinor.map((a) => (a.id === id ? { ...a, carried } : a));
-      setArcanaMinor(next);
-      save(next);
-    },
-    [arcanaMinor, save],
-  );
-
-  const handleWeightChange = useCallback(
-    (id: string, weight: 1 | 2 | undefined) => {
-      const next = arcanaMinor.map((a) => {
-        if (a.id !== id) return a;
-        const updated = { ...a, weight };
-        if (weight === undefined) delete updated.weight;
-        return updated;
-      });
-      setArcanaMinor(next);
-      save(next);
-    },
-    [arcanaMinor, save],
-  );
-
   const minorTabCx = clsx(styles.subTab, subTab === 'minor' && styles.subTabActive);
   const majorTabCx = clsx(styles.subTab, subTab === 'major' && styles.subTabActive);
-
-  const loadBadgeCx = clsx(
-    styles.loadBadge,
-    totalLoad !== undefined && totalLoad <= 3 && styles.loadLight,
-    totalLoad !== undefined && totalLoad > 3 && totalLoad <= 6 && styles.loadNormal,
-    totalLoad !== undefined && totalLoad > 6 && styles.loadHeavy,
-  );
 
   return (
     <div className={styles.root}>
@@ -158,11 +153,6 @@ export const ArcanaTab = ({ data, totalLoad, onSave }: ArcanaTabProps) => {
             Major Arcana
           </button>
         </div>
-        {totalLoad !== undefined && (
-          <span className={loadBadgeCx}>
-            {parseInlineMarkdown(`${totalLoad} ◈ — ${totalLoad <= 3 ? 'light load' : totalLoad <= 6 ? 'normal load' : 'heavy load'}`)}
-          </span>
-        )}
       </div>
 
       {subTab === 'minor' && (
@@ -188,24 +178,14 @@ export const ArcanaTab = ({ data, totalLoad, onSave }: ArcanaTabProps) => {
                 const arcanum = MINOR_ARCANA.find((a) => a.id === entry.id);
                 if (!arcanum) return null;
                 return (
-                  <MinorArcanaCard
+                  <MinorArcanaCardRow
                     key={entry.id}
+                    entry={entry}
                     arcanum={arcanum}
-                    requirementsChecked={entry.requirementsChecked}
-                    trackerValue={entry.trackerValue}
-                    followerHp={entry.followerHp}
-                    carried={entry.carried}
-                    weight={entry.weight}
-                    onToggleRequirement={(key, checked) =>
-                      handleToggleRequirement(entry.id, key, checked)
-                    }
-                    onTrackerChange={(value) => handleTrackerChange(entry.id, value)}
-                    onFollowerHpChange={(index, value) =>
-                      handleFollowerHpChange(entry.id, index, value)
-                    }
-                    onCarriedChange={(carried) => handleCarriedChange(entry.id, carried)}
-                    onWeightChange={(weight) => handleWeightChange(entry.id, weight)}
-                    onRemove={() => handleRemove(entry.id)}
+                    onToggleRequirement={handleToggleRequirement}
+                    onTrackerChange={handleTrackerChange}
+                    onFollowerHpChange={handleFollowerHpChange}
+                    onRemove={handleRemove}
                   />
                 );
               })}

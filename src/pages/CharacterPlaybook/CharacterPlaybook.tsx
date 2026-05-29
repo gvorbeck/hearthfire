@@ -6,7 +6,7 @@ import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
 import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Modal, Radio, Icon, Text } from '@/components/primitives';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
 import { PageHeader } from '@/components/PageHeader/PageHeader';
-import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, Moves, SpecialPossessions, Introductions, Inventory, computeTotalLoad } from '@/components/CharacterSheet/sections';
+import { Background, Instinct, Appearance, PlaceOfOrigin, Stats, Moves, SpecialPossessions, Introductions, Inventory } from '@/components/CharacterSheet/sections';
 import { ArcanaTab } from '@/components/CharacterSheet/sections/Arcana/ArcanaTab';
 import { BACKGROUND_OPTIONS, FOX_LIFE_OF_CRIME_BACKGROUND } from '@/lib/backgroundOptions';
 import { INSTINCT_OPTIONS } from '@/lib/instinctOptions';
@@ -217,7 +217,7 @@ const resolvePlaybookTabContent = (
   if (id === 'crew') return <MarshalCrew data={data} prosperity={prosperity} onSave={onSave} />;
   if (id === 'animal-companion') return <RangerAnimalCompanion data={data} onSave={onSave} />;
   if (id === 'inventory') return <Inventory data={data} prosperity={prosperity} onSave={onSave} />;
-  if (id === 'arcana') return <ArcanaTab data={data} totalLoad={computeTotalLoad(data)} onSave={onSave} />;
+  if (id === 'arcana') return <ArcanaTab data={data} onSave={onSave} />;
   if (id === 'Revenant') return <RevenantInsert data={data} onSave={onSave} />;
   if (id === 'Ghost') return <GhostInsert data={data} onSave={onSave} />;
   if (id === 'Thrall') return <ThrallInsert data={data} onSave={onSave} />;
@@ -245,6 +245,8 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
     [updateCharacterName, character.id]
   );
 
+  // One-shot: auto-add the Followers tab the first time a dog possession is detected.
+  // The ref prevents re-triggering if the snapshot fires again before the write lands.
   useEffect(() => {
     if (hasAutoAddedFollowersRef.current) return;
     const possessions = character.data?.specialPossessions ?? {};
@@ -273,9 +275,13 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
     const resolved = resolvePlaybookFeatures(character.data);
     const { followers: _removed, ...restFeatures } = resolved;
     const playbookFeatures = removeInsert === 'Followers' ? restFeatures : resolved;
-    await handleSaveCharacterData({ inserts: next, playbookFeatures });
-    setActiveIndex(0);
-    setRemoveInsert(null);
+    try {
+      await handleSaveCharacterData({ inserts: next, playbookFeatures });
+      setActiveIndex(0);
+      setRemoveInsert(null);
+    } catch {
+      setRemoveInsert(null);
+    }
   }, [removeInsert, character.data, handleSaveCharacterData]);
 
   const handleAddInsert = useCallback(async (insert: InsertOption) => {
@@ -285,11 +291,13 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
       return;
     }
     const next = [...current, insert];
-    // 3 fixed tabs (PC Playbook, Inventory, Arcana) plus any playbook-specific tabs
     const fixedTabCount = 3 + getPlaybookTabs(character.playbook, character.data).length;
-    await handleSaveCharacterData({ inserts: next });
-    setActiveIndex(fixedTabCount + next.length - 1);
-    setAddTabOpen(false);
+    try {
+      await handleSaveCharacterData({ inserts: next });
+      setActiveIndex(fixedTabCount + next.length - 1);
+    } finally {
+      setAddTabOpen(false);
+    }
   }, [character.data, character.playbook, handleSaveCharacterData]);
 
   const characterName = character.name?.trim();
@@ -324,7 +332,8 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
   const handleActiveChange = useCallback((i: number) => {
     setActiveIndex(i);
     if (showInvocationsBadge && invocationsTabIndex !== -1 && i === 3 + invocationsTabIndex) {
-      handleSaveCharacterData(featurePatch(character.data, { lightbearerInvocationsBadgeDismissedAt: level }));
+      // Fire-and-forget: badge dismissal is best-effort, losing it on failure is acceptable UX
+      handleSaveCharacterData(featurePatch(character.data, { lightbearerInvocationsBadgeDismissedAt: level })).catch(() => {});
     }
   }, [showInvocationsBadge, invocationsTabIndex, handleSaveCharacterData, character.data, level]);
 

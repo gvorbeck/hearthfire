@@ -127,13 +127,11 @@ export interface ArcanaMinorEntry {
   trackerValue?: number;
   followerHp?: number[];
   carried?: boolean;
-  weight?: 1 | 2;
 }
 
 export interface CharacterData {
   inventoryChecked?: Record<string, boolean>;
   inventoryUses?: Record<string, number>;
-  inventoryCustomItems?: { checked: boolean; text: string; weight: 1 | 2 }[];
   inventorySmallChecked?: Record<string, boolean>;
   inventorySmallCustom?: { checked: boolean; text: string }[];
   inventoryUndefined?: number;
