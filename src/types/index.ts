@@ -121,6 +121,13 @@ export interface FollowerData {
   notes?: string;
 }
 
+export interface ArcanaMinorEntry {
+  id: string;
+  requirementsChecked: Record<string, boolean>;
+  trackerValue?: number;
+  followerHp?: number[];
+}
+
 export interface CharacterData {
   inventoryChecked?: Record<string, boolean>;
   inventoryUses?: Record<string, number>;
@@ -166,6 +173,7 @@ export interface CharacterData {
   introductionQuestions?: Record<string, boolean>;
   inserts?: string[];
   playbookFeatures?: PlaybookFeatures;
+  arcanaMinor?: ArcanaMinorEntry[];
 }
 
 export interface Character {
