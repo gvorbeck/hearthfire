@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Radio, Text } from '@/components/primitives';
+import { Radio, RadioGroup, Text } from '@/components/primitives';
 import { InsertLayout } from '../shared/InsertLayout';
 import type { MoveDefinition } from '../../Move';
 import type { CharacterData } from '@/types';
@@ -102,6 +102,21 @@ const isConsequenceDisabled = (id: string, checked: Record<string, boolean>) =>
   (id === INSATIABLE_ID && !checked[STRANGE_APPETITES_ID]) ||
   (id === 'unstable' && !checked['breakdown']);
 
+const handleAppetitePickChange = (
+  e: React.ChangeEvent<HTMLInputElement>,
+  updateChecked: (fn: (prev: Record<string, boolean>) => Record<string, boolean>) => void,
+) => {
+  const val = e.target.value;
+  updateChecked((prev) => {
+    const next: Record<string, boolean> = {};
+    for (const [k, v] of Object.entries(prev)) {
+      if (!k.startsWith('appetite:')) next[k] = v;
+    }
+    next[`appetite:${val}`] = true;
+    return next;
+  });
+};
+
 interface RevenantInsertProps {
   data: CharacterData | undefined;
   onSave: (data: Partial<CharacterData>) => Promise<void>;
@@ -118,35 +133,23 @@ export const RevenantInsert = ({ data, onSave }: RevenantInsertProps) => {
       .find((k) => k.startsWith('appetite:'))
       ?.replace('appetite:', '') ?? '';
 
-    const handleAppetitePickChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const val = e.target.value;
-      updateChecked((prev) => {
-        const next: Record<string, boolean> = {};
-        for (const [k, v] of Object.entries(prev)) {
-          if (!k.startsWith('appetite:')) next[k] = v;
-        }
-        next[`appetite:${val}`] = true;
-        return next;
-      });
-    };
-
     return (
       <div className={styles.appetiteSection}>
         <Text as="p" size="xs" color="muted" className={styles.appetitePrompt}>
           Strange Appetites — Pick 1:
         </Text>
-        <div className={styles.appetiteGrid}>
+        <RadioGroup legend="Strange Appetites" legendHidden className={styles.appetiteGrid}>
           {STRANGE_APPETITE_PICKS.map((pick) => (
             <Radio
               key={pick.id}
               name="revenant-appetite"
               value={pick.id}
               checked={currentPick === pick.id}
-              onChange={handleAppetitePickChange}
+              onChange={(e) => handleAppetitePickChange(e, updateChecked)}
               label={<Text as="span" size="xs" color="muted">{pick.label}</Text>}
             />
           ))}
-        </div>
+        </RadioGroup>
       </div>
     );
   }, []);

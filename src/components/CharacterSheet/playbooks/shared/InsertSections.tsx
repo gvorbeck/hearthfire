@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Input, Radio, Text } from '@/components/primitives';
+import { Input, Radio, RadioGroup, Text } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { INSERT_INSTINCT_OPTIONS, INSERT_PURPOSE_OPTIONS } from '@/lib/insertSharedData';
@@ -31,7 +31,7 @@ export const InsertInstinctSection = ({
       isCollapsed={instinctCollapsed}
       onToggleCollapse={onToggleCollapse}
     >
-      <div className={styles.radioList}>
+      <RadioGroup legend="Instinct" legendHidden className={styles.radioList}>
         {visible.map((opt) => (
           <Radio
             key={opt.value}
@@ -48,7 +48,7 @@ export const InsertInstinctSection = ({
             }
           />
         ))}
-      </div>
+      </RadioGroup>
     </PlaybookSection>
   );
 };
@@ -116,7 +116,7 @@ export const InsertPurposeSection = ({
       isCollapsed={purposeCollapsed}
       onToggleCollapse={onToggleCollapse}
     >
-      <div className={styles.purposeList}>
+      <RadioGroup legend="Terrible Purpose" legendHidden className={styles.purposeList}>
         {visible.map((opt) => {
           const isSelected = purpose === opt.value;
           return (
@@ -140,7 +140,7 @@ export const InsertPurposeSection = ({
             </div>
           );
         })}
-      </div>
+      </RadioGroup>
     </PlaybookSection>
   );
 };

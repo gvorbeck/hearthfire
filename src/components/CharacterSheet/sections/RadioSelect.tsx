@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Radio, Input } from '@/components/primitives';
+import { Radio, RadioGroup, Input } from '@/components/primitives';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import { PlaybookSection } from '../PlaybookSection';
 import type { InstinctOption } from '@/lib/instinctOptions';
@@ -62,7 +62,7 @@ export const RadioSelect = ({ playbookKey, title = 'Instinct', header, options, 
   const handleToggleCollapse = useCallback(() => setIsCollapsed((v) => !v), []);
 
   const handleSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.currentTarget.dataset.value ?? '';
+    const value = e.currentTarget.value;
     setSelected(value);
     if (value !== CUSTOM_VALUE) {
       setIsCollapsed(true);
@@ -115,13 +115,12 @@ export const RadioSelect = ({ playbookKey, title = 'Instinct', header, options, 
       overrideNote={overrideNote}
     >
       {header}
-      <div className={styles.options}>
+      <RadioGroup legend={title} legendHidden className={styles.options}>
         {visibleOptions.map((opt) => (
           <div key={opt.value} className={styles.option}>
             <Radio
               name={`${playbookKey}-instinct`}
               value={opt.value}
-              data-value={opt.value}
               checked={selected === opt.value}
               onChange={handleSelect}
               label={
@@ -138,7 +137,6 @@ export const RadioSelect = ({ playbookKey, title = 'Instinct', header, options, 
             <Radio
               name={`${playbookKey}-instinct`}
               value={CUSTOM_VALUE}
-              data-value={CUSTOM_VALUE}
               checked={selected === CUSTOM_VALUE}
               onChange={handleSelect}
               label={
@@ -162,7 +160,7 @@ export const RadioSelect = ({ playbookKey, title = 'Instinct', header, options, 
             />
           </div>
         )}
-      </div>
+      </RadioGroup>
     </PlaybookSection>
   );
 };

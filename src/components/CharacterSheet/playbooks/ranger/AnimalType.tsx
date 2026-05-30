@@ -1,5 +1,5 @@
 import { useCallback, useMemo, memo } from 'react';
-import { Checkbox, CheckboxGroup, Divider, Input, Radio, Text } from '@/components/primitives';
+import { Checkbox, CheckboxGroup, Divider, Input, Radio, RadioGroup, Text } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import styles from './RangerAnimalCompanion.module.css';
@@ -278,7 +278,7 @@ export const AnimalType = ({
       isCollapsed={typeCollapsed}
       onToggleCollapse={onToggleCollapse}
     >
-      <div className={styles.typeList}>
+      <RadioGroup legend="Animal type" legendHidden className={styles.typeList}>
         {visibleTypes.map((typeConfig, i) => {
           const isSelected = animalType === typeConfig.id;
           return (
@@ -312,7 +312,7 @@ export const AnimalType = ({
             </div>
           );
         })}
-      </div>
+      </RadioGroup>
     </PlaybookSection>
   );
 };

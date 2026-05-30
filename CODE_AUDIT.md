@@ -142,6 +142,8 @@ The `.trigger` button has no `:focus-visible` rule. Keyboard users tabbing to a 
 }
 ```
 
+**Resolved:** Added `:focus-visible` to `.trigger` with `outline: 2px solid var(--color-gold-400); outline-offset: 2px`.
+
 ---
 
 ### 3. CheckboxGroup uses no group semantics
@@ -152,6 +154,8 @@ The container is a plain `<div>` with no `role="group"` and the label `<p>` is n
 
 **Fix:** Replace the outer `<div>` with `<fieldset>` and the label `<p>` with `<legend>`.
 
+**Resolved:** Outer `<div>` replaced with `<fieldset>`, label wrapped in `<legend>`. Added fieldset reset (`border: none; padding: 0; margin: 0; min-inline-size: 0`) to `.root` in the CSS module.
+
 ---
 
 ### 4. Radio has no group semantics
@@ -161,6 +165,8 @@ The container is a plain `<div>` with no `role="group"` and the label `<p>` is n
 `Radio` renders standalone `<label>/<input>` pairs with no `<fieldset>`/`<legend>` grouping API. Screen reader users hear each option in isolation without knowing what question the group answers.
 
 **Fix:** Create a `RadioGroup` wrapper that renders `<fieldset>`/`<legend>`, mirroring how `CheckboxGroup` wraps `Checkbox`.
+
+**Resolved:** Created `src/components/primitives/RadioGroup/RadioGroup.tsx` — `<fieldset>`/`<legend>` wrapper with optional `legendHidden` prop (visually hidden but announced by screen readers). Exported from primitives index. Wired into `RadioSelect` with `legendHidden` since the section heading is already visible. `SteadingStats` uses `role="group" aria-label` which is valid for that pattern — left untouched.
 
 ---
 

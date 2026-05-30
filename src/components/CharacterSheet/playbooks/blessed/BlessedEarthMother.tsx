@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { CheckboxGroup, Divider, Radio, Text, useToast } from '@/components/primitives';
+import { CheckboxGroup, Divider, Radio, RadioGroup, Text, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import type { CharacterData } from '@/types';
@@ -69,7 +69,7 @@ export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) =>
           {"Danu has long been revered by all peoples, though not always worshipped or served by priests. In Stonetop’s Pavilion of the Gods, Danu’s shrine is…"}
         </Text>
         <Text as="p" size="xs" color="muted" className={styles.instruction}>(choose 1)</Text>
-        <div className={styles.shrineOptions}>
+        <RadioGroup legend="The shrine is…" legendHidden className={styles.shrineOptions}>
           {SHRINE_OPTIONS.map((opt) => (
             <Radio
               key={opt}
@@ -80,7 +80,7 @@ export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) =>
               label={<span className={styles.optionLabel}>{opt}</span>}
             />
           ))}
-        </div>
+        </RadioGroup>
 
         <Divider />
 

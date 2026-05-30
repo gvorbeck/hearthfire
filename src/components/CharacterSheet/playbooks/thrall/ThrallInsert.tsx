@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import clsx from 'clsx';
-import { Button, Input, Radio, Text } from '@/components/primitives';
+import { Button, Input, Radio, RadioGroup, Text } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { Move } from '../../Move';
 import type { MoveDefinition } from '../../Move';
@@ -347,7 +347,7 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
         isCollapsed={instinctCollapsed}
         onToggleCollapse={handleToggleInstinctCollapse}
       >
-        <div className={styles.radioList}>
+        <RadioGroup legend="Instinct" legendHidden className={styles.radioList}>
           {instinctVisible.map((opt) => (
             <Radio
               key={opt.value}
@@ -364,7 +364,7 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
               }
             />
           ))}
-        </div>
+        </RadioGroup>
       </PlaybookSection>
 
       <PlaybookSection
@@ -375,7 +375,7 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
         isCollapsed={impulseCollapsed}
         onToggleCollapse={handleToggleImpulseCollapse}
       >
-        <div className={styles.radioList}>
+        <RadioGroup legend="Impulse" legendHidden className={styles.radioList}>
           {impulseOptionsVisible.map((opt) => (
             <Radio
               key={opt.value}
@@ -414,7 +414,7 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
               }
             />
           )}
-        </div>
+        </RadioGroup>
       </PlaybookSection>
 
       <PlaybookSection title="Moves">

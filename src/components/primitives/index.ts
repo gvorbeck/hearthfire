@@ -9,6 +9,7 @@ export type { IconName, PlaybookIconName } from './Icon/Icon';
 export { Input } from './Input/Input';
 export { Modal } from './Modal/Modal';
 export { Radio } from './Radio/Radio';
+export { RadioGroup } from './RadioGroup/RadioGroup';
 export { RuleDivider } from './RuleDivider/RuleDivider';
 export { Stack } from './Stack/Stack';
 export { Text } from './Text/Text';

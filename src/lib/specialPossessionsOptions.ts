@@ -26,19 +26,19 @@ export type PlaybookSpecialPossessions = {
 const APIARY: Possession = {
   id: 'apiary',
   name: 'Apiary',
-  label: '**Apiary**: beeswax, candles (*close*, *area*, lasts ~1 hr), honey, ◇ bee smokers, ◇ hats & veils, etc.',
+  label: '**Apiary**: beeswax, candles (*close*, *area*, lasts ~1 hr), honey, ◊ bee smokers, ◊ hats & veils, etc.',
 };
 
 const CARPENTERS_TOOLS: Possession = {
   id: 'carpenters-tools',
   name: "Carpenter's tools",
-  label: "**Carpenter's tools**: chisels, files, nails, pitch, ◇ prybars, ◇ saws, ◇◇ firkins, barrels, etc.",
+  label: "**Carpenter's tools**: chisels, files, nails, pitch, ◊ prybars, ◊ saws, ◊◊ firkins, barrels, etc.",
 };
 
 const CHIRURGEONS_TOOLS: Possession = {
   id: 'chirurgeons-tools',
   name: "Chirurgeon's tools",
-  label: "**Chirurgeon's tools**: catgut, straps, bandages, tubes, poultices, willow bark, ◇ bonesaws, etc.",
+  label: "**Chirurgeon's tools**: catgut, straps, bandages, tubes, poultices, willow bark, ◊ bonesaws, etc.",
 };
 
 const DISTILLERY: Possession = {
@@ -48,26 +48,26 @@ const DISTILLERY: Possession = {
   subItems: [
     { id: 'whisky', label: 'skins of fine whisky (grants advantage to Persuade)', uses: 2, usesLabel: 'uses' },
     'copper tubes, malt',
-    '◇◇ firkins, stills, barrels, etc.',
+    '◊◊ firkins, stills, barrels, etc.',
   ],
 };
 
 const ENGINEERS_TOOLS: Possession = {
   id: 'engineers-tools',
   name: "Engineer's tools",
-  label: "**Engineer's tools**: rulers, tapes, rods, plumb-bobs, ◇ tripods, ◇ block & tackles, wheelbarrow, etc.",
+  label: "**Engineer's tools**: rulers, tapes, rods, plumb-bobs, ◊ tripods, ◊ block & tackles, wheelbarrow, etc.",
 };
 
 const SCRIBES_TOOLS: Possession = {
   id: 'scribes-tools',
   name: "Scribe's tools",
-  label: "**Scribe's tools**: parchment, ink, pigments, vials, quills, ◇ a notebook, etc.",
+  label: "**Scribe's tools**: parchment, ink, pigments, vials, quills, ◊ a notebook, etc.",
 };
 
 const SMITHY: Possession = {
   id: 'smithy',
   name: 'Smithy',
-  label: '**Smithy** (or access to it): iron goods, ingots, thick gloves, ◇ tongs, ◇ bellows, an anvil, etc.',
+  label: '**Smithy** (or access to it): iron goods, ingots, thick gloves, ◊ tongs, ◊ bellows, an anvil, etc.',
 };
 
 const CUSTOM: Possession = {
@@ -80,7 +80,7 @@ const CUSTOM: Possession = {
 const HUSBANDRY_TOOLS: Possession = {
   id: 'husbandry-tools',
   name: 'Husbandry tools',
-  label: '**Husbandry tools**: brushes, muzzles, collars, feed, ◇ whips, ◇ bridles, etc. Gain advantage to Persuade domestic beasts (livestock, dogs, etc.).',
+  label: '**Husbandry tools**: brushes, muzzles, collars, feed, ◊ whips, ◊ bridles, etc. Gain advantage to Persuade domestic beasts (livestock, dogs, etc.).',
 };
 
 const BOOKS_AND_SCROLLS: Possession = {
@@ -100,13 +100,13 @@ const TRADE_CONTACTS: Possession = {
 const STONEWORKERS_TOOLS: Possession = {
   id: 'stoneworkers-tools',
   name: "Stoneworker's tools",
-  label: "**Stoneworker's tools**: chisels, drills, ◇ prybars, ◇ spikes, ◇ block & tackles, wheelbarrow, etc.",
+  label: "**Stoneworker's tools**: chisels, drills, ◊ prybars, ◊ spikes, ◊ block & tackles, wheelbarrow, etc.",
 };
 
 const TANNERY: Possession = {
   id: 'tannery',
   name: 'Tannery',
-  label: '**Tannery** (or access to it): lime, acid, salts, thick gloves, ◇ a boiled leather cuirass (1 armor), etc.',
+  label: '**Tannery** (or access to it): lime, acid, salts, thick gloves, ◊ a boiled leather cuirass (1 armor), etc.',
 };
 
 export const SPECIAL_POSSESSIONS_OPTIONS: Partial<Record<PlaybookType, PlaybookSpecialPossessions>> = {
@@ -137,7 +137,7 @@ export const SPECIAL_POSSESSIONS_OPTIONS: Partial<Record<PlaybookType, PlaybookS
       {
         id: 'herb-garden',
         name: 'Herb garden',
-        label: '**Herb garden**: shears, mortars & pestles, herbs, seeds, remedies, mild poisons, ◇ spades, etc. Each spring, d4 uses of bendis root (*reach*, *area*, burns ~1 hr, fumes repel perversions of nature).',
+        label: '**Herb garden**: shears, mortars & pestles, herbs, seeds, remedies, mild poisons, ◊ spades, etc. Each spring, d4 uses of bendis root (*reach*, *area*, burns ~1 hr, fumes repel perversions of nature).',
       },
       {
         id: 'mastiffs',
@@ -160,11 +160,11 @@ export const SPECIAL_POSSESSIONS_OPTIONS: Partial<Record<PlaybookType, PlaybookS
         maxSubItems: 3,
         label: '**Weapons of war**: choose up to 3 (now or later):',
         subItems: [
-          { id: 'sword', label: '◇ **Sword**, iron (*close*, +1 damage)', selectable: true },
-          { id: 'battleaxe', label: '◇ **Battleaxe**, iron (*close*, *messy*)', selectable: true },
-          { id: 'warhammer', label: '◇ **Warhammer**, iron (*close*, 2 piercing)', selectable: true },
-          { id: 'mace', label: '◇ **Mace** or **flail**, iron (*close*, *forceful*)', selectable: true },
-          { id: 'crossbow', label: '◇ **Crossbow** (*far*, +1 damage, *reload*, x piercing)', uses: 2, usesLabel: 'low ammo / all out', selectable: true },
+          { id: 'sword', label: '◊ **Sword**, iron (*close*, +1 damage)', selectable: true },
+          { id: 'battleaxe', label: '◊ **Battleaxe**, iron (*close*, *messy*)', selectable: true },
+          { id: 'warhammer', label: '◊ **Warhammer**, iron (*close*, 2 piercing)', selectable: true },
+          { id: 'mace', label: '◊ **Mace** or **flail**, iron (*close*, *forceful*)', selectable: true },
+          { id: 'crossbow', label: '◊ **Crossbow** (*far*, +1 damage, *reload*, x piercing)', uses: 2, usesLabel: 'low ammo / all out', selectable: true },
         ],
       },
       CUSTOM,
@@ -187,10 +187,10 @@ export const SPECIAL_POSSESSIONS_OPTIONS: Partial<Record<PlaybookType, PlaybookS
         maxSubItems: 3,
         label: '**Weapons of war**: choose up to 3 (now or later):',
         subItems: [
-          { id: 'sword', label: '◇ **Sword**, iron (*close*, +1 damage)', selectable: true },
-          { id: 'long-spear', label: '◇◇ **Long spear**, fine steel (*reach*, 2 piercing)', selectable: true },
-          { id: 'battleaxe', label: '◇ **Battleaxe**, iron (*close*, *messy*)', selectable: true },
-          { id: 'composite-bow', label: '◇ **Composite bow** (*far*, +1 damage, x piercing)', uses: 2, usesLabel: 'low ammo / all out', selectable: true },
+          { id: 'sword', label: '◊ **Sword**, iron (*close*, +1 damage)', selectable: true },
+          { id: 'long-spear', label: '◊◊ **Long spear**, fine steel (*reach*, 2 piercing)', selectable: true },
+          { id: 'battleaxe', label: '◊ **Battleaxe**, iron (*close*, *messy*)', selectable: true },
+          { id: 'composite-bow', label: '◊ **Composite bow** (*far*, +1 damage, x piercing)', uses: 2, usesLabel: 'low ammo / all out', selectable: true },
         ],
       },
       CUSTOM,
@@ -212,7 +212,7 @@ export const SPECIAL_POSSESSIONS_OPTIONS: Partial<Record<PlaybookType, PlaybookS
         label: '**Glassworks**',
         subItems: [
           'vials, charms, lenses, sand, marbles, bellows, crucible',
-          { id: 'lanterns', label: '◇ lanterns (*close*, *area*)', uses: 5, usesLabel: 'hours' },
+          { id: 'lanterns', label: '◊ lanterns (*close*, *area*)', uses: 5, usesLabel: 'hours' },
           'etc.',
         ],
       },
@@ -226,7 +226,7 @@ export const SPECIAL_POSSESSIONS_OPTIONS: Partial<Record<PlaybookType, PlaybookS
       {
         id: 'luthiers-tools',
         name: "Luthier's tools",
-        label: "**Luthier's tools**: chisels, files, catgut, various woods, stains, ◇ a lute, ◇ a fiddle, etc.",
+        label: "**Luthier's tools**: chisels, files, catgut, various woods, stains, ◊ a lute, ◊ a fiddle, etc.",
       },
       CUSTOM,
     ],
@@ -242,16 +242,16 @@ export const SPECIAL_POSSESSIONS_OPTIONS: Partial<Record<PlaybookType, PlaybookS
         selectOneSubItem: true,
         label: '**Your symbol of authority** (pick 1):',
         subItems: [
-          { id: 'black-iron-maul', label: '◇◇ **Black iron maul**, utterly immune to all magic (*close*, *forceful*, *awkward*, +1 damage)', selectable: true },
-          { id: 'makerglass-shield', label: "◇◇ **Makerglass shield**, etched with Aratis's symbol (*indestructible*, +1 armor, +1 Readiness on a Defend 7+)", selectable: true },
-          { id: 'helm', label: '◇ **Helm** set with a dark ice "jewel." Grants advantage to resist mind-affecting magic.', selectable: true },
+          { id: 'black-iron-maul', label: '◊◊ **Black iron maul**, utterly immune to all magic (*close*, *forceful*, *awkward*, +1 damage)', selectable: true },
+          { id: 'makerglass-shield', label: "◊◊ **Makerglass shield**, etched with Aratis's symbol (*indestructible*, +1 armor, +1 Readiness on a Defend 7+)", selectable: true },
+          { id: 'helm', label: '◊ **Helm** set with a dark ice "jewel." Grants advantage to resist mind-affecting magic.', selectable: true },
         ],
       },
       { ...SCRIBES_TOOLS, isAlwaysSelected: true },
       {
         id: 'aviary',
         name: 'Aviary',
-        label: '**Aviary**: thick gloves, bird hoods, tethers, seed, ◇ messenger birds, ◇ birdcages, etc.',
+        label: '**Aviary**: thick gloves, bird hoods, tethers, seed, ◊ messenger birds, ◊ birdcages, etc.',
       },
       CARPENTERS_TOOLS,
       ENGINEERS_TOOLS,
@@ -267,10 +267,10 @@ export const SPECIAL_POSSESSIONS_OPTIONS: Partial<Record<PlaybookType, PlaybookS
         label: "**Burglar's kit**",
         subItems: [
           'picks, files, snippers, wire',
-          '◇ prybars',
-          '◇ hacksaws',
-          { id: 'lantern', label: '◇ a lantern (*close*, *area*)', uses: 5, usesLabel: 'hours' },
-          '◇ a grappling hook, etc.',
+          '◊ prybars',
+          '◊ hacksaws',
+          { id: 'lantern', label: '◊ a lantern (*close*, *area*)', uses: 5, usesLabel: 'hours' },
+          '◊ a grappling hook, etc.',
         ],
       },
       CARPENTERS_TOOLS,
@@ -285,7 +285,7 @@ export const SPECIAL_POSSESSIONS_OPTIONS: Partial<Record<PlaybookType, PlaybookS
       {
         id: 'mummers-kit',
         name: "Mummer's kit",
-        label: "**Mummer's kit**: juggling balls, whirlybird seeds, motley, ribbons, bells, ◇ puppets, ◇ a fiddle, etc.",
+        label: "**Mummer's kit**: juggling balls, whirlybird seeds, motley, ribbons, bells, ◊ puppets, ◊ a fiddle, etc.",
       },
       SCRIBES_TOOLS,
       TANNERY,
@@ -343,12 +343,12 @@ export const SPECIAL_POSSESSIONS_OPTIONS: Partial<Record<PlaybookType, PlaybookS
       {
         id: 'laboratory',
         name: 'Laboratory',
-        label: '**Laboratory**: chemics, reagents, vials, measures, ◇ scales, ◇ decanters, etc. Every season, produce d4-1 uses of ◇ naphtha (*thrown*, *area*, *dangerous*, ignores armor).',
+        label: '**Laboratory**: chemics, reagents, vials, measures, ◊ scales, ◊ decanters, etc. Every season, produce d4-1 uses of ◊ naphtha (*thrown*, *area*, *dangerous*, ignores armor).',
       },
       {
         id: 'paraphernalia',
         name: 'Paraphernalia',
-        label: '**Paraphernalia**: crystals, incense, talismans, blood, bone, horn, eye of newt, ◇ braziers, ◇◇ a cauldron, etc.',
+        label: '**Paraphernalia**: crystals, incense, talismans, blood, bone, horn, eye of newt, ◊ braziers, ◊◊ a cauldron, etc.',
       },
       TRADE_CONTACTS,
       CUSTOM,
@@ -380,8 +380,8 @@ export const SPECIAL_POSSESSIONS_OPTIONS: Partial<Record<PlaybookType, PlaybookS
         selectOneSubItem: true,
         label: '**Personal token, fraught with meaning** (pick 1):',
         subItems: [
-          { id: 'shield', label: '◇◇ A shield, bearing ___\'s crest', selectable: true },
-          { id: 'wool-cloak', label: '◇ A wool cloak, woven just for you by ___', selectable: true },
+          { id: 'shield', label: '◊◊ A shield, bearing ___\'s crest', selectable: true },
+          { id: 'wool-cloak', label: '◊ A wool cloak, woven just for you by ___', selectable: true },
           { id: 'letter', label: 'A letter, spattered with tears & blood', selectable: true },
           { id: 'flute', label: 'A flute, a gift from someone you loved', selectable: true },
           { id: 'locket', label: 'A fine locket, holding a strand of hair', selectable: true },

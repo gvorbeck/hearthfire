@@ -51,8 +51,10 @@ export const CheckboxGroup = ({
   );
 
   return (
-    <div className={styles.root}>
-      {label && <Text font="serif" color="muted" leading="normal">{label}</Text>}
+    <fieldset className={styles.root}>
+      <legend className={!label ? styles.visuallyHidden : undefined}>
+        {label ? <Text font="serif" color="muted" leading="normal">{label}</Text> : 'Options'}
+      </legend>
       {pickNote && <Text size="xs" color="tertiary" italic>{pickNote}</Text>}
       <div className={gridClass}>
         {items.map(({ id, label: itemLabel, disabled: itemDisabled }) => {
@@ -69,6 +71,6 @@ export const CheckboxGroup = ({
           );
         })}
       </div>
-    </div>
+    </fieldset>
   );
 };

@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { PageMeta } from '@/components/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
-import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Modal, Radio, Icon, Text } from '@/components/primitives';
+import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Modal, Radio, RadioGroup, Icon, Text } from '@/components/primitives';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
 import { PageHeader } from '@/components/PageHeader/PageHeader';
 import { Background, RadioSelect, Appearance, PlaceOfOrigin, Stats, Moves, SpecialPossessions, Introductions, Inventory } from '@/components/CharacterSheet/sections';
@@ -184,7 +184,7 @@ const AddInsertModal = ({ open, onClose, onAdd, existingInserts }: { open: boole
   return (
     <Modal open={open} onClose={onClose} aria-labelledby={headingId}>
       <Heading as="h2" size="md" id={headingId}>Add an Insert</Heading>
-      <div className={styles.insertOptions}>
+      <RadioGroup legend="Insert type" legendHidden className={styles.insertOptions}>
         {availableOptions.map((opt) => (
           <Radio
             key={opt}
@@ -196,7 +196,7 @@ const AddInsertModal = ({ open, onClose, onAdd, existingInserts }: { open: boole
             onChange={handleSelectChange}
           />
         ))}
-      </div>
+      </RadioGroup>
       <div className={styles.insertActions}>
         <Button variant="secondary" onClick={onClose}>Cancel</Button>
         <Button variant="primary" onClick={handleAdd}>Add</Button>

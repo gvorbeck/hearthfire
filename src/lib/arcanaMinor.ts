@@ -287,7 +287,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     ],
     move: {
       name: 'Ice Weaving',
-      text: 'When you **will dark ice to form**, lose 1 HP, +1 HP for each of the following you desire:\n\n- It\'s enough to make a small wall or encase a person (else, it\'s ◇◇ at most)\n- It\'s hard as stone\n- It\'s solid to spirits, able to block/harm/hinder them\n\nThen, roll +CON: **on a 10+**, pick 2; **on a 7-9**, pick 1, or pick 2 and lose 2 more HP.\n\n- It forms quickly, even violently (else, it takes minutes, even hours)\n- It forms at up to *near* range (else, it forms at only *hand* range)\n- Its shape is as intricate as you can imagine (else, it\'s just a crude block)\n\nThe ice persists until it\'s broken, melted by intense heat, or you let it melt. You cannot regain the spent HP while it persists.',
+      text: 'When you **will dark ice to form**, lose 1 HP, +1 HP for each of the following you desire:\n\n- It\'s enough to make a small wall or encase a person (else, it\'s ◊◊ at most)\n- It\'s hard as stone\n- It\'s solid to spirits, able to block/harm/hinder them\n\nThen, roll +CON: **on a 10+**, pick 2; **on a 7-9**, pick 1, or pick 2 and lose 2 more HP.\n\n- It forms quickly, even violently (else, it takes minutes, even hours)\n- It forms at up to *near* range (else, it forms at only *hand* range)\n- Its shape is as intricate as you can imagine (else, it\'s just a crude block)\n\nThe ice persists until it\'s broken, melted by intense heat, or you let it melt. You cannot regain the spent HP while it persists.',
     },
   },
   {
@@ -352,7 +352,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     ],
     move: {
       name: 'Goldleaf Cloak',
-      subtitle: '◇, warm, magical',
+      subtitle: '◊, warm, magical',
       text: 'When you **wear a goldleaf cloak that you have tanned yourself and that has been fitted to your exact measurements**, then all of these are true:\n\n- You are immune to effects that drain, steal, or snuff out your vitality, energy, or life force.\n- You are immune to effects that calm or dampen your emotions.\n- You are surrounded by a constant golden glow (*band*, *area*), making it nearly impossible to hide.\n\nWhen you **die and are buried in the earth, wrapped in your goldleaf cloak**, you return to life as if you were buried at the roots of the Golden Oak. Your cloak, however, rots away to mulch and tatters.',
     },
   },
@@ -365,12 +365,12 @@ export const MINOR_ARCANA: MinorArcanum[] = [
       '…translate the archaic dialect.',
       '…find a portal (other than the one depicted in the missive).',
       '…determine how to "invoke the axiom of local contagion."',
-      '…acquire a ◇ pouch of powdered cinnabar (1d4+8 uses, Value 2).',
+      '…acquire a ◊ pouch of powdered cinnabar (1d4+8 uses, Value 2).',
       '…attempt casting the spell the first time, and risk miscasting it.',
     ],
     move: {
       name: 'Opening the Way',
-      subtitle: '◇ pouch of powdered cinnabar (◯◯◯ ◯◯◯ ◯◯◯ uses, Value 2)',
+      subtitle: '◊ pouch of powdered cinnabar (◯◯◯ ◯◯◯ ◯◯◯ uses, Value 2)',
       text: 'When you **use ink of powdered cinnabar to carefully trace the sigils of one portal inside the permanent sigils of another, and then invoke the axiom of local contagion**, a passage opens between the portals and remains until you leave their presence or dismiss the axiom. The sigils you drew then vanish. Passage through the portals is usually safe and instantaneous.\n\nWhen you **stand before one portal and hold the sigils of another portal perfectly in your mind**, mark a debility to manifest those sigils as lines of glowing light. When you **then invoke the axiom of local contagion**, roll +INT: **on a 10+**, the portals open, but close as soon as your focus falters; **on a 7-9**, as a 10+ but only if you mark another debility; **on a 6-**, mark a debility and pass out from the strain.',
     },
   },
@@ -726,7 +726,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
         qualities: [
           'Manifest a form of dust/snow/vapor',
           'Produce light (*area*, *reach*)',
-          'Carry/manipulate a ◇ item',
+          'Carry/manipulate a ◊ item',
           'Deliver a message',
           'Spy on someone/something',
         ],
@@ -747,7 +747,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     ],
     move: {
       name: 'Revealing Light',
-      text: 'When you **spend a day preparing the special ingredients (Value 1) according to the secret recipe**, you create a ◇ jar of magic butter (◯◯◯ ◯◯ hours).\n\nWhen you **light the lamp using the magic butter and intone the mantra**, the lamp gives off a pale, heatless light so long as you continue to chant. Within this light:\n\n- Active spirits are visible, even if they are not manifest\n- Illusions, glamours, and veils are stripped away\n- Shapechangers can be seen for what they truly are\n- Hidden things radiate a bright aura\n- Lies spoken are visible as black smoke that lingers near the ground\n\nAlas, the light draws the ire of any wraiths (or other hungry undead spirits) nearby.',
+      text: 'When you **spend a day preparing the special ingredients (Value 1) according to the secret recipe**, you create a ◊ jar of magic butter (◯◯◯ ◯◯ hours).\n\nWhen you **light the lamp using the magic butter and intone the mantra**, the lamp gives off a pale, heatless light so long as you continue to chant. Within this light:\n\n- Active spirits are visible, even if they are not manifest\n- Illusions, glamours, and veils are stripped away\n- Shapechangers can be seen for what they truly are\n- Hidden things radiate a bright aura\n- Lies spoken are visible as black smoke that lingers near the ground\n\nAlas, the light draws the ire of any wraiths (or other hungry undead spirits) nearby.',
     },
   },
   {
@@ -864,7 +864,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     ],
     move: {
       name: 'Aetherium Spear',
-      subtitle: '◇, close, thrown, magical, +1 damage',
+      subtitle: '◊, close, thrown, magical, +1 damage',
       text: 'When you **Clash with the aetherium spear and get a 7+**, you can mark a debility to blast your foe with lightning, dealing +1d6 damage (*forceful*, *loud*).\n\nWhen you **point the aetherium spear at your foes and bellow a thunderous warcry**, mark a debility and unleash a blast of lightning (*far*, *area*, *forceful*, *loud*, *dangerous*), rolling +STR to Let Fly instead of +DEX (and you cannot choose to deplete ammo). **On a 6-**, in addition to whatever else the GM says, the spearhead is drained of power and the birchwood shaft is reduced to cinders—clear the last 3 check boxes on the front of this card.',
     },
   },
@@ -917,7 +917,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     ],
     move: {
       name: 'Thunderbolt Bow',
-      subtitle: '◇, far, forceful, magical, loud, reload, ignores armor',
+      subtitle: '◊, far, forceful, magical, loud, reload, ignores armor',
       text: 'When you **speak the secret word**, the bow activates and hums ominously. When you then **wear the aetherium glove and grasp where the string should be**, a crackling line of lightning appears between the horns.\n\nWhen you **draw back the lightning**, a thunderbolt forms where an arrow should be. It manifests over the course of a deep breath, after which you can Let Fly.\n\nYou must charge the bow with lightning to replenish its ammo.\n\nWhen you **draw back the lightning for at least ten deep breathes**, depelete your ammo. Your next shot deals +1d4 damage (+*area*, +*dangerous*), but if you roll snake eyes to Let Fly, the bow explodes (3d6 damage, *reach*, *area*, *forceful*, *loud*).',
     },
   },
@@ -981,7 +981,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     ],
     move: {
       name: 'Flaming Sword',
-      subtitle: '◇, close, beautiful, +1 damage, 1 piercing',
+      subtitle: '◊, close, beautiful, +1 damage, 1 piercing',
       tracker: { label: 'Blaze', max: 4 },
       text: 'When you **call on the fire spirit within**, the blade erupts in flames (+*magical*, +*dangerous*) and casts light (*reach*, *area*). The hilt gets hot; wear thick gloves!\n\nWhen you **Clash with the Flaming Sword**, after you resolve the move and deal damage, increase the Blaze die one step.\n\nWhen you **roll to make a move while wielding the sword**, take damage equal to the Blaze die (ignores armor).\n\nWhen you **deal damage with the sword**, add the Blaze die.\n\nWhen you **sheathe the sword**, the fire goes out and cannot be relit until the Blaze die is nil. Reduce the Blaze die once each hour.',
     },
@@ -1043,14 +1043,14 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     tags: 'magical, beautiful, immobile',
     description: 'Found in a cave, a mountain, or some rocky outcrop, likely considered sacred by the locals. It looks like cloudy white quartz, but glows faintly at night.\n\nYou can unlock the mysteries of this vein and craft a talisman against the undead, but to do so you must…',
     requirements: [
-      '…personally extract a large ◇ hunk of crystal (Value 1) from the vein.',
+      '…personally extract a large ◊ hunk of crystal (Value 1) from the vein.',
       '…have a gemcutter shape and polish it into a perfect sphere (a Value 1 job).',
       '…learn the sacred words for imbuing a moonstone with light and then calling that light forth.',
       '…spend three nights under the full moon, speaking the sacred words, risking a mistake that ruins the moonstone or at least wastes your efforts this month.',
     ],
     move: {
       name: 'Moonstone',
-      subtitle: '◇, beautiful, magical, fragile',
+      subtitle: '◊, beautiful, magical, fragile',
       tracker: { label: 'hours', max: 5 },
       text: 'When you **spend a night beneath the full moon**, directing its light into the moonstone, it gains 1 hour of light (max 5).\n\nWhen you **hold the moonstone aloft in darkness and utter a sacred word**, it shines with pale white light (*area*, *near*) that shows no color, only shape and texture. The light reveals the undead, even spirits that have yet to manifest and entities masked by magic or disguise.\n\nWhen **the moonstone is your only light source and you shout the proper word**, it blazes with silvery light and all undead in range take 1d6 damage per hour of light remaining (ignores armor). The moonstone then goes dark, its light expended until you charge it again.',
     },
@@ -1156,7 +1156,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     ],
     move: {
       name: 'The Silver Branch',
-      subtitle: '◇, magical, beautiful',
+      subtitle: '◊, magical, beautiful',
       text: 'A few feet long, laden with white flowers and jingling golden fruits. Surprisingly sturdy, and stays fresh indefinitely unless its powers are used. Only one such branch can leave the Fae domain at a time.\n\nWhen you **jingle the silver branch**, all who hear it (*reach*, *area* except you) are filled with bliss and forget their woes for a few hours. Roll +CHA: **on a 10+**, pick 1; **on a 7-9**, pick 1 and the GM picks another; **on a 6-**, all 3.\n\n- The branch starts to fade; if already fading, it goes bare, its powers gone\n- Some (GM\'s choice of who) are blissed out for days or weeks, growing weak and wretched in the meantime\n- Some (GM\'s choice of who) become obsessed with hearing it jingle again',
     },
   },

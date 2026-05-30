@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, memo } from 'react';
-import { Radio, Text, useToast } from '@/components/primitives';
+import { Radio, RadioGroup, Text, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
 import type { PlaceOfOriginOptions } from '@/lib/placeOfOriginOptions';
 import type { CharacterData } from '@/types';
@@ -93,7 +93,7 @@ export const PlaceOfOrigin = ({ options, data, onSave }: PlaceOfOriginProps = {}
             Stonetop is your home, or close enough, but where are you (or your family) from originally?
             Pick an origin, then choose a matching name or make up your own — edit it in the header above.
           </Text>
-          <div className={styles.options}>
+          <RadioGroup legend="Place of Origin" legendHidden className={styles.options}>
             {options.map((opt) => (
               <OriginOption
                 key={opt.value}
@@ -102,7 +102,7 @@ export const PlaceOfOrigin = ({ options, data, onSave }: PlaceOfOriginProps = {}
                 onSelect={handleSelect}
               />
             ))}
-          </div>
+          </RadioGroup>
         </>
       )}
     </PlaybookSection>

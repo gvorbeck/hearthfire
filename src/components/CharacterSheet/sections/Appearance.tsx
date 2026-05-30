@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
-import { Checkbox, Radio, Text, useToast } from '@/components/primitives';
+import { Checkbox, Radio, RadioGroup, Text, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
 import type { AppearanceRows } from '@/lib/appearanceOptions';
 import type { CharacterData } from '@/types';
@@ -109,8 +109,8 @@ export const Appearance = ({ rows, data, onSave }: AppearanceProps = {}) => {
       ) : (
         <div className={styles.rows}>
           {rows.map((options, rowIndex) => (
-            <div key={rowIndex} className={styles.row}>
-              <div className={styles.options}>
+            <div key={options[0]} className={styles.row}>
+              <RadioGroup legend={options.join(', ')} legendHidden className={styles.options}>
                 {options.map((opt) => (
                   <Radio
                     key={opt}
@@ -123,7 +123,7 @@ export const Appearance = ({ rows, data, onSave }: AppearanceProps = {}) => {
                     label={<span className={styles.optionLabel}>{opt}</span>}
                   />
                 ))}
-              </div>
+              </RadioGroup>
             </div>
           ))}
           <div className={styles.row}>
