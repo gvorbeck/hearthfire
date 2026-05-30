@@ -46,7 +46,9 @@ export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) =>
   }, [data]);
 
   const handleIs = useCallback(
-    (key: string, value: string) => {
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const key = e.currentTarget.dataset.key!;
+      const value = e.currentTarget.value;
       const prev = isRef.current;
       const next = { ...prev, [key]: value };
       setIs(next);
@@ -56,7 +58,8 @@ export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) =>
   );
 
   const handleTrait = useCallback(
-    (value: string) => {
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.currentTarget.value;
       const prev = traitRef.current;
       setTrait(value);
       onSave(featurePatch(data, { sacredPouchTrait: value })).catch(() => { setTrait(prev); addToast('Failed to save.'); });
@@ -82,18 +85,21 @@ export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) =>
         <Text as="p" size="xs" color="muted" className={styles.instruction}>Your sacred pouch is… (choose 1 on each line)</Text>
         <div className={styles.isLines}>
           {IS_LINES.map((line) => (
-            <RadioGroup key={line.key} legend={line.label} legendHidden className={styles.optionRow}>
-              {line.options.map((opt) => (
-                <Radio
-                  key={opt}
-                  name={`sacred-pouch-is-${line.key}`}
-                  value={opt}
-                  checked={is[line.key] === opt}
-                  onChange={() => handleIs(line.key, opt)}
-                  label={<span className={styles.optionLabel}>{opt}</span>}
-                />
-              ))}
-            </RadioGroup>
+            <div key={line.key} className={styles.isRow}>
+              <RadioGroup legend={line.label} legendHidden className={styles.optionRow}>
+                {line.options.map((opt) => (
+                  <Radio
+                    key={opt}
+                    name={`sacred-pouch-is-${line.key}`}
+                    value={opt}
+                    data-key={line.key}
+                    checked={is[line.key] === opt}
+                    onChange={handleIs}
+                    label={<span className={styles.optionLabel}>{opt}</span>}
+                  />
+                ))}
+              </RadioGroup>
+            </div>
           ))}
         </div>
 
@@ -107,7 +113,7 @@ export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) =>
               name="sacred-pouch-trait"
               value={t}
               checked={trait === t}
-              onChange={() => handleTrait(t)}
+              onChange={handleTrait}
               label={<span className={styles.optionLabel}>{t}</span>}
             />
           ))}
