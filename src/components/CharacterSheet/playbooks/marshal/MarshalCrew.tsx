@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback, useRef, memo } from 'react';
 import clsx from 'clsx';
-import { Checkbox, CheckboxGroup, Divider, Input, Radio, Text, UseDots, useToast } from '@/components/primitives';
+import { Checkbox, CheckboxGroup, Divider, Input, Text, UseDots, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
-import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
+import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
+import { RadioSelect } from '../../sections/RadioSelect';
+import type { InstinctOption } from '@/lib/instinctOptions';
 import { useCrewSave } from '../shared/useCrewSave';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { CharacterData } from '@/types';
@@ -28,21 +30,21 @@ const TAG_ITEMS = [
   { id: 'warriors', label: 'warriors' },
 ];
 
-const INSTINCT_OPTIONS = [
-  'To bicker, infight, and hold grudges',
-  'To hew to tradition and superstition',
-  'To indulge their baser instincts',
-  'To lord over others',
-  'To take needless risks',
-  'To take things too far',
+const INSTINCT_OPTIONS: InstinctOption[] = [
+  { value: 'To bicker, infight, and hold grudges', label: 'To bicker, infight, and hold grudges', description: '' },
+  { value: 'To hew to tradition and superstition', label: 'To hew to tradition and superstition', description: '' },
+  { value: 'To indulge their baser instincts', label: 'To indulge their baser instincts', description: '' },
+  { value: 'To lord over others', label: 'To lord over others', description: '' },
+  { value: 'To take needless risks', label: 'To take needless risks', description: '' },
+  { value: 'To take things too far', label: 'To take things too far', description: '' },
 ];
 
-const COST_OPTIONS = [
-  'Merry-making, as a group',
-  'Public recognition and respect, honor',
-  'Risks taken, by you, to help them',
-  'Victories won against worthy foes',
-  'Wealth gained for themselves or Stonetop',
+const COST_OPTIONS: InstinctOption[] = [
+  { value: 'Merry-making, as a group', label: 'Merry-making, as a group', description: '' },
+  { value: 'Public recognition and respect, honor', label: 'Public recognition and respect, honor', description: '' },
+  { value: 'Risks taken, by you, to help them', label: 'Risks taken, by you, to help them', description: '' },
+  { value: 'Victories won against worthy foes', label: 'Victories won against worthy foes', description: '' },
+  { value: 'Wealth gained for themselves or Stonetop', label: 'Wealth gained for themselves or Stonetop', description: '' },
 ];
 
 interface InventoryItem {
@@ -214,14 +216,6 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
   const [armor, setArmor] = useState<string>(() => features.crewArmor ?? '0');
   const [tags, setTags] = useState<Record<string, boolean>>(() => ({ group: true, ...(features.crewTags ?? {}) }));
   const [tagsCustom, setTagsCustom] = useState<string[]>(() => (features.crewTagsCustom ?? ['', '']).slice(0, 2));
-  const [instinct, setInstinct] = useState<string>(() => features.crewInstinct ?? '');
-  const [instinctCustom, setInstinctCustom] = useState<string>(() => features.crewInstinctCustom ?? '');
-  const [cost, setCost] = useState<string>(() => features.crewCost ?? '');
-  const [costCustom, setCostCustom] = useState<string>(() => features.crewCostCustom ?? '');
-  const [isInstinctCollapsed, setIsInstinctCollapsed] = useState(false);
-  const hasInitInstinctCollapse = useRef(false);
-  const [isCostCollapsed, setIsCostCollapsed] = useState(false);
-  const hasInitCostCollapse = useRef(false);
   const [loyalty, setLoyalty] = useState<number>(() => features.crewLoyalty ?? 0);
   const [inventoryChecked, setInventoryChecked] = useState<Record<string, boolean>>(() => features.crewInventoryChecked ?? {});
   const [customItems, setCustomItems] = useState<{ checked: boolean; text: string }[]>(() =>
@@ -238,14 +232,6 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
   tagsRef.current = tags;
   const tagsCustomRef = useRef(tagsCustom);
   tagsCustomRef.current = tagsCustom;
-  const instinctRef = useRef(instinct);
-  instinctRef.current = instinct;
-  const instinctCustomRef = useRef(instinctCustom);
-  instinctCustomRef.current = instinctCustom;
-  const costRef = useRef(cost);
-  costRef.current = cost;
-  const costCustomRef = useRef(costCustom);
-  costCustomRef.current = costCustom;
   const loyaltyRef = useRef(loyalty);
   loyaltyRef.current = loyalty;
   const inventoryCheckedRef = useRef(inventoryChecked);
@@ -263,10 +249,6 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
     if (f.crewArmor !== undefined) setArmor(f.crewArmor);
     if (f.crewTags !== undefined) setTags({ group: true, ...f.crewTags });
     if (f.crewTagsCustom !== undefined) setTagsCustom(f.crewTagsCustom.slice(0, 2));
-    if (f.crewInstinct !== undefined) setInstinct(f.crewInstinct);
-    if (f.crewInstinctCustom !== undefined) setInstinctCustom(f.crewInstinctCustom);
-    if (f.crewCost !== undefined) setCost(f.crewCost);
-    if (f.crewCostCustom !== undefined) setCostCustom(f.crewCostCustom);
     if (f.crewLoyalty !== undefined) setLoyalty(f.crewLoyalty);
     if (f.crewInventoryChecked !== undefined) setInventoryChecked(f.crewInventoryChecked);
     if (f.crewCustomItems !== undefined) setCustomItems(normalizeCustomItems(f.crewCustomItems));
@@ -322,79 +304,6 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
     flushDebounce({ crewTagsCustom: tagsCustomRef.current }).catch(() => addToast('Failed to save.'));
   }, [flushDebounce, addToast]);
 
-  useEffect(() => {
-    if (instinct && !hasInitInstinctCollapse.current) {
-      hasInitInstinctCollapse.current = true;
-      setIsInstinctCollapsed(true);
-    }
-  }, [instinct]);
-
-  useEffect(() => {
-    if (cost && !hasInitCostCollapse.current) {
-      hasInitCostCollapse.current = true;
-      setIsCostCollapsed(true);
-    }
-  }, [cost]);
-
-  const handleToggleInstinctCollapse = useCallback(() => setIsInstinctCollapsed((v) => !v), []);
-  const handleToggleCostCollapse = useCallback(() => setIsCostCollapsed((v) => !v), []);
-
-  const handleInstinctChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    const prevInstinct = instinctRef.current;
-    const prevInstinctCustom = instinctCustomRef.current;
-    setInstinct(val);
-    setInstinctCustom('');
-    setIsInstinctCollapsed(true);
-    saveImmediate({ crewInstinct: val, crewInstinctCustom: '' }).catch(() => {
-      setInstinct(prevInstinct);
-      setInstinctCustom(prevInstinctCustom);
-      setIsInstinctCollapsed(false);
-      addToast('Failed to save.');
-    });
-  }, [saveImmediate, addToast]);
-
-  const handleInstinctCustomFocus = useCallback(() => setInstinct('custom'), []);
-
-  const handleInstinctCustomChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setInstinct('custom');
-    setInstinctCustom(val);
-    saveDebounced({ crewInstinct: 'custom', crewInstinctCustom: val }, () => addToast('Failed to save.'));
-  }, [saveDebounced, addToast]);
-
-  const handleInstinctCustomBlur = useCallback(() => {
-    flushDebounce({ crewInstinct: 'custom', crewInstinctCustom: instinctCustomRef.current }).catch(() => addToast('Failed to save.'));
-  }, [flushDebounce, addToast]);
-
-  const handleCostChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    const prevCost = costRef.current;
-    const prevCostCustom = costCustomRef.current;
-    setCost(val);
-    setCostCustom('');
-    setIsCostCollapsed(true);
-    saveImmediate({ crewCost: val, crewCostCustom: '' }).catch(() => {
-      setCost(prevCost);
-      setCostCustom(prevCostCustom);
-      setIsCostCollapsed(false);
-      addToast('Failed to save.');
-    });
-  }, [saveImmediate, addToast]);
-
-  const handleCostCustomFocus = useCallback(() => setCost('custom'), []);
-
-  const handleCostCustomChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setCost('custom');
-    setCostCustom(val);
-    saveDebounced({ crewCost: 'custom', crewCostCustom: val }, () => addToast('Failed to save.'));
-  }, [saveDebounced, addToast]);
-
-  const handleCostCustomBlur = useCallback(() => {
-    flushDebounce({ crewCost: 'custom', crewCostCustom: costCustomRef.current }).catch(() => addToast('Failed to save.'));
-  }, [flushDebounce, addToast]);
-
   const handleLoyaltyChange = useCallback((n: number) => {
     const prev = loyaltyRef.current;
     setLoyalty(n);
@@ -443,15 +352,13 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
     flushDebounce({ crewIndividuals: individualsRef.current }).catch(() => addToast('Failed to save.'));
   }, [flushDebounce, addToast]);
 
-  const instinctOptionsVisible = isInstinctCollapsed && instinct && instinct !== 'custom'
-    ? INSTINCT_OPTIONS.filter((opt) => opt === instinct)
-    : INSTINCT_OPTIONS;
-  const showInstinctCustom = !isInstinctCollapsed || instinct === 'custom';
+  const handleCrewInstinctSave = useCallback((patch: Partial<CharacterData>) => {
+    return onSave(featurePatch(data, { crewInstinct: patch.instinct, crewInstinctCustom: patch.instinctCustom }));
+  }, [data, onSave]);
 
-  const costOptionsVisible = isCostCollapsed && cost && cost !== 'custom'
-    ? COST_OPTIONS.filter((opt) => opt === cost)
-    : COST_OPTIONS;
-  const showCostCustom = !isCostCollapsed || cost === 'custom';
+  const handleCrewCostSave = useCallback((patch: Partial<CharacterData>) => {
+    return onSave(featurePatch(data, { crewCost: patch.instinct, crewCostCustom: patch.instinctCustom }));
+  }, [data, onSave]);
 
   const hasHeroesToTheLast = data?.typeMoves?.['marshal-heroes-to-the-last'] === true;
   const isExceptional = data?.typeMoveCheckList?.['marshal-heroes-to-the-last']?.['marshal-httl-exceptional'] === true;
@@ -557,97 +464,25 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
       </PlaybookSection>
 
       <div className={styles.columns}>
-        <PlaybookSection
-          title="Instinct"
-          choose={1}
-          warn={!instinct}
-          collapsible={!!instinct}
-          isCollapsed={isInstinctCollapsed}
-          onToggleCollapse={handleToggleInstinctCollapse}
-        >
-          <div className={styles.radioList}>
-            {instinctOptionsVisible.map((opt) => (
-              <Radio
-                key={opt}
-                name="crew-instinct"
-                value={opt}
-                checked={instinct === opt}
-                onChange={handleInstinctChange}
-                label={<span className={styles.radioLabel}>{opt}</span>}
-              />
-            ))}
-            {showInstinctCustom && (
-              <div className={styles.radioCustomRow}>
-                <Radio
-                  name="crew-instinct"
-                  value="custom"
-                  checked={instinct === 'custom'}
-                  onChange={handleInstinctChange}
-                  label={null}
-                  aria-label="Custom instinct"
-                />
-                <Input
-                  type="text"
-                  className={styles.inlineTextInput}
-                  value={instinctCustom}
-                  placeholder="Custom instinct…"
-                  aria-label="Custom instinct"
-                  onFocus={handleInstinctCustomFocus}
-                  onChange={handleInstinctCustomChange}
-                  onBlur={handleInstinctCustomBlur}
-                />
-              </div>
-            )}
-          </div>
-        </PlaybookSection>
-
-        <PlaybookSection
+        <RadioSelect
+          playbookKey="marshal-crew"
+          options={INSTINCT_OPTIONS}
+          data={{ instinct: features.crewInstinct === 'custom' ? '__custom__' : (features.crewInstinct ?? ''), instinctCustom: features.crewInstinctCustom ?? '' } as CharacterData}
+          onSave={handleCrewInstinctSave}
+        />
+        <RadioSelect
+          playbookKey="marshal-crew-cost"
           title="Cost"
-          choose={1}
-          warn={!cost}
-          collapsible={!!cost}
-          isCollapsed={isCostCollapsed}
-          onToggleCollapse={handleToggleCostCollapse}
-        >
-          <div className={styles.loyaltyRow}>
-            <span className={styles.loyaltyLabel}>Loyalty</span>
-            <UseDots total={3} checked={loyalty} onChange={handleLoyaltyChange} />
-          </div>
-          <div className={styles.radioList}>
-            {costOptionsVisible.map((opt) => (
-              <Radio
-                key={opt}
-                name="crew-cost"
-                value={opt}
-                checked={cost === opt}
-                onChange={handleCostChange}
-                label={<span className={styles.radioLabel}>{opt}</span>}
-              />
-            ))}
-            {showCostCustom && (
-              <div className={styles.radioCustomRow}>
-                <Radio
-                  name="crew-cost"
-                  value="custom"
-                  checked={cost === 'custom'}
-                  onChange={handleCostChange}
-                  label={null}
-                  aria-label="Custom cost"
-                />
-                <Input
-                  type="text"
-                  className={styles.inlineTextInput}
-                  value={costCustom}
-                  placeholder="Custom cost…"
-                  aria-label="Custom cost"
-                  onFocus={handleCostCustomFocus}
-                  onChange={handleCostCustomChange}
-                  onBlur={handleCostCustomBlur}
-                />
-              </div>
-            )}
-          </div>
-        </PlaybookSection>
+          options={COST_OPTIONS}
+          data={{ instinct: features.crewCost === 'custom' ? '__custom__' : (features.crewCost ?? ''), instinctCustom: features.crewCostCustom ?? '' } as CharacterData}
+          onSave={handleCrewCostSave}
+          header={
+            <div className={styles.loyaltyRow}>
+              <span className={styles.loyaltyLabel}>Loyalty</span>
+              <UseDots total={3} checked={loyalty} onChange={handleLoyaltyChange} />
+            </div>
+          }
+        />
       </div>
 
       <PlaybookSection title="Inventory">

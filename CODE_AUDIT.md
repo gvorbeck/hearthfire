@@ -82,15 +82,11 @@ Marshal Crew and Followers are two of the most data-heavy sheets. A silent save 
 
 ## Low — Polish
 
-### 4. Instinct/Cost radio-with-custom is duplicated across Ranger and Marshal
+### ~~4. Instinct/Cost radio-with-custom is duplicated across Ranger and Marshal~~
 
-**Files:** `src/components/CharacterSheet/playbooks/ranger/AnimalInstinct.tsx`, `src/components/CharacterSheet/playbooks/ranger/AnimalCost.tsx`, `src/components/CharacterSheet/playbooks/marshal/MarshalCrew.tsx:332–372`
+~~**Files:** `src/components/CharacterSheet/playbooks/ranger/AnimalInstinct.tsx`, `src/components/CharacterSheet/playbooks/ranger/AnimalCost.tsx`, `src/components/CharacterSheet/playbooks/marshal/MarshalCrew.tsx:332–372`~~
 
-The pattern — preset radio options plus a "custom" radio that reveals a freetext input, collapsing on selection — is implemented identically in both playbooks. The handler logic in `RangerAnimalCompanion.tsx` and `MarshalCrew.tsx` is also structurally identical: `handleXChange`, `handleXCustomFocus`, `handleXCustomChange`, `handleXCustomBlur`, and a collapse effect triggered when the value is first set.
-
-This isn't a premature abstraction candidate — the pattern is already duplicated, fully realized, across two production components. A bug in the collapse logic or the custom-input focus behavior requires two fixes.
-
-**Fix:** Extract to a shared `RadioWithCustomInput` presentational component (taking `options`, `value`, `customValue`, and the four handlers as props) and a `useRadioWithCustom` hook (encapsulating the state and handlers). The Ranger and Marshal components become thin consumers. The `AnimalInstinct` and `AnimalCost` sub-components already have the right shape — the hook just needs to be pulled out of each parent.
+**Resolved:** `AnimalInstinct.tsx` and `AnimalCost.tsx` deleted. The existing `Instinct` component (renamed `RadioSelect`) is now used directly by both `RangerAnimalCompanion` and `MarshalCrew` via adapter `onSave` callbacks. No duplication remains.
 
 ---
 
@@ -109,7 +105,7 @@ This isn't a premature abstraction candidate — the pattern is already duplicat
 | P1       | `Input` has no keyboard focus indicator                                  | `src/components/primitives/Input/Input.module.css`        |
 | ~~P1~~   | ~~`Button` has no keyboard focus indicator~~                             | ~~`src/components/primitives/Button/Button.module.css`~~  |
 | P2       | Marshal/Followers save calls have no error handling                      | `MarshalCrew.tsx`, `FollowersInsert.tsx`                  |
-| P3       | Instinct/Cost radio-with-custom pattern is duplicated                    | `AnimalInstinct.tsx`, `AnimalCost.tsx`, `MarshalCrew.tsx` |
+| ~~P3~~   | ~~Instinct/Cost radio-with-custom pattern is duplicated~~                | ~~`AnimalInstinct.tsx`, `AnimalCost.tsx`, `MarshalCrew.tsx`~~ |
 
 ---
 

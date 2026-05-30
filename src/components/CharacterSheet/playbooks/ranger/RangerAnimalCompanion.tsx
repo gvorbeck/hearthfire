@@ -1,14 +1,34 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
+import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import { useCrewSave } from '../shared/useCrewSave';
 import { useTrackedField } from '../shared/useTrackedField';
 import { ANIMAL_TYPES, AnimalType } from './AnimalType';
 import { AnimalStats } from './AnimalStats';
-import { AnimalInstinct } from './AnimalInstinct';
-import { AnimalCost } from './AnimalCost';
+import { RadioSelect } from '../../sections/RadioSelect';
 import { BeastOfLegend } from './BeastOfLegend';
+import { Text, UseDots } from '@/components/primitives';
 import type { CharacterData } from '@/types';
+import type { InstinctOption } from '@/lib/instinctOptions';
 import styles from './RangerAnimalCompanion.module.css';
+
+const ANIMAL_INSTINCT_OPTIONS: InstinctOption[] = [
+  { value: 'To bully and threaten', label: 'To bully and threaten', description: '' },
+  { value: 'To fill its belly', label: 'To fill its belly', description: '' },
+  { value: 'To get distracted', label: 'To get distracted', description: '' },
+  { value: 'To give chase', label: 'To give chase', description: '' },
+  { value: 'To make mischief', label: 'To make mischief', description: '' },
+  { value: 'To startle and panic', label: 'To startle and panic', description: '' },
+  { value: 'To run rampant', label: 'To run rampant', description: '' },
+];
+
+const ANIMAL_COST_OPTIONS: InstinctOption[] = [
+  { value: 'Play, grooming, training, affection', label: 'Play, grooming, training, affection', description: '' },
+  { value: 'Time off on its own, free to roam', label: 'Time off on its own, free to roam', description: '' },
+  { value: 'Cozy quarters, comfort, ample food', label: 'Cozy quarters, comfort, ample food', description: '' },
+];
+
+// Old Firestore records stored 'custom'; RadioSelect requires '__custom__'.
+const toInstinctSentinel = (v: string | undefined) => v === 'custom' ? '__custom__' : (v ?? '');
 
 interface RangerAnimalCompanionProps {
   data: CharacterData | undefined;
@@ -35,25 +55,13 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
   const [typePicks, setTypePicks] = useState<Record<string, boolean>>(initialFeatures.animalTypePicks ?? {});
   const [typeCustom, setTypeCustom] = useState<Record<string, string>>(initialFeatures.animalTypeCustom ?? {});
   const [typeCustomChecked, setTypeCustomChecked] = useState<Record<string, boolean>>(initialFeatures.animalTypeCustomChecked ?? {});
-  const [instinct, setInstinct] = useState<string>(initialFeatures.animalInstinct ?? '');
-  const [instinctCustom, setInstinctCustom] = useState<string>(initialFeatures.animalInstinctCustom ?? '');
-  const [cost, setCost] = useState<string>(initialFeatures.animalCost ?? '');
-  const [costCustom, setCostCustom] = useState<string>(initialFeatures.animalCostCustom ?? '');
   const typeCustomRef = useRef(typeCustom);
   typeCustomRef.current = typeCustom;
-  const instinctCustomRef = useRef(instinctCustom);
-  instinctCustomRef.current = instinctCustom;
-  const costCustomRef = useRef(costCustom);
-  costCustomRef.current = costCustom;
   const [loyalty, setLoyalty] = useState<number>(initialFeatures.animalLoyalty ?? 0);
   const [beastOfLegend, setBeastOfLegend] = useState<Record<string, boolean>>(initialFeatures.animalBeastOfLegend ?? {});
 
   const [typeCollapsed, setTypeCollapsed] = useState(false);
   const hasInitializedTypeCollapse = useRef(false);
-  const [instinctCollapsed, setInstinctCollapsed] = useState(false);
-  const hasInitializedInstinctCollapse = useRef(false);
-  const [costCollapsed, setCostCollapsed] = useState(false);
-  const hasInitializedCostCollapse = useRef(false);
 
   useEffect(() => {
     const f = resolvePlaybookFeatures(data);
@@ -65,8 +73,6 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
     if (f.animalType !== undefined) setAnimalType(f.animalType);
     if (f.animalTypePicks !== undefined) setTypePicks(f.animalTypePicks);
     if (f.animalTypeCustomChecked !== undefined) setTypeCustomChecked(f.animalTypeCustomChecked);
-    if (f.animalInstinct !== undefined) setInstinct(f.animalInstinct);
-    if (f.animalCost !== undefined) setCost(f.animalCost);
     if (f.animalLoyalty !== undefined) setLoyalty(f.animalLoyalty);
     if (f.animalBeastOfLegend !== undefined) setBeastOfLegend(f.animalBeastOfLegend);
   }, [data]);
@@ -77,20 +83,6 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
       setTypeCollapsed(true);
     }
   }, [animalType]);
-
-  useEffect(() => {
-    if (instinct && !hasInitializedInstinctCollapse.current) {
-      hasInitializedInstinctCollapse.current = true;
-      setInstinctCollapsed(true);
-    }
-  }, [instinct]);
-
-  useEffect(() => {
-    if (cost && !hasInitializedCostCollapse.current) {
-      hasInitializedCostCollapse.current = true;
-      setCostCollapsed(true);
-    }
-  }, [cost]);
 
   const handleTypeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -135,46 +127,6 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
     });
   }, [saveImmediate]);
 
-  const handleInstinctChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setInstinct(val);
-    setInstinctCustom('');
-    saveImmediate({ animalInstinct: val, animalInstinctCustom: '' });
-  }, [saveImmediate]);
-
-  const handleInstinctCustomFocus = useCallback(() => setInstinct('custom'), []);
-
-  const handleInstinctCustomChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setInstinct('custom');
-    setInstinctCustom(val);
-    saveDebounced({ animalInstinct: 'custom', animalInstinctCustom: val });
-  }, [saveDebounced]);
-
-  const handleInstinctCustomBlur = useCallback(() => {
-    flushDebounce({ animalInstinct: 'custom', animalInstinctCustom: instinctCustomRef.current });
-  }, [flushDebounce]);
-
-  const handleCostChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setCost(val);
-    setCostCustom('');
-    saveImmediate({ animalCost: val, animalCostCustom: '' });
-  }, [saveImmediate]);
-
-  const handleCostCustomFocus = useCallback(() => setCost('custom'), []);
-
-  const handleCostCustomChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setCost('custom');
-    setCostCustom(val);
-    saveDebounced({ animalCost: 'custom', animalCostCustom: val });
-  }, [saveDebounced]);
-
-  const handleCostCustomBlur = useCallback(() => {
-    flushDebounce({ animalCost: 'custom', animalCostCustom: costCustomRef.current });
-  }, [flushDebounce]);
-
   const handleLoyaltyChange = useCallback((n: number) => {
     setLoyalty(n);
     saveImmediate({ animalLoyalty: n });
@@ -189,8 +141,26 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
   }, [saveImmediate]);
 
   const handleToggleTypeCollapse = useCallback(() => setTypeCollapsed((v) => !v), []);
-  const handleToggleInstinctCollapse = useCallback(() => setInstinctCollapsed((v) => !v), []);
-  const handleToggleCostCollapse = useCallback(() => setCostCollapsed((v) => !v), []);
+
+  const handleInstinctSave = useCallback((patch: Partial<CharacterData>) => {
+    return onSave(featurePatch(data, { animalInstinct: patch.instinct, animalInstinctCustom: patch.instinctCustom }));
+  }, [data, onSave]);
+
+  const handleCostSave = useCallback((patch: Partial<CharacterData>) => {
+    return onSave(featurePatch(data, { animalCost: patch.instinct, animalCostCustom: patch.instinctCustom }));
+  }, [data, onSave]);
+
+  const features = resolvePlaybookFeatures(data);
+
+  const instinctData = {
+    instinct: toInstinctSentinel(features.animalInstinct),
+    instinctCustom: features.animalInstinctCustom ?? '',
+  } as CharacterData;
+
+  const costData = {
+    instinct: toInstinctSentinel(features.animalCost),
+    instinctCustom: features.animalCostCustom ?? '',
+  } as CharacterData;
 
   const selectedTypeConfig = ANIMAL_TYPES.find((t) => t.id === animalType);
 
@@ -228,27 +198,24 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
         onToggleCollapse={handleToggleTypeCollapse}
       />
       <div className={styles.columns}>
-        <AnimalInstinct
-          instinct={instinct}
-          instinctCustom={instinctCustom}
-          instinctCollapsed={instinctCollapsed}
-          onInstinctChange={handleInstinctChange}
-          onInstinctCustomFocus={handleInstinctCustomFocus}
-          onInstinctCustomChange={handleInstinctCustomChange}
-          onInstinctCustomBlur={handleInstinctCustomBlur}
-          onToggleCollapse={handleToggleInstinctCollapse}
+        <RadioSelect
+          playbookKey="ranger-animal"
+          options={ANIMAL_INSTINCT_OPTIONS}
+          data={instinctData}
+          onSave={handleInstinctSave}
         />
-        <AnimalCost
-          cost={cost}
-          costCustom={costCustom}
-          loyalty={loyalty}
-          costCollapsed={costCollapsed}
-          onCostChange={handleCostChange}
-          onCostCustomFocus={handleCostCustomFocus}
-          onCostCustomChange={handleCostCustomChange}
-          onCostCustomBlur={handleCostCustomBlur}
-          onLoyaltyChange={handleLoyaltyChange}
-          onToggleCollapse={handleToggleCostCollapse}
+        <RadioSelect
+          playbookKey="ranger-animal-cost"
+          title="Cost"
+          options={ANIMAL_COST_OPTIONS}
+          data={costData}
+          onSave={handleCostSave}
+          header={
+            <div className={styles.loyaltyRow}>
+              <Text as="span" size="sm" color="muted" className={styles.loyaltyLabel}>Loyalty</Text>
+              <UseDots total={3} checked={loyalty} onChange={handleLoyaltyChange} />
+            </div>
+          }
         />
       </div>
       <BeastOfLegend

@@ -4,12 +4,14 @@ import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import { PlaybookSection } from '../PlaybookSection';
 import type { InstinctOption } from '@/lib/instinctOptions';
 import type { CharacterData } from '@/types';
-import styles from './Instinct.module.css';
+import styles from './RadioSelect.module.css';
 
 const CUSTOM_VALUE = '__custom__';
 
-interface InstinctProps {
+interface RadioSelectProps {
   playbookKey?: string;
+  title?: string;
+  header?: React.ReactNode;
   options?: InstinctOption[];
   data?: CharacterData;
   onSave?: (data: Partial<CharacterData>) => Promise<void>;
@@ -21,7 +23,7 @@ const syncTextareaHeight = (el: HTMLTextAreaElement) => {
   el.style.height = `${el.scrollHeight}px`;
 };
 
-export const Instinct = ({ playbookKey, options, data, onSave, overrideNote }: InstinctProps = {}) => {
+export const RadioSelect = ({ playbookKey, title = 'Instinct', header, options, data, onSave, overrideNote }: RadioSelectProps = {}) => {
   const [selected, setSelected] = useState<string>(data?.instinct ?? '');
   const [customText, setCustomText] = useState<string>(data?.instinctCustom ?? '');
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -34,7 +36,10 @@ export const Instinct = ({ playbookKey, options, data, onSave, overrideNote }: I
     if (data?.instinct !== undefined) setSelected(data.instinct);
   }, [data?.instinct]);
 
-  // Collapse once on the first Firestore load that has a selection; never re-collapse after that.
+  useEffect(() => {
+    if (data?.instinctCustom !== undefined) setCustomText(data.instinctCustom);
+  }, [data?.instinctCustom]);
+
   useEffect(() => {
     if (data?.instinct && !hasInitializedCollapse.current) {
       hasInitializedCollapse.current = true;
@@ -48,7 +53,6 @@ export const Instinct = ({ playbookKey, options, data, onSave, overrideNote }: I
     syncTextareaHeight(el);
   }, [customText]);
 
-  // Sync height on mount when customText is pre-populated from Firestore.
   useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
@@ -84,7 +88,7 @@ export const Instinct = ({ playbookKey, options, data, onSave, overrideNote }: I
     flushOnBlur(customTextRef.current);
   }, [flushOnBlur]);
 
-  if (!options) return <PlaybookSection title="Instinct" overrideNote={overrideNote} />;
+  if (!options) return <PlaybookSection title={title} overrideNote={overrideNote} />;
 
   const warn = !selected || (selected === CUSTOM_VALUE && !customText.trim());
   const hasSelection = !!selected && (selected !== CUSTOM_VALUE || !!customText.trim());
@@ -96,19 +100,21 @@ export const Instinct = ({ playbookKey, options, data, onSave, overrideNote }: I
   const showCustom = !isCollapsed || selected === CUSTOM_VALUE;
 
   if (overrideNote) {
-    return <PlaybookSection title="Instinct" overrideNote={overrideNote} />;
+    return <PlaybookSection title={title} overrideNote={overrideNote} />;
   }
 
   return (
     <PlaybookSection
-      title="Instinct"
+      title={title}
       choose={1}
       warn={warn}
       collapsible={hasSelection}
       isCollapsed={isCollapsed}
       onToggleCollapse={handleToggleCollapse}
+      forceChildren
       overrideNote={overrideNote}
     >
+      {header}
       <div className={styles.options}>
         {visibleOptions.map((opt) => (
           <div key={opt.value} className={styles.option}>
@@ -121,7 +127,7 @@ export const Instinct = ({ playbookKey, options, data, onSave, overrideNote }: I
               label={
                 <span className={styles.optionLabel}>
                   <span className={styles.optionTitle}>{opt.label}</span>
-                  <span className={styles.optionDesc}>{opt.description}</span>
+                  {opt.description && <span className={styles.optionDesc}>{opt.description}</span>}
                 </span>
               }
             />
@@ -137,7 +143,6 @@ export const Instinct = ({ playbookKey, options, data, onSave, overrideNote }: I
               onChange={handleSelect}
               label={
                 selected === CUSTOM_VALUE ? (
-                  // stopPropagation prevents the label click from re-toggling the radio when the user clicks into the text field
                   <Input
                     multiline
                     ref={textareaRef}

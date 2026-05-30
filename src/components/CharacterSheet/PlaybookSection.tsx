@@ -11,15 +11,11 @@ interface PlaybookSectionProps {
   chooseNote?: string;
   warn?: boolean;
   warnText?: string;
-  /**
-   * When true without onToggleCollapse, the section manages its own open/closed state (uncontrolled).
-   * When true with onToggleCollapse, the caller controls state (controlled). Do not switch modes after mount.
-   */
   collapsible?: boolean;
-  /** Honored only on first render; changes after mount are ignored. */
   defaultOpen?: boolean;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+  forceChildren?: boolean;
   overrideNote?: string;
   children?: React.ReactNode;
 }
@@ -34,6 +30,7 @@ export const PlaybookSection = ({
   defaultOpen = true,
   isCollapsed,
   onToggleCollapse,
+  forceChildren,
   overrideNote,
   children,
 }: PlaybookSectionProps) => {
@@ -84,7 +81,7 @@ export const PlaybookSection = ({
           </Button>
         )}
       </div>
-      {!collapsed && children}
+      {(!collapsed || forceChildren) && children}
     </section>
   );
 };
