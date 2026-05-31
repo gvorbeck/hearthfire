@@ -36,7 +36,7 @@ const ToastEntry = ({
   const handleDismissItem = useCallback(() => onDismiss(item.id), [onDismiss, item.id]);
 
   return (
-    <div role="alert" aria-live="assertive" aria-atomic="true" className={cx}>
+    <div role="alert" className={cx}>
       <span className={iconCx}>
         <Icon name={item.variant === 'error' ? 'warning' : 'check'} size="small" />
       </span>
