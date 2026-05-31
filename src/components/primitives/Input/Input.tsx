@@ -17,7 +17,7 @@ type Props = InputProps | TextareaProps;
 export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, Props>(
   ({ label, id, error, className, multiline, ...props }, ref) => {
     const generatedId = useId();
-    const resolvedId = id ?? (label ? generatedId : undefined);
+    const resolvedId = id ?? generatedId;
     const errorId = error ? `${generatedId}-error` : undefined;
     const cx = clsx(styles.input, error && styles.hasError, className);
 
