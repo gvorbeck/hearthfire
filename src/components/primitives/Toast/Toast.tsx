@@ -89,7 +89,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
     <ToastContext.Provider value={{ addToast }}>
       {children}
       {createPortal(
-        <div className={styles.region} aria-label="Notifications">
+        <div role="region" className={styles.region} aria-label="Notifications">
           {toasts.map((item) => (
             <ToastEntry key={item.id} item={item} onDismiss={handleDismiss} />
           ))}
