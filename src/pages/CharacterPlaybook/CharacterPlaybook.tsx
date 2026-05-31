@@ -6,7 +6,7 @@ import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
 import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Modal, Radio, RadioGroup, Icon, Text } from '@/components/primitives';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
 import { PageHeader } from '@/components/PageHeader/PageHeader';
-import { Background, RadioSelect, Appearance, PlaceOfOrigin, Stats, Moves, SpecialPossessions, Introductions, Inventory } from '@/components/CharacterSheet/sections';
+import { Background, RadioSelect, Appearance, Stats, Moves, SpecialPossessions, Introductions, Inventory } from '@/components/CharacterSheet/sections';
 import { ArcanaTab } from '@/components/CharacterSheet/sections/Arcana/ArcanaTab';
 import { BACKGROUND_OPTIONS, FOX_LIFE_OF_CRIME_BACKGROUND } from '@/lib/backgroundOptions';
 import { INSTINCT_OPTIONS } from '@/lib/instinctOptions';
@@ -90,7 +90,16 @@ const PCPlaybookTab = ({ character, playbookOption, onSave, insertInstinctNote }
         <div className={styles.colRight}>
           <RadioSelect playbookKey={playbook} options={INSTINCT_OPTIONS[playbook]} data={data} onSave={onSave} overrideNote={insertInstinctNote} />
           <Appearance rows={APPEARANCE_OPTIONS[playbook]} data={data} onSave={onSave} />
-          <PlaceOfOrigin options={PLACE_OF_ORIGIN_OPTIONS[playbook]} data={data} onSave={onSave} />
+          <RadioSelect
+            playbookKey={playbook}
+            title="Place of Origin"
+            options={PLACE_OF_ORIGIN_OPTIONS[playbook]}
+            data={data}
+            onSave={onSave}
+            dataKey="placeOfOrigin"
+            noCustom
+            instruction="Stonetop is your home, or close enough, but where are you (or your family) from originally? Pick an origin, then choose a matching name or make up your own — edit it in the header above."
+          />
         </div>
       </div>
       <div className={styles.colFull}>

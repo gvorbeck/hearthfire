@@ -11,6 +11,7 @@ import { createPortal } from "react-dom";
 import clsx from "clsx";
 import { useTooltip } from "../Tooltip/useTooltip";
 import { Button } from "../Button/Button";
+import { Icon } from "../Icon/Icon";
 import styles from "./Tabs.module.css";
 
 interface Tab {
@@ -118,7 +119,7 @@ const TabRemoveButton = ({
         onClick={handleClick}
         {...removeTooltip.anchorProps}
       >
-        ×
+        <Icon name="close" aria-hidden size="small" />
       </button>
       <PortalTooltip
         tooltipRef={removeTooltip.tooltipRef}
@@ -185,7 +186,7 @@ const TabButton = ({
   isActive,
   onActivate,
   onKeyDown,
-  buttonRef,
+  tabRefs,
   onRemove,
 }: {
   tab: Tab;
@@ -194,7 +195,7 @@ const TabButton = ({
   isActive: boolean;
   onActivate: (index: number) => void;
   onKeyDown: (e: KeyboardEvent<HTMLButtonElement>, index: number) => void;
-  buttonRef: (el: HTMLButtonElement | null) => void;
+  tabRefs: React.MutableRefObject<(HTMLButtonElement | null)[]>;
   onRemove?: () => void;
 }) => {
   const tooltip = useTooltip({
@@ -208,10 +209,13 @@ const TabButton = ({
     tooltip.visible && styles.tabTooltipVisible,
   );
 
-  const handleRef = (el: HTMLButtonElement | null) => {
-    buttonRef(el);
+  const handleRef = useCallback((el: HTMLButtonElement | null) => {
+    tabRefs.current[index] = el;
     tooltip.anchorRef.current = el;
-  };
+  }, [tabRefs, index, tooltip.anchorRef]);
+
+  const handleClick = useCallback(() => onActivate(index), [onActivate, index]);
+  const handleKeyDown = useCallback((e: KeyboardEvent<HTMLButtonElement>) => onKeyDown(e, index), [onKeyDown, index]);
 
   const badgeTooltipEl = tab.badgeTooltip ? (
     <span
@@ -242,8 +246,8 @@ const TabButton = ({
       aria-describedby={tab.badgeTooltip ? tooltip.tooltipId : undefined}
       tabIndex={isActive ? 0 : -1}
       className={cx}
-      onClick={() => onActivate(index)}
-      onKeyDown={(e) => onKeyDown(e, index)}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
       {...(tab.badgeTooltip ? tooltip.anchorProps : {})}
     >
       {tab.label}
@@ -284,8 +288,6 @@ export const Tabs = ({
 
   const cx = clsx(styles.root, className);
 
-  const buttonRefSetters = tabs.map((_, i) => (el: HTMLButtonElement | null) => { tabRefs.current[i] = el; });
-
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLButtonElement>, i: number) => {
       if (e.key === "ArrowRight") {
@@ -323,7 +325,7 @@ export const Tabs = ({
               isActive={active === i}
               onActivate={setActive}
               onKeyDown={handleKeyDown}
-              buttonRef={buttonRefSetters[i]}
+              tabRefs={tabRefs}
               onRemove={tab.onRemove}
             />
           ))}

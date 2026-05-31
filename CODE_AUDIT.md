@@ -268,7 +268,7 @@ Moved `AddTabButton` to render after the `<div role="tablist">` closing tag. Upd
 
 ## Low — Polish
 
-### 15. Toast region missing `role="region"`
+### ~~15. Toast region missing `role="region"`~~ ✅ Fixed
 
 **File:** `src/components/primitives/Toast/Toast.tsx:92`
 
@@ -276,9 +276,11 @@ The container has `aria-label="Notifications"` but no `role="region"`, so it is 
 
 **Fix:** Add `role="region"` to the `.region` div.
 
+**Resolution:** Added `role="region"` to the `.region` div on line 92.
+
 ---
 
-### 16. Toast `role="alert"` combined with redundant `aria-live`/`aria-atomic`
+### 16. ~~Toast `role="alert"` combined with redundant `aria-live`/`aria-atomic`~~ ✅ Fixed
 
 **File:** `src/components/primitives/Toast/Toast.tsx:39`
 
@@ -288,13 +290,13 @@ The container has `aria-label="Notifications"` but no `role="region"`, so it is 
 
 ---
 
-### 17. Tab remove button uses `×` Unicode character
+### ~~17. Tab remove button uses `×` Unicode character~~ ✅ Fixed
 
-**File:** `src/components/primitives/Tabs/Tabs.tsx:49`
+**File:** `src/components/primitives/Tabs/Tabs.tsx`
 
-The `×` multiplication sign has no semantic meaning and some screen readers announce it as "times" or "multiplication sign" even when `aria-label` is present.
+~~The `×` multiplication sign has no semantic meaning and some screen readers announce it as "times" or "multiplication sign" even when `aria-label` is present.~~
 
-**Fix:** Replace `×` with `<Icon name="close" />` (already `aria-hidden`) so the button label comes entirely from `aria-label`.
+**Fix:** Replaced `×` with `<Icon name="close" aria-hidden size="small" />` so the button label comes entirely from `aria-label`.
 
 ---
 

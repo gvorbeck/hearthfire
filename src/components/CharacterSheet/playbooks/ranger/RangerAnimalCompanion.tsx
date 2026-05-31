@@ -8,10 +8,10 @@ import { RadioSelect } from '../../sections/RadioSelect';
 import { BeastOfLegend } from './BeastOfLegend';
 import { Text, UseDots } from '@/components/primitives';
 import type { CharacterData } from '@/types';
-import type { InstinctOption } from '@/lib/instinctOptions';
+import type { RadioOption } from '@/lib/instinctOptions';
 import styles from './RangerAnimalCompanion.module.css';
 
-const ANIMAL_INSTINCT_OPTIONS: InstinctOption[] = [
+const ANIMAL_INSTINCT_OPTIONS: RadioOption[] = [
   { value: 'To bully and threaten', label: 'To bully and threaten', description: '' },
   { value: 'To fill its belly', label: 'To fill its belly', description: '' },
   { value: 'To get distracted', label: 'To get distracted', description: '' },
@@ -21,7 +21,7 @@ const ANIMAL_INSTINCT_OPTIONS: InstinctOption[] = [
   { value: 'To run rampant', label: 'To run rampant', description: '' },
 ];
 
-const ANIMAL_COST_OPTIONS: InstinctOption[] = [
+const ANIMAL_COST_OPTIONS: RadioOption[] = [
   { value: 'Play, grooming, training, affection', label: 'Play, grooming, training, affection', description: '' },
   { value: 'Time off on its own, free to roam', label: 'Time off on its own, free to roam', description: '' },
   { value: 'Cozy quarters, comfort, ample food', label: 'Cozy quarters, comfort, ample food', description: '' },

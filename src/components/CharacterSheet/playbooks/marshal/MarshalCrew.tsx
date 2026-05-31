@@ -4,7 +4,7 @@ import { Checkbox, CheckboxGroup, Divider, Input, Text, UseDots, useToast } from
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import { RadioSelect } from '../../sections/RadioSelect';
-import type { InstinctOption } from '@/lib/instinctOptions';
+import type { RadioOption } from '@/lib/instinctOptions';
 import { useCrewSave } from '../shared/useCrewSave';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { CharacterData } from '@/types';
@@ -30,7 +30,7 @@ const TAG_ITEMS = [
   { id: 'warriors', label: 'warriors' },
 ];
 
-const INSTINCT_OPTIONS: InstinctOption[] = [
+const INSTINCT_OPTIONS: RadioOption[] = [
   { value: 'To bicker, infight, and hold grudges', label: 'To bicker, infight, and hold grudges', description: '' },
   { value: 'To hew to tradition and superstition', label: 'To hew to tradition and superstition', description: '' },
   { value: 'To indulge their baser instincts', label: 'To indulge their baser instincts', description: '' },
@@ -39,7 +39,7 @@ const INSTINCT_OPTIONS: InstinctOption[] = [
   { value: 'To take things too far', label: 'To take things too far', description: '' },
 ];
 
-const COST_OPTIONS: InstinctOption[] = [
+const COST_OPTIONS: RadioOption[] = [
   { value: 'Merry-making, as a group', label: 'Merry-making, as a group', description: '' },
   { value: 'Public recognition and respect, honor', label: 'Public recognition and respect, honor', description: '' },
   { value: 'Risks taken, by you, to help them', label: 'Risks taken, by you, to help them', description: '' },

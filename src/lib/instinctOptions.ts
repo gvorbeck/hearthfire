@@ -1,12 +1,13 @@
 import type { PlaybookType } from '@/types';
 
-export interface InstinctOption {
+export interface RadioOption {
   value: string;
   label: string;
-  description: string;
+  description?: string;
+  subtitle?: string;
 }
 
-export const INSTINCT_OPTIONS: Partial<Record<PlaybookType, InstinctOption[]>> = {
+export const INSTINCT_OPTIONS: Partial<Record<PlaybookType, RadioOption[]>> = {
   blessed: [
     { value: 'delight', label: 'DELIGHT', description: 'To find beauty, in even the ugliest things.' },
     { value: 'detachment', label: 'DETACHMENT', description: 'To remain unmoved, to be cold as winter.' },

@@ -1,3 +1,11 @@
+.summary {
+  margin: var(--spacing-2) 0 0;
+}
+
+.instruction {
+  margin-bottom: var(--spacing-4);
+}
+
 .options {
   display: flex;
   flex-direction: column;
