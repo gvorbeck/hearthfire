@@ -212,27 +212,27 @@ Discriminated union now requires either `label: ReactNode` or `aria-label: strin
 
 **File:** `src/components/primitives/Input/Input.tsx`
 
-`aria-describedby` now points to `{generatedId}-error` on both `<input>` and `<textarea>`, and the error `<span>` carries that `id`. Uses `generatedId` (always defined) rather than `resolvedId` (may be undefined for unlabeled inputs).
+`aria-describedby` now points to `{generatedId}-error` on both `<input>` and `<textarea>`, placed after `{...props}` so callers cannot overwrite it. The error `<span>` renders on both the labeled and labelless paths, so the id always resolves to an existing element.
 
 ---
 
-### 10. Input without `label` prop generates no `id`, breaking external label associations
+### ~~10. Input without `label` prop generates no `id`, breaking external label associations~~ ✅ Fixed
 
 **File:** `src/components/primitives/Input/Input.tsx:20`
 
-When `label` is omitted, `resolvedId` is `undefined`. Callers providing an external `<label htmlFor="...">` must also pass `id` manually or the association silently breaks. The error element is also dropped on the labelless path.
+~~When `label` is omitted, `resolvedId` is `undefined`. Callers providing an external `<label htmlFor="...">` must also pass `id` manually or the association silently breaks. The error element is also dropped on the labelless path.~~
 
-**Fix:** Always generate an `id` regardless of whether `label` is provided.
+**Fix applied:** `resolvedId` now always falls back to `generatedId` (`id ?? generatedId`), so the element always has a stable id. The error element was already rendering on the labelless path (fixed earlier).
 
 ---
 
-### 11. Tooltip wrapper `<span>` is focusable but has no semantic role
+### 11. Tooltip wrapper `<span>` is focusable but has no semantic role ✅
 
 **File:** `src/components/primitives/Tooltip/Tooltip.tsx:26`
 
 When `noTabStop` is false (the default), the wrapper `<span>` gets `tabIndex={0}`, making it keyboard-focusable. But `<span>` has no implicit role — screen readers announce it as a generic element with no meaning.
 
-**Fix:** Ensure `noTabStop={true}` is always used when wrapping an already-focusable child, or add a lint/runtime warning for the default case.
+**Fix applied:** Added `role="button"` to the wrapper `<span>` when `noTabStop` is false, so screen readers correctly announce the focusable wrapper as an interactive element rather than a generic container.
 
 ---
 
