@@ -1,14 +1,26 @@
-import { type ButtonHTMLAttributes } from 'react';
+import { type ButtonHTMLAttributes, type ReactNode } from 'react';
 import clsx from 'clsx';
 import { Icon, type IconName, type IconSize } from '../Icon/Icon';
 import styles from './Button.module.css';
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonBaseProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost';
   size?: 'sm' | 'md' | 'lg' | 'xl';
-  icon?: IconName;
   fullWidth?: boolean;
 }
+
+interface ButtonWithIconOnly extends ButtonBaseProps {
+  icon: IconName;
+  children?: never;
+  'aria-label': string;
+}
+
+interface ButtonWithChildren extends ButtonBaseProps {
+  icon?: IconName;
+  children: ReactNode;
+}
+
+type ButtonProps = ButtonWithIconOnly | ButtonWithChildren;
 
 const iconSizeMap: Record<'sm' | 'md' | 'lg' | 'xl', IconSize> = {
   sm: 'small',

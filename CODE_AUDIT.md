@@ -178,35 +178,31 @@ The focus trap catches Tab key events, but nothing prevents assistive technology
 
 **Fix:** Set `aria-hidden="true"` on the app root (or use the `inert` attribute) while the modal is open.
 
+**Resolved:** `Modal.tsx` now sets `inert` on `#root` when the modal opens and removes it on close. The portal renders as a sibling of `#root` in `document.body`, so it is unaffected. Guard added so the effect bails early if `#root` is not found, preventing a stuck-inert page.
+
 ---
 
-### 6. Modal has no required accessible name
+### ~~6. Modal has no required accessible name~~ ✅ Fixed
 
 **File:** `src/components/primitives/Modal/Modal.tsx:23`
 
-`aria-labelledby` is optional in `ModalProps`. When omitted, the dialog has no accessible name and screen readers announce it as an unlabeled dialog.
-
-**Fix:** Make `aria-labelledby` required, or add a required `aria-label` fallback so every modal instance has a name.
+`aria-labelledby` is now required in `ModalProps`. All existing call sites already supplied it.
 
 ---
 
-### 7. Icon-only Button has no enforced accessible name
+### ~~7. Icon-only Button has no enforced accessible name~~ ✅ Fixed
 
-**File:** `src/components/primitives/Button/Button.tsx:33`
+**File:** `src/components/primitives/Button/Button.tsx:12`
 
-An icon-only button (no `children`) has no accessible name unless the caller passes `aria-label` via spread. There is no enforcement — callers can omit it silently.
-
-**Fix:** Add a TypeScript overload requiring `aria-label` when `icon` is set and `children` is absent.
+`ButtonWithIconOnly` discriminated union enforces `'aria-label': string` when `icon` is set and `children?: never`.
 
 ---
 
-### 8. Toggle `label` is optional — toggle can be unnamed
+### ~~8. Toggle `label` is optional — toggle can be unnamed~~ ✅ Fixed
 
-**File:** `src/components/primitives/Toggle/Toggle.tsx:15`
+**File:** `src/components/primitives/Toggle/Toggle.tsx`
 
-`role="switch"` is correct but `label` is optional. A Toggle with no label has no accessible name for screen readers.
-
-**Fix:** Make `label` required in `ToggleProps`, or add a required `aria-label` alternative.
+Discriminated union now requires either `label: ReactNode` or `aria-label: string` — a Toggle with neither is a type error.
 
 ---
 

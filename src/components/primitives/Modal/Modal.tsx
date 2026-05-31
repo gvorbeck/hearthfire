@@ -17,7 +17,7 @@ interface ModalProps {
   onClose: () => void;
   children: ReactNode;
   className?: string;
-  'aria-labelledby'?: string;
+  'aria-labelledby': string;
 }
 
 export const Modal = ({ open, onClose, children, className, 'aria-labelledby': labelledBy }: ModalProps) => {
@@ -89,7 +89,7 @@ export const Modal = ({ open, onClose, children, className, 'aria-labelledby': l
         onClick={handlePanelClick}
         role="dialog"
         aria-modal="true"
-        {...(labelledBy ? { 'aria-labelledby': labelledBy } : {})}
+        aria-labelledby={labelledBy}
         tabIndex={-1}
       >
         {children}
