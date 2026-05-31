@@ -208,13 +208,11 @@ Discriminated union now requires either `label: ReactNode` or `aria-label: strin
 
 ## Medium — Address Before Next Review
 
-### 9. Input error message not linked to input via `aria-describedby`
+### ~~9. Input error message not linked to input via `aria-describedby`~~ ✅ Fixed
 
-**File:** `src/components/primitives/Input/Input.tsx:47`
+**File:** `src/components/primitives/Input/Input.tsx`
 
-The error `<span>` exists but is not associated with the input via `aria-describedby`. Screen reader users filling in the field will not hear the error message when the field is focused.
-
-**Fix:** Add `aria-describedby={error ? \`${resolvedId}-error\` : undefined}` to the input element and `id={\`${resolvedId}-error\`}` to the error span.
+`aria-describedby` now points to `{generatedId}-error` on both `<input>` and `<textarea>`, and the error `<span>` carries that `id`. Uses `generatedId` (always defined) rather than `resolvedId` (may be undefined for unlabeled inputs).
 
 ---
 
