@@ -121,7 +121,7 @@ const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
       <ScrollToTop sentinelRef={headerRef} />
       <div ref={headerRef} className={styles.header}>
         <Breadcrumb crumbs={crumbs} />
-        <Heading as="h1" size="xl" className={styles.title}>Steading Playbook</Heading>
+        <Heading as="h2" size="xl" className={styles.title}>Steading Playbook</Heading>
         <RuleDivider className={styles.titleRule} />
       </div>
       <Tabs

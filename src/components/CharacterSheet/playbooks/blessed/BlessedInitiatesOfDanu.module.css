@@ -149,20 +149,27 @@
 }
 
 .grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--spacing-6);
-  align-items: start;
+  columns: 1;
+  column-gap: var(--spacing-6);
+}
+
+.grid > * {
+  break-inside: avoid;
+  margin-bottom: var(--spacing-6);
+}
+
+.grid > *:last-child {
+  margin-bottom: 0;
 }
 
 @media (min-width: 768px) {
   .grid {
-    grid-template-columns: 1fr 1fr;
+    columns: 2;
   }
 }
 
 @media (min-width: 1024px) {
   .grid {
-    grid-template-columns: 1fr 1fr 1fr;
+    columns: 3;
   }
 }

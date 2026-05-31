@@ -1,8 +1,16 @@
-import { useState, useRef, useEffect, useCallback, useId } from 'react';
-import { Button, Heading, Text, RuleDivider, Tooltip, useToast } from '@/components/primitives';
-import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
-import type { Crumb } from '@/components/Breadcrumb/Breadcrumb';
-import styles from './PageHeader.module.css';
+import { useState, useRef, useEffect, useCallback, useId } from "react";
+import {
+  Button,
+  Heading,
+  Input,
+  Text,
+  RuleDivider,
+  Tooltip,
+  useToast,
+} from "@/components/primitives";
+import { Breadcrumb } from "@/components/Breadcrumb/Breadcrumb";
+import type { Crumb } from "@/components/Breadcrumb/Breadcrumb";
+import styles from "./PageHeader.module.css";
 
 type Props =
   | {
@@ -24,10 +32,18 @@ type Props =
       titleLabel?: never;
     };
 
-export const PageHeader = ({ crumbs, title, titleLabel, subtitle, icon, gameId, onSaveTitle }: Props) => {
+export const PageHeader = ({
+  crumbs,
+  title,
+  titleLabel,
+  subtitle,
+  icon,
+  gameId,
+  onSaveTitle,
+}: Props) => {
   const { addToast } = useToast();
   const [editing, setEditing] = useState(false);
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState("");
   const [copied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const copiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -54,37 +70,50 @@ export const PageHeader = ({ crumbs, title, titleLabel, subtitle, icon, gameId, 
     try {
       if (trimmed && trimmed !== title) await onSaveTitle?.(trimmed);
     } catch {
-      addToast('Failed to save game name. Try again.');
+      addToast("Failed to save game name. Try again.");
     } finally {
       setEditing(false);
     }
   }, [value, title, onSaveTitle, addToast]);
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value), []);
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value),
+    [],
+  );
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') commit();
-    if (e.key === 'Escape') setEditing(false);
-  }, [commit]);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter") commit();
+      if (e.key === "Escape") setEditing(false);
+    },
+    [commit],
+  );
 
   const copyGameId = useCallback(() => {
-    navigator.clipboard.writeText(gameId).then(() => {
-      setCopied(true);
-      if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current);
-      copiedTimerRef.current = setTimeout(() => setCopied(false), 2000);
-    }).catch(() => addToast('Failed to copy game ID.'));
+    navigator.clipboard
+      .writeText(gameId)
+      .then(() => {
+        setCopied(true);
+        if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current);
+        copiedTimerRef.current = setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(() => addToast("Failed to copy game ID."));
   }, [gameId, addToast]);
 
-  const copyLabel = copied ? 'Copied!' : 'Copy game ID';
+  const copyLabel = copied ? "Copied!" : "Copy game ID";
 
   return (
     <div className={styles.header}>
       <Breadcrumb crumbs={crumbs} />
       <div className={styles.titleRow}>
-        {icon && <span className={styles.titleIcon} aria-hidden="true">{icon}</span>}
+        {icon && (
+          <span className={styles.titleIcon} aria-hidden="true">
+            {icon}
+          </span>
+        )}
         {onSaveTitle && editing ? (
-          <input
-            ref={inputRef}
+          <Input
+            ref={inputRef as React.Ref<HTMLInputElement>}
             className={styles.titleInput}
             value={value}
             onChange={handleChange}
@@ -94,9 +123,16 @@ export const PageHeader = ({ crumbs, title, titleLabel, subtitle, icon, gameId, 
           />
         ) : (
           <>
-            <Heading as="h2" size="xl">{title}</Heading>
+            <Heading as="h2" size="xl">
+              {title}
+            </Heading>
             {onSaveTitle && (
-              <Tooltip text="Edit name" side="top" noTabStop tooltipId={editTooltipId}>
+              <Tooltip
+                text="Edit name"
+                side="top"
+                noTabStop
+                tooltipId={editTooltipId}
+              >
                 <Button
                   variant="ghost"
                   icon="pencil"
@@ -111,15 +147,27 @@ export const PageHeader = ({ crumbs, title, titleLabel, subtitle, icon, gameId, 
           </>
         )}
       </div>
-      {subtitle && <Text color="muted" size="xs" className={styles.subtitle}>{subtitle}</Text>}
+      {subtitle && (
+        <Text color="muted" size="xs" className={styles.subtitle}>
+          {subtitle}
+        </Text>
+      )}
       <div className={styles.gameId}>
         <Text color="muted" size="xs">
-          Game ID: <Text as="span" color="accent" size="xs">{gameId}</Text>
+          Game ID:{" "}
+          <Text as="span" color="accent" size="xs">
+            {gameId}
+          </Text>
         </Text>
-        <Tooltip text={copyLabel} side="top" noTabStop tooltipId={copyTooltipId}>
+        <Tooltip
+          text={copyLabel}
+          side="top"
+          noTabStop
+          tooltipId={copyTooltipId}
+        >
           <Button
             variant="ghost"
-            icon={copied ? 'check' : 'copy'}
+            icon={copied ? "check" : "copy"}
             size="sm"
             className={styles.copyBtn}
             onClick={copyGameId}

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
-import { Button, Heading, List, Text, Checkbox, Input, Radio } from '@/components/primitives';
+import { Button, Heading, List, Text, Checkbox, Input, Radio, RadioGroup } from '@/components/primitives';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { SteadingData, GmImprovement } from '@/types';
 import styles from './SteadingImprovements.module.css';
@@ -522,7 +522,7 @@ const GmImprovementCard = ({ slot, index, onFocus, onBlur, onChange, onCategoryC
         onChange={handleSummaryChange}
         onBlur={onBlur}
       />
-      <div className={styles.categoryRow}>
+      <RadioGroup legend="Category" legendHidden className={styles.categoryRow}>
         <Radio
           name={`gm-improvement-category-${slot.id}`}
           value="resource"
@@ -547,7 +547,7 @@ const GmImprovementCard = ({ slot, index, onFocus, onBlur, onChange, onCategoryC
           checked={slot.category === 'asset'}
           onChange={handleCategoryAsset}
         />
-      </div>
+      </RadioGroup>
       <div className={styles.section}>
         <Heading as="h4" size="label">Requirements</Heading>
         <Input

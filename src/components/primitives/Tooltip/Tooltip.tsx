@@ -8,9 +8,7 @@ interface TooltipProps {
   text: string;
   side?: TooltipSide;
   className?: string;
-  /** Set when the child is already focusable (e.g. a button) to avoid a duplicate tab stop on the wrapper. */
   noTabStop?: boolean;
-  /** Pass the id of the tooltip element to an already-focusable child via aria-describedby. */
   tooltipId?: string;
   children: React.ReactNode;
 }
@@ -26,7 +24,8 @@ export const Tooltip = ({ text, side = 'top', className, noTabStop = false, tool
     <span
       ref={anchorRef as React.MutableRefObject<HTMLSpanElement | null>}
       className={wrapperCx}
-      aria-describedby={noTabStop ? undefined : tooltipId}
+      role={noTabStop ? undefined : 'button'}
+      aria-describedby={tooltipId}
       tabIndex={noTabStop ? undefined : 0}
       {...anchorProps}
     >

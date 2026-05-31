@@ -2,9 +2,17 @@ import { useId, type InputHTMLAttributes } from 'react';
 import clsx from 'clsx';
 import styles from './Toggle.module.css';
 
-interface ToggleProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
-  label?: React.ReactNode;
+interface ToggleWithLabel extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
+  label: React.ReactNode;
+  'aria-label'?: string;
 }
+
+interface ToggleWithAriaLabel extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
+  label?: never;
+  'aria-label': string;
+}
+
+type ToggleProps = ToggleWithLabel | ToggleWithAriaLabel;
 
 export const Toggle = ({ label, className, ...props }: ToggleProps) => {
   const id = useId();

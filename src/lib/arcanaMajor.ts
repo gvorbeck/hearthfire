@@ -38,7 +38,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
   {
     id: 'staff-of-the-lidless-orb',
     name: 'Staff of the Lidless Orb',
-    tags: '◇, close, magical, awkward',
+    tags: '◊, close, magical, awkward',
     weight: 1,
     description: 'A sphere of greenish glass, etched with a cat\'s-eye design and set atop a staff of rough, pitted black iron. The orb catches the light and seems to glow, and the pupil seems to widen in the dark and narrow to a slit in daylight.\n\nAnd sometimes, you could swear, it seems to look about on its own.\n\nBut that\'s preposterous.',
     frontMoves: [
@@ -88,7 +88,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
   {
     id: 'twisted-spear',
     name: 'Twisted Spear',
-    tags: '◇◇, reach, magical',
+    tags: '◊◊, reach, magical',
     weight: 2,
     description: 'A knobby length of wood, pale as death and hard as steel, tapering to a needle point. The shaft is scored and notched, the tip stained with blood and soot.\n\nThe Spear is a potent weapon against spirits and demons. They cannot bear its touch and its presence makes them deeply ill at ease.',
     frontMoves: [
@@ -164,7 +164,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
   {
     id: 'demonhide-cloak',
     name: 'Demonhide Cloak',
-    tags: '◇, 1 armor, warm, magical',
+    tags: '◊, 1 armor, warm, magical',
     weight: 1,
     description: 'A tattered cloak, stitched from a motley patchwork of unfamiliar hides and leather. Shifting odors waft from it: damp earth, ozone, musk, sulfur, rust, rot.\n\nIt is not a glamorous garment. Anything but.',
     frontMoves: [
@@ -221,7 +221,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
   {
     id: 'norubas-ice-sphere',
     name: "Noruba's Ice Sphere",
-    tags: '◇, magical, awkward',
+    tags: '◊, magical, awkward',
     weight: 1,
     description: 'A perfect sphere of dark ice, the size of a fist, never melting, hard as stone, and set like a gaudy gem at the end of a finely wrought torc. Or not a torc, perhaps, but maybe a ring that once sat upon some giant\'s finger?\n\nStaring into the icy sphere brings a sense of calm, serenity, and detachment. Indeed, a lesser mind might find itself staring into its depths for hours on end.',
     frontMoves: [
@@ -243,7 +243,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
           name: 'Mindwalking',
           subtitle: 'use the Ice Sphere as a psychic anchor',
           tracker: { label: 'Power', max: 3 },
-          text: 'Your consciousness leaves your body and walks the world as a spirit, invisible and insubstantial. Roll +INT: **on a 10+**, hold 3 Power; **on a 7-9**, hold 2 Power; **on a 6-**, hold 2 Power and mark a Consequence. While mindwalking, you may spend your Power, 1-for-1 to:\n\n- Manifest as a ghostly voice and/or presence\n- Manipulate an unattended item (small or ◇, no bigger)\n- Return instantly to the Ice Sphere from any distance\n\nFor every 2 Consequences you mark, gain one of the following moves:\n\n**A Mighty Will** — When you *mindwalk*, hold +1 Power.\n\n**Farwalker** — When you *mindwalk*, you may spend 1 Power to instantly send your mind to any place you have ever visited, physically or mentally.\n\n**Telepathy** — When you *mindwalk*, you may spend 1 Power to become able to communicate mentally with someone nearby, as long as you remain in their presence. They can choose whether to respond, and can attempt to ignore you, but cannot shut you out completely without magic of their own.\n\n**Thoughtcrafter** — When you *mindwalk*, you may spend 1 Power to animate a mass of loose material (gravel, snow, leaves, etc.) into a body no larger than your own. When you would roll STR, DEX, or CON in this form, use INT instead. This form has 10 HP. When reduced to 0 HP, it dissipates and you return to your physical body.',
+          text: 'Your consciousness leaves your body and walks the world as a spirit, invisible and insubstantial. Roll +INT: **on a 10+**, hold 3 Power; **on a 7-9**, hold 2 Power; **on a 6-**, hold 2 Power and mark a Consequence. While mindwalking, you may spend your Power, 1-for-1 to:\n\n- Manifest as a ghostly voice and/or presence\n- Manipulate an unattended item (small or ◊, no bigger)\n- Return instantly to the Ice Sphere from any distance\n\nFor every 2 Consequences you mark, gain one of the following moves:\n\n**A Mighty Will** — When you *mindwalk*, hold +1 Power.\n\n**Farwalker** — When you *mindwalk*, you may spend 1 Power to instantly send your mind to any place you have ever visited, physically or mentally.\n\n**Telepathy** — When you *mindwalk*, you may spend 1 Power to become able to communicate mentally with someone nearby, as long as you remain in their presence. They can choose whether to respond, and can attempt to ignore you, but cannot shut you out completely without magic of their own.\n\n**Thoughtcrafter** — When you *mindwalk*, you may spend 1 Power to animate a mass of loose material (gravel, snow, leaves, etc.) into a body no larger than your own. When you would roll STR, DEX, or CON in this form, use INT instead. This form has 10 HP. When reduced to 0 HP, it dissipates and you return to your physical body.',
         },
       ],
       consequences: [
@@ -270,13 +270,13 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
   {
     id: 'mindgem',
     name: 'Mindgem',
-    tags: '◇◇, slow, indestructible',
+    tags: '◊◊, slow, indestructible',
     weight: 2,
     description: 'A chunk of makerglass the size of a human head; inspection reveals facets within facets, a thousandfold. When you **touch the glass with bare skin and open your mind to it**, you contact the intelligence within—lonely, confused, longing for meaning and connection.\n\nIt will happily speak with you, mind-to-mind. It knows much about the past, but naught of its own history or purpose. At least, not yet.',
     frontMoves: [
       {
         name: 'Consult the Mindgem about the Makers, their arts, or their history',
-        text: 'Ask a question and roll +INT: **on a 7+**, it answers but **on a 10+**, pick 1; **on a 7-9**, pick 2:\n\n- The answer is cryptic, vague, or lacking crucial context\n- It takes a long time—hours or even days—to get the answer\n- Your mind is left reeling; take disadvantage on your next roll\n\n**On a 6-**, choose 1:\n\n- It wastes your time with irrelevant histories and data\n- It answers now, but refuses to answer further questions until you make progress towards restoring its body (or, if its body is assembled, until you pay its Cost).\n\nThe Mindgem knows that a body was crafted for it, and that it has likely survived—at least in part. It longs for the body to be whole, and to interact with the world. To assemble the Mindgem\'s body and unlock its mysteries:\n\n- Recover its chassis of white granite, which weighs well over a ton\n- Recover its ◇ "heart," a chunk of makerglass that forever burns with terrible heat (*indestructible, dangerous*)\n- Recover and repair the intricate ◇◇ bronze helm (*awkward, big*) that serves as a casing for the Mindgem\n- Puzzle out how to assemble all the pieces',
+        text: 'Ask a question and roll +INT: **on a 7+**, it answers but **on a 10+**, pick 1; **on a 7-9**, pick 2:\n\n- The answer is cryptic, vague, or lacking crucial context\n- It takes a long time—hours or even days—to get the answer\n- Your mind is left reeling; take disadvantage on your next roll\n\n**On a 6-**, choose 1:\n\n- It wastes your time with irrelevant histories and data\n- It answers now, but refuses to answer further questions until you make progress towards restoring its body (or, if its body is assembled, until you pay its Cost).\n\nThe Mindgem knows that a body was crafted for it, and that it has likely survived—at least in part. It longs for the body to be whole, and to interact with the world. To assemble the Mindgem\'s body and unlock its mysteries:\n\n- Recover its chassis of white granite, which weighs well over a ton\n- Recover its ◊ "heart," a chunk of makerglass that forever burns with terrible heat (*indestructible, dangerous*)\n- Recover and repair the intricate ◊◊ bronze helm (*awkward, big*) that serves as a casing for the Mindgem\n- Puzzle out how to assemble all the pieces',
       },
     ],
     marks: { max: 4 },
@@ -353,7 +353,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
   {
     id: 'blood-quenched-sword',
     name: 'Blood-quenched Sword',
-    tags: '◇, close, +1 damage, 1 piercing, messy, magical',
+    tags: '◊, close, +1 damage, 1 piercing, messy, magical',
     weight: 1,
     description: 'An ancient blade of deep red bronze, its pommel etched with symbols like those that the Hillfolk use to decorate their drinking horns. It thrums in its scabbard, wanting nothing more than to be drawn and to burn like a fire, quenching itself in the blood of foes.',
     frontMoves: [
@@ -414,7 +414,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
   {
     id: 'shield-of-the-wisent-witch',
     name: 'Shield of the Wisent Witch',
-    tags: '◇◇, +1 armor, close, forceful, magical, +1 Readiness on a 7+ to Defend',
+    tags: '◊◊, +1 armor, close, forceful, magical, +1 Readiness on a 7+ to Defend',
     weight: 2,
     description: 'A shield of horn-oak, glossy from long use, shod in bronze and adorned with a stylized wisent skull. It\'s heavier than it looks, but its heft gives you a feeling of confidence, like anyone would be a fool to mess with a titan such as you.',
     frontMoves: [
@@ -458,7 +458,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
   {
     id: 'hectumel-codex',
     name: "Hec'tumel Codex",
-    tags: '◇, crude, slow, magical',
+    tags: '◊, crude, slow, magical',
     weight: 1,
     description: 'A dozen copper plates, green with age and bound with loops of reddish metal wire. The outer plates are embossed with strange images of man and beast while the inner plates are etched with arcane diagrams and annotated in some forgotten script.',
     frontMoves: [
@@ -532,7 +532,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
   {
     id: 'red-scepter',
     name: 'Red Scepter',
-    tags: '◇, magical',
+    tags: '◊, magical',
     weight: 1,
     description: 'A bronze rod, tipped with a glowing red crystal and carved with openwork shapes of hungry, leering faces.',
     frontMoves: [
@@ -546,7 +546,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
       },
       {
         name: 'Bleed a helpless, living creature and dip the Scepter\'s crystal in their still-warm blood',
-        text: 'Mark 1 charge as the crystal soaks up the blood (to a maximum of 3). ◇◇◇',
+        text: 'Mark 1 charge as the crystal soaks up the blood (to a maximum of 3). ◊◊◊',
       },
       {
         name: 'Inflame',
@@ -633,7 +633,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
   {
     id: 'rune-laden-scales',
     name: 'Rune-laden Scales',
-    tags: '◇◇, 2 armor, magical',
+    tags: '◊◊, 2 armor, magical',
     weight: 2,
     description: 'An ancient vest of bluish steel, each scale etched with a silvery rune similar to those found among the ruins near Barrier Pass. A working of the Makers, no doubt, or at least of their most gifted students. The armor is surprisingly light and supple. The scales are always cold to the touch, and often edged in frost.',
     frontMoves: [
@@ -698,7 +698,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
   {
     id: 'blackwood-fetishes',
     name: 'Blackwood Fetishes',
-    tags: '◇, magical, indestructible',
+    tags: '◊, magical, indestructible',
     weight: 1,
     description: 'A pair of wooden figurines, carved from blackwood and worn smooth with age and use. A whitish shaft has been driven into the top of each figurine\'s head, and the eyes and forehead of each are stained a rusty, reddish color.\n\nThe figurines resist all mundane attempts to damage them. Such attempts might mar them slightly, but their forms hold fast.',
     frontMoves: [
@@ -872,7 +872,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
       {
         name: 'Perform the secret rite',
         subtitle: 'requires privacy, a few hours, and a drop of your own fresh blood',
-        text: 'Hold 1 Conduit (max 1 Conduit, at least to start). ◇◇◇',
+        text: 'Hold 1 Conduit (max 1 Conduit, at least to start). ◊◊◊',
         tracker: { label: 'Conduit', max: 1 },
       },
       {
@@ -952,7 +952,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
   {
     id: 'azure-hand',
     name: 'Azure Hand',
-    tags: '◇, close, magical, awkward',
+    tags: '◊, close, magical, awkward',
     weight: 1,
     description: 'A thick staff of gray metal, topped with a plate of aetherium in the shape of a stylized hand. The palm is embossed with a cloud and lightning bolt, and the whole thing is more than a little top-heavy. It smells of ozone, and your spine never ceases to tingle in its presence.',
     frontMoves: [

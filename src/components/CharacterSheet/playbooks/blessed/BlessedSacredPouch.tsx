@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Divider, Radio, Text, useToast } from '@/components/primitives';
+import { Divider, Radio, RadioGroup, Text, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
@@ -8,13 +8,14 @@ import styles from './BlessedSacredPouch.module.css';
 
 interface IsLine {
   key: string;
+  label: string;
   options: string[];
 }
 
 const IS_LINES: IsLine[] = [
-  { key: 'origin', options: ['an heirloom', 'made just for you', 'your own work'] },
-  { key: 'material', options: ['fur', 'drakescale', 'leather', 'woven', 'demonflesh'] },
-  { key: 'decoration', options: ['unadorned', 'beadwork', 'rich dyes', 'runes'] },
+  { key: 'origin', label: 'Origin', options: ['an heirloom', 'made just for you', 'your own work'] },
+  { key: 'material', label: 'Material', options: ['fur', 'drakescale', 'leather', 'woven', 'demonflesh'] },
+  { key: 'decoration', label: 'Decoration', options: ['unadorned', 'beadwork', 'rich dyes', 'runes'] },
 ];
 
 const TRAITS: string[] = [
@@ -45,7 +46,9 @@ export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) =>
   }, [data]);
 
   const handleIs = useCallback(
-    (key: string, value: string) => {
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const key = e.currentTarget.dataset.key!;
+      const value = e.currentTarget.value;
       const prev = isRef.current;
       const next = { ...prev, [key]: value };
       setIs(next);
@@ -55,7 +58,8 @@ export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) =>
   );
 
   const handleTrait = useCallback(
-    (value: string) => {
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.currentTarget.value;
       const prev = traitRef.current;
       setTrait(value);
       onSave(featurePatch(data, { sacredPouchTrait: value })).catch(() => { setTrait(prev); addToast('Failed to save.'); });
@@ -81,17 +85,20 @@ export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) =>
         <Text as="p" size="xs" color="muted" className={styles.instruction}>Your sacred pouch is… (choose 1 on each line)</Text>
         <div className={styles.isLines}>
           {IS_LINES.map((line) => (
-            <div key={line.key} className={styles.optionRow}>
-              {line.options.map((opt) => (
-                <Radio
-                  key={opt}
-                  name={`sacred-pouch-is-${line.key}`}
-                  value={opt}
-                  checked={is[line.key] === opt}
-                  onChange={() => handleIs(line.key, opt)}
-                  label={<span className={styles.optionLabel}>{opt}</span>}
-                />
-              ))}
+            <div key={line.key} className={styles.isRow}>
+              <RadioGroup legend={line.label} legendHidden className={styles.optionRow}>
+                {line.options.map((opt) => (
+                  <Radio
+                    key={opt}
+                    name={`sacred-pouch-is-${line.key}`}
+                    value={opt}
+                    data-key={line.key}
+                    checked={is[line.key] === opt}
+                    onChange={handleIs}
+                    label={<span className={styles.optionLabel}>{opt}</span>}
+                  />
+                ))}
+              </RadioGroup>
             </div>
           ))}
         </div>
@@ -99,18 +106,18 @@ export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) =>
         <Divider />
 
         <Text as="p" size="xs" color="muted" className={styles.instruction}>What remarkable trait does it possess? (choose 1)</Text>
-        <div className={styles.traits}>
+        <RadioGroup legend="Remarkable trait" legendHidden className={styles.traits}>
           {TRAITS.map((t) => (
             <Radio
               key={t}
               name="sacred-pouch-trait"
               value={t}
               checked={trait === t}
-              onChange={() => handleTrait(t)}
+              onChange={handleTrait}
               label={<span className={styles.optionLabel}>{t}</span>}
             />
           ))}
-        </div>
+        </RadioGroup>
       </div>
     </PlaybookSection>
   );

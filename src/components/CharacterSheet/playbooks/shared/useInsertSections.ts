@@ -25,11 +25,6 @@ export const useInsertSections = (
   const purposeNamesRef = useRef(purposeNames);
   purposeNamesRef.current = purposeNames;
 
-  const [instinctCollapsed, setInstinctCollapsed] = useState(false);
-  const hasInitInstinctCollapse = useRef(false);
-  const [purposeCollapsed, setPurposeCollapsed] = useState(false);
-  const hasInitPurposeCollapse = useRef(false);
-
   useEffect(() => {
     const f = resolvePlaybookFeatures(data);
     const fi = f[keys.instinct] as string | undefined;
@@ -39,37 +34,6 @@ export const useInsertSections = (
     if (fp !== undefined) setPurpose(fp);
     if (fpn !== undefined) setPurposeNames(fpn);
   }, [data, keys.instinct, keys.purpose, keys.purposeName]);
-
-  useEffect(() => {
-    if (instinct && !hasInitInstinctCollapse.current) {
-      hasInitInstinctCollapse.current = true;
-      setInstinctCollapsed(true);
-    }
-  }, [instinct]);
-
-  useEffect(() => {
-    if (purpose && !hasInitPurposeCollapse.current) {
-      hasInitPurposeCollapse.current = true;
-      setPurposeCollapsed(true);
-    }
-  }, [purpose]);
-
-  const handleToggleInstinctCollapse = useCallback(() => setInstinctCollapsed((v) => !v), []);
-  const handleTogglePurposeCollapse = useCallback(() => setPurposeCollapsed((v) => !v), []);
-
-  const handleInstinctChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setInstinct(val);
-    setInstinctCollapsed(true);
-    saveImmediate({ [keys.instinct]: val });
-  }, [saveImmediate, keys.instinct]);
-
-  const handlePurposeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setPurpose(val);
-    setPurposeCollapsed(true);
-    saveImmediate({ [keys.purpose]: val });
-  }, [saveImmediate, keys.purpose]);
 
   const handlePurposeNameChange = useCallback((purposeValue: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -88,12 +52,6 @@ export const useInsertSections = (
     instinct,
     purpose,
     purposeNames,
-    instinctCollapsed,
-    purposeCollapsed,
-    handleToggleInstinctCollapse,
-    handleTogglePurposeCollapse,
-    handleInstinctChange,
-    handlePurposeChange,
     handlePurposeNameChange,
     handlePurposeNameBlur,
     saveImmediate,

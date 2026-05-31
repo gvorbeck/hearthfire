@@ -82,15 +82,11 @@ Marshal Crew and Followers are two of the most data-heavy sheets. A silent save 
 
 ## Low — Polish
 
-### 4. Instinct/Cost radio-with-custom is duplicated across Ranger and Marshal
+### ~~4. Instinct/Cost radio-with-custom is duplicated across Ranger and Marshal~~
 
-**Files:** `src/components/CharacterSheet/playbooks/ranger/AnimalInstinct.tsx`, `src/components/CharacterSheet/playbooks/ranger/AnimalCost.tsx`, `src/components/CharacterSheet/playbooks/marshal/MarshalCrew.tsx:332–372`
+~~**Files:** `src/components/CharacterSheet/playbooks/ranger/AnimalInstinct.tsx`, `src/components/CharacterSheet/playbooks/ranger/AnimalCost.tsx`, `src/components/CharacterSheet/playbooks/marshal/MarshalCrew.tsx:332–372`~~
 
-The pattern — preset radio options plus a "custom" radio that reveals a freetext input, collapsing on selection — is implemented identically in both playbooks. The handler logic in `RangerAnimalCompanion.tsx` and `MarshalCrew.tsx` is also structurally identical: `handleXChange`, `handleXCustomFocus`, `handleXCustomChange`, `handleXCustomBlur`, and a collapse effect triggered when the value is first set.
-
-This isn't a premature abstraction candidate — the pattern is already duplicated, fully realized, across two production components. A bug in the collapse logic or the custom-input focus behavior requires two fixes.
-
-**Fix:** Extract to a shared `RadioWithCustomInput` presentational component (taking `options`, `value`, `customValue`, and the four handlers as props) and a `useRadioWithCustom` hook (encapsulating the state and handlers). The Ranger and Marshal components become thin consumers. The `AnimalInstinct` and `AnimalCost` sub-components already have the right shape — the hook just needs to be pulled out of each parent.
+**Resolved:** `AnimalInstinct.tsx` and `AnimalCost.tsx` deleted. The existing `Instinct` component (renamed `RadioSelect`) is now used directly by both `RangerAnimalCompanion` and `MarshalCrew` via adapter `onSave` callbacks. No duplication remains.
 
 ---
 
@@ -109,7 +105,7 @@ This isn't a premature abstraction candidate — the pattern is already duplicat
 | P1       | `Input` has no keyboard focus indicator                                  | `src/components/primitives/Input/Input.module.css`        |
 | ~~P1~~   | ~~`Button` has no keyboard focus indicator~~                             | ~~`src/components/primitives/Button/Button.module.css`~~  |
 | P2       | Marshal/Followers save calls have no error handling                      | `MarshalCrew.tsx`, `FollowersInsert.tsx`                  |
-| P3       | Instinct/Cost radio-with-custom pattern is duplicated                    | `AnimalInstinct.tsx`, `AnimalCost.tsx`, `MarshalCrew.tsx` |
+| ~~P3~~   | ~~Instinct/Cost radio-with-custom pattern is duplicated~~                | ~~`AnimalInstinct.tsx`, `AnimalCost.tsx`, `MarshalCrew.tsx`~~ |
 
 ---
 
@@ -146,6 +142,8 @@ The `.trigger` button has no `:focus-visible` rule. Keyboard users tabbing to a 
 }
 ```
 
+**Resolved:** Added `:focus-visible` to `.trigger` with `outline: 2px solid var(--color-gold-400); outline-offset: 2px`.
+
 ---
 
 ### 3. CheckboxGroup uses no group semantics
@@ -155,6 +153,8 @@ The `.trigger` button has no `:focus-visible` rule. Keyboard users tabbing to a 
 The container is a plain `<div>` with no `role="group"` and the label `<p>` is not programmatically associated with the checkboxes. Screen readers announce each checkbox without grouping context.
 
 **Fix:** Replace the outer `<div>` with `<fieldset>` and the label `<p>` with `<legend>`.
+
+**Resolved:** Outer `<div>` replaced with `<fieldset>`, label wrapped in `<legend>`. Added fieldset reset (`border: none; padding: 0; margin: 0; min-inline-size: 0`) to `.root` in the CSS module.
 
 ---
 
@@ -166,6 +166,8 @@ The container is a plain `<div>` with no `role="group"` and the label `<p>` is n
 
 **Fix:** Create a `RadioGroup` wrapper that renders `<fieldset>`/`<legend>`, mirroring how `CheckboxGroup` wraps `Checkbox`.
 
+**Resolved:** Created `src/components/primitives/RadioGroup/RadioGroup.tsx` — `<fieldset>`/`<legend>` wrapper with optional `legendHidden` prop (visually hidden but announced by screen readers). Exported from primitives index. Wired into `RadioSelect` with `legendHidden` since the section heading is already visible. `SteadingStats` uses `role="group" aria-label` which is valid for that pattern — left untouched.
+
 ---
 
 ### 5. Modal background content is not inert
@@ -176,67 +178,61 @@ The focus trap catches Tab key events, but nothing prevents assistive technology
 
 **Fix:** Set `aria-hidden="true"` on the app root (or use the `inert` attribute) while the modal is open.
 
+**Resolved:** `Modal.tsx` now sets `inert` on `#root` when the modal opens and removes it on close. The portal renders as a sibling of `#root` in `document.body`, so it is unaffected. Guard added so the effect bails early if `#root` is not found, preventing a stuck-inert page.
+
 ---
 
-### 6. Modal has no required accessible name
+### ~~6. Modal has no required accessible name~~ ✅ Fixed
 
 **File:** `src/components/primitives/Modal/Modal.tsx:23`
 
-`aria-labelledby` is optional in `ModalProps`. When omitted, the dialog has no accessible name and screen readers announce it as an unlabeled dialog.
-
-**Fix:** Make `aria-labelledby` required, or add a required `aria-label` fallback so every modal instance has a name.
+`aria-labelledby` is now required in `ModalProps`. All existing call sites already supplied it.
 
 ---
 
-### 7. Icon-only Button has no enforced accessible name
+### ~~7. Icon-only Button has no enforced accessible name~~ ✅ Fixed
 
-**File:** `src/components/primitives/Button/Button.tsx:33`
+**File:** `src/components/primitives/Button/Button.tsx:12`
 
-An icon-only button (no `children`) has no accessible name unless the caller passes `aria-label` via spread. There is no enforcement — callers can omit it silently.
-
-**Fix:** Add a TypeScript overload requiring `aria-label` when `icon` is set and `children` is absent.
+`ButtonWithIconOnly` discriminated union enforces `'aria-label': string` when `icon` is set and `children?: never`.
 
 ---
 
-### 8. Toggle `label` is optional — toggle can be unnamed
+### ~~8. Toggle `label` is optional — toggle can be unnamed~~ ✅ Fixed
 
-**File:** `src/components/primitives/Toggle/Toggle.tsx:15`
+**File:** `src/components/primitives/Toggle/Toggle.tsx`
 
-`role="switch"` is correct but `label` is optional. A Toggle with no label has no accessible name for screen readers.
-
-**Fix:** Make `label` required in `ToggleProps`, or add a required `aria-label` alternative.
+Discriminated union now requires either `label: ReactNode` or `aria-label: string` — a Toggle with neither is a type error.
 
 ---
 
 ## Medium — Address Before Next Review
 
-### 9. Input error message not linked to input via `aria-describedby`
+### ~~9. Input error message not linked to input via `aria-describedby`~~ ✅ Fixed
 
-**File:** `src/components/primitives/Input/Input.tsx:47`
+**File:** `src/components/primitives/Input/Input.tsx`
 
-The error `<span>` exists but is not associated with the input via `aria-describedby`. Screen reader users filling in the field will not hear the error message when the field is focused.
-
-**Fix:** Add `aria-describedby={error ? \`${resolvedId}-error\` : undefined}` to the input element and `id={\`${resolvedId}-error\`}` to the error span.
+`aria-describedby` now points to `{generatedId}-error` on both `<input>` and `<textarea>`, placed after `{...props}` so callers cannot overwrite it. The error `<span>` renders on both the labeled and labelless paths, so the id always resolves to an existing element.
 
 ---
 
-### 10. Input without `label` prop generates no `id`, breaking external label associations
+### ~~10. Input without `label` prop generates no `id`, breaking external label associations~~ ✅ Fixed
 
 **File:** `src/components/primitives/Input/Input.tsx:20`
 
-When `label` is omitted, `resolvedId` is `undefined`. Callers providing an external `<label htmlFor="...">` must also pass `id` manually or the association silently breaks. The error element is also dropped on the labelless path.
+~~When `label` is omitted, `resolvedId` is `undefined`. Callers providing an external `<label htmlFor="...">` must also pass `id` manually or the association silently breaks. The error element is also dropped on the labelless path.~~
 
-**Fix:** Always generate an `id` regardless of whether `label` is provided.
+**Fix applied:** `resolvedId` now always falls back to `generatedId` (`id ?? generatedId`), so the element always has a stable id. The error element was already rendering on the labelless path (fixed earlier).
 
 ---
 
-### 11. Tooltip wrapper `<span>` is focusable but has no semantic role
+### 11. Tooltip wrapper `<span>` is focusable but has no semantic role ✅
 
 **File:** `src/components/primitives/Tooltip/Tooltip.tsx:26`
 
 When `noTabStop` is false (the default), the wrapper `<span>` gets `tabIndex={0}`, making it keyboard-focusable. But `<span>` has no implicit role — screen readers announce it as a generic element with no meaning.
 
-**Fix:** Ensure `noTabStop={true}` is always used when wrapping an already-focusable child, or add a lint/runtime warning for the default case.
+**Fix applied:** Added `role="button"` to the wrapper `<span>` when `noTabStop` is false, so screen readers correctly announce the focusable wrapper as an interactive element rather than a generic container.
 
 ---
 
@@ -246,33 +242,33 @@ When `noTabStop` is false (the default), the wrapper `<span>` gets `tabIndex={0}
 
 When `noTabStop` is true, `aria-describedby` is set to `undefined` on the wrapper — meaning the focusable child never receives the tooltip description.
 
-**Fix:** Always pass `tooltipId` to the child via `aria-describedby` regardless of `noTabStop`; the tab stop and the description are independent concerns.
+**Fix applied:** Always pass `tooltipId` to `aria-describedby` regardless of `noTabStop`; the tab stop and the description are independent concerns.
 
 ---
 
-### 13. Tabs keyboard navigation missing `Home`/`End` keys
+### 13. ~~Tabs keyboard navigation missing `Home`/`End` keys~~ ✅ Fixed
 
-**File:** `src/components/primitives/Tabs/Tabs.tsx:138`
+**File:** `src/components/primitives/Tabs/Tabs.tsx`
 
 The ARIA tab pattern requires `Home` (jump to first tab) and `End` (jump to last tab). Only `ArrowLeft`/`ArrowRight` are handled.
 
-**Fix:** Add `Home` and `End` cases to `handleKeyDown`.
+**Fix applied:** Added `Home` and `End` cases to `handleKeyDown`; both call `preventDefault()` to suppress browser scroll and then focus+activate the boundary tab.
 
 ---
 
-### 14. Tabs "add" button is outside the tablist landmark
+### ~~14. Tabs "add" button is outside the tablist landmark~~ ✅ Fixed
 
-**File:** `src/components/primitives/Tabs/Tabs.tsx:153`
+**File:** `src/components/primitives/Tabs/Tabs.tsx`
 
-The add button is rendered before `role="tablist"` in DOM order, so it appears at an unexpected point in tab order for keyboard users.
+~~The add button is rendered before `role="tablist"` in DOM order, so it appears at an unexpected point in tab order for keyboard users.~~
 
-**Fix:** Move the add button after the `<div role="tablist">`, or give it `role="presentation"` if position must stay.
+Moved `AddTabButton` to render after the `<div role="tablist">` closing tag. Updated `margin-right` → `margin-left` in CSS to maintain visual spacing.
 
 ---
 
 ## Low — Polish
 
-### 15. Toast region missing `role="region"`
+### ~~15. Toast region missing `role="region"`~~ ✅ Fixed
 
 **File:** `src/components/primitives/Toast/Toast.tsx:92`
 
@@ -280,9 +276,11 @@ The container has `aria-label="Notifications"` but no `role="region"`, so it is 
 
 **Fix:** Add `role="region"` to the `.region` div.
 
+**Resolution:** Added `role="region"` to the `.region` div on line 92.
+
 ---
 
-### 16. Toast `role="alert"` combined with redundant `aria-live`/`aria-atomic`
+### 16. ~~Toast `role="alert"` combined with redundant `aria-live`/`aria-atomic`~~ ✅ Fixed
 
 **File:** `src/components/primitives/Toast/Toast.tsx:39`
 
@@ -292,13 +290,13 @@ The container has `aria-label="Notifications"` but no `role="region"`, so it is 
 
 ---
 
-### 17. Tab remove button uses `×` Unicode character
+### ~~17. Tab remove button uses `×` Unicode character~~ ✅ Fixed
 
-**File:** `src/components/primitives/Tabs/Tabs.tsx:49`
+**File:** `src/components/primitives/Tabs/Tabs.tsx`
 
-The `×` multiplication sign has no semantic meaning and some screen readers announce it as "times" or "multiplication sign" even when `aria-label` is present.
+~~The `×` multiplication sign has no semantic meaning and some screen readers announce it as "times" or "multiplication sign" even when `aria-label` is present.~~
 
-**Fix:** Replace `×` with `<Icon name="close" />` (already `aria-hidden`) so the button label comes entirely from `aria-label`.
+**Fix:** Replaced `×` with `<Icon name="close" aria-hidden size="small" />` so the button label comes entirely from `aria-label`.
 
 ---
 
@@ -335,6 +333,7 @@ The `×` multiplication sign has no semantic meaning and some screen readers ann
 | P3       | Toast region missing `role="region"`                                     | `Toast/Toast.tsx`                                         |
 | P3       | Toast redundant `aria-live`/`aria-atomic` on `role="alert"`              | `Toast/Toast.tsx`                                         |
 | P3       | Tab remove button uses `×` Unicode character                             | `Tabs/Tabs.tsx`                                           |
+| P3       | `Move` has 18 props — refactor into grouped object props                 | [`docs/move-props-refactor.md`](docs/move-props-refactor.md) |
 
 ---
 

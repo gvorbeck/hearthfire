@@ -136,7 +136,10 @@ const PossessionLabel = ({ p, checked, selected, uses, onToggle, onRadioSelect, 
     return (
       <span className={styles.labelWithSubItems}>
         {heading}
-        <ul className={styles.subItemList}>
+        <ul
+          className={styles.subItemList}
+          {...(p.selectOneSubItem ? { role: 'radiogroup', 'aria-label': p.label.replace(/\*+/g, '') } : {})}
+        >
           {p.subItems.map((item, idx) => (
             <SubItem
               key={subItemKey(p.id, item, idx)}

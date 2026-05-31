@@ -1,19 +1,27 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Radio, Input } from '@/components/primitives';
+import type { ReactNode } from 'react';
+import { Radio, RadioGroup, Input, Text } from '@/components/primitives';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import { PlaybookSection } from '../PlaybookSection';
-import type { InstinctOption } from '@/lib/instinctOptions';
+import type { RadioOption } from '@/lib/radioOptions';
 import type { CharacterData } from '@/types';
-import styles from './Instinct.module.css';
+import styles from './RadioSelect.module.css';
 
 const CUSTOM_VALUE = '__custom__';
 
-interface InstinctProps {
+interface RadioSelectProps {
   playbookKey?: string;
-  options?: InstinctOption[];
+  title?: string;
+  header?: ReactNode;
+  instruction?: ReactNode;
+  options?: RadioOption[];
   data?: CharacterData;
   onSave?: (data: Partial<CharacterData>) => Promise<void>;
   overrideNote?: string;
+  chooseNote?: string;
+  dataKey?: keyof CharacterData;
+  customKey?: keyof CharacterData;
+  noCustom?: boolean;
 }
 
 const syncTextareaHeight = (el: HTMLTextAreaElement) => {
@@ -21,9 +29,22 @@ const syncTextareaHeight = (el: HTMLTextAreaElement) => {
   el.style.height = `${el.scrollHeight}px`;
 };
 
-export const Instinct = ({ playbookKey, options, data, onSave, overrideNote }: InstinctProps = {}) => {
-  const [selected, setSelected] = useState<string>(data?.instinct ?? '');
-  const [customText, setCustomText] = useState<string>(data?.instinctCustom ?? '');
+export const RadioSelect = ({
+  playbookKey,
+  title = 'Instinct',
+  header,
+  instruction,
+  options,
+  data,
+  onSave,
+  overrideNote,
+  chooseNote,
+  dataKey = 'instinct',
+  customKey = 'instinctCustom',
+  noCustom = false,
+}: RadioSelectProps = {}) => {
+  const [selected, setSelected] = useState<string>('');
+  const [customText, setCustomText] = useState<string>('');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const customTextRef = useRef(customText);
@@ -31,16 +52,19 @@ export const Instinct = ({ playbookKey, options, data, onSave, overrideNote }: I
   const hasInitializedCollapse = useRef(false);
 
   useEffect(() => {
-    if (data?.instinct !== undefined) setSelected(data.instinct);
-  }, [data?.instinct]);
+    if (data?.[dataKey] !== undefined) setSelected(data[dataKey] as string);
+  }, [data, dataKey]);
 
-  // Collapse once on the first Firestore load that has a selection; never re-collapse after that.
   useEffect(() => {
-    if (data?.instinct && !hasInitializedCollapse.current) {
+    if (data?.[customKey] !== undefined) setCustomText(data[customKey] as string);
+  }, [data, customKey]);
+
+  useEffect(() => {
+    if (data?.[dataKey] && !hasInitializedCollapse.current) {
       hasInitializedCollapse.current = true;
       setIsCollapsed(true);
     }
-  }, [data?.instinct]);
+  }, [data, dataKey]);
 
   useEffect(() => {
     const el = textareaRef.current;
@@ -48,29 +72,18 @@ export const Instinct = ({ playbookKey, options, data, onSave, overrideNote }: I
     syncTextareaHeight(el);
   }, [customText]);
 
-  // Sync height on mount when customText is pre-populated from Firestore.
-  useEffect(() => {
-    const el = textareaRef.current;
-    if (!el) return;
-    syncTextareaHeight(el);
-  }, []);
-
   const handleToggleCollapse = useCallback(() => setIsCollapsed((v) => !v), []);
 
   const handleSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.currentTarget.dataset.value ?? '';
+    const value = e.currentTarget.value;
     setSelected(value);
-    if (value !== CUSTOM_VALUE) {
-      setIsCollapsed(true);
-      onSave?.({ instinct: value, instinctCustom: '' });
-    } else {
-      onSave?.({ instinct: value, instinctCustom: '' });
-    }
-  }, [onSave]);
+    if (value !== CUSTOM_VALUE) setIsCollapsed(true);
+    onSave?.({ [dataKey]: value, [customKey]: '' } as Partial<CharacterData>);
+  }, [onSave, dataKey, customKey]);
 
   const saveCustomText = useCallback(
-    (value: string) => onSave?.({ instinct: CUSTOM_VALUE, instinctCustom: value }) ?? Promise.resolve(),
-    [onSave]
+    (value: string) => onSave?.({ [dataKey]: CUSTOM_VALUE, [customKey]: value } as Partial<CharacterData>) ?? Promise.resolve(),
+    [onSave, dataKey, customKey]
   );
   const { onChange: debouncedChange, flush: flushOnBlur } = useDebouncedSave(saveCustomText, 1000);
 
@@ -84,68 +97,69 @@ export const Instinct = ({ playbookKey, options, data, onSave, overrideNote }: I
     flushOnBlur(customTextRef.current);
   }, [flushOnBlur]);
 
-  if (!options) return <PlaybookSection title="Instinct" overrideNote={overrideNote} />;
+  if (!options) return <PlaybookSection title={title} overrideNote={overrideNote} />;
+  if (overrideNote) return <PlaybookSection title={title} overrideNote={overrideNote} />;
 
-  const warn = !selected || (selected === CUSTOM_VALUE && !customText.trim());
-  const hasSelection = !!selected && (selected !== CUSTOM_VALUE || !!customText.trim());
+  const warn = !selected || (!noCustom && selected === CUSTOM_VALUE && !customText.trim());
+  const hasSelection = !!selected && (noCustom || selected !== CUSTOM_VALUE || !!customText.trim());
 
   const visibleOptions = isCollapsed && hasSelection
     ? options.filter((opt) => opt.value === selected)
     : options;
-
-  const showCustom = !isCollapsed || selected === CUSTOM_VALUE;
-
-  if (overrideNote) {
-    return <PlaybookSection title="Instinct" overrideNote={overrideNote} />;
-  }
+  const showCustom = !noCustom && (!isCollapsed || selected === CUSTOM_VALUE);
 
   return (
     <PlaybookSection
-      title="Instinct"
+      title={title}
       choose={1}
       warn={warn}
       collapsible={hasSelection}
       isCollapsed={isCollapsed}
       onToggleCollapse={handleToggleCollapse}
+      forceChildren
+      chooseNote={chooseNote}
       overrideNote={overrideNote}
     >
-      <div className={styles.options}>
+      {header}
+      {instruction && (
+        <Text color="muted" className={styles.instruction}>{instruction}</Text>
+      )}
+      <RadioGroup legend={title} legendHidden className={styles.options}>
         {visibleOptions.map((opt) => (
           <div key={opt.value} className={styles.option}>
             <Radio
-              name={`${playbookKey}-instinct`}
+              name={`${playbookKey}-${String(dataKey)}`}
               value={opt.value}
-              data-value={opt.value}
               checked={selected === opt.value}
               onChange={handleSelect}
               label={
                 <span className={styles.optionLabel}>
                   <span className={styles.optionTitle}>{opt.label}</span>
-                  <span className={styles.optionDesc}>{opt.description}</span>
+                  {opt.description && <span className={styles.optionDesc}>{opt.description}</span>}
+                  {opt.subtitle && <span className={styles.optionDesc}>{opt.subtitle}</span>}
                 </span>
               }
             />
+            {(opt.detailAlways || selected === opt.value) && opt.detail}
           </div>
         ))}
         {showCustom && (
           <div className={styles.option}>
             <Radio
-              name={`${playbookKey}-instinct`}
+              name={`${playbookKey}-${String(dataKey)}`}
               value={CUSTOM_VALUE}
-              data-value={CUSTOM_VALUE}
               checked={selected === CUSTOM_VALUE}
               onChange={handleSelect}
               label={
                 selected === CUSTOM_VALUE ? (
-                  // stopPropagation prevents the label click from re-toggling the radio when the user clicks into the text field
                   <Input
                     multiline
                     ref={textareaRef}
                     value={customText}
-                    aria-label="Custom instinct"
+                    aria-label={`Custom ${title.toLowerCase()}`}
                     onChange={handleCustomChange}
                     onBlur={handleCustomBlur}
-                    placeholder="Describe your instinct…"
+                    placeholder={`Describe your ${title.toLowerCase()}…`}
                     onClick={(e) => e.stopPropagation()}
                     className={styles.customTextarea}
                     rows={1}
@@ -157,7 +171,7 @@ export const Instinct = ({ playbookKey, options, data, onSave, overrideNote }: I
             />
           </div>
         )}
-      </div>
+      </RadioGroup>
     </PlaybookSection>
   );
 };

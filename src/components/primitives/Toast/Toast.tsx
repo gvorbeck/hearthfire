@@ -36,7 +36,7 @@ const ToastEntry = ({
   const handleDismissItem = useCallback(() => onDismiss(item.id), [onDismiss, item.id]);
 
   return (
-    <div role="alert" aria-live="assertive" aria-atomic="true" className={cx}>
+    <div role="alert" className={cx}>
       <span className={iconCx}>
         <Icon name={item.variant === 'error' ? 'warning' : 'check'} size="small" />
       </span>
@@ -89,7 +89,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
     <ToastContext.Provider value={{ addToast }}>
       {children}
       {createPortal(
-        <div className={styles.region} aria-label="Notifications">
+        <div role="region" className={styles.region} aria-label="Notifications">
           {toasts.map((item) => (
             <ToastEntry key={item.id} item={item} onDismiss={handleDismiss} />
           ))}

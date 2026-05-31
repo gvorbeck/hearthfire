@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
-import { Input, Radio, Text, UseDots, CheckboxGroup } from '@/components/primitives';
+import { Input, Radio, RadioGroup, Text, UseDots, CheckboxGroup } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { CharacterData } from '@/types';
@@ -8,6 +8,7 @@ import styles from './BlessedInitiatesOfDanu.module.css';
 
 interface PickLine {
   key: string;
+  label: string;
   options: string[];
 }
 
@@ -37,10 +38,10 @@ const INITIATES: InitiateConfig[] = [
     moves: ['Speak with birds', 'Ask a difficult question', 'Wander off'],
     cost: 'knowledge, secret lore',
     pickLines: [
-      { key: 'pronoun', options: ['he', 'she', 'they', '___'] },
-      { key: 'age', options: ['just a child', 'on the cusp', 'a young adult'] },
-      { key: 'origin', options: ['carefully chosen', 'marked by Danu', 'orphaned'] },
-      { key: 'trait', options: ['carefree', 'curious', 'moody', 'secretive'] },
+      { key: 'pronoun', label: 'Pronoun', options: ['he', 'she', 'they', '___'] },
+      { key: 'age', label: 'Age', options: ['just a child', 'on the cusp', 'a young adult'] },
+      { key: 'origin', label: 'Origin', options: ['carefully chosen', 'marked by Danu', 'orphaned'] },
+      { key: 'trait', label: 'Trait', options: ['carefree', 'curious', 'moody', 'secretive'] },
     ],
     rites: ['blood', 'fire', 'sacred union'],
   },
@@ -55,9 +56,9 @@ const INITIATES: InitiateConfig[] = [
     moves: ['Weave a minor glamor', 'Appear or disappear unexpectedly', 'Speak an uncomfortable truth'],
     cost: 'wonder, joy',
     pickLines: [
-      { key: 'pronoun', options: ['he', 'she', 'they', '___'] },
-      { key: 'location', options: ['comes and goes', 'in the Wood', 'a hut near town'] },
-      { key: 'trait', options: ['aloof', 'bawdy and lewd', 'unnerving'] },
+      { key: 'pronoun', label: 'Pronoun', options: ['he', 'she', 'they', '___'] },
+      { key: 'location', label: 'Location', options: ['comes and goes', 'in the Wood', 'a hut near town'] },
+      { key: 'trait', label: 'Trait', options: ['aloof', 'bawdy and lewd', 'unnerving'] },
     ],
     rites: ['ecstasy', 'intoxication', 'moonlight'],
   },
@@ -72,9 +73,9 @@ const INITIATES: InitiateConfig[] = [
     moves: ['Tend to the sick, injured, women in labor', 'Weave a talisman of fertility or good luck', 'Point out a flaw in a person or plan'],
     cost: 'consideration, affection',
     pickLines: [
-      { key: 'pronoun', options: ['he', 'she', 'they', '___'] },
-      { key: 'home', options: ['a big family', 'has taken you in', 'lives alone'] },
-      { key: 'trait', options: ['blunt', 'demanding', 'put upon', 'suffers no fools'] },
+      { key: 'pronoun', label: 'Pronoun', options: ['he', 'she', 'they', '___'] },
+      { key: 'home', label: 'Home', options: ['a big family', 'has taken you in', 'lives alone'] },
+      { key: 'trait', label: 'Trait', options: ['blunt', 'demanding', 'put upon', 'suffers no fools'] },
     ],
     rites: ['earth & soil', 'mourning', 'petition'],
   },
@@ -89,9 +90,9 @@ const INITIATES: InitiateConfig[] = [
     moves: ['Perform a divination', 'Speak a (dire) prophecy', 'Make a big deal about something'],
     cost: 'tenderness, respect',
     pickLines: [
-      { key: 'pronoun', options: ['he', 'she', 'they', '___'] },
-      { key: 'relationship', options: ['betrothed', 'true love', 'ceremonial', 'complicated'] },
-      { key: 'trait', options: ['contrary', 'dramatic', 'passionate', 'tormented'] },
+      { key: 'pronoun', label: 'Pronoun', options: ['he', 'she', 'they', '___'] },
+      { key: 'relationship', label: 'Relationship', options: ['betrothed', 'true love', 'ceremonial', 'complicated'] },
+      { key: 'trait', label: 'Trait', options: ['contrary', 'dramatic', 'passionate', 'tormented'] },
     ],
     rites: ['blood', 'fire', 'sacred union'],
   },
@@ -106,9 +107,9 @@ const INITIATES: InitiateConfig[] = [
     moves: ['Consult the spirits, or abjure them', 'Spin a tale to make a point', 'Use shame and guilt as leverage'],
     cost: 'deference, good sense shown',
     pickLines: [
-      { key: 'pronoun', options: ['he', 'she', 'they', '___'] },
-      { key: 'standing', options: ['dismissed', 'pitied', 'feared', 'venerated'] },
-      { key: 'trait', options: ['cagey', 'friendly but firm', 'imperious'] },
+      { key: 'pronoun', label: 'Pronoun', options: ['he', 'she', 'they', '___'] },
+      { key: 'standing', label: 'Standing', options: ['dismissed', 'pitied', 'feared', 'venerated'] },
+      { key: 'trait', label: 'Trait', options: ['cagey', 'friendly but firm', 'imperious'] },
     ],
     rites: ['iron', 'secret naming', 'winter'],
   },
@@ -190,7 +191,7 @@ const InitiateSection = memo(({
         <Text font="serif" color="muted" italic className={styles.pickInstruction}>Pick 1 on each line:</Text>
         {config.pickLines.map((line) => (
           <div key={line.key} className={styles.row}>
-            <div className={styles.options}>
+            <RadioGroup legend={line.label} legendHidden className={styles.options}>
               {line.options.filter((opt) => !(line.key === 'pronoun' && opt === '___')).map((opt) => (
                 <Radio
                   key={opt}
@@ -202,18 +203,18 @@ const InitiateSection = memo(({
                   label={<span className={styles.pickLabel}>{opt}</span>}
                 />
               ))}
-              {line.key === 'pronoun' && (
-                <Input
-                  className={styles.pronounInput}
-                  type="text"
-                  value={picks['pronoun_text'] ?? ''}
-                  onChange={handlePronounTextChange}
-                  onFocus={handlePronounFocus}
-                  aria-label="Custom pronoun"
-                  placeholder="___"
-                />
-              )}
-            </div>
+            </RadioGroup>
+            {line.key === 'pronoun' && (
+              <Input
+                className={styles.pronounInput}
+                type="text"
+                value={picks['pronoun_text'] ?? ''}
+                onChange={handlePronounTextChange}
+                onFocus={handlePronounFocus}
+                aria-label="Custom pronoun"
+                placeholder="___"
+              />
+            )}
           </div>
         ))}
         <div className={styles.row}>

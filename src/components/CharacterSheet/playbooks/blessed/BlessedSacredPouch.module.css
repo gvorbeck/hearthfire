@@ -17,22 +17,28 @@
   flex-direction: column;
 }
 
+.isRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  padding: var(--spacing-3) 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.isRow:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.isRow:first-child {
+  padding-top: 0;
+}
+
 .optionRow {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-2) var(--spacing-4);
   align-items: center;
-  padding: var(--spacing-2) 0;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.optionRow:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.optionRow:first-child {
-  padding-top: 0;
 }
 
 .optionLabel {

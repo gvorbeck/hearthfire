@@ -17,7 +17,8 @@ type Props = InputProps | TextareaProps;
 export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, Props>(
   ({ label, id, error, className, multiline, ...props }, ref) => {
     const generatedId = useId();
-    const resolvedId = id ?? (label ? generatedId : undefined);
+    const resolvedId = id ?? generatedId;
+    const errorId = error ? `${generatedId}-error` : undefined;
     const cx = clsx(styles.input, error && styles.hasError, className);
 
     const el = multiline
@@ -27,6 +28,7 @@ export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, Props>(
           id={resolvedId}
           className={cx}
           {...(props as TextareaHTMLAttributes<HTMLTextAreaElement>)}
+          aria-describedby={errorId}
         />
       )
       : (
@@ -35,16 +37,24 @@ export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, Props>(
           id={resolvedId}
           className={cx}
           {...(props as InputHTMLAttributes<HTMLInputElement>)}
+          aria-describedby={errorId}
         />
       );
 
-    if (!label) return el;
+    if (!label) {
+      return (
+        <>
+          {el}
+          {error && <span id={errorId} className={styles.error}>{error}</span>}
+        </>
+      );
+    }
 
     return (
       <div className={styles.wrapper}>
         <label htmlFor={resolvedId} className={styles.label}>{label}</label>
         {el}
-        {error && <span className={styles.error}>{error}</span>}
+        {error && <span id={errorId} className={styles.error}>{error}</span>}
       </div>
     );
   }
