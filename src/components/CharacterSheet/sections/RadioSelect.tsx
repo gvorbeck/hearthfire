@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import type { ReactNode } from 'react';
 import { Radio, RadioGroup, Input, Text } from '@/components/primitives';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import { PlaybookSection } from '../PlaybookSection';
-import type { RadioOption } from '@/lib/instinctOptions';
+import type { RadioOption } from '@/lib/radioOptions';
 import type { CharacterData } from '@/types';
 import styles from './RadioSelect.module.css';
 
@@ -11,12 +12,13 @@ const CUSTOM_VALUE = '__custom__';
 interface RadioSelectProps {
   playbookKey?: string;
   title?: string;
-  header?: React.ReactNode;
-  instruction?: React.ReactNode;
+  header?: ReactNode;
+  instruction?: ReactNode;
   options?: RadioOption[];
   data?: CharacterData;
   onSave?: (data: Partial<CharacterData>) => Promise<void>;
   overrideNote?: string;
+  chooseNote?: string;
   dataKey?: keyof CharacterData;
   customKey?: keyof CharacterData;
   noCustom?: boolean;
@@ -36,6 +38,7 @@ export const RadioSelect = ({
   data,
   onSave,
   overrideNote,
+  chooseNote,
   dataKey = 'instinct',
   customKey = 'instinctCustom',
   noCustom = false,
@@ -100,7 +103,6 @@ export const RadioSelect = ({
   const warn = !selected || (!noCustom && selected === CUSTOM_VALUE && !customText.trim());
   const hasSelection = !!selected && (noCustom || selected !== CUSTOM_VALUE || !!customText.trim());
 
-  const selectedOption = options.find((opt) => opt.value === selected);
   const visibleOptions = isCollapsed && hasSelection
     ? options.filter((opt) => opt.value === selected)
     : options;
@@ -114,68 +116,62 @@ export const RadioSelect = ({
       collapsible={hasSelection}
       isCollapsed={isCollapsed}
       onToggleCollapse={handleToggleCollapse}
-      forceChildren={!noCustom}
+      forceChildren
+      chooseNote={chooseNote}
       overrideNote={overrideNote}
     >
       {header}
-      {noCustom && isCollapsed && selectedOption ? (
-        <Text color="muted" className={styles.summary}>
-          <span className={styles.optionTitle}>{selectedOption.label}</span>
-        </Text>
-      ) : (
-        <>
-          {instruction && (
-            <Text color="muted" className={styles.instruction}>{instruction}</Text>
-          )}
-          <RadioGroup legend={title} legendHidden className={styles.options}>
-            {visibleOptions.map((opt) => (
-              <div key={opt.value} className={styles.option}>
-                <Radio
-                  name={`${playbookKey}-${String(dataKey)}`}
-                  value={opt.value}
-                  checked={selected === opt.value}
-                  onChange={handleSelect}
-                  label={
-                    <span className={styles.optionLabel}>
-                      <span className={styles.optionTitle}>{opt.label}</span>
-                      {opt.description && <span className={styles.optionDesc}>{opt.description}</span>}
-                      {opt.subtitle && <span className={styles.optionDesc}>{opt.subtitle}</span>}
-                    </span>
-                  }
-                />
-              </div>
-            ))}
-            {showCustom && (
-              <div className={styles.option}>
-                <Radio
-                  name={`${playbookKey}-${String(dataKey)}`}
-                  value={CUSTOM_VALUE}
-                  checked={selected === CUSTOM_VALUE}
-                  onChange={handleSelect}
-                  label={
-                    selected === CUSTOM_VALUE ? (
-                      <Input
-                        multiline
-                        ref={textareaRef}
-                        value={customText}
-                        aria-label={`Custom ${title.toLowerCase()}`}
-                        onChange={handleCustomChange}
-                        onBlur={handleCustomBlur}
-                        placeholder={`Describe your ${title.toLowerCase()}…`}
-                        onClick={(e) => e.stopPropagation()}
-                        className={styles.customTextarea}
-                        rows={1}
-                      />
-                    ) : (
-                      <span className={styles.customLabel}>Custom…</span>
-                    )
-                  }
-                />
-              </div>
-            )}
-          </RadioGroup>
-        </>
+      {instruction && (
+        <Text color="muted" className={styles.instruction}>{instruction}</Text>
       )}
+      <RadioGroup legend={title} legendHidden className={styles.options}>
+        {visibleOptions.map((opt) => (
+          <div key={opt.value} className={styles.option}>
+            <Radio
+              name={`${playbookKey}-${String(dataKey)}`}
+              value={opt.value}
+              checked={selected === opt.value}
+              onChange={handleSelect}
+              label={
+                <span className={styles.optionLabel}>
+                  <span className={styles.optionTitle}>{opt.label}</span>
+                  {opt.description && <span className={styles.optionDesc}>{opt.description}</span>}
+                  {opt.subtitle && <span className={styles.optionDesc}>{opt.subtitle}</span>}
+                </span>
+              }
+            />
+            {selected === opt.value && opt.detail}
+          </div>
+        ))}
+        {showCustom && (
+          <div className={styles.option}>
+            <Radio
+              name={`${playbookKey}-${String(dataKey)}`}
+              value={CUSTOM_VALUE}
+              checked={selected === CUSTOM_VALUE}
+              onChange={handleSelect}
+              label={
+                selected === CUSTOM_VALUE ? (
+                  <Input
+                    multiline
+                    ref={textareaRef}
+                    value={customText}
+                    aria-label={`Custom ${title.toLowerCase()}`}
+                    onChange={handleCustomChange}
+                    onBlur={handleCustomBlur}
+                    placeholder={`Describe your ${title.toLowerCase()}…`}
+                    onClick={(e) => e.stopPropagation()}
+                    className={styles.customTextarea}
+                    rows={1}
+                  />
+                ) : (
+                  <span className={styles.customLabel}>Custom…</span>
+                )
+              }
+            />
+          </div>
+        )}
+      </RadioGroup>
     </PlaybookSection>
   );
 };

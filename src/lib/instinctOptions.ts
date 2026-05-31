@@ -1,11 +1,5 @@
 import type { PlaybookType } from '@/types';
-
-export interface RadioOption {
-  value: string;
-  label: string;
-  description?: string;
-  subtitle?: string;
-}
+import type { RadioOption } from './radioOptions';
 
 export const INSTINCT_OPTIONS: Partial<Record<PlaybookType, RadioOption[]>> = {
   blessed: [

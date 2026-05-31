@@ -1,5 +1,5 @@
 import type { PlaybookType } from '@/types';
-import type { RadioOption } from '@/lib/instinctOptions';
+import type { RadioOption } from '@/lib/radioOptions';
 
 type Source = { value: string; label: string; names: string };
 

@@ -4,7 +4,7 @@ import { Checkbox, CheckboxGroup, Divider, Input, Text, UseDots, useToast } from
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import { RadioSelect } from '../../sections/RadioSelect';
-import type { RadioOption } from '@/lib/instinctOptions';
+import type { RadioOption } from '@/lib/radioOptions';
 import { useCrewSave } from '../shared/useCrewSave';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { CharacterData } from '@/types';

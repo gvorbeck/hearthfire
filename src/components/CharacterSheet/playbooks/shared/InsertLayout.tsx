@@ -1,12 +1,15 @@
-import type { ReactNode } from 'react';
+import { useCallback, type ReactNode } from 'react';
 import { CheckboxGroup, Text } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { Move } from '../../Move';
 import type { MoveDefinition } from '../../Move';
-import { InsertInstinctSection, InsertPurposeSection } from './InsertSections';
+import { PurposeDetail } from './InsertSections';
+import { RadioSelect } from '../../sections/RadioSelect';
+import { INSERT_INSTINCT_OPTIONS, INSERT_PURPOSE_OPTIONS } from '@/lib/insertSharedData';
 import { useInsertSections } from './useInsertSections';
 import { useConsequenceCheckboxes } from './useConsequenceCheckboxes';
 import type { CharacterData, PlaybookFeatures } from '@/types';
+import type { RadioOption } from '@/lib/radioOptions';
 import styles from './InsertLayout.module.css';
 
 type ConsequenceKey = Extract<{
@@ -55,9 +58,6 @@ export const InsertLayout = ({
 }: InsertLayoutProps) => {
   const {
     instinct, purpose, purposeNames,
-    instinctCollapsed, purposeCollapsed,
-    handleToggleInstinctCollapse, handleTogglePurposeCollapse,
-    handleInstinctChange, handlePurposeChange,
     handlePurposeNameChange, handlePurposeNameBlur,
     saveImmediate,
   } = useInsertSections(data, onSave, sectionKeys);
@@ -75,14 +75,41 @@ export const InsertLayout = ({
     isConsequenceDisabled,
   );
 
+  const handleInstinctSave = useCallback(
+    (patch: Partial<CharacterData>) => saveImmediate({ [sectionKeys.instinct]: patch.instinct ?? '' }),
+    [saveImmediate, sectionKeys.instinct],
+  );
+
+  const handlePurposeSave = useCallback(
+    (patch: Partial<CharacterData>) => saveImmediate({ [sectionKeys.purpose]: patch.instinct ?? '' }),
+    [saveImmediate, sectionKeys.purpose],
+  );
+
+  const instinctOptions = INSERT_INSTINCT_OPTIONS.map((opt) => ({ value: opt.value, label: opt.label, description: opt.description }));
+
+  const purposeOptions = INSERT_PURPOSE_OPTIONS.map((opt): RadioOption => ({
+    value: opt.value,
+    label: opt.label,
+    detail: (
+      <PurposeDetail
+        opt={opt}
+        nameValue={purposeNames[opt.value] ?? ''}
+        onNameChange={handlePurposeNameChange}
+        onNameBlur={handlePurposeNameBlur}
+      />
+    ),
+  }));
+
   return (
     <div className={styles.root}>
-      <InsertInstinctSection
-        radioName={`${playbookName}-instinct`}
-        instinct={instinct}
-        instinctCollapsed={instinctCollapsed}
-        onToggleCollapse={handleToggleInstinctCollapse}
-        onChange={handleInstinctChange}
+      <RadioSelect
+        playbookKey={`${playbookName}-instinct`}
+        title="Instinct"
+        options={instinctOptions}
+        data={{ instinct, instinctCustom: '' } as CharacterData}
+        onSave={handleInstinctSave}
+        noCustom
+        chooseNote="replaces playbook instinct"
       />
 
       <PlaybookSection title="Moves">
@@ -96,15 +123,13 @@ export const InsertLayout = ({
         </div>
       </PlaybookSection>
 
-      <InsertPurposeSection
-        radioName={`${playbookName}-purpose`}
-        purpose={purpose}
-        purposeNames={purposeNames}
-        purposeCollapsed={purposeCollapsed}
-        onToggleCollapse={handleTogglePurposeCollapse}
-        onPurposeChange={handlePurposeChange}
-        onNameChange={handlePurposeNameChange}
-        onNameBlur={handlePurposeNameBlur}
+      <RadioSelect
+        playbookKey={`${playbookName}-purpose`}
+        title="Terrible Purpose"
+        options={purposeOptions}
+        data={{ instinct: purpose, instinctCustom: '' } as CharacterData}
+        onSave={handlePurposeSave}
+        noCustom
       />
 
       <PlaybookSection title="Consequences" chooseNote="choose 1 to start; more as play demands">

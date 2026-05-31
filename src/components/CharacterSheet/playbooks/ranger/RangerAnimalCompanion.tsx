@@ -8,7 +8,7 @@ import { RadioSelect } from '../../sections/RadioSelect';
 import { BeastOfLegend } from './BeastOfLegend';
 import { Text, UseDots } from '@/components/primitives';
 import type { CharacterData } from '@/types';
-import type { RadioOption } from '@/lib/instinctOptions';
+import type { RadioOption } from '@/lib/radioOptions';
 import styles from './RangerAnimalCompanion.module.css';
 
 const ANIMAL_INSTINCT_OPTIONS: RadioOption[] = [
