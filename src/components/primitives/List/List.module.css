@@ -30,6 +30,21 @@
   font-family: var(--font-sans);
 }
 
+/* ── Ellipses variant (… gold ellipsis) ─────────────── */
+.ellipses .item {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+.ellipses .item::before {
+  content: '…';
+  color: var(--color-gold-500);
+  flex-shrink: 0;
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  font-family: var(--font-sans);
+}
+
 /* ── Dash variant ────────────────────────────────────── */
 .dash {
   gap: var(--spacing-2);

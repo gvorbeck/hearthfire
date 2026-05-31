@@ -25,11 +25,15 @@ export const Modal = ({ open, onClose, children, className, 'aria-labelledby': l
   const onCloseRef = useRef(onClose);
   const returnFocusRef = useRef<Element | null>(null);
 
-  // keeps ref current so the keydown effect sees the latest onClose without re-registering the listener
+  // avoids re-registering the keydown listener every time onClose changes identity
   useEffect(() => { onCloseRef.current = onClose; });
 
   useEffect(() => {
     if (!open) return;
+
+    const appRoot = document.getElementById('root');
+    if (!appRoot) return;
+    appRoot.setAttribute('inert', '');
 
     returnFocusRef.current = document.activeElement;
     panelRef.current?.focus();
@@ -66,6 +70,7 @@ export const Modal = ({ open, onClose, children, className, 'aria-labelledby': l
     document.addEventListener('keydown', handleKey);
     return () => {
       document.removeEventListener('keydown', handleKey);
+      appRoot.removeAttribute('inert');
       if (returnFocusRef.current instanceof HTMLElement) {
         returnFocusRef.current.focus();
       }
@@ -84,7 +89,7 @@ export const Modal = ({ open, onClose, children, className, 'aria-labelledby': l
         onClick={handlePanelClick}
         role="dialog"
         aria-modal="true"
-        aria-labelledby={labelledBy}
+        {...(labelledBy ? { 'aria-labelledby': labelledBy } : {})}
         tabIndex={-1}
       >
         {children}

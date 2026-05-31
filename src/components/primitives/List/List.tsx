@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import styles from './List.module.css';
 
-type ListVariant = 'bullet' | 'dash' | 'numbered';
+type ListVariant = 'bullet' | 'dash' | 'numbered' | 'ellipses';
 
 interface ListProps {
   variant: ListVariant;
