@@ -1,6 +1,5 @@
-import { useCallback, useMemo, memo } from 'react';
-import { Checkbox, CheckboxGroup, Divider, Input, Radio, RadioGroup, Text } from '@/components/primitives';
-import { PlaybookSection } from '../../PlaybookSection';
+import { useCallback, useMemo } from 'react';
+import { Checkbox, CheckboxGroup, Input, Text } from '@/components/primitives';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import styles from './RangerAnimalCompanion.module.css';
 
@@ -147,7 +146,7 @@ export const ANIMAL_TYPES: AnimalTypeConfig[] = [
   },
 ];
 
-interface TypePicksSectionProps {
+export interface TypePicksSectionProps {
   typeId: string;
   typeConfig: AnimalTypeConfig;
   isSelected: boolean;
@@ -160,7 +159,7 @@ interface TypePicksSectionProps {
   onCustomCheckedChange: (typeId: string, checked: boolean) => void;
 }
 
-const TypePicksSection = memo(({
+export const TypePicksSection = ({
   typeId,
   typeConfig,
   isSelected,
@@ -235,84 +234,5 @@ const TypePicksSection = memo(({
         />
       </div>
     </div>
-  );
-});
-
-interface AnimalTypeProps {
-  animalType: string;
-  typePicks: Record<string, boolean>;
-  typeCustom: Record<string, string>;
-  typeCustomChecked: Record<string, boolean>;
-  typeCollapsed: boolean;
-  onTypeChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onTypePickChange: (id: string, checked: boolean) => void;
-  onTypeCustomChange: (typeId: string, e: React.ChangeEvent<HTMLInputElement>) => void;
-  onTypeCustomBlur: (typeId: string) => void;
-  onTypeCustomCheckedChange: (typeId: string, checked: boolean) => void;
-  onToggleCollapse: () => void;
-}
-
-export const AnimalType = ({
-  animalType,
-  typePicks,
-  typeCustom,
-  typeCustomChecked,
-  typeCollapsed,
-  onTypeChange,
-  onTypePickChange,
-  onTypeCustomChange,
-  onTypeCustomBlur,
-  onTypeCustomCheckedChange,
-  onToggleCollapse,
-}: AnimalTypeProps) => {
-  const visibleTypes = typeCollapsed
-    ? ANIMAL_TYPES.filter((t) => t.id === animalType)
-    : ANIMAL_TYPES;
-
-  return (
-    <PlaybookSection
-      title="Type"
-      choose={1}
-      warn={!animalType}
-      collapsible={!!animalType}
-      isCollapsed={typeCollapsed}
-      onToggleCollapse={onToggleCollapse}
-    >
-      <RadioGroup legend="Animal type" legendHidden className={styles.typeList}>
-        {visibleTypes.map((typeConfig, i) => {
-          const isSelected = animalType === typeConfig.id;
-          return (
-            <div key={typeConfig.id} className={styles.typeEntry}>
-              {!typeCollapsed && i > 0 && <Divider />}
-              <Radio
-                className={styles.typeRow}
-                name="animal-type"
-                value={typeConfig.id}
-                checked={isSelected}
-                onChange={onTypeChange}
-                label={
-                  <span className={styles.typeLabel}>
-                    <strong>{typeConfig.label}</strong>
-                    <span className={styles.typeExamples}> ({typeConfig.examples}, etc.)</span>
-                  </span>
-                }
-              />
-              <TypePicksSection
-                typeId={typeConfig.id}
-                typeConfig={typeConfig}
-                isSelected={isSelected}
-                picks={typePicks}
-                customText={typeCustom[typeConfig.id] ?? ''}
-                customChecked={typeCustomChecked[typeConfig.id] ?? false}
-                onPickChange={onTypePickChange}
-                onCustomChange={onTypeCustomChange}
-                onCustomBlur={onTypeCustomBlur}
-                onCustomCheckedChange={onTypeCustomCheckedChange}
-              />
-            </div>
-          );
-        })}
-      </RadioGroup>
-    </PlaybookSection>
   );
 };

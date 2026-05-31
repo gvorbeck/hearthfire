@@ -140,7 +140,7 @@ export const RadioSelect = ({
                 </span>
               }
             />
-            {selected === opt.value && opt.detail}
+            {(opt.detailAlways || selected === opt.value) && opt.detail}
           </div>
         ))}
         {showCustom && (

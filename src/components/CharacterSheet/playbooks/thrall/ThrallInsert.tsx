@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import clsx from 'clsx';
-import { Button, Input, Radio, RadioGroup, Text } from '@/components/primitives';
+import { Button, Input, Text } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { Move } from '../../Move';
 import type { MoveDefinition } from '../../Move';
+import { RadioSelect } from '../../sections/RadioSelect';
 import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
 import { useCrewSave } from '../shared/useCrewSave';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
@@ -14,7 +15,7 @@ const THRALL_INSTINCT_OPTIONS = [
   { value: 'fascination', label: 'FASCINATION', description: 'To explore your powers, your master, your new existence.' },
   { value: 'resistance', label: 'RESISTANCE', description: 'To struggle against your master and cling to your humanity.' },
   { value: 'shame', label: 'SHAME', description: 'To hide and deny your true nature.' },
-] as const;
+];
 
 const FAVOR_MOVE: MoveDefinition = {
   id: 'thrall-favor',
@@ -74,8 +75,6 @@ const THRALL_MOVES: MoveDefinition[] = [
   UNHOLY_VESSEL_MOVE,
 ];
 
-const IMPULSE_CUSTOM = '__custom__';
-
 const IMPULSE_OPTIONS = [
   { value: 'impulse-conflict', label: 'Stoke conflict, confusion, distrust' },
   { value: 'impulse-erode', label: 'Erode hope/faith/honor/self-image' },
@@ -84,7 +83,7 @@ const IMPULSE_OPTIONS = [
   { value: 'impulse-harm', label: 'Inflict harm, cruelly and unnecessarily' },
   { value: 'impulse-desecrate', label: 'Desecrate/mutilate/ruin things of value' },
   { value: 'impulse-shock', label: 'Shock/terrify/horrify others' },
-] as const;
+];
 
 const MARK_DEFINITIONS: MoveDefinition[] = [
   {
@@ -191,6 +190,42 @@ const MARK_DEFINITIONS: MoveDefinition[] = [
   },
 ];
 
+interface MarkEntryProps {
+  mark: MoveDefinition;
+  gained: boolean;
+  crossedOff: boolean;
+  onGainedChange: (id: string, val: boolean) => void;
+  onCrossedOffChange: (id: string) => void;
+}
+
+const MarkEntry = ({ mark, gained, crossedOff, onGainedChange, onCrossedOffChange }: MarkEntryProps) => {
+  const handleSelectChange = useCallback((val: boolean) => onGainedChange(mark.id, val), [mark.id, onGainedChange]);
+  const handleCrossOff = useCallback(() => onCrossedOffChange(mark.id), [mark.id, onCrossedOffChange]);
+  const markCx = clsx(styles.markEntry, crossedOff && styles.markCrossedOff);
+  const crossOffCx = clsx(styles.crossOffBtn, crossedOff && styles.crossOffBtnActive);
+  return (
+    <div className={markCx}>
+      <Move
+        move={mark}
+        selected={gained}
+        onSelectChange={handleSelectChange}
+        disabled={crossedOff}
+        headerAction={
+          <Button
+            variant="ghost"
+            size="sm"
+            icon="close"
+            className={crossOffCx}
+            onClick={handleCrossOff}
+            aria-pressed={crossedOff}
+            aria-label={crossedOff ? `Restore mark: ${mark.name}` : `Cross off mark (can never gain): ${mark.name}`}
+          />
+        }
+      />
+    </div>
+  );
+};
+
 interface ThrallInsertProps {
   data: CharacterData | undefined;
   onSave: (data: Partial<CharacterData>) => Promise<void>;
@@ -199,55 +234,23 @@ interface ThrallInsertProps {
 export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
   const { saveDebounced, saveImmediate, flushDebounce } = useCrewSave(data, onSave);
 
-  const [master, setMaster] = useState<string>(() => resolvePlaybookFeatures(data).thrallMaster ?? '');
+  const init = resolvePlaybookFeatures(data);
+  const [master, setMaster] = useState<string>(init.thrallMaster ?? '');
   const masterRef = useRef(master);
   masterRef.current = master;
-  const [instinct, setInstinct] = useState<string>(() => resolvePlaybookFeatures(data).thrallInstinct ?? '');
-  const [impulse, setImpulse] = useState<string>(() => resolvePlaybookFeatures(data).thrallImpulse ?? '');
-  const [impulseCustom, setImpulseCustom] = useState<string>(() => resolvePlaybookFeatures(data).thrallImpulseCustom ?? '');
-  const impulseCustomRef = useRef(impulseCustom);
-  impulseCustomRef.current = impulseCustom;
-  const [favor, setFavor] = useState<number>(() => resolvePlaybookFeatures(data).thrallFavor ?? 0);
-  const [marksGained, setMarksGained] = useState<Record<string, boolean>>(
-    () => resolvePlaybookFeatures(data).thrallMarksGained ?? {},
-  );
-  const [marksCrossedOff, setMarksCrossedOff] = useState<Record<string, boolean>>(
-    () => resolvePlaybookFeatures(data).thrallMarksCrossedOff ?? {},
-  );
+  const [favor, setFavor] = useState<number>(init.thrallFavor ?? 0);
+  const [marksGained, setMarksGained] = useState<Record<string, boolean>>(init.thrallMarksGained ?? {});
+  const [marksCrossedOff, setMarksCrossedOff] = useState<Record<string, boolean>>(init.thrallMarksCrossedOff ?? {});
 
-  const [instinctCollapsed, setInstinctCollapsed] = useState(false);
-  const hasInitInstinctCollapse = useRef(false);
-  const [impulseCollapsed, setImpulseCollapsed] = useState(false);
-  const hasInitImpulseCollapse = useRef(false);
 
   useEffect(() => {
     const f = resolvePlaybookFeatures(data);
     if (f.thrallMaster !== undefined) setMaster(f.thrallMaster);
-    if (f.thrallInstinct !== undefined) setInstinct(f.thrallInstinct);
-    if (f.thrallImpulse !== undefined) setImpulse(f.thrallImpulse);
-    if (f.thrallImpulseCustom !== undefined) setImpulseCustom(f.thrallImpulseCustom);
+
     if (f.thrallFavor !== undefined) setFavor(f.thrallFavor);
     if (f.thrallMarksGained !== undefined) setMarksGained(f.thrallMarksGained);
     if (f.thrallMarksCrossedOff !== undefined) setMarksCrossedOff(f.thrallMarksCrossedOff);
   }, [data]);
-
-  useEffect(() => {
-    if (instinct && !hasInitInstinctCollapse.current) {
-      hasInitInstinctCollapse.current = true;
-      setInstinctCollapsed(true);
-    }
-  }, [instinct]);
-
-  useEffect(() => {
-    const hasImpulse = !!impulse && (impulse !== IMPULSE_CUSTOM || !!impulseCustom.trim());
-    if (hasImpulse && !hasInitImpulseCollapse.current) {
-      hasInitImpulseCollapse.current = true;
-      setImpulseCollapsed(true);
-    }
-  }, [impulse, impulseCustom]);
-
-  const handleToggleInstinctCollapse = useCallback(() => setInstinctCollapsed((v) => !v), []);
-  const handleToggleImpulseCollapse = useCallback(() => setImpulseCollapsed((v) => !v), []);
 
   const handleMasterChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -259,35 +262,15 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
     flushDebounce({ thrallMaster: masterRef.current });
   }, [flushDebounce]);
 
-  const handleInstinctChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setInstinct(val);
-    setInstinctCollapsed(true);
-    saveImmediate({ thrallInstinct: val });
-  }, [saveImmediate]);
+  const handleInstinctSave = useCallback(
+    (patch: Partial<CharacterData>) => saveImmediate({ thrallInstinct: patch.instinct ?? '' }),
+    [saveImmediate],
+  );
 
-  const handleImpulseChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.currentTarget.dataset.value ?? '';
-    setImpulse(val);
-    if (val !== IMPULSE_CUSTOM) {
-      setImpulseCollapsed(true);
-    }
-    saveImmediate({ thrallImpulse: val, thrallImpulseCustom: '' });
-  }, [saveImmediate]);
-
-  const handleImpulseCustomChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const val = e.target.value;
-    setImpulseCustom(val);
-    saveDebounced({ thrallImpulse: IMPULSE_CUSTOM, thrallImpulseCustom: val });
-  }, [saveDebounced]);
-
-  const handleImpulseCustomBlur = useCallback(() => {
-    flushDebounce({ thrallImpulse: IMPULSE_CUSTOM, thrallImpulseCustom: impulseCustomRef.current });
-  }, [flushDebounce]);
-
-  const handleImpulseCustomClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-  }, []);
+  const handleImpulseSave = useCallback(
+    (patch: Partial<CharacterData>) => saveImmediate({ thrallImpulse: patch.instinct ?? '', thrallImpulseCustom: patch.instinctCustom ?? '' }),
+    [saveImmediate],
+  );
 
   const handleFavorChange = useCallback((count: number) => {
     setFavor(count);
@@ -310,16 +293,7 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
     });
   }, [saveImmediate]);
 
-  const instinctVisible = instinctCollapsed && instinct
-    ? THRALL_INSTINCT_OPTIONS.filter((o) => o.value === instinct)
-    : THRALL_INSTINCT_OPTIONS;
-
-  const hasImpulseSelection = !!impulse && (impulse !== IMPULSE_CUSTOM || !!impulseCustom.trim());
-  const impulseOptionsVisible = impulseCollapsed && hasImpulseSelection
-    ? (impulse === IMPULSE_CUSTOM ? [] : IMPULSE_OPTIONS.filter((o) => o.value === impulse))
-    : IMPULSE_OPTIONS;
-  const showImpulseCustom = !impulseCollapsed || impulse === IMPULSE_CUSTOM;
-
+  const features = resolvePlaybookFeatures(data);
 
   return (
     <div className={styles.root}>
@@ -338,84 +312,24 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
         />
       </PlaybookSection>
 
-      <PlaybookSection
+      <RadioSelect
+        playbookKey="thrall-instinct"
         title="Instinct"
-        choose={1}
+        options={THRALL_INSTINCT_OPTIONS}
+        data={{ instinct: features.thrallInstinct ?? '', instinctCustom: '' } as CharacterData}
+        onSave={handleInstinctSave}
+        noCustom
         chooseNote="replaces playbook instinct"
-        warn={!instinct}
-        collapsible={!!instinct}
-        isCollapsed={instinctCollapsed}
-        onToggleCollapse={handleToggleInstinctCollapse}
-      >
-        <RadioGroup legend="Instinct" legendHidden className={styles.radioList}>
-          {instinctVisible.map((opt) => (
-            <Radio
-              key={opt.value}
-              className={styles.radioRow}
-              name="thrall-instinct"
-              value={opt.value}
-              checked={instinct === opt.value}
-              onChange={handleInstinctChange}
-              label={
-                <span className={styles.optionLabel}>
-                  <strong className={styles.optionTitle}>{opt.label}</strong>
-                  <span className={styles.optionDesc}>{opt.description}</span>
-                </span>
-              }
-            />
-          ))}
-        </RadioGroup>
-      </PlaybookSection>
+      />
 
-      <PlaybookSection
+      <RadioSelect
+        playbookKey="thrall-impulse"
         title="Impulse"
+        options={IMPULSE_OPTIONS}
+        data={{ instinct: features.thrallImpulse ?? '', instinctCustom: features.thrallImpulseCustom ?? '' } as CharacterData}
+        onSave={handleImpulseSave}
         chooseNote="Ask the GM to choose 1, to represent your master's nature and will"
-        warn={!impulse}
-        collapsible={hasImpulseSelection}
-        isCollapsed={impulseCollapsed}
-        onToggleCollapse={handleToggleImpulseCollapse}
-      >
-        <RadioGroup legend="Impulse" legendHidden className={styles.radioList}>
-          {impulseOptionsVisible.map((opt) => (
-            <Radio
-              key={opt.value}
-              className={styles.radioRow}
-              name="thrall-impulse"
-              value={opt.value}
-              data-value={opt.value}
-              checked={impulse === opt.value}
-              onChange={handleImpulseChange}
-              label={<span className={styles.optionTitle}>{opt.label}</span>}
-            />
-          ))}
-          {showImpulseCustom && (
-            <Radio
-              className={styles.radioRow}
-              name="thrall-impulse"
-              value={IMPULSE_CUSTOM}
-              data-value={IMPULSE_CUSTOM}
-              checked={impulse === IMPULSE_CUSTOM}
-              onChange={handleImpulseChange}
-              label={
-                impulse === IMPULSE_CUSTOM ? (
-                  <Input
-                    multiline
-                    value={impulseCustom}
-                    aria-label="Custom impulse"
-                    onChange={handleImpulseCustomChange}
-                    onBlur={handleImpulseCustomBlur}
-                    placeholder="Describe the impulse…"
-                    onClick={handleImpulseCustomClick}
-                    rows={1}
-                  />
-                ) : (
-                  <span className={styles.optionTitle}>Custom…</span>
-                )
-              }
-            />
-          )}
-        </RadioGroup>
-      </PlaybookSection>
+      />
 
       <PlaybookSection title="Moves">
         <Text as="p" size="xs" color="muted" leading="normal">
@@ -438,33 +352,16 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
           When you first gain this insert, the GM will choose 1 Mark for you, based on your master's nature. Gain more when a move tells you.
         </Text>
         <div className={styles.markList}>
-          {MARK_DEFINITIONS.map((mark) => {
-            const gained = marksGained[mark.id] === true;
-            const crossedOff = marksCrossedOff[mark.id] === true;
-            const markCx = clsx(styles.markEntry, crossedOff && styles.markCrossedOff);
-            const crossOffCx = clsx(styles.crossOffBtn, crossedOff && styles.crossOffBtnActive);
-            return (
-              <div key={mark.id} className={markCx}>
-                <Move
-                  move={mark}
-                  selected={gained}
-                  onSelectChange={(val) => handleMarkGainedChange(mark.id, val)}
-                  disabled={crossedOff}
-                  headerAction={
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      icon="close"
-                      className={crossOffCx}
-                      onClick={() => handleMarkCrossedOffChange(mark.id)}
-                      aria-pressed={crossedOff}
-                      aria-label={crossedOff ? `Restore mark: ${mark.name}` : `Cross off mark (can never gain): ${mark.name}`}
-                    />
-                  }
-                />
-              </div>
-            );
-          })}
+          {MARK_DEFINITIONS.map((mark) => (
+            <MarkEntry
+              key={mark.id}
+              mark={mark}
+              gained={marksGained[mark.id] === true}
+              crossedOff={marksCrossedOff[mark.id] === true}
+              onGainedChange={handleMarkGainedChange}
+              onCrossedOffChange={handleMarkCrossedOffChange}
+            />
+          ))}
         </div>
       </PlaybookSection>
     </div>

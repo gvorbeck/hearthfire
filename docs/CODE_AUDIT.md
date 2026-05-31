@@ -333,6 +333,7 @@ The container has `aria-label="Notifications"` but no `role="region"`, so it is 
 | P3       | Toast region missing `role="region"`                                     | `Toast/Toast.tsx`                                         |
 | P3       | Toast redundant `aria-live`/`aria-atomic` on `role="alert"`              | `Toast/Toast.tsx`                                         |
 | P3       | Tab remove button uses `×` Unicode character                             | `Tabs/Tabs.tsx`                                           |
+| P3       | `Move` has 18 props — refactor into grouped object props                 | [`docs/move-props-refactor.md`](docs/move-props-refactor.md) |
 
 ---
 

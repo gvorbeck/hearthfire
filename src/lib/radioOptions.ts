@@ -6,4 +6,5 @@ export interface RadioOption {
   description?: string;
   subtitle?: string;
   detail?: ReactNode;
+  detailAlways?: boolean;
 }
