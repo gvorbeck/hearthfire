@@ -296,6 +296,15 @@ export const Tabs = ({
         const prev = (i - 1 + tabs.length) % tabs.length;
         setActive(prev);
         tabRefs.current[prev]?.focus();
+      } else if (e.key === "Home") {
+        e.preventDefault();
+        setActive(0);
+        tabRefs.current[0]?.focus();
+      } else if (e.key === "End") {
+        e.preventDefault();
+        const last = tabs.length - 1;
+        setActive(last);
+        tabRefs.current[last]?.focus();
       }
     },
     [tabs.length, setActive],
