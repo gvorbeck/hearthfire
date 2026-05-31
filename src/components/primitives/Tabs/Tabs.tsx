@@ -313,7 +313,6 @@ export const Tabs = ({
   return (
     <div className={cx}>
       <div className={styles.tablistRow}>
-        {onAdd && <AddTabButton baseId={baseId} onAdd={onAdd} />}
         <div className={styles.tablist} role="tablist" aria-label={ariaLabel}>
           {tabs.map((tab, i) => (
             <TabButton
@@ -329,6 +328,7 @@ export const Tabs = ({
             />
           ))}
         </div>
+        {onAdd && <AddTabButton baseId={baseId} onAdd={onAdd} />}
       </div>
       {tabs.map((tab, i) => (
         <div

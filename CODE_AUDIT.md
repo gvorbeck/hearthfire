@@ -242,27 +242,27 @@ When `noTabStop` is false (the default), the wrapper `<span>` gets `tabIndex={0}
 
 When `noTabStop` is true, `aria-describedby` is set to `undefined` on the wrapper — meaning the focusable child never receives the tooltip description.
 
-**Fix:** Always pass `tooltipId` to the child via `aria-describedby` regardless of `noTabStop`; the tab stop and the description are independent concerns.
+**Fix applied:** Always pass `tooltipId` to `aria-describedby` regardless of `noTabStop`; the tab stop and the description are independent concerns.
 
 ---
 
-### 13. Tabs keyboard navigation missing `Home`/`End` keys
+### 13. ~~Tabs keyboard navigation missing `Home`/`End` keys~~ ✅ Fixed
 
-**File:** `src/components/primitives/Tabs/Tabs.tsx:138`
+**File:** `src/components/primitives/Tabs/Tabs.tsx`
 
 The ARIA tab pattern requires `Home` (jump to first tab) and `End` (jump to last tab). Only `ArrowLeft`/`ArrowRight` are handled.
 
-**Fix:** Add `Home` and `End` cases to `handleKeyDown`.
+**Fix applied:** Added `Home` and `End` cases to `handleKeyDown`; both call `preventDefault()` to suppress browser scroll and then focus+activate the boundary tab.
 
 ---
 
-### 14. Tabs "add" button is outside the tablist landmark
+### ~~14. Tabs "add" button is outside the tablist landmark~~ ✅ Fixed
 
-**File:** `src/components/primitives/Tabs/Tabs.tsx:153`
+**File:** `src/components/primitives/Tabs/Tabs.tsx`
 
-The add button is rendered before `role="tablist"` in DOM order, so it appears at an unexpected point in tab order for keyboard users.
+~~The add button is rendered before `role="tablist"` in DOM order, so it appears at an unexpected point in tab order for keyboard users.~~
 
-**Fix:** Move the add button after the `<div role="tablist">`, or give it `role="presentation"` if position must stay.
+Moved `AddTabButton` to render after the `<div role="tablist">` closing tag. Updated `margin-right` → `margin-left` in CSS to maintain visual spacing.
 
 ---
 

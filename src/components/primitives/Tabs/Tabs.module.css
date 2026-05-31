@@ -47,7 +47,7 @@
   font-size: var(--text-md);
   line-height: 1;
   align-self: center;
-  margin-right: var(--spacing-2);
+  margin-left: var(--spacing-2);
   transition: color 0.15s ease, border-color 0.15s ease;
 }
 
