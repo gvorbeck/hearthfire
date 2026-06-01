@@ -20,11 +20,11 @@ export interface MoveDefinition {
   citation?: string;
   uses?: number;
   usesLabel?: string;
-  // uses2 tracks a second independent hold on the same move (e.g. Up With People: the current
+  // usesAlt tracks a second independent hold on the same move (e.g. Up With People: the current
   // player's Rapport dots vs. the other player's dot). Both groups are stored on this character's
   // document as a convenience; the other player is expected to track their own copy independently.
-  uses2?: number;
-  uses2Label?: string;
+  usesAlt?: number;
+  usesAltLabel?: string;
   takes?: number;
   selectable?: boolean;
   startingMove?: boolean;
@@ -33,40 +33,36 @@ export interface MoveDefinition {
   excludes?: string[];
 }
 
+interface SelectionProps {
+  selected: boolean;
+  onChange: (checked: boolean) => void;
+  // readOnly: selection is pre-determined (starting move / background grant) — checkbox is visible but
+  // unclickable. Distinct from lockReason, which blocks selection due to a constraint the user could resolve.
+  readOnly?: boolean;
+  lockReason?: string;
+  takes?: CounterProps;
+}
+
+interface CounterProps {
+  checked: number;
+  onChange: (count: number) => void;
+}
+
+type CheckListProps =
+  | { mode: 'boolean'; checked: Record<string, boolean>; forcedIds?: string[]; onChange: (id: string, checked: boolean) => void; }
+  | { mode: 'leveled'; levels: Record<string, number>; forcedIds?: string[]; onChange: (id: string, level: number | null) => void; currentLevel: number; };
+
 interface MoveProps {
   move: MoveDefinition;
-  selected?: boolean;
-  onSelectChange?: (checked: boolean) => void;
-  usesChecked?: number;
-  onUsesChange?: (count: number) => void;
-  usesChecked2?: number;
-  onUsesChange2?: (count: number) => void;
-  checkListChecked?: Record<string, boolean>;
-  checkListForcedIds?: string[];
-  onCheckListChange?: (id: string, checked: boolean) => void;
-  checkListLevels?: Record<string, number>;
-  onCheckListLevelChange?: (id: string, level: number | null) => void;
-  currentLevel?: number;
-  takesChecked?: number;
-  onTakesChange?: (count: number) => void;
-  disabled?: boolean;
-  lockReason?: string;
+  selection?: SelectionProps;
+  uses?: CounterProps;
+  usesAlt?: CounterProps;
+  checkList?: CheckListProps;
   headerAction?: React.ReactNode;
 }
 
-const TakeBoxes = ({ total, checked, onChange }: { total: number; checked: number; onChange: (n: number) => void }) => (
-  <div className={styles.takeBoxes}>
-    {Array.from({ length: total }, (_, i) => (
-      <Checkbox
-        key={i}
-        aria-label={`Take ${i + 1}`}
-        checked={!!(checked & (1 << i))}
-        onChange={() => onChange(checked ^ (1 << i))}
-      />
-    ))}
-  </div>
-);
-
+// Flat props intentional: this sub-component is private to Move and maps 1:1 to what MoveSelectGroup
+// renders — grouping would just add indirection for no callsite benefit.
 const MoveSelectGroup = ({
   moveName, selected, onSelectChange, takes, takesChecked, onTakesChange, disabled, locked,
 }: {
@@ -93,22 +89,19 @@ const MoveSelectGroup = ({
 );
 
 export const Move = ({
-  move, selected, onSelectChange,
-  usesChecked = 0, onUsesChange,
-  usesChecked2 = 0, onUsesChange2,
-  checkListChecked, checkListForcedIds, onCheckListChange,
-  checkListLevels, onCheckListLevelChange,
-  currentLevel,
-  takesChecked = 0, onTakesChange,
-  disabled, lockReason, headerAction,
+  move, selection, uses, usesAlt, checkList, headerAction,
 }: MoveProps) => {
-  const locked = !!lockReason;
+  const locked = !!selection?.lockReason;
+  const readOnly = selection?.readOnly ?? false;
+  const selected = selection?.selected;
+  const selectionTakes = selection?.takes;
+
   const usesTotal = move.uses;
-  const hasUses = usesTotal !== undefined && onUsesChange !== undefined;
-  const uses2Total = move.uses2;
-  const hasUses2 = uses2Total !== undefined && onUsesChange2 !== undefined;
+  const hasUses = usesTotal !== undefined && uses !== undefined;
+  const usesAltTotal = move.usesAlt;
+  const hasUsesAlt = usesAltTotal !== undefined && usesAlt !== undefined;
   const takesTotal = move.takes;
-  const hasTakes = takesTotal !== undefined && onTakesChange !== undefined;
+  const hasTakes = takesTotal !== undefined && selectionTakes !== undefined;
 
   const moveCx = clsx(styles.move, selected && styles.moveSelected);
   const nameCx = clsx(styles.moveName, selected && styles.moveNameSelected);
@@ -118,16 +111,16 @@ export const Move = ({
   const bodyParagraphs = move.body ? (Array.isArray(move.body) ? move.body : [move.body]) : [];
   const footerParagraphs = move.footer ? (Array.isArray(move.footer) ? move.footer : [move.footer]) : [];
 
-  const checkedLevel = move.checkListLeveled && onCheckListLevelChange !== undefined && currentLevel !== undefined
-    ? currentLevel
-    : null;
-  const levels = checkListLevels ?? {};
+  const leveledCheckList = checkList?.mode === 'leveled' ? checkList : null;
+  const checkedLevel = leveledCheckList?.currentLevel ?? null;
+  const levels = leveledCheckList?.levels ?? {};
   const marksUsed = checkedLevel !== null ? Object.keys(levels).length : 0;
+  // Derived from leveled/boolean branch of checkList; not state.
   const effectiveChecked: Record<string, boolean> = checkedLevel !== null
     ? Object.fromEntries(Object.keys(levels).map((k) => [k, true]))
-    : (checkListChecked ?? {});
+    : (checkList?.mode === 'boolean' ? checkList.checked : {});
 
-  const forcedIdSet = new Set(checkListForcedIds ?? []);
+  const forcedIdSet = new Set(checkList?.forcedIds ?? []);
   const effectiveCheckedWithForced: Record<string, boolean> = forcedIdSet.size > 0
     ? { ...effectiveChecked, ...Object.fromEntries(Array.from(forcedIdSet, (id) => [id, true])) }
     : effectiveChecked;
@@ -142,64 +135,60 @@ export const Move = ({
     return { id, label: displayLabel, disabled: itemDisabled };
   });
 
+  // Dots and checklist are inactive only when a selectable move hasn't been chosen yet.
+  // readOnly moves (starting/background-granted) count as always-on. When selection is absent
+  // entirely (display-only moves), uses/checkList props won't be passed so this value is moot.
+  const interactiveDisabled = !readOnly && !selected;
+
   return (
     <div className={moveCx}>
       <div className={styles.moveHeader}>
-        {move.selectable && onSelectChange !== undefined && hasTakes ? (
+        {move.selectable && selection !== undefined && hasTakes ? (
           <div className={styles.moveHeaderLeft}>
             <MoveSelectGroup
               moveName={move.name}
               selected={selected ?? false}
-              onSelectChange={onSelectChange}
+              onSelectChange={selection.onChange}
               takes={takesTotal!}
-              takesChecked={takesChecked}
-              onTakesChange={onTakesChange}
-              disabled={disabled || locked}
+              takesChecked={selectionTakes!.checked}
+              onTakesChange={selectionTakes!.onChange}
+              disabled={readOnly || locked}
               locked={locked}
             />
             {nameEl}
           </div>
-        ) : move.selectable && onSelectChange !== undefined ? (
+        ) : move.selectable && selection !== undefined ? (
           <Checkbox
             name={`move-${move.id}`}
             value={move.id}
             checked={selected ?? false}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSelectChange(e.target.checked)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => selection.onChange(e.target.checked)}
             label={nameEl}
             className={styles.moveCheckbox}
-            disabled={disabled || locked}
+            disabled={readOnly || locked}
           />
         ) : (
-          <>
-            {hasTakes && (
-              <TakeBoxes
-                total={takesTotal!}
-                checked={takesChecked}
-                onChange={onTakesChange}
-              />
-            )}
-            {nameEl}
-          </>
+          nameEl
         )}
-        {(hasUses || hasUses2) && (
+        {(hasUses || hasUsesAlt) && (
           <div className={styles.usesGroup}>
             {hasUses && (
               <UseDots
                 total={usesTotal!}
-                checked={usesChecked}
-                onChange={onUsesChange!}
-                disabled={locked || (!disabled && !selected)}
+                checked={uses!.checked}
+                onChange={uses!.onChange}
+                disabled={interactiveDisabled}
                 label={move.usesLabel}
               />
             )}
-            {hasUses && hasUses2 && <span className={styles.usesSeparator} aria-hidden="true">|</span>}
-            {hasUses2 && (
+            {hasUses && hasUsesAlt && <span className={styles.usesSeparator} aria-hidden="true">|</span>}
+            {hasUsesAlt && (
               <UseDots
-                total={uses2Total!}
-                checked={usesChecked2}
-                onChange={onUsesChange2!}
-                disabled={locked || (!disabled && !selected)}
-                label={move.uses2Label}
+                total={usesAltTotal!}
+                checked={usesAlt!.checked}
+                onChange={usesAlt!.onChange}
+                disabled={interactiveDisabled}
+                label={move.usesAltLabel}
               />
             )}
           </div>
@@ -208,7 +197,7 @@ export const Move = ({
           <div className={styles.headerAction}>{headerAction}</div>
         )}
       </div>
-      {lockReason && <Text font="serif" size="xs" color="tertiary" italic>{lockReason}</Text>}
+      {selection?.lockReason && <Text font="serif" size="xs" color="tertiary" italic>{selection.lockReason}</Text>}
       {(move.triggerOverride || move.trigger) && (
         <Text font="serif" color="muted" leading="tight">
           {move.triggerOverride
@@ -231,18 +220,16 @@ export const Move = ({
       {move.list && (
         <List variant="bullet" items={move.list.map((item) => parseInlineMarkdown(item))} />
       )}
-      {checkListItems && (
+      {checkListItems && checkList && (
         <CheckboxGroup
           items={checkListItems}
           checked={effectiveCheckedWithForced}
-          onChange={(id, checked) => {
-            if (checkedLevel !== null) {
-              onCheckListLevelChange!(id, checked ? checkedLevel : null);
-            } else {
-              onCheckListChange?.(id, checked);
-            }
-          }}
-          disabled={locked || (!disabled && !selected)}
+          onChange={leveledCheckList
+            ? (id, checked) => leveledCheckList.onChange(id, checked ? leveledCheckList.currentLevel : null)
+            // TS cannot narrow checkList in a callback; leveledCheckList handles the leveled branch above.
+            : (id, checked) => (checkList as Extract<CheckListProps, { mode: 'boolean' }>).onChange(id, checked)
+          }
+          disabled={interactiveDisabled}
         />
       )}
       {footerParagraphs.map((p, i) => (

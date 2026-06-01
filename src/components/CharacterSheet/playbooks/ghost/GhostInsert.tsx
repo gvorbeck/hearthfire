@@ -129,11 +129,12 @@ export const GhostInsert = ({ data, onSave }: GhostInsertProps) => {
       <div className={styles.furySection}>
         <Move
           move={POLTERGEIST_MOVE}
-          usesChecked={furyChecked}
-          onUsesChange={handleFuryChange}
+          uses={{ checked: furyChecked, onChange: handleFuryChange }}
         />
       </div>
     );
+  // handleFuryChange closes over saveImmediate (from InsertLayout callback args), so it must
+  // stay inside consequenceAddon rather than be lifted to component scope.
   }, [furyChecked]);
 
   return (

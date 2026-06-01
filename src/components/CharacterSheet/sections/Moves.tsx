@@ -104,6 +104,7 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
   const [uses, setUses] = useState<Record<string, number>>(
     () => data?.typeMoveUses ?? {}
   );
+  // uses2 matches the Firestore field name (typeMoveUses2); the Move prop is usesAlt.
   const [uses2, setUses2] = useState<Record<string, number>>(
     () => data?.typeMoveUses2 ?? {}
   );
@@ -237,22 +238,22 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
       <Move
         key={move.id}
         move={move}
-        selected={isDisabled ? true : (selected[move.id] ?? false)}
-        onSelectChange={selectHandlers[move.id]}
-        usesChecked={uses[move.id] ?? 0}
-        onUsesChange={move.uses !== undefined ? usesHandlers[move.id] : undefined}
-        usesChecked2={uses2[move.id] ?? 0}
-        onUsesChange2={move.uses2 !== undefined ? uses2Handlers[move.id] : undefined}
-        checkListChecked={checkLists[move.id] ?? {}}
-        checkListForcedIds={forcedCheckList[move.id]}
-        onCheckListChange={move.checkList !== undefined && !move.checkListLeveled ? checkListHandlers[move.id] : undefined}
-        checkListLevels={checkListLevels[move.id] ?? {}}
-        onCheckListLevelChange={move.checkListLeveled ? checkListLevelHandlers[move.id] : undefined}
-        currentLevel={level}
-        takesChecked={takes[move.id] ?? 0}
-        onTakesChange={move.takes !== undefined ? takesHandlers[move.id] : undefined}
-        disabled={isDisabled}
-        lockReason={lockReason}
+        selection={{
+          selected: isDisabled ? true : (selected[move.id] ?? false),
+          onChange: selectHandlers[move.id],
+          readOnly: isDisabled,
+          lockReason,
+          takes: move.takes !== undefined ? { checked: takes[move.id] ?? 0, onChange: takesHandlers[move.id] } : undefined,
+        }}
+        uses={move.uses !== undefined ? { checked: uses[move.id] ?? 0, onChange: usesHandlers[move.id] } : undefined}
+        usesAlt={move.usesAlt !== undefined ? { checked: uses2[move.id] ?? 0, onChange: uses2Handlers[move.id] } : undefined}
+        checkList={
+          move.checkList !== undefined
+            ? move.checkListLeveled
+              ? { mode: 'leveled', levels: checkListLevels[move.id] ?? {}, forcedIds: forcedCheckList[move.id], onChange: checkListLevelHandlers[move.id], currentLevel: level }
+              : { mode: 'boolean', checked: checkLists[move.id] ?? {}, forcedIds: forcedCheckList[move.id], onChange: checkListHandlers[move.id] }
+            : undefined
+        }
       />
     );
   });

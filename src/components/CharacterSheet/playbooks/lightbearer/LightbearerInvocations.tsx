@@ -25,8 +25,7 @@ const InvocationMove = memo(({ inv, isChecked, onChange }: InvocationMoveProps) 
   return (
     <Move
       move={inv}
-      selected={isChecked}
-      onSelectChange={handleChange}
+      selection={{ selected: isChecked, onChange: handleChange }}
     />
   );
 });

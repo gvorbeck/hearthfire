@@ -208,9 +208,7 @@ const MarkEntry = ({ mark, gained, crossedOff, onGainedChange, onCrossedOffChang
     <div className={markCx}>
       <Move
         move={mark}
-        selected={gained}
-        onSelectChange={handleSelectChange}
-        disabled={crossedOff}
+        selection={{ selected: gained, onChange: handleSelectChange, readOnly: crossedOff }}
         headerAction={
           <Button
             variant="ghost"
@@ -250,6 +248,7 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
     if (f.thrallMarksCrossedOff !== undefined) setMarksCrossedOff(f.thrallMarksCrossedOff);
   }, [data, setMaster]);
 
+  // RadioSelect writes to patch.instinct; remap to thrall-specific Firestore fields.
   const handleInstinctSave = useCallback(
     (patch: Partial<CharacterData>) => saveImmediate({ thrallInstinct: patch.instinct ?? '' }),
     [saveImmediate],
@@ -326,8 +325,7 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
             <Move
               key={move.id}
               move={move}
-              usesChecked={move.id === 'thrall-favor' ? favor : undefined}
-              onUsesChange={move.id === 'thrall-favor' ? handleFavorChange : undefined}
+              uses={move.id === 'thrall-favor' ? { checked: favor, onChange: handleFavorChange } : undefined}
             />
           ))}
         </div>
