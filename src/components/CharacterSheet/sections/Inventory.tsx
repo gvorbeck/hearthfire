@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react';
+import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import clsx from 'clsx';
 import { Checkbox, Divider, Heading, Input, List, Stack, Text, UseDots, RepeaterField, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
@@ -218,12 +219,9 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
   const [arcanaMajor, setArcanaMajor] = useState(() => data?.arcanaMajor ?? []);
   const arcanaMinorPendingRef = useRef(false);
   const arcanaMajorPendingRef = useRef(false);
+  const otherThingsPendingRef = useRef(false);
 
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const onSaveRef = useRef(onSave);
-  onSaveRef.current = onSave;
-
-  useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
+  const { onChange: otherThingsDebounced, flush: otherThingsFlush } = useDebouncedSave<Partial<CharacterData>>(onSave);
 
   useEffect(() => {
     if (data?.inventoryChecked !== undefined) setInventoryChecked(data.inventoryChecked);
@@ -231,7 +229,7 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
     if (data?.inventorySmallChecked !== undefined) setSmallChecked(data.inventorySmallChecked);
     if (data?.inventoryUndefined !== undefined) setUndefinedMain(data.inventoryUndefined);
     if (data?.inventorySmallUndefined !== undefined) setUndefinedSmall(data.inventorySmallUndefined);
-    if (data?.inventoryOtherThings !== undefined) setOtherThings(data.inventoryOtherThings);
+    if (!otherThingsPendingRef.current && data?.inventoryOtherThings !== undefined) setOtherThings(data.inventoryOtherThings);
   }, [data]);
 
   useEffect(() => {
@@ -244,96 +242,83 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
     setArcanaMajor(data?.arcanaMajor ?? []);
   }, [data?.arcanaMajor]);
 
-  const saveDebounced = useCallback((patch: Partial<CharacterData>) => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => onSaveRef.current(patch), 1000);
-  }, []);
-
-  const saveImmediate = useCallback((patch: Partial<CharacterData>) => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    return onSaveRef.current(patch);
-  }, []);
-
-  const flushDebounce = useCallback((patch: Partial<CharacterData>) => {
-    if (debounceRef.current) { clearTimeout(debounceRef.current); debounceRef.current = null; }
-    onSaveRef.current(patch);
-  }, []);
-
   const handleMainChecked = useCallback((id: string, val: boolean) => {
     setInventoryChecked((prev) => {
       const next = { ...prev, [id]: val };
-      saveImmediate({ inventoryChecked: next }).catch(() => { setInventoryChecked(prev); addToast('Failed to save.'); });
+      onSave({ inventoryChecked: next }).catch(() => { setInventoryChecked(prev); addToast('Failed to save.'); });
       return next;
     });
-  }, [saveImmediate, addToast]);
+  }, [onSave, addToast]);
 
   const handleMainUses = useCallback((id: string, n: number) => {
     setInventoryUses((prev) => {
       const next = { ...prev, [id]: n };
-      saveImmediate({ inventoryUses: next }).catch(() => { setInventoryUses(prev); addToast('Failed to save.'); });
+      onSave({ inventoryUses: next }).catch(() => { setInventoryUses(prev); addToast('Failed to save.'); });
       return next;
     });
-  }, [saveImmediate, addToast]);
+  }, [onSave, addToast]);
 
   const handleUndefinedMain = useCallback((n: number) => {
     const prev = undefinedMainRef.current;
     setUndefinedMain(n);
-    saveImmediate({ inventoryUndefined: n }).catch(() => { setUndefinedMain(prev); addToast('Failed to save.'); });
-  }, [saveImmediate, addToast]);
+    onSave({ inventoryUndefined: n }).catch(() => { setUndefinedMain(prev); addToast('Failed to save.'); });
+  }, [onSave, addToast]);
 
   const handleUndefinedSmall = useCallback((n: number) => {
     const prev = undefinedSmallRef.current;
     setUndefinedSmall(n);
-    saveImmediate({ inventorySmallUndefined: n }).catch(() => { setUndefinedSmall(prev); addToast('Failed to save.'); });
-  }, [saveImmediate, addToast]);
+    onSave({ inventorySmallUndefined: n }).catch(() => { setUndefinedSmall(prev); addToast('Failed to save.'); });
+  }, [onSave, addToast]);
 
   const handleSmallChecked = useCallback((id: string, val: boolean) => {
     setSmallChecked((prev) => {
       const next = { ...prev, [id]: val };
-      saveImmediate({ inventorySmallChecked: next }).catch(() => { setSmallChecked(prev); addToast('Failed to save.'); });
+      onSave({ inventorySmallChecked: next }).catch(() => { setSmallChecked(prev); addToast('Failed to save.'); });
       return next;
     });
-  }, [saveImmediate, addToast]);
+  }, [onSave, addToast]);
 
   const handleOtherThingsChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value;
     setOtherThings(val);
-    saveDebounced({ inventoryOtherThings: val });
-  }, [saveDebounced]);
+    otherThingsPendingRef.current = true;
+    otherThingsDebounced({ inventoryOtherThings: val });
+  }, [otherThingsDebounced]);
 
   const handleOtherThingsBlur = useCallback((e: React.FocusEvent<HTMLTextAreaElement>) => {
-    flushDebounce({ inventoryOtherThings: e.target.value });
-  }, [flushDebounce]);
+    otherThingsFlush({ inventoryOtherThings: e.target.value })
+      .finally(() => { otherThingsPendingRef.current = false; });
+  }, [otherThingsFlush]);
 
   const handleSavePossessions = useCallback(async (items: { checked: boolean; text: string; weight: 1 | 2 }[]) => {
-    await onSaveRef.current({ inventoryPossessions: items });
-  }, []);
+    await onSave({ inventoryPossessions: items });
+  }, [onSave]);
 
   const handleSaveSmallCustom = useCallback(async (items: { checked: boolean; text: string }[]) => {
-    await onSaveRef.current({ inventorySmallCustom: items });
-  }, []);
+    await onSave({ inventorySmallCustom: items });
+  }, [onSave]);
 
   const handleArcanaCarried = useCallback((id: string, carried: boolean) => {
     setArcanaMinor((prev) => {
       const next = prev.map((e) => e.id === id ? { ...e, carried } : e);
       arcanaMinorPendingRef.current = true;
-      onSaveRef.current({ arcanaMinor: next })
+      onSave({ arcanaMinor: next })
         .catch(() => { setArcanaMinor(prev); addToast('Failed to save.'); })
         .finally(() => { arcanaMinorPendingRef.current = false; });
       return next;
     });
-  }, [addToast]);
+  }, [onSave, addToast]);
 
   const handleArcanaMajorCarried = useCallback((id: string, carried: boolean) => {
     setArcanaMajor((prev) => {
       const next = prev.map((e) => e.id === id ? { ...e, carried } : e);
       arcanaMajorPendingRef.current = true;
-      onSaveRef.current({ arcanaMajor: next })
+      onSave({ arcanaMajor: next })
         .catch(() => { setArcanaMajor(prev); addToast('Failed to save.'); })
         .finally(() => { arcanaMajorPendingRef.current = false; });
       return next;
     });
-  }, [addToast]);
+  }, [onSave, addToast]);
 
   const totalLoad = useMemo(
     () => computeTotalLoad({ ...data, inventoryChecked, inventoryUndefined: undefinedMain, arcanaMinor, arcanaMajor }),
