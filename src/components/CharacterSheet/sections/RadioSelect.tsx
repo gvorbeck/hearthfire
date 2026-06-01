@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { Radio, RadioGroup, Input, Text } from '@/components/primitives';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
+import { useCollapsibleSection } from '@/hooks/useCollapsibleSection';
 import { PlaybookSection } from '../PlaybookSection';
 import type { RadioOption } from '@/lib/radioOptions';
 import type { CharacterData } from '@/types';
@@ -45,11 +46,9 @@ export const RadioSelect = ({
 }: RadioSelectProps = {}) => {
   const [selected, setSelected] = useState<string>('');
   const [customText, setCustomText] = useState<string>('');
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const customTextRef = useRef(customText);
   customTextRef.current = customText;
-  const hasInitializedCollapse = useRef(false);
 
   useEffect(() => {
     if (data?.[dataKey] !== undefined) setSelected(data[dataKey] as string);
@@ -60,24 +59,17 @@ export const RadioSelect = ({
   }, [data, customKey]);
 
   useEffect(() => {
-    if (data?.[dataKey] && !hasInitializedCollapse.current) {
-      hasInitializedCollapse.current = true;
-      setIsCollapsed(true);
-    }
-  }, [data, dataKey]);
-
-  useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
     syncTextareaHeight(el);
   }, [customText]);
 
-  const handleToggleCollapse = useCallback(() => setIsCollapsed((v) => !v), []);
+  const hasSelection = !!selected && (noCustom || selected !== CUSTOM_VALUE || !!customText.trim());
+  const { isCollapsed, handleToggleCollapse } = useCollapsibleSection(hasSelection);
 
   const handleSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.currentTarget.value;
     setSelected(value);
-    if (value !== CUSTOM_VALUE) setIsCollapsed(true);
     onSave?.({ [dataKey]: value, [customKey]: '' } as Partial<CharacterData>);
   }, [onSave, dataKey, customKey]);
 
@@ -101,7 +93,6 @@ export const RadioSelect = ({
   if (overrideNote) return <PlaybookSection title={title} overrideNote={overrideNote} />;
 
   const warn = !selected || (!noCustom && selected === CUSTOM_VALUE && !customText.trim());
-  const hasSelection = !!selected && (noCustom || selected !== CUSTOM_VALUE || !!customText.trim());
 
   const visibleOptions = isCollapsed && hasSelection
     ? options.filter((opt) => opt.value === selected)

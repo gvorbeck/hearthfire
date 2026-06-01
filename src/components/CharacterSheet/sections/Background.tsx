@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
+import { useCollapsibleSection } from '@/hooks/useCollapsibleSection';
 import { useToast } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
 import { BackgroundOptionItem } from './BackgroundOption';
@@ -20,8 +21,6 @@ export const Background = ({ playbookKey, options, level, data, onSave }: Backgr
   const [selectedChoices, setSelectedChoices] = useState<string[]>(data?.backgroundChoices ?? []);
   const [backgroundUses, setBackgroundUses] = useState<Record<string, number>>(data?.backgroundUses ?? {});
   const [freeText, setFreeText] = useState<Record<string, string>>(data?.backgroundFreeText ?? {});
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const hasInitializedCollapse = useRef(false);
   const selectedOptionRef = useRef(selectedOption);
   selectedOptionRef.current = selectedOption;
   const selectedChoicesRef = useRef(selectedChoices);
@@ -46,14 +45,7 @@ export const Background = ({ playbookKey, options, level, data, onSave }: Backgr
     if (data?.backgroundUses !== undefined) setBackgroundUses(data.backgroundUses);
   }, [data?.background, data?.backgroundChoices, data?.backgroundFreeText, data?.backgroundUses]);
 
-  useEffect(() => {
-    if (data?.background && !hasInitializedCollapse.current) {
-      hasInitializedCollapse.current = true;
-      setIsCollapsed(true);
-    }
-  }, [data?.background]);
-
-  const handleToggleCollapse = useCallback(() => setIsCollapsed((v) => !v), []);
+  const { isCollapsed, setIsCollapsed, handleToggleCollapse } = useCollapsibleSection(!!selectedOption);
 
   const handleFreeTextChange = useCallback((key: string, value: string) => {
     const next = { ...freeTextRef.current, [key]: value };
@@ -65,13 +57,12 @@ export const Background = ({ playbookKey, options, level, data, onSave }: Backgr
     const prev = selectedOptionRef.current;
     setSelectedOption(value);
     setSelectedChoices([]);
-    setIsCollapsed(true);
     onSaveRef.current?.({ background: value, backgroundChoices: [] }).catch(() => {
       setSelectedOption(prev);
       setIsCollapsed(false);
       addToast('Failed to save background selection.');
     });
-  }, [addToast]);
+  }, [addToast, setIsCollapsed]);
 
   const handleChoicesChange = useCallback((choices: string[]) => {
     const prev = selectedChoicesRef.current;

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
+import { useCollapsibleSection } from '@/hooks/useCollapsibleSection';
 import { Checkbox, Radio, RadioGroup, Text, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
 import type { AppearanceRows } from '@/lib/appearanceOptions';
@@ -19,8 +20,6 @@ export const Appearance = ({ rows, data, onSave }: AppearanceProps = {}) => {
   const [selected, setSelected] = useState<Record<string, string>>(data?.appearance ?? {});
   const [isCustom, setIsCustom] = useState<boolean>(Boolean(data?.appearanceCustom));
   const [customText, setCustomText] = useState<string>(data?.appearanceCustom ?? '');
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const hasInitializedCollapse = useRef(false);
   const onSaveRef = useRef(onSave);
   const selectedRef = useRef(selected);
   const customTextRef = useRef(customText);
@@ -38,15 +37,9 @@ export const Appearance = ({ rows, data, onSave }: AppearanceProps = {}) => {
     if (data?.appearance !== undefined) setSelected(data.appearance);
   }, [data?.appearance]);
 
-  useEffect(() => {
-    const appearance = data?.appearance ?? {};
-    const allRowsFilled = rows ? rows.every((_, i) => Boolean(appearance[String(i)])) : false;
-    const complete = Boolean(data?.appearanceCustom) || allRowsFilled;
-    if (complete && !hasInitializedCollapse.current) {
-      hasInitializedCollapse.current = true;
-      setIsCollapsed(true);
-    }
-  }, [data?.appearance, rows]);
+  const isCompleteInit = Boolean(data?.appearanceCustom) ||
+    (rows ? rows.every((_, i) => Boolean((data?.appearance ?? {})[String(i)])) : false);
+  const { isCollapsed, handleToggleCollapse } = useCollapsibleSection(isCompleteInit);
 
   const handleSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const rowIndex = Number(e.currentTarget.dataset.row);
@@ -83,8 +76,6 @@ export const Appearance = ({ rows, data, onSave }: AppearanceProps = {}) => {
   const handleCustomBlur = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
     flushCustomOnBlur(e.target.value);
   }, [flushCustomOnBlur]);
-
-  const handleToggleCollapse = useCallback(() => setIsCollapsed((v) => !v), []);
 
   if (!rows) return <PlaybookSection title="Appearance" />;
 
