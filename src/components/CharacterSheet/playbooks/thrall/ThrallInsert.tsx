@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import clsx from 'clsx';
 import { Button, Input, Text } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
@@ -7,6 +7,7 @@ import type { MoveDefinition } from '../../Move';
 import { RadioSelect } from '../../sections/RadioSelect';
 import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
 import { useCrewSave } from '../shared/useCrewSave';
+import { useTrackedField } from '../shared/useTrackedField';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { CharacterData } from '@/types';
 import styles from './ThrallInsert.module.css';
@@ -235,32 +236,19 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
   const { saveDebounced, saveImmediate, flushDebounce } = useCrewSave(data, onSave);
 
   const init = resolvePlaybookFeatures(data);
-  const [master, setMaster] = useState<string>(init.thrallMaster ?? '');
-  const masterRef = useRef(master);
-  masterRef.current = master;
+  const { value: master, setValue: setMaster, handleChange: handleMasterChange, handleBlur: handleMasterBlur } =
+    useTrackedField(init.thrallMaster ?? '', 'thrallMaster', saveDebounced, flushDebounce);
   const [favor, setFavor] = useState<number>(init.thrallFavor ?? 0);
   const [marksGained, setMarksGained] = useState<Record<string, boolean>>(init.thrallMarksGained ?? {});
   const [marksCrossedOff, setMarksCrossedOff] = useState<Record<string, boolean>>(init.thrallMarksCrossedOff ?? {});
 
-
   useEffect(() => {
     const f = resolvePlaybookFeatures(data);
     if (f.thrallMaster !== undefined) setMaster(f.thrallMaster);
-
     if (f.thrallFavor !== undefined) setFavor(f.thrallFavor);
     if (f.thrallMarksGained !== undefined) setMarksGained(f.thrallMarksGained);
     if (f.thrallMarksCrossedOff !== undefined) setMarksCrossedOff(f.thrallMarksCrossedOff);
-  }, [data]);
-
-  const handleMasterChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setMaster(val);
-    saveDebounced({ thrallMaster: val });
-  }, [saveDebounced]);
-
-  const handleMasterBlur = useCallback(() => {
-    flushDebounce({ thrallMaster: masterRef.current });
-  }, [flushDebounce]);
+  }, [data, setMaster]);
 
   const handleInstinctSave = useCallback(
     (patch: Partial<CharacterData>) => saveImmediate({ thrallInstinct: patch.instinct ?? '' }),
@@ -293,8 +281,6 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
     });
   }, [saveImmediate]);
 
-  const features = resolvePlaybookFeatures(data);
-
   return (
     <div className={styles.root}>
       <PlaybookSection title="Your Master">
@@ -316,7 +302,7 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
         playbookKey="thrall-instinct"
         title="Instinct"
         options={THRALL_INSTINCT_OPTIONS}
-        data={{ instinct: features.thrallInstinct ?? '', instinctCustom: '' } as CharacterData}
+        data={{ instinct: init.thrallInstinct ?? '', instinctCustom: '' } as CharacterData}
         onSave={handleInstinctSave}
         noCustom
         chooseNote="replaces playbook instinct"
@@ -326,7 +312,7 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
         playbookKey="thrall-impulse"
         title="Impulse"
         options={IMPULSE_OPTIONS}
-        data={{ instinct: features.thrallImpulse ?? '', instinctCustom: features.thrallImpulseCustom ?? '' } as CharacterData}
+        data={{ instinct: init.thrallImpulse ?? '', instinctCustom: init.thrallImpulseCustom ?? '' } as CharacterData}
         onSave={handleImpulseSave}
         chooseNote="Ask the GM to choose 1, to represent your master's nature and will"
       />
