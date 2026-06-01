@@ -1,4 +1,4 @@
-import type { MoveDefinition } from '@/components/CharacterSheet/Move';
+import type { MoveDefinition } from '@/types';
 import { IMPROVED_STAT_BASE, SUPERIOR_STAT_BASE } from './_statMoves';
 
 export const WOULD_BE_HERO_MOVES: MoveDefinition[] = [

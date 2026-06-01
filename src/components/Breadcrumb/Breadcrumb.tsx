@@ -1,11 +1,7 @@
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
+import type { Crumb } from '@/types';
 import styles from './Breadcrumb.module.css';
-
-export interface Crumb {
-  label: string;
-  to?: string;
-}
 
 interface BreadcrumbProps {
   crumbs: Crumb[];

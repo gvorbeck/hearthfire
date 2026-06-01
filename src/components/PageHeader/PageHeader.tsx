@@ -9,7 +9,7 @@ import {
   useToast,
 } from "@/components/primitives";
 import { Breadcrumb } from "@/components/Breadcrumb/Breadcrumb";
-import type { Crumb } from "@/components/Breadcrumb/Breadcrumb";
+import type { Crumb } from "@/types";
 import styles from "./PageHeader.module.css";
 
 type Props =

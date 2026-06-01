@@ -1,5 +1,5 @@
 import type { PlaybookType } from '@/types';
-import type { MoveDefinition } from '@/components/CharacterSheet/Move';
+import type { MoveDefinition } from '@/types';
 import { WOULD_BE_HERO_MOVES } from './would-be-hero';
 import { BLESSED_MOVES } from './blessed';
 import { SEEKER_MOVES } from './seeker';

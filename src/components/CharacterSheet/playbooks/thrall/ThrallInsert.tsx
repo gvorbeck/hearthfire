@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { Button, Input, Text, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { Move } from '../../Move';
-import type { MoveDefinition } from '../../Move';
+import type { MoveDefinition } from '@/types';
 import { RadioSelect } from '../../sections/RadioSelect';
 import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
 import { useCrewSave } from '../shared/useCrewSave';

@@ -1,32 +1,4 @@
-export interface ArcanaFollower {
-  name: string;
-  tags: string;
-  hp: number;
-  hpCount?: number;
-  armor?: number;
-  damage?: string;
-  instinct: string;
-  qualities?: string[];
-  cost?: string;
-}
-
-export interface ArcanaMove {
-  name: string;
-  subtitle?: string;
-  tracker?: { label: string; max: number };
-  text: string;
-  follower?: ArcanaFollower;
-}
-
-export interface MinorArcanum {
-  id: string;
-  name: string;
-  tags?: string;
-  weight?: 1 | 2;
-  description: string;
-  requirements: string[];
-  move: ArcanaMove;
-}
+import type { MinorArcanum } from '@/types';
 
 export const MINOR_ARCANA: MinorArcanum[] = [
   {

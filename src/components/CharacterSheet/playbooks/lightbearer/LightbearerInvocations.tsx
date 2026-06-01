@@ -5,7 +5,7 @@ import { Move } from '../../Move';
 import { usePlaybookChecked } from '@/hooks/usePlaybookChecked';
 import { LIGHTBEARER_INVOCATIONS } from '@/lib/lightbearerInvocations';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
-import type { MoveDefinition } from '../../Move';
+import type { MoveDefinition } from '@/types';
 import type { CharacterData } from '@/types';
 import styles from './LightbearerInvocations.module.css';
 

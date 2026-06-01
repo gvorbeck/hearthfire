@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { Button, Checkbox, Icon, Text } from '@/components/primitives';
 import { UseDots } from '@/components/primitives/UseDots/UseDots';
 import { parseInlineMarkdown, parseMarkdown } from '@/lib/parseMarkdown';
-import type { MinorArcanum } from '@/lib/arcanaMinor';
+import type { MinorArcanum } from '@/types';
 import styles from './MinorArcanaCard.module.css';
 
 interface MinorArcanaCardProps {

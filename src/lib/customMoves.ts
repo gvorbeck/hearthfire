@@ -1,3 +1,3 @@
-import type { MoveDefinition } from '@/components/CharacterSheet/Move';
+import type { MoveDefinition } from '@/types';
 
 export const CUSTOM_MOVES: MoveDefinition[] = [];

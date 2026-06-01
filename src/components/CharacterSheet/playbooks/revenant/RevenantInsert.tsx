@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { Radio, RadioGroup, Text } from '@/components/primitives';
 import { InsertLayout } from '../shared/InsertLayout';
-import type { MoveDefinition } from '../../Move';
+import type { MoveDefinition } from '@/types';
 import type { CharacterData } from '@/types';
 import styles from './RevenantInsert.module.css';
 

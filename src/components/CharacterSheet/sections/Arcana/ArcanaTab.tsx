@@ -1,9 +1,9 @@
 import { useState, useCallback, useEffect, useMemo, useRef, memo } from 'react';
 import clsx from 'clsx';
 import { Button, Text } from '@/components/primitives';
-import { MINOR_ARCANA, type MinorArcanum } from '@/lib/arcanaMinor';
-import { MAJOR_ARCANA, type MajorArcanum } from '@/lib/arcanaMajor';
-import type { ArcanaMinorEntry, ArcanaMajorEntry, CharacterData } from '@/types';
+import { MINOR_ARCANA } from '@/lib/arcanaMinor';
+import { MAJOR_ARCANA } from '@/lib/arcanaMajor';
+import type { MinorArcanum, MajorArcanum, ArcanaMinorEntry, ArcanaMajorEntry, CharacterData } from '@/types';
 import { MinorArcanaCard } from './MinorArcanaCard';
 import { MajorArcanaCard } from './MajorArcanaCard';
 import { AddArcanaModal } from './AddArcanaModal';

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/components/primitives';
 import { Move } from '../../Move';
-import type { MoveDefinition } from '../../Move';
+import type { MoveDefinition } from '@/types';
 import { InsertLayout } from '../shared/InsertLayout';
 import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
 import type { CharacterData } from '@/types';

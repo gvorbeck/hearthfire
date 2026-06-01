@@ -2,36 +2,8 @@ import clsx from 'clsx';
 import { Checkbox, CheckboxGroup, Icon, List, Text, UseDots } from '@/components/primitives';
 import type { IconName } from '@/components/primitives';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
+import type { MoveDefinition } from '@/types';
 import styles from './Move.module.css';
-
-export interface MoveDefinition {
-  id: string;
-  name: string;
-  trigger?: string;
-  triggerOverride?: string;
-  body?: string | string[];
-  bodyIcons?: readonly IconName[];
-  list?: string[];
-  checkList?: string[];
-  checkListIds?: string[];
-  checkListLeveled?: boolean;
-  footer?: string | string[];
-  list2?: string[];
-  citation?: string;
-  uses?: number;
-  usesLabel?: string;
-  // usesAlt tracks a second independent hold on the same move (e.g. Up With People: the current
-  // player's Rapport dots vs. the other player's dot). Both groups are stored on this character's
-  // document as a convenience; the other player is expected to track their own copy independently.
-  usesAlt?: number;
-  usesAltLabel?: string;
-  takes?: number;
-  selectable?: boolean;
-  startingMove?: boolean;
-  requires?: string[];
-  requiresLevel?: number;
-  excludes?: string[];
-}
 
 interface SelectionProps {
   selected: boolean;
@@ -210,7 +182,7 @@ export const Move = ({
         const icon = move.bodyIcons?.[i];
         return icon ? (
           <div key={`${move.id}-body-${i}`} className={styles.moveBodyWithIcon}>
-            <Icon name={icon} size="small" className={styles.moveBodyIcon} aria-hidden="true" />
+            <Icon name={icon as IconName} size="small" className={styles.moveBodyIcon} aria-hidden="true" />
             <Text font="serif" color="muted" leading="tight">{parseInlineMarkdown(p)}</Text>
           </div>
         ) : (

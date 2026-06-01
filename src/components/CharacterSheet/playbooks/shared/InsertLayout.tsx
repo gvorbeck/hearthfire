@@ -2,14 +2,14 @@ import { useCallback, type ReactNode } from 'react';
 import { CheckboxGroup, Text, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { Move } from '../../Move';
-import type { MoveDefinition } from '../../Move';
+import type { MoveDefinition } from '@/types';
 import { PurposeDetail } from './InsertSections';
 import { RadioSelect } from '../../sections/RadioSelect';
 import { INSERT_INSTINCT_OPTIONS, INSERT_PURPOSE_OPTIONS } from '@/lib/insertSharedData';
 import { useInsertSections } from './useInsertSections';
 import { useConsequenceCheckboxes } from './useConsequenceCheckboxes';
 import type { CharacterData, PlaybookFeatures } from '@/types';
-import type { RadioOption } from '@/lib/radioOptions';
+import type { RadioOption } from '@/types';
 import styles from './InsertLayout.module.css';
 
 type ConsequenceKey = Extract<{

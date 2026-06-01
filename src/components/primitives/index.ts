@@ -18,7 +18,7 @@ export { Tabs, tabBadgeClass } from './Tabs/Tabs';
 export { List } from './List/List';
 export { UseDots } from './UseDots/UseDots';
 export { CheckboxGroup } from './CheckboxGroup/CheckboxGroup';
-export type { CheckboxGroupItem } from './CheckboxGroup/CheckboxGroup';
+export type { CheckboxGroupItem } from '@/types';
 export { Tooltip } from './Tooltip/Tooltip';
 export { SiteBanner } from './SiteBanner/SiteBanner';
 export { TopBar } from './TopBar/TopBar';

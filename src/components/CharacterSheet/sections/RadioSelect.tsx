@@ -4,7 +4,7 @@ import { Radio, RadioGroup, Input, Text } from '@/components/primitives';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import { useCollapsibleSection } from '@/hooks/useCollapsibleSection';
 import { PlaybookSection } from '../PlaybookSection';
-import type { RadioOption } from '@/lib/radioOptions';
+import type { RadioOption } from '@/types';
 import type { CharacterData } from '@/types';
 import styles from './RadioSelect.module.css';
 

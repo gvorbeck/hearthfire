@@ -3,7 +3,7 @@ import { PlaybookSection } from '../PlaybookSection';
 import { Collapse, Text, Toggle, useToast } from '@/components/primitives';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { Move } from '../Move';
-import type { MoveDefinition } from '../Move';
+import type { MoveDefinition } from '@/types';
 import { BASIC_MOVES } from '@/lib/basicMoves';
 import { SPECIAL_MOVES } from '@/lib/specialMoves';
 import { FOLLOWER_MOVES } from '@/lib/followerMoves';
