@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { Button, Checkbox, List, Text } from '@/components/primitives';
 import { UseDots } from '@/components/primitives/UseDots/UseDots';
 import { parseInlineMarkdown, parseMarkdown } from '@/lib/parseMarkdown';
-import type { MajorArcanum, MajorArcanaMysteryMove, ArcanaMove } from '@/lib/arcanaMajor';
+import type { MajorArcanum, MajorArcanaMysteryMove, ArcanaMove } from '@/types';
 import type { ArcanaMajorEntry } from '@/types';
 import styles from './MajorArcanaCard.module.css';
 

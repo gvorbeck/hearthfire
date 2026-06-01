@@ -151,33 +151,6 @@ The app deploys automatically to Firebase Hosting via GitHub Actions on every pu
 
 ---
 
-## Roadmap
-
-- [x] All 9 playbooks — full content coverage
-  - [x] Blessed
-  - [x] Fox
-  - [x] Heavy
-  - [x] Lightbearer
-  - [x] Judge
-  - [x] Marshal
-  - [x] Ranger
-  - [x] Would-be Hero
-- [x] Playbook inserts
-  - [x] Followers
-  - [x] Inventory
-  - [x] Animal Companion
-  - [x] Crew
-  - [x] Invocations
-  - [x] Initiates of Danu
-- [x] Death-state playbooks
-  - [x] Ghost
-  - [x] Revenant
-  - [x] Thrall
-- [x] Steading Playbook
-- [ ] Arcana reference sheets
-
----
-
 ## License
 
 This project is unofficial fan content. _Stonetop_ is designed by Jeremy Strandberg. All game content belongs to its respective owners. This tool is not affiliated with or endorsed by the Stonetop team.

@@ -22,7 +22,7 @@ export const useDebouncedSave = <T>(onSave: (value: T) => Promise<void>, delay =
 
   const flush = useCallback((value: T) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    save(value);
+    return save(value);
   }, [save]);
 
   return { onChange, flush };

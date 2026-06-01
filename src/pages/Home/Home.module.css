@@ -93,3 +93,35 @@
   gap: var(--spacing-4);
   flex: 1;
 }
+
+.idSlugPreview {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  word-break: break-all;
+}
+
+.idSlugPreview strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.idHint {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  margin-top: var(--spacing-1);
+}
+
+.idHintAvailable {
+  color: var(--color-gold-300);
+}
+
+.idHintTaken {
+  color: var(--color-ember-400);
+}
+
+.idHintChecking {
+  color: var(--text-secondary);
+}

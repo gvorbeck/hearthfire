@@ -1,38 +1,4 @@
-import type { ArcanaFollower, ArcanaMove } from './arcanaMinor';
-
-export type { ArcanaFollower, ArcanaMove };
-
-export interface MajorArcanaMysteryMove {
-  id: string;
-  name: string;
-  subtitle?: string;
-  tracker?: { label: string; max: number };
-  text: string;
-  follower?: ArcanaFollower;
-}
-
-export interface MajorArcanaMysteryConsequence {
-  id: string;
-  text: string;
-  children?: { id: string; text: string }[];
-}
-
-export interface MajorArcanaMystery {
-  sectionLabel?: string;
-  moves: MajorArcanaMysteryMove[];
-  consequences: MajorArcanaMysteryConsequence[];
-}
-
-export interface MajorArcanum {
-  id: string;
-  name: string;
-  tags?: string;
-  weight?: 1 | 2;
-  description: string;
-  frontMoves: ArcanaMove[];
-  marks: { label?: string; max: number; unlockAt?: number; tasks?: string[] };
-  mystery: MajorArcanaMystery;
-}
+import type { MajorArcanum } from '@/types';
 
 export const MAJOR_ARCANA: MajorArcanum[] = [
   {

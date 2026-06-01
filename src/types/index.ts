@@ -1,3 +1,138 @@
+import type { ReactNode } from 'react';
+
+export interface MoveDefinition {
+  id: string;
+  name: string;
+  trigger?: string;
+  triggerOverride?: string;
+  body?: string | string[];
+  bodyIcons?: readonly string[];
+  list?: string[];
+  checkList?: string[];
+  checkListIds?: string[];
+  checkListLeveled?: boolean;
+  footer?: string | string[];
+  list2?: string[];
+  citation?: string;
+  uses?: number;
+  usesLabel?: string;
+  // usesAlt tracks a second independent hold on the same move (e.g. Up With People: the current
+  // player's Rapport dots vs. the other player's dot). Both groups are stored on this character's
+  // document as a convenience; the other player is expected to track their own copy independently.
+  usesAlt?: number;
+  usesAltLabel?: string;
+  takes?: number;
+  selectable?: boolean;
+  startingMove?: boolean;
+  requires?: string[];
+  requiresLevel?: number;
+  excludes?: string[];
+}
+
+export interface RadioOption {
+  value: string;
+  label: string;
+  description?: string;
+  subtitle?: string;
+  detail?: ReactNode;
+  detailAlways?: boolean;
+}
+
+export interface CheckboxGroupItem {
+  id: string;
+  label: ReactNode;
+  disabled?: boolean;
+}
+
+export interface Crumb {
+  label: string;
+  to?: string;
+}
+
+export interface IntroductionQuestion {
+  id: string;
+  text: string;
+}
+
+export interface IntroductionsConfig {
+  step3: ReactNode;
+  step4Questions: IntroductionQuestion[];
+  step6Questions: IntroductionQuestion[];
+}
+
+export interface AnimalTypeConfig {
+  id: string;
+  label: string;
+  examples: string;
+  hp: string;
+  armor: string;
+  damage: string;
+  pickCount: number;
+  picks: { id: string; label: string; defaultChecked?: boolean }[];
+}
+
+export interface ArcanaFollower {
+  name: string;
+  tags: string;
+  hp: number;
+  hpCount?: number;
+  armor?: number;
+  damage?: string;
+  instinct: string;
+  qualities?: string[];
+  cost?: string;
+}
+
+export interface ArcanaMove {
+  name: string;
+  subtitle?: string;
+  tracker?: { label: string; max: number };
+  text: string;
+  follower?: ArcanaFollower;
+}
+
+export interface MinorArcanum {
+  id: string;
+  name: string;
+  tags?: string;
+  weight?: 1 | 2;
+  description: string;
+  requirements: string[];
+  move: ArcanaMove;
+}
+
+export interface MajorArcanaMysteryMove {
+  id: string;
+  name: string;
+  subtitle?: string;
+  tracker?: { label: string; max: number };
+  text: string;
+  follower?: ArcanaFollower;
+}
+
+export interface MajorArcanaMysteryConsequence {
+  id: string;
+  text: string;
+  children?: { id: string; text: string }[];
+}
+
+export interface MajorArcanaMystery {
+  sectionLabel?: string;
+  moves: MajorArcanaMysteryMove[];
+  consequences: MajorArcanaMysteryConsequence[];
+}
+
+export interface MajorArcanum {
+  id: string;
+  name: string;
+  tags?: string;
+  weight?: 1 | 2;
+  description: string;
+  frontMoves: ArcanaMove[];
+  marks: { label?: string; max: number; unlockAt?: number; tasks?: string[] };
+  mystery: MajorArcanaMystery;
+}
+
 export interface ChoiceConfig {
   min: number;
   max: number;

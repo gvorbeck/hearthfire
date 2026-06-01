@@ -34,7 +34,9 @@
       "Bash(xargs basename *)",
       "Bash(curl -s -I *)",
       "Bash(curl -s -o /dev/null *)",
-      "Bash(cat)"
+      "Bash(cat)",
+      "Bash(gh issue *)",
+      "Bash(gh auth *)"
     ]
   }
 }

@@ -1,19 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { CheckboxGroup, List, Text, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
-import type { CharacterData } from '@/types';
+import type { CharacterData, IntroductionsConfig } from '@/types';
 import styles from './Introductions.module.css';
-
-export interface IntroductionQuestion {
-  id: string;
-  text: string;
-}
-
-export interface IntroductionsConfig {
-  step3: React.ReactNode;
-  step4Questions: IntroductionQuestion[];
-  step6Questions: IntroductionQuestion[];
-}
 
 interface IntroductionsProps {
   config?: IntroductionsConfig;

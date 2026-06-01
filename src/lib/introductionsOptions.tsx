@@ -1,5 +1,4 @@
-import type { IntroductionsConfig } from '@/components/CharacterSheet/sections/Introductions';
-import type { PlaybookType } from '@/types';
+import type { IntroductionsConfig, PlaybookType } from '@/types';
 
 const BLESSED: IntroductionsConfig = {
   step3: <>On your third turn, <strong>describe your sacred pouch</strong> and its remarkable trait. Then, <strong>tell us about Danu&apos;s shrine</strong> in Stonetop and how she is worshipped.</>,

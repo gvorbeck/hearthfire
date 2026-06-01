@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
+import { useCollapsibleSection } from '@/hooks/useCollapsibleSection';
 import { useToast } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
 import { BackgroundOptionItem } from './BackgroundOption';
@@ -20,8 +21,6 @@ export const Background = ({ playbookKey, options, level, data, onSave }: Backgr
   const [selectedChoices, setSelectedChoices] = useState<string[]>(data?.backgroundChoices ?? []);
   const [backgroundUses, setBackgroundUses] = useState<Record<string, number>>(data?.backgroundUses ?? {});
   const [freeText, setFreeText] = useState<Record<string, string>>(data?.backgroundFreeText ?? {});
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const hasInitializedCollapse = useRef(false);
   const selectedOptionRef = useRef(selectedOption);
   selectedOptionRef.current = selectedOption;
   const selectedChoicesRef = useRef(selectedChoices);
@@ -32,6 +31,7 @@ export const Background = ({ playbookKey, options, level, data, onSave }: Backgr
   freeTextRef.current = freeText;
   const onSaveRef = useRef(onSave);
   onSaveRef.current = onSave;
+  const lastFirestoreBackgroundRef = useRef<string | undefined>(undefined);
 
   const saveFreeText = useCallback(
     (answers: Record<string, string>) => onSaveRef.current?.({ backgroundFreeText: answers }) ?? Promise.resolve(),
@@ -40,20 +40,16 @@ export const Background = ({ playbookKey, options, level, data, onSave }: Backgr
   const { onChange: debouncedFreeText } = useDebouncedSave(saveFreeText, 1000);
 
   useEffect(() => {
+    const incoming = JSON.stringify([data?.background, data?.backgroundChoices, data?.backgroundFreeText, data?.backgroundUses]);
+    if (incoming === lastFirestoreBackgroundRef.current) return;
+    lastFirestoreBackgroundRef.current = incoming;
     if (data?.background !== undefined) setSelectedOption(data.background);
     if (data?.backgroundChoices !== undefined) setSelectedChoices(data.backgroundChoices);
     if (data?.backgroundFreeText !== undefined) setFreeText(data.backgroundFreeText);
     if (data?.backgroundUses !== undefined) setBackgroundUses(data.backgroundUses);
   }, [data?.background, data?.backgroundChoices, data?.backgroundFreeText, data?.backgroundUses]);
 
-  useEffect(() => {
-    if (data?.background && !hasInitializedCollapse.current) {
-      hasInitializedCollapse.current = true;
-      setIsCollapsed(true);
-    }
-  }, [data?.background]);
-
-  const handleToggleCollapse = useCallback(() => setIsCollapsed((v) => !v), []);
+  const { isCollapsed, setIsCollapsed, handleToggleCollapse } = useCollapsibleSection(!!selectedOption);
 
   const handleFreeTextChange = useCallback((key: string, value: string) => {
     const next = { ...freeTextRef.current, [key]: value };
@@ -65,13 +61,12 @@ export const Background = ({ playbookKey, options, level, data, onSave }: Backgr
     const prev = selectedOptionRef.current;
     setSelectedOption(value);
     setSelectedChoices([]);
-    setIsCollapsed(true);
     onSaveRef.current?.({ background: value, backgroundChoices: [] }).catch(() => {
       setSelectedOption(prev);
       setIsCollapsed(false);
       addToast('Failed to save background selection.');
     });
-  }, [addToast]);
+  }, [addToast, setIsCollapsed]);
 
   const handleChoicesChange = useCallback((choices: string[]) => {
     const prev = selectedChoicesRef.current;

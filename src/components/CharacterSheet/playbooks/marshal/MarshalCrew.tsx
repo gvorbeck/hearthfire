@@ -4,7 +4,7 @@ import { Checkbox, CheckboxGroup, Divider, Input, Text, UseDots, useToast } from
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import { RadioSelect } from '../../sections/RadioSelect';
-import type { RadioOption } from '@/lib/radioOptions';
+import type { RadioOption } from '@/types';
 import { useCrewSave } from '../shared/useCrewSave';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { CharacterData } from '@/types';
@@ -243,7 +243,12 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
   const individualsRef = useRef(individuals);
   individualsRef.current = individuals;
 
+  const lastFirestoreCrewRef = useRef<string | undefined>(undefined);
+
   useEffect(() => {
+    const incoming = JSON.stringify([data?.playbookFeatures, data?.typeMoves, data?.typeMoveCheckList]);
+    if (incoming === lastFirestoreCrewRef.current) return;
+    lastFirestoreCrewRef.current = incoming;
     const f = resolvePlaybookFeatures(data);
     if (f.crewHp !== undefined) setHp(f.crewHp);
     if (f.crewArmor !== undefined) setArmor(f.crewArmor);

@@ -1,4 +1,4 @@
-import type { MoveDefinition } from '@/components/CharacterSheet/Move';
+import type { MoveDefinition } from '@/types';
 import { IMPROVED_STAT_BASE, SUPERIOR_STAT_BASE } from './_statMoves';
 
 export const FOX_MOVES: MoveDefinition[] = [
@@ -21,8 +21,8 @@ export const FOX_MOVES: MoveDefinition[] = [
     selectable: true,
     uses: 1,
     usesLabel: 'a few left',
-    uses2: 1,
-    uses2Label: 'out',
+    usesAlt: 1,
+    usesAltLabel: 'out',
     body: 'Any knife or dagger gets the *thrown* tag in your hands. Also, you keep a few iron throwing blades (*near*) on you; they don\'t take up space in your inventory. Reset your ammo whenever you Outfit.',
   },
   {

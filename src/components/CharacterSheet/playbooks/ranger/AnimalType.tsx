@@ -1,18 +1,8 @@
 import { useCallback, useMemo } from 'react';
 import { Checkbox, CheckboxGroup, Input, Text } from '@/components/primitives';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
+import type { AnimalTypeConfig } from '@/types';
 import styles from './RangerAnimalCompanion.module.css';
-
-export interface AnimalTypeConfig {
-  id: string;
-  label: string;
-  examples: string;
-  hp: string;
-  armor: string;
-  damage: string;
-  pickCount: number;
-  picks: { id: string; label: string; defaultChecked?: boolean }[];
-}
 
 export const ANIMAL_TYPES: AnimalTypeConfig[] = [
   {

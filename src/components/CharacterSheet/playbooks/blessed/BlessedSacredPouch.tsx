@@ -39,7 +39,12 @@ export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) =>
   const traitRef = useRef(trait);
   traitRef.current = trait;
 
+  const lastFirestoreSacredPouchRef = useRef<string | undefined>(undefined);
+
   useEffect(() => {
+    const incoming = JSON.stringify(data?.playbookFeatures);
+    if (incoming === lastFirestoreSacredPouchRef.current) return;
+    lastFirestoreSacredPouchRef.current = incoming;
     const f = resolvePlaybookFeatures(data);
     if (f.sacredPouchIs !== undefined) setIs(f.sacredPouchIs);
     if (f.sacredPouchTrait !== undefined) setTrait(f.sacredPouchTrait);

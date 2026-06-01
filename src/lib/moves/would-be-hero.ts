@@ -1,4 +1,4 @@
-import type { MoveDefinition } from '@/components/CharacterSheet/Move';
+import type { MoveDefinition } from '@/types';
 import { IMPROVED_STAT_BASE, SUPERIOR_STAT_BASE } from './_statMoves';
 
 export const WOULD_BE_HERO_MOVES: MoveDefinition[] = [
@@ -126,7 +126,7 @@ export const WOULD_BE_HERO_MOVES: MoveDefinition[] = [
     name: 'Up With People',
     selectable: true,
     uses: 2,
-    uses2: 1,
+    usesAlt: 1,
     triggerOverride: 'When you **converse with someone** (PC or NPC) you can hold 2 Rapport with them. If you do, they hold 1 Rapport with you. During the conversation, either of you can spend 1 Rapport to ask the other player one of the following and get an honest answer.',
     list: [
       'What weighs you down or holds you back?',

@@ -50,7 +50,9 @@ export const useInsertSections = (
 
   return {
     instinct,
+    setInstinct,
     purpose,
+    setPurpose,
     purposeNames,
     handlePurposeNameChange,
     handlePurposeNameBlur,

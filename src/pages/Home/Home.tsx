@@ -1,29 +1,57 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useId } from 'react';
+import clsx from 'clsx';
 import { useNavigate } from 'react-router-dom';
 import { PageMeta } from '@/components/PageMeta/PageMeta';
-import { createGame } from '@/lib/game';
+import { createGame, createGameWithId } from '@/lib/game';
+import { useGameIdCheck } from '@/hooks/useGameIdCheck';
 import { Button, Heading, Input, RuleDivider, Stack, Text } from '@/components/primitives';
 import styles from './Home.module.css';
 
+const STATUS_MESSAGES = {
+  idle: '',
+  checking: 'Checking availability…',
+  available: 'Available',
+  taken: 'Already taken — choose a different name.',
+  invalid: 'Must be at least 3 characters.',
+} as const;
+
 export const Home = () => {
   const navigate = useNavigate();
+  const customIdHintId = useId();
+
   const [joinId, setJoinId] = useState('');
   const [joinError, setJoinError] = useState('');
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState('');
+  const [customIdRaw, setCustomIdRaw] = useState('');
+
+  const { slug, status } = useGameIdCheck(customIdRaw);
 
   const handleCreate = useCallback(async () => {
     setCreating(true);
     setCreateError('');
     try {
-      const id = await createGame();
-      navigate(`/game/${id}`, { state: { isNew: true } });
-    } catch {
-      setCreateError('Failed to create game. Please try again.');
+      if (slug) {
+        await createGameWithId(slug);
+        navigate(`/game/${slug}`, { state: { isNew: true } });
+      } else {
+        const id = await createGame();
+        navigate(`/game/${id}`, { state: { isNew: true } });
+      }
+    } catch (err) {
+      const msg = err instanceof Error && err.message === 'Game ID already taken.'
+        ? 'That name was just taken — choose another.'
+        : 'Failed to create game. Please try again.';
+      setCreateError(msg);
     } finally {
       setCreating(false);
     }
-  }, [navigate]);
+  }, [navigate, slug]);
+
+  const handleCustomIdChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setCustomIdRaw(e.target.value);
+    setCreateError('');
+  }, []);
 
   const handleJoin = useCallback((e: React.FormEvent) => {
     e.preventDefault();
@@ -39,6 +67,16 @@ export const Home = () => {
     setJoinId(e.target.value);
     setJoinError('');
   }, []);
+
+  const isCreateDisabled = creating || status === 'taken' || status === 'invalid' || status === 'checking';
+  const showSlugPreview = status === 'available' || status === 'checking';
+
+  const hintCx = clsx(
+    styles.idHint,
+    status === 'available' && styles.idHintAvailable,
+    (status === 'taken' || status === 'invalid') && styles.idHintTaken,
+    status === 'checking' && styles.idHintChecking,
+  );
 
   return (
     <main className={styles.page}>
@@ -58,12 +96,44 @@ export const Home = () => {
           <Heading as="h2" size="label">New Game</Heading>
           <div className={styles.cardBody}>
             <Text color="muted" size="xs">
-              Start a new session. Share the generated ID with your players.
+              Start a new session. Leave the name blank for a generated ID, or choose one your group will remember.
             </Text>
-            <Button onClick={handleCreate} disabled={creating} size="lg" fullWidth>
+            <Stack gap={2}>
+              <Input
+                id="custom-game-id"
+                label="Custom game name (optional)"
+                placeholder="e.g. tuesdays-at-the-hearth"
+                value={customIdRaw}
+                onChange={handleCustomIdChange}
+                aria-describedby={status !== 'idle' ? customIdHintId : undefined}
+                autoComplete="off"
+                autoCapitalize="none"
+                spellCheck={false}
+              />
+              <div id={customIdHintId} aria-live="polite" aria-atomic="true">
+                {status !== 'idle' && (
+                  <>
+                    {showSlugPreview && (
+                      <span className={styles.idSlugPreview}>
+                        hearthfire.camp/game/<strong>{slug}</strong>
+                      </span>
+                    )}
+                    <span className={hintCx}>{STATUS_MESSAGES[status]}</span>
+                  </>
+                )}
+              </div>
+            </Stack>
+            <Button
+              onClick={handleCreate}
+              disabled={isCreateDisabled}
+              size="lg"
+              fullWidth
+            >
               {creating ? 'Creating…' : 'Create Game'}
             </Button>
-            {createError && <Text color="muted" size="xs">{createError}</Text>}
+            {createError && (
+              <Text color="muted" size="xs" role="alert">{createError}</Text>
+            )}
           </div>
         </div>
 

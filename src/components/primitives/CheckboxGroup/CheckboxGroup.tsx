@@ -2,13 +2,8 @@ import { useMemo } from 'react';
 import clsx from 'clsx';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { Text } from '../Text/Text';
+import type { CheckboxGroupItem } from '@/types';
 import styles from './CheckboxGroup.module.css';
-
-export interface CheckboxGroupItem {
-  id: string;
-  label: React.ReactNode;
-  disabled?: boolean;
-}
 
 interface CheckboxGroupProps {
   items: CheckboxGroupItem[] | string[];
