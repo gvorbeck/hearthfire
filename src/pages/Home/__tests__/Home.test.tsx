@@ -10,9 +10,13 @@ vi.mock('react-router-dom', async (importOriginal) => {
   return { ...actual, useNavigate: () => mockNavigate };
 });
 
-vi.mock('@/lib/game', () => ({
-  createGame: vi.fn().mockResolvedValue('abc123'),
-}));
+vi.mock('@/lib/game', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/game')>();
+  return {
+    ...actual,
+    createGame: vi.fn().mockResolvedValue('abc123'),
+  };
+});
 
 describe('Home', () => {
   it('"Create Game" button calls createGame and navigates to /game/:id', async () => {
