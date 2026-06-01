@@ -10,7 +10,7 @@ import { FOLLOWER_MOVES } from '@/lib/followerMoves';
 import { EXPEDITION_MOVES } from '@/lib/expeditionMoves';
 import { HOMEFRONT_MOVES } from '@/lib/homefrontMoves';
 import { CUSTOM_MOVES } from '@/lib/customMoves';
-import { PLAYBOOK_MOVES, BACKGROUND_FORCED_MOVES, BACKGROUND_FORCED_CHECKLIST } from '@/lib/playbookMoves';
+import { PLAYBOOK_MOVES, BACKGROUND_FORCED_MOVES, BACKGROUND_FORCED_CHECKLIST } from '@/lib/moves';
 import { PLAYBOOKS } from '@/lib/constants';
 import type { CharacterData, PlaybookType } from '@/types';
 import styles from './Moves.module.css';
