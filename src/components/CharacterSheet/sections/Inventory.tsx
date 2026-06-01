@@ -220,10 +220,14 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
   const arcanaMinorPendingRef = useRef(false);
   const arcanaMajorPendingRef = useRef(false);
   const otherThingsPendingRef = useRef(false);
+  const lastFirestoreInventoryRef = useRef<string | undefined>(undefined);
 
   const { onChange: otherThingsDebounced, flush: otherThingsFlush } = useDebouncedSave<Partial<CharacterData>>(onSave);
 
   useEffect(() => {
+    const incoming = JSON.stringify([data?.inventoryChecked, data?.inventoryUses, data?.inventorySmallChecked, data?.inventoryUndefined, data?.inventorySmallUndefined, data?.inventoryOtherThings]);
+    if (incoming === lastFirestoreInventoryRef.current) return;
+    lastFirestoreInventoryRef.current = incoming;
     if (data?.inventoryChecked !== undefined) setInventoryChecked(data.inventoryChecked);
     if (data?.inventoryUses !== undefined) setInventoryUses(data.inventoryUses);
     if (data?.inventorySmallChecked !== undefined) setSmallChecked(data.inventorySmallChecked);

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import clsx from 'clsx';
 import { Button, Input, Text, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
@@ -244,7 +244,12 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
   const [thrallImpulse, setThrallImpulse] = useState<string>(init.thrallImpulse ?? '');
   const [thrallImpulseCustom, setThrallImpulseCustom] = useState<string>(init.thrallImpulseCustom ?? '');
 
+  const lastFirestoreThrallRef = useRef<string | undefined>(undefined);
+
   useEffect(() => {
+    const incoming = JSON.stringify(data?.playbookFeatures);
+    if (incoming === lastFirestoreThrallRef.current) return;
+    lastFirestoreThrallRef.current = incoming;
     const f = resolvePlaybookFeatures(data);
     if (f.thrallMaster !== undefined) setMaster(f.thrallMaster);
     if (f.thrallFavor !== undefined) setFavor(f.thrallFavor);

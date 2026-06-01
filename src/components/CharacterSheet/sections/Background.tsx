@@ -31,6 +31,7 @@ export const Background = ({ playbookKey, options, level, data, onSave }: Backgr
   freeTextRef.current = freeText;
   const onSaveRef = useRef(onSave);
   onSaveRef.current = onSave;
+  const lastFirestoreBackgroundRef = useRef<string | undefined>(undefined);
 
   const saveFreeText = useCallback(
     (answers: Record<string, string>) => onSaveRef.current?.({ backgroundFreeText: answers }) ?? Promise.resolve(),
@@ -39,6 +40,9 @@ export const Background = ({ playbookKey, options, level, data, onSave }: Backgr
   const { onChange: debouncedFreeText } = useDebouncedSave(saveFreeText, 1000);
 
   useEffect(() => {
+    const incoming = JSON.stringify([data?.background, data?.backgroundChoices, data?.backgroundFreeText, data?.backgroundUses]);
+    if (incoming === lastFirestoreBackgroundRef.current) return;
+    lastFirestoreBackgroundRef.current = incoming;
     if (data?.background !== undefined) setSelectedOption(data.background);
     if (data?.backgroundChoices !== undefined) setSelectedChoices(data.backgroundChoices);
     if (data?.backgroundFreeText !== undefined) setFreeText(data.backgroundFreeText);

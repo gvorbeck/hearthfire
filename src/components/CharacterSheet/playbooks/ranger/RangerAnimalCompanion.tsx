@@ -61,7 +61,12 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
   const [loyalty, setLoyalty] = useState<number>(init.animalLoyalty ?? 0);
   const [beastOfLegend, setBeastOfLegend] = useState<Record<string, boolean>>(init.animalBeastOfLegend ?? {});
 
+  const lastFirestoreAnimalRef = useRef<string | undefined>(undefined);
+
   useEffect(() => {
+    const incoming = JSON.stringify(data?.playbookFeatures);
+    if (incoming === lastFirestoreAnimalRef.current) return;
+    lastFirestoreAnimalRef.current = incoming;
     const f = resolvePlaybookFeatures(data);
     if (f.animalHp !== undefined) setHp(f.animalHp);
     if (f.animalArmor !== undefined) setArmor(f.animalArmor);

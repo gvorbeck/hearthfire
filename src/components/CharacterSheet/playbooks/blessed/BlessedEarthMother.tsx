@@ -37,7 +37,12 @@ export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) =>
   const offeringsRef = useRef(offerings);
   offeringsRef.current = offerings;
 
+  const lastFirestoreEarthMotherRef = useRef<string | undefined>(undefined);
+
   useEffect(() => {
+    const incoming = JSON.stringify(data?.playbookFeatures);
+    if (incoming === lastFirestoreEarthMotherRef.current) return;
+    lastFirestoreEarthMotherRef.current = incoming;
     const f = resolvePlaybookFeatures(data);
     if (f.earthMotherShrine !== undefined) setShrine(f.earthMotherShrine);
     if (f.earthMotherOfferings !== undefined) setOfferings(f.earthMotherOfferings);

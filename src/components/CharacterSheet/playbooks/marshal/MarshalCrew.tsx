@@ -243,7 +243,12 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
   const individualsRef = useRef(individuals);
   individualsRef.current = individuals;
 
+  const lastFirestoreCrewRef = useRef<string | undefined>(undefined);
+
   useEffect(() => {
+    const incoming = JSON.stringify([data?.playbookFeatures, data?.typeMoves, data?.typeMoveCheckList]);
+    if (incoming === lastFirestoreCrewRef.current) return;
+    lastFirestoreCrewRef.current = incoming;
     const f = resolvePlaybookFeatures(data);
     if (f.crewHp !== undefined) setHp(f.crewHp);
     if (f.crewArmor !== undefined) setArmor(f.crewArmor);

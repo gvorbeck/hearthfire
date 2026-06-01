@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useToast } from '@/components/primitives';
 import { Move } from '../../Move';
 import type { MoveDefinition } from '@/types';
@@ -113,7 +113,12 @@ export const GhostInsert = ({ data, onSave }: GhostInsertProps) => {
     () => resolvePlaybookFeatures(data).ghostPoltergeistFury ?? 0,
   );
 
+  const lastFirestoreGhostRef = useRef<string | undefined>(undefined);
+
   useEffect(() => {
+    const incoming = JSON.stringify(data?.playbookFeatures);
+    if (incoming === lastFirestoreGhostRef.current) return;
+    lastFirestoreGhostRef.current = incoming;
     const f = resolvePlaybookFeatures(data);
     if (f.ghostPoltergeistFury !== undefined) setFuryChecked(f.ghostPoltergeistFury);
   }, [data]);
