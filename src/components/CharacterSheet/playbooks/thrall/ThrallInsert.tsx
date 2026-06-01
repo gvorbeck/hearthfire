@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import clsx from 'clsx';
-import { Button, Input, Text } from '@/components/primitives';
+import { Button, Input, Text, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { Move } from '../../Move';
 import type { MoveDefinition } from '../../Move';
@@ -231,6 +231,7 @@ interface ThrallInsertProps {
 }
 
 export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
+  const { addToast } = useToast();
   const { saveDebounced, saveImmediate, flushDebounce } = useCrewSave(data, onSave);
 
   const init = resolvePlaybookFeatures(data);
@@ -239,6 +240,9 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
   const [favor, setFavor] = useState<number>(init.thrallFavor ?? 0);
   const [marksGained, setMarksGained] = useState<Record<string, boolean>>(init.thrallMarksGained ?? {});
   const [marksCrossedOff, setMarksCrossedOff] = useState<Record<string, boolean>>(init.thrallMarksCrossedOff ?? {});
+  const [thrallInstinct, setThrallInstinct] = useState<string>(init.thrallInstinct ?? '');
+  const [thrallImpulse, setThrallImpulse] = useState<string>(init.thrallImpulse ?? '');
+  const [thrallImpulseCustom, setThrallImpulseCustom] = useState<string>(init.thrallImpulseCustom ?? '');
 
   useEffect(() => {
     const f = resolvePlaybookFeatures(data);
@@ -246,39 +250,54 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
     if (f.thrallFavor !== undefined) setFavor(f.thrallFavor);
     if (f.thrallMarksGained !== undefined) setMarksGained(f.thrallMarksGained);
     if (f.thrallMarksCrossedOff !== undefined) setMarksCrossedOff(f.thrallMarksCrossedOff);
+    if (f.thrallInstinct !== undefined) setThrallInstinct(f.thrallInstinct);
+    if (f.thrallImpulse !== undefined) setThrallImpulse(f.thrallImpulse);
+    if (f.thrallImpulseCustom !== undefined) setThrallImpulseCustom(f.thrallImpulseCustom);
   }, [data, setMaster]);
 
   // RadioSelect writes to patch.instinct; remap to thrall-specific Firestore fields.
   const handleInstinctSave = useCallback(
-    (patch: Partial<CharacterData>) => saveImmediate({ thrallInstinct: patch.instinct ?? '' }),
-    [saveImmediate],
+    (patch: Partial<CharacterData>) => {
+      const prev = thrallInstinct;
+      setThrallInstinct(patch.instinct ?? '');
+      return saveImmediate({ thrallInstinct: patch.instinct ?? '' }).catch(() => { setThrallInstinct(prev); addToast('Failed to save.'); });
+    },
+    [saveImmediate, thrallInstinct, addToast],
   );
 
   const handleImpulseSave = useCallback(
-    (patch: Partial<CharacterData>) => saveImmediate({ thrallImpulse: patch.instinct ?? '', thrallImpulseCustom: patch.instinctCustom ?? '' }),
-    [saveImmediate],
+    (patch: Partial<CharacterData>) => {
+      const prevImpulse = thrallImpulse; const prevCustom = thrallImpulseCustom;
+      setThrallImpulse(patch.instinct ?? '');
+      setThrallImpulseCustom(patch.instinctCustom ?? '');
+      return saveImmediate({ thrallImpulse: patch.instinct ?? '', thrallImpulseCustom: patch.instinctCustom ?? '' })
+        .catch(() => { setThrallImpulse(prevImpulse); setThrallImpulseCustom(prevCustom); addToast('Failed to save.'); });
+    },
+    [saveImmediate, thrallImpulse, thrallImpulseCustom, addToast],
   );
 
   const handleFavorChange = useCallback((count: number) => {
-    setFavor(count);
-    saveImmediate({ thrallFavor: count });
-  }, [saveImmediate]);
+    setFavor((prev) => {
+      saveImmediate({ thrallFavor: count }).catch(() => { setFavor(prev); addToast('Failed to save.'); });
+      return count;
+    });
+  }, [saveImmediate, addToast]);
 
   const handleMarkGainedChange = useCallback((id: string, gained: boolean) => {
     setMarksGained((prev) => {
       const next = { ...prev, [id]: gained };
-      saveImmediate({ thrallMarksGained: next });
+      saveImmediate({ thrallMarksGained: next }).catch(() => { setMarksGained(prev); addToast('Failed to save.'); });
       return next;
     });
-  }, [saveImmediate]);
+  }, [saveImmediate, addToast]);
 
   const handleMarkCrossedOffChange = useCallback((id: string) => {
     setMarksCrossedOff((prev) => {
       const next = { ...prev, [id]: !prev[id] };
-      saveImmediate({ thrallMarksCrossedOff: next });
+      saveImmediate({ thrallMarksCrossedOff: next }).catch(() => { setMarksCrossedOff(prev); addToast('Failed to save.'); });
       return next;
     });
-  }, [saveImmediate]);
+  }, [saveImmediate, addToast]);
 
   return (
     <div className={styles.root}>
@@ -301,7 +320,7 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
         playbookKey="thrall-instinct"
         title="Instinct"
         options={THRALL_INSTINCT_OPTIONS}
-        data={{ instinct: init.thrallInstinct ?? '', instinctCustom: '' } as CharacterData}
+        data={{ instinct: thrallInstinct, instinctCustom: '' } as CharacterData}
         onSave={handleInstinctSave}
         noCustom
         chooseNote="replaces playbook instinct"
@@ -311,7 +330,7 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
         playbookKey="thrall-impulse"
         title="Impulse"
         options={IMPULSE_OPTIONS}
-        data={{ instinct: init.thrallImpulse ?? '', instinctCustom: init.thrallImpulseCustom ?? '' } as CharacterData}
+        data={{ instinct: thrallImpulse, instinctCustom: thrallImpulseCustom } as CharacterData}
         onSave={handleImpulseSave}
         chooseNote="Ask the GM to choose 1, to represent your master's nature and will"
       />

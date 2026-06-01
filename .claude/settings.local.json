@@ -35,7 +35,8 @@
       "Bash(curl -s -I *)",
       "Bash(curl -s -o /dev/null *)",
       "Bash(cat)",
-      "Bash(gh issue *)"
+      "Bash(gh issue *)",
+      "Bash(gh auth *)"
     ]
   }
 }

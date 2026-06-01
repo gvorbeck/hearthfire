@@ -6,7 +6,7 @@ import { ANIMAL_TYPES, TypePicksSection } from './AnimalType';
 import { AnimalStats } from './AnimalStats';
 import { RadioSelect } from '../../sections/RadioSelect';
 import { BeastOfLegend } from './BeastOfLegend';
-import { Text, UseDots } from '@/components/primitives';
+import { Text, UseDots, useToast } from '@/components/primitives';
 import type { CharacterData } from '@/types';
 import type { RadioOption } from '@/lib/radioOptions';
 import styles from './RangerAnimalCompanion.module.css';
@@ -36,6 +36,7 @@ interface RangerAnimalCompanionProps {
 }
 
 export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionProps) => {
+  const { addToast } = useToast();
   const { saveDebounced, saveImmediate, flushDebounce } = useCrewSave(data, onSave);
 
   const init = resolvePlaybookFeatures(data);
@@ -77,23 +78,26 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
   const handleTypeSave = useCallback((patch: Partial<CharacterData>) => {
     const val = patch.instinct ?? '';
     const typeConfig = ANIMAL_TYPES.find((t) => t.id === val);
+    const prevType = animalType;
     setAnimalType(val);
     if (typeConfig) {
+      const prevHp = hp; const prevArmor = armor; const prevDamage = damage;
       setHp(typeConfig.hp);
       setArmor(typeConfig.armor);
       setDamage(typeConfig.damage);
-      return saveImmediate({ animalType: val, animalHp: typeConfig.hp, animalArmor: typeConfig.armor, animalDamage: typeConfig.damage });
+      return saveImmediate({ animalType: val, animalHp: typeConfig.hp, animalArmor: typeConfig.armor, animalDamage: typeConfig.damage })
+        .catch(() => { setAnimalType(prevType); setHp(prevHp); setArmor(prevArmor); setDamage(prevDamage); addToast('Failed to save.'); });
     }
-    return saveImmediate({ animalType: val });
-  }, [saveImmediate, setHp, setArmor, setDamage]);
+    return saveImmediate({ animalType: val }).catch(() => { setAnimalType(prevType); addToast('Failed to save.'); });
+  }, [saveImmediate, animalType, hp, armor, damage, setHp, setArmor, setDamage, addToast]);
 
   const handleTypePickChange = useCallback((id: string, checked: boolean) => {
     setTypePicks((prev) => {
       const next = { ...prev, [id]: checked };
-      saveImmediate({ animalTypePicks: next });
+      saveImmediate({ animalTypePicks: next }).catch(() => { setTypePicks(prev); addToast('Failed to save.'); });
       return next;
     });
-  }, [saveImmediate]);
+  }, [saveImmediate, addToast]);
 
   const handleTypeCustomChange = useCallback((typeId: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -111,23 +115,25 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
   const handleTypeCustomCheckedChange = useCallback((typeId: string, checked: boolean) => {
     setTypeCustomChecked((prev) => {
       const next = { ...prev, [typeId]: checked };
-      saveImmediate({ animalTypeCustomChecked: next });
+      saveImmediate({ animalTypeCustomChecked: next }).catch(() => { setTypeCustomChecked(prev); addToast('Failed to save.'); });
       return next;
     });
-  }, [saveImmediate]);
+  }, [saveImmediate, addToast]);
 
   const handleLoyaltyChange = useCallback((n: number) => {
-    setLoyalty(n);
-    saveImmediate({ animalLoyalty: n });
-  }, [saveImmediate]);
+    setLoyalty((prev) => {
+      saveImmediate({ animalLoyalty: n }).catch(() => { setLoyalty(prev); addToast('Failed to save.'); });
+      return n;
+    });
+  }, [saveImmediate, addToast]);
 
   const handleBeastOfLegendChange = useCallback((id: string, checked: boolean) => {
     setBeastOfLegend((prev) => {
       const next = { ...prev, [id]: checked };
-      saveImmediate({ animalBeastOfLegend: next });
+      saveImmediate({ animalBeastOfLegend: next }).catch(() => { setBeastOfLegend(prev); addToast('Failed to save.'); });
       return next;
     });
-  }, [saveImmediate]);
+  }, [saveImmediate, addToast]);
 
   const handleInstinctSave = useCallback((patch: Partial<CharacterData>) => {
     return onSave(featurePatch(data, { animalInstinct: patch.instinct, animalInstinctCustom: patch.instinctCustom }));

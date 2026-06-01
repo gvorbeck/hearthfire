@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useToast } from '@/components/primitives';
 import { Move } from '../../Move';
 import type { MoveDefinition } from '../../Move';
 import { InsertLayout } from '../shared/InsertLayout';
@@ -107,6 +108,7 @@ interface GhostInsertProps {
 }
 
 export const GhostInsert = ({ data, onSave }: GhostInsertProps) => {
+  const { addToast } = useToast();
   const [furyChecked, setFuryChecked] = useState<number>(
     () => resolvePlaybookFeatures(data).ghostPoltergeistFury ?? 0,
   );
@@ -122,8 +124,9 @@ export const GhostInsert = ({ data, onSave }: GhostInsertProps) => {
   }: Parameters<NonNullable<React.ComponentProps<typeof InsertLayout>['consequenceAddon']>>[0]) => {
     if (!consequences[POLTERGEIST_ID]) return null;
     const handleFuryChange = (count: number) => {
+      const prev = furyChecked;
       setFuryChecked(count);
-      saveImmediate({ ghostPoltergeistFury: count });
+      saveImmediate({ ghostPoltergeistFury: count }).catch(() => { setFuryChecked(prev); addToast('Failed to save.'); });
     };
     return (
       <div className={styles.furySection}>
@@ -135,7 +138,7 @@ export const GhostInsert = ({ data, onSave }: GhostInsertProps) => {
     );
   // handleFuryChange closes over saveImmediate (from InsertLayout callback args), so it must
   // stay inside consequenceAddon rather than be lifted to component scope.
-  }, [furyChecked]);
+  }, [furyChecked, addToast]);
 
   return (
     <InsertLayout

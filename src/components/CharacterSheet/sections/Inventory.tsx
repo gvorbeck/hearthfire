@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react';
 import clsx from 'clsx';
-import { Checkbox, Divider, Heading, Input, List, Stack, Text, UseDots, RepeaterField } from '@/components/primitives';
+import { Checkbox, Divider, Heading, Input, List, Stack, Text, UseDots, RepeaterField, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { MINOR_ARCANA } from '@/lib/arcanaMinor';
@@ -203,11 +203,16 @@ interface InventoryProps {
 }
 
 export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
+  const { addToast } = useToast();
   const [inventoryChecked, setInventoryChecked] = useState<Record<string, boolean>>(() => data?.inventoryChecked ?? {});
   const [inventoryUses, setInventoryUses] = useState<Record<string, number>>(() => data?.inventoryUses ?? {});
   const [smallChecked, setSmallChecked] = useState<Record<string, boolean>>(() => data?.inventorySmallChecked ?? {});
   const [undefinedMain, setUndefinedMain] = useState<number>(() => data?.inventoryUndefined ?? 0);
   const [undefinedSmall, setUndefinedSmall] = useState<number>(() => data?.inventorySmallUndefined ?? 0);
+  const undefinedMainRef = useRef(undefinedMain);
+  undefinedMainRef.current = undefinedMain;
+  const undefinedSmallRef = useRef(undefinedSmall);
+  undefinedSmallRef.current = undefinedSmall;
   const [otherThings, setOtherThings] = useState<string>(() => data?.inventoryOtherThings ?? '');
   const [arcanaMinor, setArcanaMinor] = useState(() => data?.arcanaMinor ?? []);
   const [arcanaMajor, setArcanaMajor] = useState(() => data?.arcanaMajor ?? []);
@@ -246,7 +251,7 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
 
   const saveImmediate = useCallback((patch: Partial<CharacterData>) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    onSaveRef.current(patch);
+    return onSaveRef.current(patch);
   }, []);
 
   const flushDebounce = useCallback((patch: Partial<CharacterData>) => {
@@ -257,36 +262,38 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
   const handleMainChecked = useCallback((id: string, val: boolean) => {
     setInventoryChecked((prev) => {
       const next = { ...prev, [id]: val };
-      saveImmediate({ inventoryChecked: next });
+      saveImmediate({ inventoryChecked: next }).catch(() => { setInventoryChecked(prev); addToast('Failed to save.'); });
       return next;
     });
-  }, [saveImmediate]);
+  }, [saveImmediate, addToast]);
 
   const handleMainUses = useCallback((id: string, n: number) => {
     setInventoryUses((prev) => {
       const next = { ...prev, [id]: n };
-      saveImmediate({ inventoryUses: next });
+      saveImmediate({ inventoryUses: next }).catch(() => { setInventoryUses(prev); addToast('Failed to save.'); });
       return next;
     });
-  }, [saveImmediate]);
+  }, [saveImmediate, addToast]);
 
   const handleUndefinedMain = useCallback((n: number) => {
+    const prev = undefinedMainRef.current;
     setUndefinedMain(n);
-    saveImmediate({ inventoryUndefined: n });
-  }, [saveImmediate]);
+    saveImmediate({ inventoryUndefined: n }).catch(() => { setUndefinedMain(prev); addToast('Failed to save.'); });
+  }, [saveImmediate, addToast]);
 
   const handleUndefinedSmall = useCallback((n: number) => {
+    const prev = undefinedSmallRef.current;
     setUndefinedSmall(n);
-    saveImmediate({ inventorySmallUndefined: n });
-  }, [saveImmediate]);
+    saveImmediate({ inventorySmallUndefined: n }).catch(() => { setUndefinedSmall(prev); addToast('Failed to save.'); });
+  }, [saveImmediate, addToast]);
 
   const handleSmallChecked = useCallback((id: string, val: boolean) => {
     setSmallChecked((prev) => {
       const next = { ...prev, [id]: val };
-      saveImmediate({ inventorySmallChecked: next });
+      saveImmediate({ inventorySmallChecked: next }).catch(() => { setSmallChecked(prev); addToast('Failed to save.'); });
       return next;
     });
-  }, [saveImmediate]);
+  }, [saveImmediate, addToast]);
 
   const handleOtherThingsChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value;
@@ -311,22 +318,22 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
       const next = prev.map((e) => e.id === id ? { ...e, carried } : e);
       arcanaMinorPendingRef.current = true;
       onSaveRef.current({ arcanaMinor: next })
-        .catch(() => setArcanaMinor(prev))
+        .catch(() => { setArcanaMinor(prev); addToast('Failed to save.'); })
         .finally(() => { arcanaMinorPendingRef.current = false; });
       return next;
     });
-  }, []);
+  }, [addToast]);
 
   const handleArcanaMajorCarried = useCallback((id: string, carried: boolean) => {
     setArcanaMajor((prev) => {
       const next = prev.map((e) => e.id === id ? { ...e, carried } : e);
       arcanaMajorPendingRef.current = true;
       onSaveRef.current({ arcanaMajor: next })
-        .catch(() => setArcanaMajor(prev))
+        .catch(() => { setArcanaMajor(prev); addToast('Failed to save.'); })
         .finally(() => { arcanaMajorPendingRef.current = false; });
       return next;
     });
-  }, []);
+  }, [addToast]);
 
   const totalLoad = useMemo(
     () => computeTotalLoad({ ...data, inventoryChecked, inventoryUndefined: undefinedMain, arcanaMinor, arcanaMajor }),
