@@ -159,8 +159,6 @@ const DOG_POSSESSION_IDS = new Set(['mastiffs', 'hounds', 'good-dog']);
 const INSERT_OPTIONS = ['Revenant', 'Ghost', 'Thrall', 'Followers'] as const;
 type InsertOption = typeof INSERT_OPTIONS[number];
 
-const IMPLEMENTED_INSERTS = new Set<InsertOption>(['Revenant', 'Ghost', 'Thrall', 'Followers']);
-
 const REMOVE_INSERT_WARNINGS: Partial<Record<InsertOption, string>> = {
   Followers: 'All followers and their data will be permanently lost.',
 };
@@ -206,9 +204,8 @@ const AddInsertModal = ({ open, onClose, onAdd, existingInserts }: { open: boole
             key={opt}
             name="insert-option"
             value={opt}
-            label={IMPLEMENTED_INSERTS.has(opt) ? opt : `${opt} (coming soon)`}
+            label={opt}
             checked={selected === opt}
-            disabled={!IMPLEMENTED_INSERTS.has(opt)}
             onChange={handleSelectChange}
           />
         ))}
