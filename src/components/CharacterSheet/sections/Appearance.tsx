@@ -94,8 +94,9 @@ export const Appearance = ({ rows, data, onSave }: AppearanceProps = {}) => {
       collapsible={isComplete}
       isCollapsed={isCollapsed}
       onToggleCollapse={handleToggleCollapse}
+      forceChildren
     >
-      {isCollapsed && isComplete ? (
+      {isCollapsed && isComplete && summary ? (
         <Text color="muted" className={styles.summary}>{summary}</Text>
       ) : (
         <div className={styles.rows}>

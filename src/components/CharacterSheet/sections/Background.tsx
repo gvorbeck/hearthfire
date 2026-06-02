@@ -15,7 +15,7 @@ interface BackgroundProps {
   onSave?: (data: Partial<CharacterData>) => Promise<void>;
 }
 
-export const Background = ({ playbookKey, options, level, data, onSave }: BackgroundProps = {}) => {
+export const Background = ({ playbookKey, options, level = 0, data, onSave }: BackgroundProps = {}) => {
   const { addToast } = useToast();
   const [selectedOption, setSelectedOption] = useState<string>(data?.background ?? '');
   const [selectedChoices, setSelectedChoices] = useState<string[]>(data?.backgroundChoices ?? []);
@@ -99,6 +99,7 @@ export const Background = ({ playbookKey, options, level, data, onSave }: Backgr
       collapsible={!!selectedOption}
       isCollapsed={isCollapsed}
       onToggleCollapse={handleToggleCollapse}
+      forceChildren
     >
       <div className={styles.options}>
         {visibleOptions.map((opt) => (
@@ -106,7 +107,7 @@ export const Background = ({ playbookKey, options, level, data, onSave }: Backgr
             key={opt.value}
             option={opt}
             groupName={`${playbookKey}-background`}
-            level={level!}
+            level={level}
             selected={selectedOption === opt.value}
             selectedChoices={selectedChoices}
             usesChecked={backgroundUses[opt.value] ?? 0}
