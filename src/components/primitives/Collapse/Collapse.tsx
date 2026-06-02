@@ -19,24 +19,18 @@ export const Collapse = ({ label, defaultOpen = false, children, className, acti
 
   return (
     <div className={cx}>
-      <button
-        className={styles.trigger}
-        onClick={handleToggle}
-        aria-expanded={open}
-        aria-controls={id}
-      >
-        <span className={styles.label}>{label}</span>
-        {action && (
-          <div
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') e.stopPropagation(); }}
-            className={styles.action}
-          >
-            {action}
-          </div>
-        )}
-        <Icon name="chevron-down" size="small" className={styles.chevron} aria-hidden="true" />
-      </button>
+      <div className={styles.header}>
+        <button
+          className={styles.trigger}
+          onClick={handleToggle}
+          aria-expanded={open}
+          aria-controls={id}
+        >
+          <span className={styles.label}>{label}</span>
+          <Icon name="chevron-down" size="small" className={styles.chevron} aria-hidden="true" />
+        </button>
+        {action && <div className={styles.action}>{action}</div>}
+      </div>
       <div id={id} className={styles.body} hidden={!open}>
         {children}
       </div>
