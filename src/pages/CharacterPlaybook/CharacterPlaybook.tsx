@@ -137,16 +137,22 @@ interface SheetProps {
   updateCharacterData: (characterId: string, data: Partial<CharacterData>) => Promise<void>;
 }
 
-type PlaybookTab = { id: string; label: string; content: React.ReactNode };
-
-const getPlaybookTabs = (playbook: PlaybookType, data: CharacterData | undefined): PlaybookTab[] => {
-  const tabs: PlaybookTab[] = [];
-  if (playbook === 'lightbearer') tabs.push({ id: 'invocations', label: 'Invocations', content: null });
-  if (playbook === 'ranger') tabs.push({ id: 'animal-companion', label: 'Animal Companion', content: null });
-  if (playbook === 'marshal') tabs.push({ id: 'crew', label: 'Crew', content: null });
-  if (playbook === 'blessed' && data?.background === 'initiate') tabs.push({ id: 'initiates-of-danu', label: 'Initiates of Danu', content: null });
-  return tabs;
+type PlaybookTabConfig = {
+  id: string;
+  label: string;
+  render: (data: CharacterData | undefined, onSave: (data: Partial<CharacterData>) => Promise<void>, prosperity: number) => React.ReactNode;
+  when?: (data: CharacterData | undefined) => boolean;
 };
+
+const PLAYBOOK_TAB_CONFIGS: Partial<Record<PlaybookType, PlaybookTabConfig[]>> = {
+  lightbearer: [{ id: 'invocations', label: 'Invocations', render: (data, onSave) => <LightbearerInvocations data={data} onSave={onSave} /> }],
+  ranger: [{ id: 'animal-companion', label: 'Animal Companion', render: (data, onSave) => <RangerAnimalCompanion data={data} onSave={onSave} /> }],
+  marshal: [{ id: 'crew', label: 'Crew', render: (data, onSave, prosperity) => <MarshalCrew data={data} prosperity={prosperity} onSave={onSave} /> }],
+  blessed: [{ id: 'initiates-of-danu', label: 'Initiates of Danu', render: (data, onSave) => <BlessedInitiatesOfDanu data={data} onSave={onSave} />, when: (data) => data?.background === 'initiate' }],
+};
+
+const getPlaybookTabs = (playbook: PlaybookType, data: CharacterData | undefined) =>
+  (PLAYBOOK_TAB_CONFIGS[playbook] ?? []).filter(({ when }) => !when || when(data));
 
 const DOG_POSSESSION_IDS = new Set(['mastiffs', 'hounds', 'good-dog']);
 
@@ -215,24 +221,19 @@ const AddInsertModal = ({ open, onClose, onAdd, existingInserts }: { open: boole
   );
 };
 
-const resolvePlaybookTabContent = (
+const resolveStaticTabContent = (
   id: string,
-  fallback: React.ReactNode,
   data: CharacterData | undefined,
   prosperity: number,
   onSave: (data: Partial<CharacterData>) => Promise<void>,
 ): React.ReactNode => {
-  if (id === 'initiates-of-danu') return <BlessedInitiatesOfDanu data={data} onSave={onSave} />;
-  if (id === 'invocations') return <LightbearerInvocations data={data} onSave={onSave} />;
-  if (id === 'crew') return <MarshalCrew data={data} prosperity={prosperity} onSave={onSave} />;
-  if (id === 'animal-companion') return <RangerAnimalCompanion data={data} onSave={onSave} />;
   if (id === 'inventory') return <Inventory data={data} prosperity={prosperity} onSave={onSave} />;
   if (id === 'arcana') return <ArcanaTab data={data} onSave={onSave} />;
   if (id === 'Revenant') return <RevenantInsert data={data} onSave={onSave} />;
   if (id === 'Ghost') return <GhostInsert data={data} onSave={onSave} />;
   if (id === 'Thrall') return <ThrallInsert data={data} onSave={onSave} />;
   if (id === 'Followers') return <FollowersInsert data={data} onSave={onSave} />;
-  return fallback;
+  return null;
 };
 
 const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, updateCharacterName, updateCharacterData }: SheetProps) => {
@@ -354,13 +355,13 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
     },
     {
       label: 'Inventory',
-      content: resolvePlaybookTabContent('inventory', null, character.data, prosperity, handleSaveCharacterData),
+      content: resolveStaticTabContent('inventory', character.data, prosperity, handleSaveCharacterData),
     },
     {
       label: 'Arcana',
-      content: resolvePlaybookTabContent('arcana', null, character.data, prosperity, handleSaveCharacterData),
+      content: resolveStaticTabContent('arcana', character.data, prosperity, handleSaveCharacterData),
     },
-    ...playbookTabs.map(({ id: tabId, label, content }) => ({
+    ...playbookTabs.map(({ id: tabId, label, render }) => ({
       label,
       badge: tabId === 'invocations' && showInvocationsBadge
         ? <span className={tabBadgeClass} aria-label="New Invocation available" />
@@ -368,11 +369,11 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
       badgeTooltip: tabId === 'invocations' && showInvocationsBadge
         ? 'A new Invocation can be selected'
         : undefined,
-      content: resolvePlaybookTabContent(tabId, content, character.data, prosperity, handleSaveCharacterData),
+      content: render(character.data, handleSaveCharacterData, prosperity),
     })),
     ...(character.data?.inserts ?? []).map((label) => ({
       label,
-      content: resolvePlaybookTabContent(label, null, character.data, prosperity, handleSaveCharacterData),
+      content: resolveStaticTabContent(label, character.data, prosperity, handleSaveCharacterData),
       onRemove: INSERT_OPTIONS.includes(label as InsertOption)
         ? removeInsertHandlers[label as InsertOption]
         : undefined,
