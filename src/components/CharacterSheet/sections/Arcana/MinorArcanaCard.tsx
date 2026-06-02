@@ -62,7 +62,7 @@ export const MinorArcanaCard = ({
               <span className={styles.provisions}>
                 {Array.from({ length: arcanum.weight }).map((_, i) => (
                   <Icon
-                    key={i}
+                    key={`prov-${arcanum.id}-${i}`}
                     name="empty-provisions"
                     size="small"
                     aria-label="provisions"
@@ -157,7 +157,7 @@ export const MinorArcanaCard = ({
                   <div className={styles.followerHpRow}>
                     {Array.from({ length: move.follower.hpCount ?? 1 }).map(
                       (_, i) => (
-                        <label key={i} className={styles.followerHpLabel}>
+                        <label key={`hp-${arcanum.id}-${i}`} className={styles.followerHpLabel}>
                           <Text as="span" font="serif" size="xs" color="muted">
                             {isMultiHp ? `HP ${i + 1}` : "HP"}
                           </Text>

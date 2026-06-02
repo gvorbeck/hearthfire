@@ -213,7 +213,7 @@ const MysteryMoveBlock = memo(({
             <div className={styles.followerHpRow}>
               {Array.from({ length: move.follower.hpCount ?? 1 }).map((_, i) => (
                 <FollowerHpInput
-                  key={i}
+                  key={`hp-${move.id}-${i}`}
                   index={i}
                   moveId={move.id}
                   followerName={move.follower!.name}
@@ -244,7 +244,7 @@ const MysteryMoveBlock = memo(({
               <List
                 variant="bullet"
                 items={move.follower.qualities.map((q, i) => (
-                  <Text key={i} as="span" font="serif" size="xs">{q}</Text>
+                  <Text key={`quality-${move.id}-${i}`} as="span" font="serif" size="xs">{q}</Text>
                 ))}
               />
             )}
