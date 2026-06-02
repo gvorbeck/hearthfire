@@ -1,9 +1,7 @@
-import { useCallback } from 'react';
-import { Radio, RadioGroup, Text } from '@/components/primitives';
+import { useCallback, useMemo } from 'react';
 import { InsertLayout } from '../shared/InsertLayout';
-import type { MoveDefinition } from '@/types';
-import type { CharacterData } from '@/types';
-import styles from './RevenantInsert.module.css';
+import { RadioSelect } from '../../sections/RadioSelect';
+import type { MoveDefinition, CharacterData } from '@/types';
 
 const REVENANT_MOVES: MoveDefinition[] = [
   {
@@ -84,12 +82,12 @@ const STRANGE_APPETITES_ID = 'strange-appetites';
 const INSATIABLE_ID = 'insatiable';
 
 const STRANGE_APPETITE_PICKS = [
-  { id: 'blood', label: 'still-warm blood' },
-  { id: 'marrow', label: 'bone & marrow' },
-  { id: 'dying-breaths', label: 'dying breaths' },
-  { id: 'brains', label: 'brains' },
-  { id: 'rotting-meat', label: 'rotting meat' },
-  { id: 'eyes', label: 'eyes' },
+  { value: 'blood', label: 'still-warm blood' },
+  { value: 'marrow', label: 'bone & marrow' },
+  { value: 'dying-breaths', label: 'dying breaths' },
+  { value: 'brains', label: 'brains' },
+  { value: 'rotting-meat', label: 'rotting meat' },
+  { value: 'eyes', label: 'eyes' },
 ];
 
 const REVENANT_KEYS = {
@@ -102,19 +100,44 @@ const isConsequenceDisabled = (id: string, checked: Record<string, boolean>) =>
   (id === INSATIABLE_ID && !checked[STRANGE_APPETITES_ID]) ||
   (id === 'unstable' && !checked['breakdown']);
 
-const handleAppetitePickChange = (
-  e: React.ChangeEvent<HTMLInputElement>,
-  updateChecked: (fn: (prev: Record<string, boolean>) => Record<string, boolean>) => void,
-) => {
-  const val = e.target.value;
-  updateChecked((prev) => {
-    const next: Record<string, boolean> = {};
-    for (const [k, v] of Object.entries(prev)) {
-      if (!k.startsWith('appetite:')) next[k] = v;
-    }
-    next[`appetite:${val}`] = true;
-    return next;
-  });
+interface StrangeAppetitesPickerProps {
+  consequences: Record<string, boolean>;
+  updateChecked: (updater: (prev: Record<string, boolean>) => Record<string, boolean>) => void;
+}
+
+const StrangeAppetitesPicker = ({ consequences, updateChecked }: StrangeAppetitesPickerProps) => {
+  const currentPick = Object.keys(consequences)
+    .find((k) => k.startsWith('appetite:'))
+    ?.replace('appetite:', '') ?? '';
+
+  const handleSave = useCallback(
+    (patch: Partial<CharacterData>) => {
+      const val = patch.instinct ?? '';
+      updateChecked((prev) => {
+        const next: Record<string, boolean> = {};
+        for (const [k, v] of Object.entries(prev)) {
+          if (!k.startsWith('appetite:')) next[k] = v;
+        }
+        if (val) next[`appetite:${val}`] = true;
+        return next;
+      });
+      return Promise.resolve();
+    },
+    [updateChecked],
+  );
+
+  const radioData = useMemo(() => ({ instinct: currentPick, instinctCustom: '' } as CharacterData), [currentPick]);
+
+  return (
+    <RadioSelect
+      playbookKey="revenant-appetite"
+      title="Strange Appetites — Pick 1"
+      options={STRANGE_APPETITE_PICKS}
+      data={radioData}
+      onSave={handleSave}
+      noCustom
+    />
+  );
 };
 
 interface RevenantInsertProps {
@@ -128,30 +151,7 @@ export const RevenantInsert = ({ data, onSave }: RevenantInsertProps) => {
     updateChecked,
   }: Parameters<NonNullable<React.ComponentProps<typeof InsertLayout>['consequenceAddon']>>[0]) => {
     if (!consequences[STRANGE_APPETITES_ID]) return null;
-
-    const currentPick = Object.keys(consequences)
-      .find((k) => k.startsWith('appetite:'))
-      ?.replace('appetite:', '') ?? '';
-
-    return (
-      <div className={styles.appetiteSection}>
-        <Text as="p" size="xs" color="muted" className={styles.appetitePrompt}>
-          Strange Appetites — Pick 1:
-        </Text>
-        <RadioGroup legend="Strange Appetites" legendHidden className={styles.appetiteGrid}>
-          {STRANGE_APPETITE_PICKS.map((pick) => (
-            <Radio
-              key={pick.id}
-              name="revenant-appetite"
-              value={pick.id}
-              checked={currentPick === pick.id}
-              onChange={(e) => handleAppetitePickChange(e, updateChecked)}
-              label={<Text as="span" size="xs" color="muted">{pick.label}</Text>}
-            />
-          ))}
-        </RadioGroup>
-      </div>
-    );
+    return <StrangeAppetitesPicker consequences={consequences} updateChecked={updateChecked} />;
   }, []);
 
   return (
