@@ -30,3 +30,6 @@ dist-ssr
 
 # Firebase service account key
 service-account.json
+
+# Local Firestore backups
+firestore-backup-*.json
