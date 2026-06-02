@@ -80,7 +80,7 @@ export const InsertLayout = ({
     (patch: Partial<CharacterData>) => {
       const prev = instinct;
       setInstinct(patch.instinct ?? '');
-      return saveImmediate({ [sectionKeys.instinct]: patch.instinct ?? '' }).catch(() => { setInstinct(prev); addToast('Failed to save.'); });
+      return saveImmediate({ [sectionKeys.instinct]: patch.instinct ?? '' }).catch(() => { setInstinct(prev); addToast('Failed to save.', 'error'); });
     },
     [saveImmediate, instinct, setInstinct, sectionKeys.instinct, addToast],
   );
@@ -89,7 +89,7 @@ export const InsertLayout = ({
     (patch: Partial<CharacterData>) => {
       const prev = purpose;
       setPurpose(patch.instinct ?? '');
-      return saveImmediate({ [sectionKeys.purpose]: patch.instinct ?? '' }).catch(() => { setPurpose(prev); addToast('Failed to save.'); });
+      return saveImmediate({ [sectionKeys.purpose]: patch.instinct ?? '' }).catch(() => { setPurpose(prev); addToast('Failed to save.', 'error'); });
     },
     [saveImmediate, purpose, setPurpose, sectionKeys.purpose, addToast],
   );

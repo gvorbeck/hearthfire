@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, memo } from 'react';
+import { useLatest } from '@/hooks/useLatest';
 import clsx from 'clsx';
 import { Checkbox, CheckboxGroup, Divider, Input, Text, UseDots, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
@@ -224,24 +225,15 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
   const [suppliesUses, setSuppliesUses] = useState<number[]>(() => features.crewSuppliesUses ?? Array(CREW_SIZE).fill(0));
   const [individuals, setIndividuals] = useState<Individual[]>(() => parseIndividuals(features.crewIndividuals));
 
-  const hpRef = useRef(hp);
-  hpRef.current = hp;
-  const armorRef = useRef(armor);
-  armorRef.current = armor;
-  const tagsRef = useRef(tags);
-  tagsRef.current = tags;
-  const tagsCustomRef = useRef(tagsCustom);
-  tagsCustomRef.current = tagsCustom;
-  const loyaltyRef = useRef(loyalty);
-  loyaltyRef.current = loyalty;
-  const inventoryCheckedRef = useRef(inventoryChecked);
-  inventoryCheckedRef.current = inventoryChecked;
-  const suppliesUsesRef = useRef(suppliesUses);
-  suppliesUsesRef.current = suppliesUses;
-  const customItemsRef = useRef(customItems);
-  customItemsRef.current = customItems;
-  const individualsRef = useRef(individuals);
-  individualsRef.current = individuals;
+  const hpRef = useLatest(hp);
+  const armorRef = useLatest(armor);
+  const tagsRef = useLatest(tags);
+  const tagsCustomRef = useLatest(tagsCustom);
+  const loyaltyRef = useLatest(loyalty);
+  const inventoryCheckedRef = useLatest(inventoryChecked);
+  const suppliesUsesRef = useLatest(suppliesUses);
+  const customItemsRef = useLatest(customItems);
+  const individualsRef = useLatest(individuals);
 
   const lastFirestoreCrewRef = useRef<string | undefined>(undefined);
 
@@ -265,27 +257,27 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
 
   const handleHpChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value;
-    if (raw === '') { setHp(raw); saveDebounced({ crewHp: raw }, () => addToast('Failed to save.')); return; }
+    if (raw === '') { setHp(raw); saveDebounced({ crewHp: raw }, () => addToast('Failed to save.', 'error')); return; }
     const n = parseInt(raw, 10);
     if (!isNaN(n)) {
       const val = String(Math.max(0, Math.min(n, CREW_HP_MAX)));
       setHp(val);
-      saveDebounced({ crewHp: val }, () => addToast('Failed to save.'));
+      saveDebounced({ crewHp: val }, () => addToast('Failed to save.', 'error'));
     }
   }, [saveDebounced, addToast]);
 
   const handleHpBlur = useCallback(() => {
-    flushDebounce({ crewHp: hpRef.current }).catch(() => addToast('Failed to save.'));
+    flushDebounce({ crewHp: hpRef.current }).catch(() => addToast('Failed to save.', 'error'));
   }, [flushDebounce, addToast]);
 
   const handleArmorChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setArmor(val);
-    saveDebounced({ crewArmor: val }, () => addToast('Failed to save.'));
+    saveDebounced({ crewArmor: val }, () => addToast('Failed to save.', 'error'));
   }, [saveDebounced, addToast]);
 
   const handleArmorBlur = useCallback(() => {
-    flushDebounce({ crewArmor: armorRef.current }).catch(() => addToast('Failed to save.'));
+    flushDebounce({ crewArmor: armorRef.current }).catch(() => addToast('Failed to save.', 'error'));
   }, [flushDebounce, addToast]);
 
   const handleTagChange = useCallback((id: string, checked: boolean) => {
@@ -293,7 +285,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
     const prev = tagsRef.current;
     const next = { ...prev, [id]: checked };
     setTags(next);
-    saveImmediate({ crewTags: next }).catch(() => { setTags(prev); addToast('Failed to save.'); });
+    saveImmediate({ crewTags: next }).catch(() => { setTags(prev); addToast('Failed to save.', 'error'); });
   }, [saveImmediate, addToast]);
 
   const handleTagCustomChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -302,41 +294,41 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
     const next = [...tagsCustomRef.current];
     next[i] = val;
     setTagsCustom(next);
-    saveDebounced({ crewTagsCustom: next }, () => addToast('Failed to save.'));
+    saveDebounced({ crewTagsCustom: next }, () => addToast('Failed to save.', 'error'));
   }, [saveDebounced, addToast]);
 
   const handleTagCustomBlur = useCallback(() => {
-    flushDebounce({ crewTagsCustom: tagsCustomRef.current }).catch(() => addToast('Failed to save.'));
+    flushDebounce({ crewTagsCustom: tagsCustomRef.current }).catch(() => addToast('Failed to save.', 'error'));
   }, [flushDebounce, addToast]);
 
   const handleLoyaltyChange = useCallback((n: number) => {
     const prev = loyaltyRef.current;
     setLoyalty(n);
-    saveImmediate({ crewLoyalty: n }).catch(() => { setLoyalty(prev); addToast('Failed to save.'); });
+    saveImmediate({ crewLoyalty: n }).catch(() => { setLoyalty(prev); addToast('Failed to save.', 'error'); });
   }, [saveImmediate, addToast]);
 
   const handleInventoryCheckedChange = useCallback((id: string, val: boolean) => {
     const prev = inventoryCheckedRef.current;
     const next = { ...prev, [id]: val };
     setInventoryChecked(next);
-    saveImmediate({ crewInventoryChecked: next }).catch(() => { setInventoryChecked(prev); addToast('Failed to save.'); });
+    saveImmediate({ crewInventoryChecked: next }).catch(() => { setInventoryChecked(prev); addToast('Failed to save.', 'error'); });
   }, [saveImmediate, addToast]);
 
   const handleCustomItemChecked = useCallback((slotIndex: number, checked: boolean) => {
     const prev = customItemsRef.current;
     const next = prev.map((item, i) => i === slotIndex ? { ...item, checked } : item);
     setCustomItems(next);
-    saveImmediate({ crewCustomItems: next }).catch(() => { setCustomItems(prev); addToast('Failed to save.'); });
+    saveImmediate({ crewCustomItems: next }).catch(() => { setCustomItems(prev); addToast('Failed to save.', 'error'); });
   }, [saveImmediate, addToast]);
 
   const handleCustomItemText = useCallback((slotIndex: number, text: string) => {
     const next = customItemsRef.current.map((item, i) => i === slotIndex ? { ...item, text, checked: text.length > 0 } : item);
     setCustomItems(next);
-    saveDebounced({ crewCustomItems: next }, () => addToast('Failed to save.'));
+    saveDebounced({ crewCustomItems: next }, () => addToast('Failed to save.', 'error'));
   }, [saveDebounced, addToast]);
 
   const handleCustomItemBlur = useCallback(() => {
-    flushDebounce({ crewCustomItems: customItemsRef.current }).catch(() => addToast('Failed to save.'));
+    flushDebounce({ crewCustomItems: customItemsRef.current }).catch(() => addToast('Failed to save.', 'error'));
   }, [flushDebounce, addToast]);
 
   const handleSuppliesUsesChange = useCallback((memberIndex: number, n: number) => {
@@ -344,17 +336,17 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
     const next = [...prev];
     next[memberIndex] = n;
     setSuppliesUses(next);
-    saveImmediate({ crewSuppliesUses: next }).catch(() => { setSuppliesUses(prev); addToast('Failed to save.'); });
+    saveImmediate({ crewSuppliesUses: next }).catch(() => { setSuppliesUses(prev); addToast('Failed to save.', 'error'); });
   }, [saveImmediate, addToast]);
 
   const handleIndividualChange = useCallback((index: number, field: 'name' | 'tag' | 'traits', val: string) => {
     const next = individualsRef.current.map((ind, i) => i === index ? { ...ind, [field]: val } : ind);
     setIndividuals(next);
-    saveDebounced({ crewIndividuals: next }, () => addToast('Failed to save.'));
+    saveDebounced({ crewIndividuals: next }, () => addToast('Failed to save.', 'error'));
   }, [saveDebounced, addToast]);
 
   const handleIndividualBlur = useCallback(() => {
-    flushDebounce({ crewIndividuals: individualsRef.current }).catch(() => addToast('Failed to save.'));
+    flushDebounce({ crewIndividuals: individualsRef.current }).catch(() => addToast('Failed to save.', 'error'));
   }, [flushDebounce, addToast]);
 
   const handleCrewInstinctSave = useCallback((patch: Partial<CharacterData>) => {
@@ -388,7 +380,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
     onSaveRef.current({ typeMoveCheckList: next }).catch(() => {
       // isExceptional is derived from data prop — Firestore will revert it on the next snapshot.
       // We only need to surface the failure; no local state to roll back here.
-      addToast('Failed to save.');
+      addToast('Failed to save.', 'error');
     });
   }, [addToast]);
 

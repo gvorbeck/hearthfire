@@ -32,7 +32,6 @@ export const ScrollToTop = ({ sentinelRef }: ScrollToTopProps) => {
       className={cx}
       onClick={scrollToTop}
       aria-label="Scroll to top"
-      aria-hidden={!visible}
       tabIndex={visible ? 0 : -1}
     >
       <Icon name="chevron-up" size="medium" />

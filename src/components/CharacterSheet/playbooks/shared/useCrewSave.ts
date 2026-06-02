@@ -1,4 +1,5 @@
 import { useRef, useCallback, useEffect } from 'react';
+import { useLatest } from '@/hooks/useLatest';
 import { featurePatch } from '@/lib/resolvePlaybookFeatures';
 import type { CharacterData } from '@/types';
 
@@ -6,10 +7,8 @@ type Patch = Parameters<typeof featurePatch>[1];
 
 export const useCrewSave = (data: CharacterData | undefined, onSave: (data: Partial<CharacterData>) => Promise<void>) => {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const onSaveRef = useRef(onSave);
-  const dataRef = useRef(data);
-  onSaveRef.current = onSave;
-  dataRef.current = data;
+  const onSaveRef = useLatest(onSave);
+  const dataRef = useLatest(data);
 
   useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
 

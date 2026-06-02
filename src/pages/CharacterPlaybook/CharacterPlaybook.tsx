@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useMemo, useState, useId, useEffect } from 'react';
+import React, { useRef, useCallback, useMemo, useState, useId } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PageMeta } from '@/components/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
@@ -15,25 +15,21 @@ import { PLACE_OF_ORIGIN_OPTIONS } from '@/lib/placeOfOriginOptions';
 import { SPECIAL_POSSESSIONS_OPTIONS } from '@/lib/specialPossessionsOptions';
 import { INTRODUCTIONS_OPTIONS } from '@/lib/introductionsOptions';
 import { featurePatch, resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
-import { BlessedInitiatesOfDanu } from '@/components/CharacterSheet/playbooks/blessed/BlessedInitiatesOfDanu';
-import { BlessedSacredPouch } from '@/components/CharacterSheet/playbooks/blessed/BlessedSacredPouch';
-import { BlessedEarthMother } from '@/components/CharacterSheet/playbooks/blessed/BlessedEarthMother';
-import { FoxTallTales } from '@/components/CharacterSheet/playbooks/fox/FoxTallTales';
-import { HeavyViolence } from '@/components/CharacterSheet/playbooks/heavy/HeavyViolence';
-import { JudgeChronicle } from '@/components/CharacterSheet/playbooks/judge/JudgeChronicle';
-import { JudgeLawkeeper } from '@/components/CharacterSheet/playbooks/judge/JudgeLawkeeper';
-import { LightbearerPraiseTheDay } from '@/components/CharacterSheet/playbooks/lightbearer/LightbearerPraiseTheDay';
-import { LightbearerInvocations } from '@/components/CharacterSheet/playbooks/lightbearer/LightbearerInvocations';
-import { MarshalWarStories } from '@/components/CharacterSheet/playbooks/marshal/MarshalWarStories';
-import { MarshalCrew } from '@/components/CharacterSheet/playbooks/marshal/MarshalCrew';
-import { RangerSomethingWicked } from '@/components/CharacterSheet/playbooks/ranger/RangerSomethingWicked';
-import { RangerAnimalCompanion } from '@/components/CharacterSheet/playbooks/ranger/RangerAnimalCompanion';
-import { SeekerCollection } from '@/components/CharacterSheet/playbooks/seeker/SeekerCollection';
-import { WouldBeHeroFearAnger } from '@/components/CharacterSheet/playbooks/would-be-hero/WouldBeHeroFearAnger';
-import { RevenantInsert } from '@/components/CharacterSheet/playbooks/revenant/RevenantInsert';
-import { GhostInsert } from '@/components/CharacterSheet/playbooks/ghost/GhostInsert';
-import { ThrallInsert } from '@/components/CharacterSheet/playbooks/thrall/ThrallInsert';
-import { FollowersInsert } from '@/components/CharacterSheet/playbooks/followers/FollowersInsert';
+import { useAutoFollowers } from '@/hooks/useAutoFollowers';
+import { useInsertTabs, INSERT_OPTIONS, type InsertOption } from '@/hooks/useInsertTabs';
+import { computeInvocationBadge } from '@/hooks/useInvocationBadge';
+import {
+  BlessedInitiatesOfDanu, BlessedSacredPouch, BlessedEarthMother,
+  FoxTallTales,
+  HeavyViolence,
+  JudgeChronicle, JudgeLawkeeper,
+  LightbearerPraiseTheDay, LightbearerInvocations,
+  MarshalWarStories, MarshalCrew,
+  RangerSomethingWicked, RangerAnimalCompanion,
+  SeekerCollection,
+  WouldBeHeroFearAnger,
+  RevenantInsert, GhostInsert, ThrallInsert, FollowersInsert,
+} from '@/components/CharacterSheet/playbooks';
 import charSheetStyles from '@/components/CharacterSheet/CharacterSheet.module.css';
 import type { Character, CharacterData, GameSession, PlaybookType, PlaybookFeatures } from '@/types';
 import styles from './CharacterPlaybook.module.css';
@@ -137,23 +133,22 @@ interface SheetProps {
   updateCharacterData: (characterId: string, data: Partial<CharacterData>) => Promise<void>;
 }
 
-type PlaybookTab = { id: string; label: string; content: React.ReactNode };
-
-const getPlaybookTabs = (playbook: PlaybookType, data: CharacterData | undefined): PlaybookTab[] => {
-  const tabs: PlaybookTab[] = [];
-  if (playbook === 'lightbearer') tabs.push({ id: 'invocations', label: 'Invocations', content: null });
-  if (playbook === 'ranger') tabs.push({ id: 'animal-companion', label: 'Animal Companion', content: null });
-  if (playbook === 'marshal') tabs.push({ id: 'crew', label: 'Crew', content: null });
-  if (playbook === 'blessed' && data?.background === 'initiate') tabs.push({ id: 'initiates-of-danu', label: 'Initiates of Danu', content: null });
-  return tabs;
+type PlaybookTabConfig = {
+  id: string;
+  label: string;
+  render: (data: CharacterData | undefined, onSave: (data: Partial<CharacterData>) => Promise<void>, prosperity: number) => React.ReactNode;
+  when?: (data: CharacterData | undefined) => boolean;
 };
 
-const DOG_POSSESSION_IDS = new Set(['mastiffs', 'hounds', 'good-dog']);
+const PLAYBOOK_TAB_CONFIGS: Partial<Record<PlaybookType, PlaybookTabConfig[]>> = {
+  lightbearer: [{ id: 'invocations', label: 'Invocations', render: (data, onSave) => <LightbearerInvocations data={data} onSave={onSave} /> }],
+  ranger: [{ id: 'animal-companion', label: 'Animal Companion', render: (data, onSave) => <RangerAnimalCompanion data={data} onSave={onSave} /> }],
+  marshal: [{ id: 'crew', label: 'Crew', render: (data, onSave, prosperity) => <MarshalCrew data={data} prosperity={prosperity} onSave={onSave} /> }],
+  blessed: [{ id: 'initiates-of-danu', label: 'Initiates of Danu', render: (data, onSave) => <BlessedInitiatesOfDanu data={data} onSave={onSave} />, when: (data) => data?.background === 'initiate' }],
+};
 
-const INSERT_OPTIONS = ['Revenant', 'Ghost', 'Thrall', 'Followers'] as const;
-type InsertOption = typeof INSERT_OPTIONS[number];
-
-const IMPLEMENTED_INSERTS = new Set<InsertOption>(['Revenant', 'Ghost', 'Thrall', 'Followers']);
+const getPlaybookTabs = (playbook: PlaybookType, data: CharacterData | undefined) =>
+  (PLAYBOOK_TAB_CONFIGS[playbook] ?? []).filter(({ when }) => !when || when(data));
 
 const REMOVE_INSERT_WARNINGS: Partial<Record<InsertOption, string>> = {
   Followers: 'All followers and their data will be permanently lost.',
@@ -200,9 +195,8 @@ const AddInsertModal = ({ open, onClose, onAdd, existingInserts }: { open: boole
             key={opt}
             name="insert-option"
             value={opt}
-            label={IMPLEMENTED_INSERTS.has(opt) ? opt : `${opt} (coming soon)`}
+            label={opt}
             checked={selected === opt}
-            disabled={!IMPLEMENTED_INSERTS.has(opt)}
             onChange={handleSelectChange}
           />
         ))}
@@ -215,35 +209,24 @@ const AddInsertModal = ({ open, onClose, onAdd, existingInserts }: { open: boole
   );
 };
 
-const resolvePlaybookTabContent = (
+const resolveStaticTabContent = (
   id: string,
-  fallback: React.ReactNode,
   data: CharacterData | undefined,
   prosperity: number,
   onSave: (data: Partial<CharacterData>) => Promise<void>,
 ): React.ReactNode => {
-  if (id === 'initiates-of-danu') return <BlessedInitiatesOfDanu data={data} onSave={onSave} />;
-  if (id === 'invocations') return <LightbearerInvocations data={data} onSave={onSave} />;
-  if (id === 'crew') return <MarshalCrew data={data} prosperity={prosperity} onSave={onSave} />;
-  if (id === 'animal-companion') return <RangerAnimalCompanion data={data} onSave={onSave} />;
   if (id === 'inventory') return <Inventory data={data} prosperity={prosperity} onSave={onSave} />;
   if (id === 'arcana') return <ArcanaTab data={data} onSave={onSave} />;
   if (id === 'Revenant') return <RevenantInsert data={data} onSave={onSave} />;
   if (id === 'Ghost') return <GhostInsert data={data} onSave={onSave} />;
   if (id === 'Thrall') return <ThrallInsert data={data} onSave={onSave} />;
   if (id === 'Followers') return <FollowersInsert data={data} onSave={onSave} />;
-  return fallback;
+  return null;
 };
 
 const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, updateCharacterName, updateCharacterData }: SheetProps) => {
   const headerRef = useRef<HTMLDivElement>(null);
-  const hasAutoAddedFollowersRef = useRef(false);
-  const [addTabOpen, setAddTabOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [removeInsert, setRemoveInsert] = useState<InsertOption | null>(null);
-
-  const handleOpenAddTab = useCallback(() => setAddTabOpen(true), []);
-  const handleCloseAddTab = useCallback(() => setAddTabOpen(false), []);
 
   const handleSaveCharacterData = useCallback(
     (data: Partial<CharacterData>) => updateCharacterData(character.id, data),
@@ -255,60 +238,23 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
     [updateCharacterName, character.id]
   );
 
-  // One-shot: auto-add the Followers tab the first time a dog possession is detected.
-  // The ref prevents re-triggering if the snapshot fires again before the write lands.
-  useEffect(() => {
-    if (hasAutoAddedFollowersRef.current) return;
-    const possessions = character.data?.specialPossessions ?? {};
-    const hasDog = Object.entries(possessions).some(([id, checked]) => checked && DOG_POSSESSION_IDS.has(id));
-    if (!hasDog) return;
-    const current = character.data?.inserts ?? [];
-    if (current.includes('Followers')) return;
-    hasAutoAddedFollowersRef.current = true;
-    handleSaveCharacterData({ inserts: [...current, 'Followers'] }).catch(() => {});
-  }, [character.data?.specialPossessions, character.data?.inserts, handleSaveCharacterData]);
+  useAutoFollowers(character.data?.specialPossessions, character.data?.inserts, handleSaveCharacterData);
 
-  const handleRequestRemoveInsert = useCallback((insert: InsertOption) => {
-    setRemoveInsert(insert);
-  }, []);
-
-  const removeInsertHandlers = useMemo(
-    () => Object.fromEntries(INSERT_OPTIONS.map((opt) => [opt, () => handleRequestRemoveInsert(opt)])),
-    [handleRequestRemoveInsert],
+  const {
+    addTabOpen,
+    removeInsert,
+    removeInsertHandlers,
+    handleOpenAddTab,
+    handleCloseAddTab,
+    handleCloseRemoveInsert,
+    handleConfirmRemoveInsert,
+    handleAddInsert,
+  } = useInsertTabs(
+    character,
+    handleSaveCharacterData,
+    (playbook, data) => getPlaybookTabs(playbook, data).length,
+    setActiveIndex,
   );
-
-  const handleCloseRemoveInsert = useCallback(() => setRemoveInsert(null), []);
-
-  const handleConfirmRemoveInsert = useCallback(async () => {
-    if (!removeInsert) return;
-    const next = (character.data?.inserts ?? []).filter((i) => i !== removeInsert);
-    const resolved = resolvePlaybookFeatures(character.data);
-    const { followers: _removed, ...restFeatures } = resolved;
-    const playbookFeatures = removeInsert === 'Followers' ? restFeatures : resolved;
-    try {
-      await handleSaveCharacterData({ inserts: next, playbookFeatures });
-      setActiveIndex(0);
-      setRemoveInsert(null);
-    } catch {
-      setRemoveInsert(null);
-    }
-  }, [removeInsert, character.data, handleSaveCharacterData]);
-
-  const handleAddInsert = useCallback(async (insert: InsertOption) => {
-    const current = character.data?.inserts ?? [];
-    if (current.includes(insert)) {
-      setAddTabOpen(false);
-      return;
-    }
-    const next = [...current, insert];
-    const fixedTabCount = 3 + getPlaybookTabs(character.playbook, character.data).length;
-    try {
-      await handleSaveCharacterData({ inserts: next });
-      setActiveIndex(fixedTabCount + next.length - 1);
-    } finally {
-      setAddTabOpen(false);
-    }
-  }, [character.data, character.playbook, handleSaveCharacterData]);
 
   const characterName = character.name?.trim();
   const playbookLabel = `${playbookOption.label} Playbook`;
@@ -328,15 +274,8 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
   const features = resolvePlaybookFeatures(character.data);
   const insertInstinctMatch = INSERT_INSTINCT_KEYS.find(({ feature }) => !!features[feature]);
   const insertInstinctNote = insertInstinctMatch ? `Replaced by your ${insertInstinctMatch.label} instinct` : undefined;
-  const knownInvocations = Object.values(features.lightbearerInvocations ?? {}).filter(Boolean).length;
-  const invocationsAllowed = 2 + Math.floor(level / 2);
-  const dismissedAt = features.lightbearerInvocationsBadgeDismissedAt ?? 0;
-  const showInvocationsBadge =
-    character.playbook === 'lightbearer' &&
-    level > 0 && level % 2 === 0 &&
-    knownInvocations < invocationsAllowed &&
-    dismissedAt !== level;
 
+  const showInvocationsBadge = computeInvocationBadge(character.playbook, level, features);
   const invocationsTabIndex = playbookTabs.findIndex(({ id }) => id === 'invocations');
 
   const handleActiveChange = useCallback((i: number) => {
@@ -354,13 +293,13 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
     },
     {
       label: 'Inventory',
-      content: resolvePlaybookTabContent('inventory', null, character.data, prosperity, handleSaveCharacterData),
+      content: resolveStaticTabContent('inventory', character.data, prosperity, handleSaveCharacterData),
     },
     {
       label: 'Arcana',
-      content: resolvePlaybookTabContent('arcana', null, character.data, prosperity, handleSaveCharacterData),
+      content: resolveStaticTabContent('arcana', character.data, prosperity, handleSaveCharacterData),
     },
-    ...playbookTabs.map(({ id: tabId, label, content }) => ({
+    ...playbookTabs.map(({ id: tabId, label, render }) => ({
       label,
       badge: tabId === 'invocations' && showInvocationsBadge
         ? <span className={tabBadgeClass} aria-label="New Invocation available" />
@@ -368,11 +307,11 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
       badgeTooltip: tabId === 'invocations' && showInvocationsBadge
         ? 'A new Invocation can be selected'
         : undefined,
-      content: resolvePlaybookTabContent(tabId, content, character.data, prosperity, handleSaveCharacterData),
+      content: render(character.data, handleSaveCharacterData, prosperity),
     })),
     ...(character.data?.inserts ?? []).map((label) => ({
       label,
-      content: resolvePlaybookTabContent(label, null, character.data, prosperity, handleSaveCharacterData),
+      content: resolveStaticTabContent(label, character.data, prosperity, handleSaveCharacterData),
       onRemove: INSERT_OPTIONS.includes(label as InsertOption)
         ? removeInsertHandlers[label as InsertOption]
         : undefined,

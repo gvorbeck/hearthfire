@@ -1,4 +1,5 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
+import { useLatest } from '@/hooks/useLatest';
 import type { PlaybookFeatures } from '@/types';
 
 export const useTrackedField = (
@@ -8,8 +9,7 @@ export const useTrackedField = (
   flushDebounce: (patch: Partial<PlaybookFeatures>) => void,
 ) => {
   const [value, setValue] = useState(initialValue);
-  const valueRef = useRef(value);
-  valueRef.current = value;
+  const valueRef = useLatest(value);
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setValue(val);

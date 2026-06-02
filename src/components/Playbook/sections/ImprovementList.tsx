@@ -35,7 +35,7 @@ export const ImprovementList = ({
   ];
 
   const listItems = allFixed.map(({ label, fromImprovement }, i) => (
-    <span key={i} className={styles.fixedItem}>
+    <span key={`fixed-${label.slice(0, 16)}-${i}`} className={styles.fixedItem}>
       {parseInlineMarkdown(label)}
       {fromImprovement && (
         <Tooltip text="Added by a completed improvement" side="top">

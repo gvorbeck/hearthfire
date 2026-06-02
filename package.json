@@ -12,7 +12,8 @@
     "migrate:dry": "GOOGLE_APPLICATION_CREDENTIALS=./service-account.json tsx --tsconfig scripts/tsconfig.json scripts/migrate-playbook-features.ts",
     "migrate:write": "GOOGLE_APPLICATION_CREDENTIALS=./service-account.json tsx --tsconfig scripts/tsconfig.json scripts/migrate-playbook-features.ts --write",
     "recover:dry": "GOOGLE_APPLICATION_CREDENTIALS=./service-account.json tsx --tsconfig scripts/tsconfig.json scripts/recover-characters-array.ts",
-    "recover:write": "GOOGLE_APPLICATION_CREDENTIALS=./service-account.json tsx --tsconfig scripts/tsconfig.json scripts/recover-characters-array.ts --write"
+    "backup": "GOOGLE_APPLICATION_CREDENTIALS=./service-account.json tsx --tsconfig scripts/tsconfig.json scripts/backup.ts",
+    "restore": "GOOGLE_APPLICATION_CREDENTIALS=./service-account.json tsx --tsconfig scripts/tsconfig.json scripts/restore.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",

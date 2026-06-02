@@ -9,7 +9,7 @@ import { SteadingResources } from '@/components/Playbook/sections/SteadingResour
 import { SteadingFortifications } from '@/components/Playbook/sections/SteadingFortifications';
 import { PlaybookSection } from '@/components/CharacterSheet/PlaybookSection';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
-import { DEFAULT_GAME_NAME, playbookLabel } from '@/lib/constants';
+import { DEFAULT_GAME_NAME, PLAYBOOKS } from '@/lib/constants';
 import { SteadingStats } from '@/components/Playbook/sections/SteadingStats';
 import { SteadingImprovements } from '@/components/Playbook/sections/SteadingImprovements';
 import { SteadingAssets } from '@/components/Playbook/sections/SteadingAssets';
@@ -66,7 +66,7 @@ const buildFilterGroups = (g: GameSession): DropdownGroup<string>[] => {
 
   const pcs = g.characters
     .filter((c) => referencedIds.has(c.id))
-    .map((c) => ({ value: c.id, label: `${c.name} (${playbookLabel(c.playbook)})` }));
+    .map((c) => ({ value: c.id, label: `${c.name} (${PLAYBOOKS.find((p) => p.value === c.playbook)?.label ?? c.playbook})` }));
   const residentOpts = residents
     .filter((r) => referencedIds.has(r.id))
     .map((r) => ({ value: r.id, label: r.name }));

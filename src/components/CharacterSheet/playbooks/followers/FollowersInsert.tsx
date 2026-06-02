@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect, memo, useId } from 'react';
+import { useLatest } from '@/hooks/useLatest';
 import clsx from 'clsx';
 import { Button, Checkbox, Heading, Input, Modal, Text, Tooltip, UseDots, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
@@ -382,8 +383,7 @@ export const FollowersInsert = ({ data, onSave }: FollowersInsertProps) => {
     (features.followers ?? []).map((f) => normalizeFollower(f, f.id ?? generateId())),
   );
 
-  const followersRef = useRef(followers);
-  followersRef.current = followers;
+  const followersRef = useLatest(followers);
 
   // Track the last Firestore snapshot we applied so we only sync when it
   // actually changes, not on every local keystroke that triggers a re-render.
@@ -403,16 +403,16 @@ export const FollowersInsert = ({ data, onSave }: FollowersInsertProps) => {
   const saveFollowers = useCallback((next: FollowerData[], prev?: FollowerData[]) => {
     saveImmediate({ followers: next }).catch(() => {
       if (prev) setFollowers(prev);
-      addToast('Failed to save.');
+      addToast('Failed to save.', 'error');
     });
   }, [saveImmediate, addToast]);
 
   const saveFollowersDebounced = useCallback((next: FollowerData[]) => {
-    saveDebounced({ followers: next }, () => addToast('Failed to save.'));
+    saveDebounced({ followers: next }, () => addToast('Failed to save.', 'error'));
   }, [saveDebounced, addToast]);
 
   const flushFollowers = useCallback(() => {
-    flushDebounce({ followers: followersRef.current }).catch(() => addToast('Failed to save.'));
+    flushDebounce({ followers: followersRef.current }).catch(() => addToast('Failed to save.', 'error'));
   }, [flushDebounce, addToast]);
 
   const handleAdd = useCallback(() => {

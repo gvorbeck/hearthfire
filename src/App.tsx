@@ -13,8 +13,8 @@ const CURRENT_YEAR = new Date().getFullYear();
 const Shell = () => (
   <>
     <SiteBanner>
-      <strong>Under Construction</strong> — This app is a work in progress. Data
-      may be lost or reset before June 2026. Found a bug?{" "}
+      <strong>Under Construction</strong> — This app is a work in progress.
+      Found a bug?{" "}
       <a
         href="https://github.com/gvorbeck/hearthfire/issues"
         target="_blank"
@@ -87,10 +87,7 @@ export const App = () => (
             <Route element={<WithTopBar />}>
               <Route path="/game/:id" element={<Game />} />
               <Route path="/game/:id/gm" element={<GmPlaybook />} />
-              <Route
-                path="/game/:id/steading"
-                element={<SteadingPlaybook />}
-              />
+              <Route path="/game/:id/steading" element={<SteadingPlaybook />} />
               <Route
                 path="/game/:id/:playbook"
                 element={<CharacterPlaybook />}

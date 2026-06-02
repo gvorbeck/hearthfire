@@ -39,7 +39,7 @@ export const AddCharacterModal = ({
     const selectedLabel = PLAYBOOKS.find((p) => p.value === playbook)?.label ?? playbook;
     const character = { id: crypto.randomUUID(), name: selectedLabel, playbook, level: 1, data: { statLevel: '1' } };
     handleClose();
-    onAdd(character).catch(() => addToast('Failed to add character. Please try again.'));
+    onAdd(character).catch(() => addToast('Failed to add character. Please try again.', 'error'));
   }, [playbook, handleClose, onAdd, addToast]);
 
   const availablePlaybooks = useMemo(

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, memo } from 'react';
+import { useLatest } from '@/hooks/useLatest';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import { Input, Radio, RadioGroup, Text, UseDots, CheckboxGroup } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
@@ -294,10 +295,8 @@ export const BlessedInitiatesOfDanu = ({ data, onSave }: BlessedInitiatesOfDanuP
   }, [data?.playbookFeatures]);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const onSaveRef = useRef(onSave);
-  const dataRef = useRef(data);
-  onSaveRef.current = onSave;
-  dataRef.current = data;
+  const onSaveRef = useLatest(onSave);
+  const dataRef = useLatest(data);
 
   useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
 

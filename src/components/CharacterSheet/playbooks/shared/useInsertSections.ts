@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useLatest } from '@/hooks/useLatest';
 import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
 import { useCrewSave } from './useCrewSave';
 import type { CharacterData, PlaybookFeatures } from '@/types';
@@ -22,8 +23,7 @@ export const useInsertSections = (
     () => (resolvePlaybookFeatures(data)[keys.purposeName] as Record<string, string> | undefined) ?? {},
   );
 
-  const purposeNamesRef = useRef(purposeNames);
-  purposeNamesRef.current = purposeNames;
+  const purposeNamesRef = useLatest(purposeNames);
 
   useEffect(() => {
     const f = resolvePlaybookFeatures(data);

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useLatest } from '@/hooks/useLatest';
 import type { ReactNode } from 'react';
 import { Radio, RadioGroup, Input, Text } from '@/components/primitives';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
@@ -47,8 +48,7 @@ export const RadioSelect = ({
   const [selected, setSelected] = useState<string>('');
   const [customText, setCustomText] = useState<string>('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const customTextRef = useRef(customText);
-  customTextRef.current = customText;
+  const customTextRef = useLatest(customText);
 
   useEffect(() => {
     if (data?.[dataKey] !== undefined) setSelected(data[dataKey] as string);

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useLatest } from '@/hooks/useLatest';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import { useCrewSave } from '../shared/useCrewSave';
 import { useTrackedField } from '../shared/useTrackedField';
@@ -56,8 +57,7 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
   const [typePicks, setTypePicks] = useState<Record<string, boolean>>(init.animalTypePicks ?? {});
   const [typeCustom, setTypeCustom] = useState<Record<string, string>>(init.animalTypeCustom ?? {});
   const [typeCustomChecked, setTypeCustomChecked] = useState<Record<string, boolean>>(init.animalTypeCustomChecked ?? {});
-  const typeCustomRef = useRef(typeCustom);
-  typeCustomRef.current = typeCustom;
+  const typeCustomRef = useLatest(typeCustom);
   const [loyalty, setLoyalty] = useState<number>(init.animalLoyalty ?? 0);
   const [beastOfLegend, setBeastOfLegend] = useState<Record<string, boolean>>(init.animalBeastOfLegend ?? {});
 
@@ -91,15 +91,15 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
       setArmor(typeConfig.armor);
       setDamage(typeConfig.damage);
       return saveImmediate({ animalType: val, animalHp: typeConfig.hp, animalArmor: typeConfig.armor, animalDamage: typeConfig.damage })
-        .catch(() => { setAnimalType(prevType); setHp(prevHp); setArmor(prevArmor); setDamage(prevDamage); addToast('Failed to save.'); });
+        .catch(() => { setAnimalType(prevType); setHp(prevHp); setArmor(prevArmor); setDamage(prevDamage); addToast('Failed to save.', 'error'); });
     }
-    return saveImmediate({ animalType: val }).catch(() => { setAnimalType(prevType); addToast('Failed to save.'); });
+    return saveImmediate({ animalType: val }).catch(() => { setAnimalType(prevType); addToast('Failed to save.', 'error'); });
   }, [saveImmediate, animalType, hp, armor, damage, setHp, setArmor, setDamage, addToast]);
 
   const handleTypePickChange = useCallback((id: string, checked: boolean) => {
     setTypePicks((prev) => {
       const next = { ...prev, [id]: checked };
-      saveImmediate({ animalTypePicks: next }).catch(() => { setTypePicks(prev); addToast('Failed to save.'); });
+      saveImmediate({ animalTypePicks: next }).catch(() => { setTypePicks(prev); addToast('Failed to save.', 'error'); });
       return next;
     });
   }, [saveImmediate, addToast]);
@@ -120,14 +120,14 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
   const handleTypeCustomCheckedChange = useCallback((typeId: string, checked: boolean) => {
     setTypeCustomChecked((prev) => {
       const next = { ...prev, [typeId]: checked };
-      saveImmediate({ animalTypeCustomChecked: next }).catch(() => { setTypeCustomChecked(prev); addToast('Failed to save.'); });
+      saveImmediate({ animalTypeCustomChecked: next }).catch(() => { setTypeCustomChecked(prev); addToast('Failed to save.', 'error'); });
       return next;
     });
   }, [saveImmediate, addToast]);
 
   const handleLoyaltyChange = useCallback((n: number) => {
     setLoyalty((prev) => {
-      saveImmediate({ animalLoyalty: n }).catch(() => { setLoyalty(prev); addToast('Failed to save.'); });
+      saveImmediate({ animalLoyalty: n }).catch(() => { setLoyalty(prev); addToast('Failed to save.', 'error'); });
       return n;
     });
   }, [saveImmediate, addToast]);
@@ -135,7 +135,7 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
   const handleBeastOfLegendChange = useCallback((id: string, checked: boolean) => {
     setBeastOfLegend((prev) => {
       const next = { ...prev, [id]: checked };
-      saveImmediate({ animalBeastOfLegend: next }).catch(() => { setBeastOfLegend(prev); addToast('Failed to save.'); });
+      saveImmediate({ animalBeastOfLegend: next }).catch(() => { setBeastOfLegend(prev); addToast('Failed to save.', 'error'); });
       return next;
     });
   }, [saveImmediate, addToast]);

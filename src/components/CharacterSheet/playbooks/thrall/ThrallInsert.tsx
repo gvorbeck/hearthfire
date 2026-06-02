@@ -265,7 +265,7 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
     (patch: Partial<CharacterData>) => {
       const prev = thrallInstinct;
       setThrallInstinct(patch.instinct ?? '');
-      return saveImmediate({ thrallInstinct: patch.instinct ?? '' }).catch(() => { setThrallInstinct(prev); addToast('Failed to save.'); });
+      return saveImmediate({ thrallInstinct: patch.instinct ?? '' }).catch(() => { setThrallInstinct(prev); addToast('Failed to save.', 'error'); });
     },
     [saveImmediate, thrallInstinct, addToast],
   );
@@ -276,14 +276,14 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
       setThrallImpulse(patch.instinct ?? '');
       setThrallImpulseCustom(patch.instinctCustom ?? '');
       return saveImmediate({ thrallImpulse: patch.instinct ?? '', thrallImpulseCustom: patch.instinctCustom ?? '' })
-        .catch(() => { setThrallImpulse(prevImpulse); setThrallImpulseCustom(prevCustom); addToast('Failed to save.'); });
+        .catch(() => { setThrallImpulse(prevImpulse); setThrallImpulseCustom(prevCustom); addToast('Failed to save.', 'error'); });
     },
     [saveImmediate, thrallImpulse, thrallImpulseCustom, addToast],
   );
 
   const handleFavorChange = useCallback((count: number) => {
     setFavor((prev) => {
-      saveImmediate({ thrallFavor: count }).catch(() => { setFavor(prev); addToast('Failed to save.'); });
+      saveImmediate({ thrallFavor: count }).catch(() => { setFavor(prev); addToast('Failed to save.', 'error'); });
       return count;
     });
   }, [saveImmediate, addToast]);
@@ -291,7 +291,7 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
   const handleMarkGainedChange = useCallback((id: string, gained: boolean) => {
     setMarksGained((prev) => {
       const next = { ...prev, [id]: gained };
-      saveImmediate({ thrallMarksGained: next }).catch(() => { setMarksGained(prev); addToast('Failed to save.'); });
+      saveImmediate({ thrallMarksGained: next }).catch(() => { setMarksGained(prev); addToast('Failed to save.', 'error'); });
       return next;
     });
   }, [saveImmediate, addToast]);
@@ -299,7 +299,7 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
   const handleMarkCrossedOffChange = useCallback((id: string) => {
     setMarksCrossedOff((prev) => {
       const next = { ...prev, [id]: !prev[id] };
-      saveImmediate({ thrallMarksCrossedOff: next }).catch(() => { setMarksCrossedOff(prev); addToast('Failed to save.'); });
+      saveImmediate({ thrallMarksCrossedOff: next }).catch(() => { setMarksCrossedOff(prev); addToast('Failed to save.', 'error'); });
       return next;
     });
   }, [saveImmediate, addToast]);

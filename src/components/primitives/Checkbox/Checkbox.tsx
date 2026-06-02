@@ -21,7 +21,7 @@ export const Checkbox = ({ label, className, variant = 'default', weight = 1, ..
       {variant === 'provision' ? (
         <span className={styles.provisionIcons}>
           {Array.from({ length: weight }, (_, i) => (
-            <Icon key={i} name={iconName} size="small" className={iconCx} />
+            <Icon key={`provision-icon-${i}`} name={iconName} size="small" className={iconCx} />
           ))}
         </span>
       ) : (

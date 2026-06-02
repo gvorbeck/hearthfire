@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useLatest } from '@/hooks/useLatest';
 import { CheckboxGroup, Divider, Radio, RadioGroup, Text, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
@@ -32,10 +33,8 @@ export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) =>
   const { addToast } = useToast();
   const [shrine, setShrine] = useState<string>(() => resolvePlaybookFeatures(data).earthMotherShrine ?? '');
   const [offerings, setOfferings] = useState<Record<string, boolean>>(() => resolvePlaybookFeatures(data).earthMotherOfferings ?? {});
-  const shrineRef = useRef(shrine);
-  shrineRef.current = shrine;
-  const offeringsRef = useRef(offerings);
-  offeringsRef.current = offerings;
+  const shrineRef = useLatest(shrine);
+  const offeringsRef = useLatest(offerings);
 
   const lastFirestoreEarthMotherRef = useRef<string | undefined>(undefined);
 
@@ -52,7 +51,7 @@ export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) =>
     (value: string) => {
       const prev = shrineRef.current;
       setShrine(value);
-      onSave(featurePatch(data, { earthMotherShrine: value })).catch(() => { setShrine(prev); addToast('Failed to save.'); });
+      onSave(featurePatch(data, { earthMotherShrine: value })).catch(() => { setShrine(prev); addToast('Failed to save.', 'error'); });
     },
     [onSave, data, addToast]
   );
@@ -62,7 +61,7 @@ export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) =>
       const prev = offeringsRef.current;
       const next = { ...prev, [id]: checked };
       setOfferings(next);
-      onSave(featurePatch(data, { earthMotherOfferings: next })).catch(() => { setOfferings(prev); addToast('Failed to save.'); });
+      onSave(featurePatch(data, { earthMotherOfferings: next })).catch(() => { setOfferings(prev); addToast('Failed to save.', 'error'); });
     },
     [onSave, data, addToast]
   );

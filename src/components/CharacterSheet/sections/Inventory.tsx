@@ -1,4 +1,5 @@
 import { useState, useRef, useMemo, useCallback, memo } from 'react';
+import { useLatest } from '@/hooks/useLatest';
 import { useFirestoreSync } from '@/hooks/useFirestoreSync';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import clsx from 'clsx';
@@ -211,10 +212,8 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
   const [smallChecked, setSmallChecked] = useState<Record<string, boolean>>(() => data?.inventorySmallChecked ?? {});
   const [undefinedMain, setUndefinedMain] = useState<number>(() => data?.inventoryUndefined ?? 0);
   const [undefinedSmall, setUndefinedSmall] = useState<number>(() => data?.inventorySmallUndefined ?? 0);
-  const undefinedMainRef = useRef(undefinedMain);
-  undefinedMainRef.current = undefinedMain;
-  const undefinedSmallRef = useRef(undefinedSmall);
-  undefinedSmallRef.current = undefinedSmall;
+  const undefinedMainRef = useLatest(undefinedMain);
+  const undefinedSmallRef = useLatest(undefinedSmall);
   const [otherThings, setOtherThings] = useState<string>(() => data?.inventoryOtherThings ?? '');
   const [arcanaMinor, setArcanaMinor] = useState(() => data?.arcanaMinor ?? []);
   const [arcanaMajor, setArcanaMajor] = useState(() => data?.arcanaMajor ?? []);
@@ -236,7 +235,7 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
   const handleMainChecked = useCallback((id: string, val: boolean) => {
     setInventoryChecked((prev) => {
       const next = { ...prev, [id]: val };
-      onSave({ inventoryChecked: next }).catch(() => { setInventoryChecked(prev); addToast('Failed to save.'); });
+      onSave({ inventoryChecked: next }).catch(() => { setInventoryChecked(prev); addToast('Failed to save.', 'error'); });
       return next;
     });
   }, [onSave, addToast]);
@@ -244,7 +243,7 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
   const handleMainUses = useCallback((id: string, n: number) => {
     setInventoryUses((prev) => {
       const next = { ...prev, [id]: n };
-      onSave({ inventoryUses: next }).catch(() => { setInventoryUses(prev); addToast('Failed to save.'); });
+      onSave({ inventoryUses: next }).catch(() => { setInventoryUses(prev); addToast('Failed to save.', 'error'); });
       return next;
     });
   }, [onSave, addToast]);
@@ -252,19 +251,19 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
   const handleUndefinedMain = useCallback((n: number) => {
     const prev = undefinedMainRef.current;
     setUndefinedMain(n);
-    onSave({ inventoryUndefined: n }).catch(() => { setUndefinedMain(prev); addToast('Failed to save.'); });
+    onSave({ inventoryUndefined: n }).catch(() => { setUndefinedMain(prev); addToast('Failed to save.', 'error'); });
   }, [onSave, addToast]);
 
   const handleUndefinedSmall = useCallback((n: number) => {
     const prev = undefinedSmallRef.current;
     setUndefinedSmall(n);
-    onSave({ inventorySmallUndefined: n }).catch(() => { setUndefinedSmall(prev); addToast('Failed to save.'); });
+    onSave({ inventorySmallUndefined: n }).catch(() => { setUndefinedSmall(prev); addToast('Failed to save.', 'error'); });
   }, [onSave, addToast]);
 
   const handleSmallChecked = useCallback((id: string, val: boolean) => {
     setSmallChecked((prev) => {
       const next = { ...prev, [id]: val };
-      onSave({ inventorySmallChecked: next }).catch(() => { setSmallChecked(prev); addToast('Failed to save.'); });
+      onSave({ inventorySmallChecked: next }).catch(() => { setSmallChecked(prev); addToast('Failed to save.', 'error'); });
       return next;
     });
   }, [onSave, addToast]);
@@ -294,7 +293,7 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
       const next = prev.map((e) => e.id === id ? { ...e, carried } : e);
       arcanaMinorPendingRef.current = true;
       onSave({ arcanaMinor: next })
-        .catch(() => { setArcanaMinor(prev); addToast('Failed to save.'); })
+        .catch(() => { setArcanaMinor(prev); addToast('Failed to save.', 'error'); })
         .finally(() => { arcanaMinorPendingRef.current = false; });
       return next;
     });
@@ -305,7 +304,7 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
       const next = prev.map((e) => e.id === id ? { ...e, carried } : e);
       arcanaMajorPendingRef.current = true;
       onSave({ arcanaMajor: next })
-        .catch(() => { setArcanaMajor(prev); addToast('Failed to save.'); })
+        .catch(() => { setArcanaMajor(prev); addToast('Failed to save.', 'error'); })
         .finally(() => { arcanaMajorPendingRef.current = false; });
       return next;
     });

@@ -91,7 +91,7 @@ const Row = memo(({
           />
           <label htmlFor={checkId} className={styles.provisionLabel} aria-hidden="true">
             {Array.from({ length: weight }, (_, i) => (
-              <span key={i} className={clsx(styles.provisionIcon, checked && styles.provisionIconChecked)}>
+              <span key={`provision-icon-${i}`} className={clsx(styles.provisionIcon, checked && styles.provisionIconChecked)}>
                 <Icon name={checked ? 'filled-provisions' : 'empty-provisions'} size="small" />
               </span>
             ))}

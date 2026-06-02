@@ -2,7 +2,7 @@
 
 Fix a GitHub issue end-to-end: fetch it, validate it, implement a fix, then run a code review.
 
-Usage: `/issue <github-issue-url>`
+Usage: `/issue <github-issue-number>`
 
 ## Steps
 

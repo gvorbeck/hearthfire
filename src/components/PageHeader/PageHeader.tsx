@@ -70,7 +70,7 @@ export const PageHeader = ({
     try {
       if (trimmed && trimmed !== title) await onSaveTitle?.(trimmed);
     } catch {
-      addToast("Failed to save game name. Try again.");
+      addToast("Failed to save game name. Try again.", 'error');
     } finally {
       setEditing(false);
     }
@@ -97,7 +97,7 @@ export const PageHeader = ({
         if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current);
         copiedTimerRef.current = setTimeout(() => setCopied(false), 2000);
       })
-      .catch(() => addToast("Failed to copy game ID."));
+      .catch(() => addToast("Failed to copy game ID.", 'error'));
   }, [gameId, addToast]);
 
   const copyLabel = copied ? "Copied!" : "Copy game ID";

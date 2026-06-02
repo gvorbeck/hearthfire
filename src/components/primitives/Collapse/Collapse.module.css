@@ -23,11 +23,16 @@
   opacity: 1;
 }
 
+.header {
+  display: flex;
+  align-items: center;
+}
+
 .trigger {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
+  flex: 1;
   padding: var(--spacing-4) var(--spacing-6);
   background: none;
   border: none;
@@ -64,6 +69,7 @@
   flex-shrink: 0;
   display: flex;
   align-items: center;
+  padding-right: var(--spacing-6);
 }
 
 .chevron {
@@ -72,7 +78,7 @@
   transition: transform 0.2s ease, color 0.15s ease;
 }
 
-.open .chevron {
+.open .trigger .chevron {
   transform: rotate(180deg);
   color: var(--color-gold-500);
 }

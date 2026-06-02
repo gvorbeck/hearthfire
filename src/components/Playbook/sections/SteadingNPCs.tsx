@@ -2,7 +2,7 @@ import { useState, useCallback, useId, useMemo } from 'react';
 import { Heading, Text, Button, Modal, Input, TagInput, Dropdown } from '@/components/primitives';
 import type { DropdownGroup } from '@/components/primitives';
 import { randomNpcName } from '@/lib/npcNames';
-import { playbookLabel } from '@/lib/constants';
+import { PLAYBOOKS } from '@/lib/constants';
 import type { SteadingData, SteadingNPC, NpcRelationship, GameSession } from '@/types';
 import styles from './SteadingNPCs.module.css';
 
@@ -403,7 +403,7 @@ interface SteadingNPCsProps {
 const buildGroups = (game: GameSession): DropdownGroup<RelTarget>[] => {
   const pcs = game.characters.map((c) => ({
     value: `pc::${c.id}` as RelTarget,
-    label: `${c.name} (${playbookLabel(c.playbook)})`,
+    label: `${c.name} (${PLAYBOOKS.find((p) => p.value === c.playbook)?.label ?? c.playbook})`,
   }));
   const residents = (game.steading?.residents ?? []).map((r) => ({
     value: `resident::${r.id}` as RelTarget,
