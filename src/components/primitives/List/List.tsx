@@ -16,7 +16,7 @@ export const List = ({ variant, items, className }: ListProps) => {
   return (
     <Tag className={cx}>
       {items.map((item, i) => (
-        <li key={i} className={styles.item}>{item}</li>
+        <li key={`list-item-${i}`} className={styles.item}>{item}</li>
       ))}
     </Tag>
   );
