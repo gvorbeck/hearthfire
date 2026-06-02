@@ -88,5 +88,3 @@ export const PLAYBOOKS: PlaybookOption[] = [
   },
 ];
 
-export const playbookLabel = (playbook: string): string =>
-  `The ${playbook.replace(/-/g, ' ').replace(/\b\w/g, (ch) => ch.toUpperCase())}`;
