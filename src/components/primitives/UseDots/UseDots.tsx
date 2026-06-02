@@ -15,7 +15,7 @@ export const UseDots = ({ total, checked, onChange, disabled, label }: UseDotsPr
     const dotCx = clsx(styles.useDot, filled && styles.useDotFilled);
     return (
       <button
-        key={i}
+        key={`dot-${total}-${i}`}
         type="button"
         className={dotCx}
         aria-label={filled ? `Clear use ${i + 1}` : `Mark use ${i + 1}`}
