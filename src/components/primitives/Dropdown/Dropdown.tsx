@@ -2,27 +2,44 @@ import { type SelectHTMLAttributes } from "react";
 import clsx from "clsx";
 import styles from "./Dropdown.module.css";
 
-interface DropdownOption<T extends string> {
+export interface DropdownOption<T extends string> {
   value: T;
   label: string;
 }
 
-interface DropdownProps<T extends string> extends Omit<
+export interface DropdownGroup<T extends string> {
+  label: string;
+  options: DropdownOption<T>[];
+}
+
+type DropdownBaseProps<T extends string> = Omit<
   SelectHTMLAttributes<HTMLSelectElement>,
   "value" | "onChange"
-> {
-  label: string;
+> & {
+  label?: string;
   id: string;
-  options: DropdownOption<T>[];
   value: T | "";
   onChange: (value: T) => void;
   placeholder?: string;
-}
+};
+
+type DropdownFlatProps<T extends string> = DropdownBaseProps<T> & {
+  options: DropdownOption<T>[];
+  groups?: never;
+};
+
+type DropdownGroupedProps<T extends string> = DropdownBaseProps<T> & {
+  groups: DropdownGroup<T>[];
+  options?: never;
+};
+
+type DropdownProps<T extends string> = DropdownFlatProps<T> | DropdownGroupedProps<T>;
 
 export const Dropdown = <T extends string>({
   label,
   id,
   options,
+  groups,
   value,
   onChange,
   placeholder = "Select…",
@@ -37,9 +54,7 @@ export const Dropdown = <T extends string>({
 
   return (
     <div className={styles.wrapper}>
-      <label htmlFor={id} className={styles.label}>
-        {label}
-      </label>
+      {label && <label htmlFor={id} className={styles.label}>{label}</label>}
       <div className={styles.selectWrapper}>
         <select
           id={id}
@@ -51,11 +66,21 @@ export const Dropdown = <T extends string>({
           <option value="" disabled>
             {placeholder}
           </option>
-          {options.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
+          {groups
+            ? groups.map((group) => (
+                <optgroup key={group.label} label={group.label}>
+                  {group.options.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </optgroup>
+              ))
+            : options.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
         </select>
         <span className={styles.chevron} aria-hidden="true" />
       </div>

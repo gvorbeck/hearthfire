@@ -58,3 +58,32 @@
 .colFull {
   width: 100%;
 }
+
+.npcFilterRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.npcFilterDropdown {
+  max-width: 18rem;
+}
+
+.npcFilterClear {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}
+
+.npcFilterClear:focus-visible {
+  outline: 2px solid var(--color-gold-500);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}

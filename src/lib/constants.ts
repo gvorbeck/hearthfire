@@ -87,3 +87,6 @@ export const PLAYBOOKS: PlaybookOption[] = [
     damage: "d6",
   },
 ];
+
+export const playbookLabel = (playbook: string): string =>
+  `The ${playbook.replace(/-/g, ' ').replace(/\b\w/g, (ch) => ch.toUpperCase())}`;
