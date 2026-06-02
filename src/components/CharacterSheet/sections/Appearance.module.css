@@ -42,10 +42,18 @@
   font-size: var(--text-sm);
   color: var(--text-tertiary);
   font-style: italic;
+  display: block;
+  padding: var(--spacing-2) 0;
+  border: 1px solid transparent;
 }
 
 .customCheckbox {
   width: 100%;
+  align-items: center;
+}
+
+.customCheckbox > span:first-of-type {
+  margin-top: 0;
 }
 
 .customInput {

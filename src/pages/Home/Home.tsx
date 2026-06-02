@@ -83,6 +83,7 @@ export const Home = () => {
       <PageMeta
         title="Hearthfire — Stonetop Party Tracker"
         description="Track your Stonetop TTRPG campaign — manage characters, GM playbook, and game sessions."
+        url={window.location.href}
       />
       <div className={styles.hero}>
         <Text className={styles.eyebrow}>Party Tracker</Text>

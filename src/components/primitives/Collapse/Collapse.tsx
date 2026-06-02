@@ -29,7 +29,7 @@ export const Collapse = ({ label, defaultOpen = false, children, className, acti
         {action && (
           <div
             onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => e.stopPropagation()}
+            onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') e.stopPropagation(); }}
             className={styles.action}
           >
             {action}

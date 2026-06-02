@@ -17,7 +17,7 @@ export const useCrewSave = (data: CharacterData | undefined, onSave: (data: Part
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       debounceRef.current = null;
-      onSaveRef.current(featurePatch(dataRef.current, patch)).catch((err: unknown) => { console.error('useCrewSave: Firestore write failed', err); onError?.(err); });
+      onSaveRef.current(featurePatch(dataRef.current, patch)).catch((err: unknown) => { onError?.(err); });
     }, 1000);
   }, []);
 
@@ -26,7 +26,7 @@ export const useCrewSave = (data: CharacterData | undefined, onSave: (data: Part
       clearTimeout(debounceRef.current);
       debounceRef.current = null;
     }
-    return onSaveRef.current(featurePatch(dataRef.current, patch)).catch((err: unknown) => { console.error('useCrewSave: Firestore write failed', err); throw err; });
+    return onSaveRef.current(featurePatch(dataRef.current, patch));
   }, []);
 
   // Only writes if a debounce is actually pending — if the timer already fired,
@@ -35,7 +35,7 @@ export const useCrewSave = (data: CharacterData | undefined, onSave: (data: Part
     if (!debounceRef.current) return Promise.resolve();
     clearTimeout(debounceRef.current);
     debounceRef.current = null;
-    return onSaveRef.current(featurePatch(dataRef.current, patch)).catch((err: unknown) => { console.error('useCrewSave: Firestore write failed', err); throw err; });
+    return onSaveRef.current(featurePatch(dataRef.current, patch));
   }, []);
 
   return { saveDebounced, saveImmediate, flushDebounce, dataRef, onSaveRef };

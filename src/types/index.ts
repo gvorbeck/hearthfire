@@ -342,12 +342,20 @@ export interface SteadingDebilities {
   malcontent?: boolean;
 }
 
+export interface NpcRelationship {
+  id: string;
+  type: string;
+  targetId: string;
+  targetKind: 'pc' | 'resident' | 'neighbor';
+}
+
 export interface SteadingNPC {
   id: string;
   name: string;
   pronouns?: string;
   occupation?: string;
   traits?: string[];
+  relationships?: NpcRelationship[];
   notes?: string;
 }
 

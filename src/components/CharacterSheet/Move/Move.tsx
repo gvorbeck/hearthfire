@@ -50,7 +50,7 @@ const MoveSelectGroup = ({
     />
     {Array.from({ length: takes }, (_, i) => (
       <Checkbox
-        key={i}
+        key={`${moveName}-take-${i}`}
         aria-label={`Take ${i + 1}`}
         checked={!!(takesChecked & (1 << i))}
         onChange={() => onTakesChange(takesChecked ^ (1 << i))}
@@ -174,7 +174,7 @@ export const Move = ({
         <Text font="serif" color="muted" leading="tight">
           {move.triggerOverride
             ? parseInlineMarkdown(move.triggerOverride)
-            : <><span>When you </span><strong>{move.trigger}</strong>,</>
+            : parseInlineMarkdown(`When you **${move.trigger}**,`)
           }
         </Text>
       )}

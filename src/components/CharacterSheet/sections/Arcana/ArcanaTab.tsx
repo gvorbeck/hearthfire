@@ -1,4 +1,5 @@
-import { useState, useCallback, useEffect, useMemo, useRef, memo } from 'react';
+import { useState, useCallback, useMemo, useRef, memo } from 'react';
+import { useFirestoreSync } from '@/hooks/useFirestoreSync';
 import clsx from 'clsx';
 import { Button, Text } from '@/components/primitives';
 import { MINOR_ARCANA } from '@/lib/arcanaMinor';
@@ -86,15 +87,8 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
   const minorPendingRef = useRef(false);
   const majorPendingRef = useRef(false);
 
-  useEffect(() => {
-    if (minorPendingRef.current) return;
-    setArcanaMinor(data?.arcanaMinor ?? []);
-  }, [data?.arcanaMinor]);
-
-  useEffect(() => {
-    if (majorPendingRef.current) return;
-    setArcanaMajor(data?.arcanaMajor ?? []);
-  }, [data?.arcanaMajor]);
+  useFirestoreSync(data?.arcanaMinor ?? [], setArcanaMinor, minorPendingRef);
+  useFirestoreSync(data?.arcanaMajor ?? [], setArcanaMajor, majorPendingRef);
 
   const saveMinor = useCallback(
     (next: ArcanaMinorEntry[]) => {
@@ -281,10 +275,12 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
       <div className={styles.tabRow}>
         <div className={styles.subTabBar} role="tablist">
           <button
+            id="arcana-minor-tab"
             role="tab"
             className={minorTabCx}
             onClick={() => setSubTab('minor')}
             aria-selected={subTab === 'minor'}
+            aria-controls="arcana-minor-panel"
           >
             Minor Arcana
             {arcanaMinor.length > 0 && (
@@ -292,10 +288,12 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
             )}
           </button>
           <button
+            id="arcana-major-tab"
             role="tab"
             className={majorTabCx}
             onClick={() => setSubTab('major')}
             aria-selected={subTab === 'major'}
+            aria-controls="arcana-major-panel"
           >
             Major Arcana
             {arcanaMajor.length > 0 && (
@@ -306,7 +304,7 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
       </div>
 
       {subTab === 'minor' && (
-        <div className={styles.panel}>
+        <div id="arcana-minor-panel" role="tabpanel" aria-labelledby="arcana-minor-tab" className={styles.panel}>
           <div className={styles.panelHeader}>
             <Button
               variant="secondary"
@@ -345,7 +343,7 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
       )}
 
       {subTab === 'major' && (
-        <div className={styles.panel}>
+        <div id="arcana-major-panel" role="tabpanel" aria-labelledby="arcana-major-tab" className={styles.panel}>
           <div className={styles.panelHeader}>
             <Button
               variant="secondary"

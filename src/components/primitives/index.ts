@@ -3,6 +3,7 @@ export { Divider } from './Divider/Divider';
 export { Checkbox } from './Checkbox/Checkbox';
 export { Collapse } from './Collapse/Collapse';
 export { Dropdown } from './Dropdown/Dropdown';
+export type { DropdownOption, DropdownGroup } from './Dropdown/Dropdown';
 export { Heading } from './Heading/Heading';
 export { Icon } from './Icon/Icon';
 export type { IconName, PlaybookIconName } from './Icon/Icon';

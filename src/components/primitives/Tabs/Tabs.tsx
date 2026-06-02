@@ -15,6 +15,7 @@ import { Icon } from "../Icon/Icon";
 import styles from "./Tabs.module.css";
 
 interface Tab {
+  id?: string;
   label: string;
   content: ReactNode;
   badge?: ReactNode;
@@ -88,18 +89,18 @@ const PortalTooltip = ({
 
 const TabRemoveButton = ({
   tab,
-  index,
+  slotId,
   baseId,
   onRemove,
 }: {
   tab: Tab;
-  index: number;
+  slotId: string;
   baseId: string;
   onRemove: () => void;
 }) => {
   const removeTooltip = useTooltip({
     side: "bottom",
-    tooltipId: `${baseId}-tab-${index}-remove-tooltip`,
+    tooltipId: `${baseId}-tab-${slotId}-remove-tooltip`,
     portal: true,
   });
 
@@ -182,6 +183,7 @@ const AddTabButton = ({
 const TabButton = ({
   tab,
   index,
+  slotId,
   baseId,
   isActive,
   onActivate,
@@ -191,6 +193,7 @@ const TabButton = ({
 }: {
   tab: Tab;
   index: number;
+  slotId: string;
   baseId: string;
   isActive: boolean;
   onActivate: (index: number) => void;
@@ -200,7 +203,7 @@ const TabButton = ({
 }) => {
   const tooltip = useTooltip({
     side: "bottom",
-    tooltipId: tab.badgeTooltip ? `${baseId}-tab-${index}-tooltip` : undefined,
+    tooltipId: tab.badgeTooltip ? `${baseId}-tab-${slotId}-tooltip` : undefined,
   });
   const cx = clsx(styles.tab, isActive && styles.active);
   const tipCx = clsx(
@@ -240,8 +243,8 @@ const TabButton = ({
     <button
       ref={handleRef}
       role="tab"
-      id={`${baseId}-tab-${index}`}
-      aria-controls={`${baseId}-panel-${index}`}
+      id={`${baseId}-tab-${slotId}`}
+      aria-controls={`${baseId}-panel-${slotId}`}
       aria-selected={isActive}
       aria-describedby={tab.badgeTooltip ? tooltip.tooltipId : undefined}
       tabIndex={isActive ? 0 : -1}
@@ -255,7 +258,7 @@ const TabButton = ({
       {onRemove && (
         <TabRemoveButton
           tab={tab}
-          index={index}
+          slotId={slotId}
           baseId={baseId}
           onRemove={onRemove}
         />
@@ -318,9 +321,10 @@ export const Tabs = ({
         <div className={styles.tablist} role="tablist" aria-label={ariaLabel}>
           {tabs.map((tab, i) => (
             <TabButton
-              key={i}
+              key={tab.id ?? tab.label}
               tab={tab}
               index={i}
+              slotId={tab.id ?? tab.label}
               baseId={baseId}
               isActive={active === i}
               onActivate={setActive}
@@ -332,18 +336,21 @@ export const Tabs = ({
         </div>
         {onAdd && <AddTabButton baseId={baseId} onAdd={onAdd} />}
       </div>
-      {tabs.map((tab, i) => (
-        <div
-          key={i}
-          role="tabpanel"
-          id={`${baseId}-panel-${i}`}
-          aria-labelledby={`${baseId}-tab-${i}`}
-          hidden={active !== i}
-          className={styles.panel}
-        >
-          {tab.content}
-        </div>
-      ))}
+      {tabs.map((tab, i) => {
+        const slotId = tab.id ?? tab.label;
+        return (
+          <div
+            key={slotId}
+            role="tabpanel"
+            id={`${baseId}-panel-${slotId}`}
+            aria-labelledby={`${baseId}-tab-${slotId}`}
+            hidden={active !== i}
+            className={styles.panel}
+          >
+            {tab.content}
+          </div>
+        );
+      })}
     </div>
   );
 };
