@@ -39,7 +39,8 @@
       "Bash(gh auth *)",
       "Bash(gh label *)",
       "Bash(npm test *)",
-      "Bash(sed -n *)"
+      "Bash(sed -n *)",
+      "Bash(gh repo view *)"
     ]
   }
 }
