@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useLatest } from '@/hooks/useLatest';
 import clsx from 'clsx';
 import { Checkbox, Input, Radio, UseDots, useToast } from '@/components/primitives';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
@@ -192,13 +193,9 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1, chooseOver
   const [customText, setCustomText] = useState<string>(() => data?.specialPossessionCustom ?? '');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const hasInitializedCollapse = useRef(false);
-  const selectedRef = useRef(selected);
-  selectedRef.current = selected;
-  const usesRef = useRef(uses);
-  usesRef.current = uses;
-
-  const customTextRef = useRef(customText);
-  customTextRef.current = customText;
+  const selectedRef = useLatest(selected);
+  const usesRef = useLatest(uses);
+  const customTextRef = useLatest(customText);
   const customDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {

@@ -1,4 +1,5 @@
 import { useState, useRef, useMemo, useCallback, memo } from 'react';
+import { useLatest } from '@/hooks/useLatest';
 import { useFirestoreSync } from '@/hooks/useFirestoreSync';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import clsx from 'clsx';
@@ -211,10 +212,8 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
   const [smallChecked, setSmallChecked] = useState<Record<string, boolean>>(() => data?.inventorySmallChecked ?? {});
   const [undefinedMain, setUndefinedMain] = useState<number>(() => data?.inventoryUndefined ?? 0);
   const [undefinedSmall, setUndefinedSmall] = useState<number>(() => data?.inventorySmallUndefined ?? 0);
-  const undefinedMainRef = useRef(undefinedMain);
-  undefinedMainRef.current = undefinedMain;
-  const undefinedSmallRef = useRef(undefinedSmall);
-  undefinedSmallRef.current = undefinedSmall;
+  const undefinedMainRef = useLatest(undefinedMain);
+  const undefinedSmallRef = useLatest(undefinedSmall);
   const [otherThings, setOtherThings] = useState<string>(() => data?.inventoryOtherThings ?? '');
   const [arcanaMinor, setArcanaMinor] = useState(() => data?.arcanaMinor ?? []);
   const [arcanaMajor, setArcanaMajor] = useState(() => data?.arcanaMajor ?? []);

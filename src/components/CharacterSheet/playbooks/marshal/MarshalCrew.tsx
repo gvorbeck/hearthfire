@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, memo } from 'react';
+import { useLatest } from '@/hooks/useLatest';
 import clsx from 'clsx';
 import { Checkbox, CheckboxGroup, Divider, Input, Text, UseDots, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
@@ -224,24 +225,15 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
   const [suppliesUses, setSuppliesUses] = useState<number[]>(() => features.crewSuppliesUses ?? Array(CREW_SIZE).fill(0));
   const [individuals, setIndividuals] = useState<Individual[]>(() => parseIndividuals(features.crewIndividuals));
 
-  const hpRef = useRef(hp);
-  hpRef.current = hp;
-  const armorRef = useRef(armor);
-  armorRef.current = armor;
-  const tagsRef = useRef(tags);
-  tagsRef.current = tags;
-  const tagsCustomRef = useRef(tagsCustom);
-  tagsCustomRef.current = tagsCustom;
-  const loyaltyRef = useRef(loyalty);
-  loyaltyRef.current = loyalty;
-  const inventoryCheckedRef = useRef(inventoryChecked);
-  inventoryCheckedRef.current = inventoryChecked;
-  const suppliesUsesRef = useRef(suppliesUses);
-  suppliesUsesRef.current = suppliesUses;
-  const customItemsRef = useRef(customItems);
-  customItemsRef.current = customItems;
-  const individualsRef = useRef(individuals);
-  individualsRef.current = individuals;
+  const hpRef = useLatest(hp);
+  const armorRef = useLatest(armor);
+  const tagsRef = useLatest(tags);
+  const tagsCustomRef = useLatest(tagsCustom);
+  const loyaltyRef = useLatest(loyalty);
+  const inventoryCheckedRef = useLatest(inventoryChecked);
+  const suppliesUsesRef = useLatest(suppliesUses);
+  const customItemsRef = useLatest(customItems);
+  const individualsRef = useLatest(individuals);
 
   const lastFirestoreCrewRef = useRef<string | undefined>(undefined);
 

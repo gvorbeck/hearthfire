@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useLatest } from '@/hooks/useLatest';
 import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { useToast } from '@/components/primitives';
@@ -24,8 +25,7 @@ export const useConsequenceCheckboxes = (
   const [checked, setChecked] = useState<Record<string, boolean>>(
     () => (resolvePlaybookFeatures(data)[consequenceKey] as Record<string, boolean> | undefined) ?? {},
   );
-  const checkedRef = useRef(checked);
-  checkedRef.current = checked;
+  const checkedRef = useLatest(checked);
 
   useEffect(() => {
     const val = resolvePlaybookFeatures(data)[consequenceKey] as Record<string, boolean> | undefined;

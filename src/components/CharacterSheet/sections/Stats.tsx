@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useLatest } from '@/hooks/useLatest';
 import clsx from 'clsx';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import { Checkbox, Input, Text } from '@/components/primitives';
@@ -169,13 +170,10 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
   const [stats, setStats] = useState<StatsState>(() => statsFromData(data, hpMax));
   const [debilities, setDebilities] = useState<DebilitiesState>(() => debilitiesFromData(data));
 
-  const onSaveRef = useRef(onSave);
-  const statsRef = useRef(stats);
-  const debilitiesRef = useRef(debilities);
+  const onSaveRef = useLatest(onSave);
+  const statsRef = useLatest(stats);
+  const debilitiesRef = useLatest(debilities);
   const hasAutoInitialized = useRef(false);
-  onSaveRef.current = onSave;
-  statsRef.current = stats;
-  debilitiesRef.current = debilities;
 
   useEffect(() => {
     setStats(statsFromData(data, hpMax));

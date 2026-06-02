@@ -1,4 +1,5 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useCallback } from 'react';
+import { useLatest } from '@/hooks/useLatest';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import { useCollapsibleSection } from '@/hooks/useCollapsibleSection';
 import { useFirestoreSync } from '@/hooks/useFirestoreSync';
@@ -22,16 +23,11 @@ export const Background = ({ playbookKey, options, level = 0, data, onSave }: Ba
   const [selectedChoices, setSelectedChoices] = useState<string[]>(data?.backgroundChoices ?? []);
   const [backgroundUses, setBackgroundUses] = useState<Record<string, number>>(data?.backgroundUses ?? {});
   const [freeText, setFreeText] = useState<Record<string, string>>(data?.backgroundFreeText ?? {});
-  const selectedOptionRef = useRef(selectedOption);
-  selectedOptionRef.current = selectedOption;
-  const selectedChoicesRef = useRef(selectedChoices);
-  selectedChoicesRef.current = selectedChoices;
-  const backgroundUsesRef = useRef(backgroundUses);
-  backgroundUsesRef.current = backgroundUses;
-  const freeTextRef = useRef(freeText);
-  freeTextRef.current = freeText;
-  const onSaveRef = useRef(onSave);
-  onSaveRef.current = onSave;
+  const selectedOptionRef = useLatest(selectedOption);
+  const selectedChoicesRef = useLatest(selectedChoices);
+  const backgroundUsesRef = useLatest(backgroundUses);
+  const freeTextRef = useLatest(freeText);
+  const onSaveRef = useLatest(onSave);
 
   const saveFreeText = useCallback(
     (answers: Record<string, string>) => onSaveRef.current?.({ backgroundFreeText: answers }) ?? Promise.resolve(),

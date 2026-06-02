@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useLatest } from '@/hooks/useLatest';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import { useCrewSave } from '../shared/useCrewSave';
 import { useTrackedField } from '../shared/useTrackedField';
@@ -56,8 +57,7 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
   const [typePicks, setTypePicks] = useState<Record<string, boolean>>(init.animalTypePicks ?? {});
   const [typeCustom, setTypeCustom] = useState<Record<string, string>>(init.animalTypeCustom ?? {});
   const [typeCustomChecked, setTypeCustomChecked] = useState<Record<string, boolean>>(init.animalTypeCustomChecked ?? {});
-  const typeCustomRef = useRef(typeCustom);
-  typeCustomRef.current = typeCustom;
+  const typeCustomRef = useLatest(typeCustom);
   const [loyalty, setLoyalty] = useState<number>(init.animalLoyalty ?? 0);
   const [beastOfLegend, setBeastOfLegend] = useState<Record<string, boolean>>(init.animalBeastOfLegend ?? {});
 

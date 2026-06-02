@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useLatest } from '@/hooks/useLatest';
 import { Divider, Radio, RadioGroup, Text, useToast } from '@/components/primitives';
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
@@ -34,10 +35,8 @@ export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) =>
   const { addToast } = useToast();
   const [is, setIs] = useState<Record<string, string>>(() => resolvePlaybookFeatures(data).sacredPouchIs ?? {});
   const [trait, setTrait] = useState<string>(() => resolvePlaybookFeatures(data).sacredPouchTrait ?? '');
-  const isRef = useRef(is);
-  isRef.current = is;
-  const traitRef = useRef(trait);
-  traitRef.current = trait;
+  const isRef = useLatest(is);
+  const traitRef = useLatest(trait);
 
   const lastFirestoreSacredPouchRef = useRef<string | undefined>(undefined);
 

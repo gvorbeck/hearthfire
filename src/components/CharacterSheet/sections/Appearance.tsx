@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useLatest } from '@/hooks/useLatest';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import { useCollapsibleSection } from '@/hooks/useCollapsibleSection';
 import { Checkbox, Radio, RadioGroup, Text, useToast } from '@/components/primitives';
@@ -20,12 +21,9 @@ export const Appearance = ({ rows, data, onSave }: AppearanceProps = {}) => {
   const [selected, setSelected] = useState<Record<string, string>>(data?.appearance ?? {});
   const [isCustom, setIsCustom] = useState<boolean>(Boolean(data?.appearanceCustom));
   const [customText, setCustomText] = useState<string>(data?.appearanceCustom ?? '');
-  const onSaveRef = useRef(onSave);
-  const selectedRef = useRef(selected);
-  const customTextRef = useRef(customText);
-  onSaveRef.current = onSave;
-  selectedRef.current = selected;
-  customTextRef.current = customText;
+  const onSaveRef = useLatest(onSave);
+  const selectedRef = useLatest(selected);
+  const customTextRef = useLatest(customText);
 
   const saveCustomText = useCallback(
     (value: string) => onSaveRef.current?.({ appearance: selectedRef.current, appearanceCustom: value }) ?? Promise.resolve(),

@@ -1,4 +1,5 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { useLatest } from '@/hooks/useLatest';
 import { useFirestoreSync } from '@/hooks/useFirestoreSync';
 import { PlaybookSection } from '../PlaybookSection';
 import { Collapse, Text, Toggle, useToast } from '@/components/primitives';
@@ -122,29 +123,17 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
   const [isHideUnselected, setIsHideUnselected] = useState(false);
   const handleHideUnselected = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setIsHideUnselected(e.target.checked), []);
 
-  // Refs hold latest state so handlers below can have stable identity ([] deps) without stale closures.
-  const selectedRef = useRef(selected);
-  const usesRef = useRef(uses);
-  const uses2Ref = useRef(uses2);
-  const takesRef = useRef(takes);
-  const checkListsRef = useRef(checkLists);
-  const checkListLevelsRef = useRef(checkListLevels);
-  const forcedMoveIdsRef = useRef(forcedMoveIds);
-  const typeMovesRef = useRef(typeMoves);
-  const levelRef = useRef(level);
-  const onSaveRef = useRef(onSave);
-  const addToastRef = useRef(addToast);
-  selectedRef.current = selected;
-  usesRef.current = uses;
-  uses2Ref.current = uses2;
-  takesRef.current = takes;
-  checkListsRef.current = checkLists;
-  checkListLevelsRef.current = checkListLevels;
-  forcedMoveIdsRef.current = forcedMoveIds;
-  typeMovesRef.current = typeMoves;
-  levelRef.current = level;
-  onSaveRef.current = onSave;
-  addToastRef.current = addToast;
+  const selectedRef = useLatest(selected);
+  const usesRef = useLatest(uses);
+  const uses2Ref = useLatest(uses2);
+  const takesRef = useLatest(takes);
+  const checkListsRef = useLatest(checkLists);
+  const checkListLevelsRef = useLatest(checkListLevels);
+  const forcedMoveIdsRef = useLatest(forcedMoveIds);
+  const typeMovesRef = useLatest(typeMoves);
+  const levelRef = useLatest(level);
+  const onSaveRef = useLatest(onSave);
+  const addToastRef = useLatest(addToast);
 
   useFirestoreSync(data?.typeMoves ?? {}, setSelected);
   useFirestoreSync(data?.typeMoveUses ?? {}, setUses);
