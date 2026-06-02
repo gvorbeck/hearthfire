@@ -3,6 +3,7 @@ import {
   useId,
   useRef,
   useCallback,
+  useEffect,
   type ReactNode,
   type KeyboardEvent,
   type MouseEvent,
@@ -279,13 +280,22 @@ export const Tabs = ({
 }: TabsProps) => {
   const [internalActive, setInternalActive] = useState(defaultIndex);
   const active = activeIndex ?? internalActive;
+  const [everActive, setEverActive] = useState(() => new Set([activeIndex ?? defaultIndex]));
   const setActive = useCallback(
     (i: number) => {
       setInternalActive(i);
+      setEverActive((prev) => (prev.has(i) ? prev : new Set([...prev, i])));
       onActiveChange?.(i);
     },
     [onActiveChange],
   );
+
+  useEffect(() => {
+    if (activeIndex !== undefined) {
+      setEverActive((prev) => (prev.has(activeIndex) ? prev : new Set([...prev, activeIndex])));
+    }
+  }, [activeIndex]);
+
   const baseId = useId();
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -347,7 +357,7 @@ export const Tabs = ({
             hidden={active !== i}
             className={styles.panel}
           >
-            {tab.content}
+            {everActive.has(i) ? tab.content : null}
           </div>
         );
       })}
