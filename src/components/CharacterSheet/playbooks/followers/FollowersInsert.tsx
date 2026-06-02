@@ -35,7 +35,7 @@ const normalizeFollower = (raw: Partial<FollowerData> | undefined, id: string): 
   notes: raw?.notes ?? '',
 });
 
-const generateId = () => `follower-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+const generateId = () => crypto.randomUUID();
 
 interface GearRowProps {
   followerIndex: number;

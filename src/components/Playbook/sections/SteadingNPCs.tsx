@@ -4,7 +4,7 @@ import { randomNpcName } from '@/lib/npcNames';
 import type { SteadingData, SteadingNPC } from '@/types';
 import styles from './SteadingNPCs.module.css';
 
-const generateId = () => `npc-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+const generateId = () => crypto.randomUUID();
 
 const NPC_TRAITS = [
   'all thumbs', 'ambitious', 'beloved by everyone', 'beautiful singing voice', 'best cook',
