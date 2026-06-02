@@ -39,17 +39,18 @@ import type { Character, CharacterData, GameSession, PlaybookType, PlaybookFeatu
 import styles from './CharacterPlaybook.module.css';
 
 type PlaybookSectionComponent = React.ComponentType<{ data: CharacterData | undefined; onSave: (data: Partial<CharacterData>) => Promise<void> }>;
+type PlaybookSectionEntry = { key: string; Component: PlaybookSectionComponent };
 
-const PLAYBOOK_SECTIONS: Partial<Record<PlaybookType, PlaybookSectionComponent[]>> = {
-  blessed: [BlessedSacredPouch, BlessedEarthMother],
-  fox: [FoxTallTales],
-  heavy: [HeavyViolence],
-  judge: [JudgeChronicle, JudgeLawkeeper],
-  lightbearer: [LightbearerPraiseTheDay],
-  marshal: [MarshalWarStories],
-  ranger: [RangerSomethingWicked],
-  seeker: [SeekerCollection],
-  'would-be-hero': [WouldBeHeroFearAnger],
+const PLAYBOOK_SECTIONS: Partial<Record<PlaybookType, PlaybookSectionEntry[]>> = {
+  blessed: [{ key: 'sacred-pouch', Component: BlessedSacredPouch }, { key: 'earth-mother', Component: BlessedEarthMother }],
+  fox: [{ key: 'tall-tales', Component: FoxTallTales }],
+  heavy: [{ key: 'violence', Component: HeavyViolence }],
+  judge: [{ key: 'chronicle', Component: JudgeChronicle }, { key: 'lawkeeper', Component: JudgeLawkeeper }],
+  lightbearer: [{ key: 'praise-the-day', Component: LightbearerPraiseTheDay }],
+  marshal: [{ key: 'war-stories', Component: MarshalWarStories }],
+  ranger: [{ key: 'something-wicked', Component: RangerSomethingWicked }],
+  seeker: [{ key: 'collection', Component: SeekerCollection }],
+  'would-be-hero': [{ key: 'fear-anger', Component: WouldBeHeroFearAnger }],
 };
 
 const WOULD_BE_HERO_SCORE_INSTRUCTION = 'Assign these scores: 1, 0, 0, 0, 0, -1. When a debility is marked, you roll with disadvantage.';
@@ -112,8 +113,8 @@ const PCPlaybookTab = ({ character, playbookOption, onSave, insertInstinctNote }
         <div className={styles.colLeft}>
           {PLAYBOOK_SECTIONS[playbook] && (
             <div className={charSheetStyles.stack}>
-              {PLAYBOOK_SECTIONS[playbook]!.map((Section) => (
-                <Section key={Section.name} data={data} onSave={onSave} />
+              {PLAYBOOK_SECTIONS[playbook]!.map(({ key, Component }) => (
+                <Component key={key} data={data} onSave={onSave} />
               ))}
             </div>
           )}
