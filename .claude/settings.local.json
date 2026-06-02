@@ -37,7 +37,9 @@
       "Bash(cat)",
       "Bash(gh issue *)",
       "Bash(gh auth *)",
-      "Bash(gh label *)"
+      "Bash(gh label *)",
+      "Bash(npm test *)",
+      "Bash(sed -n *)"
     ]
   }
 }
