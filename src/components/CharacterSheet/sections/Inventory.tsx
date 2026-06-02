@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react';
+import { useState, useRef, useMemo, useCallback, memo } from 'react';
+import { useFirestoreSync } from '@/hooks/useFirestoreSync';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import clsx from 'clsx';
 import { Checkbox, Divider, Heading, Input, List, Stack, Text, UseDots, RepeaterField, useToast } from '@/components/primitives';
@@ -220,31 +221,17 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
   const arcanaMinorPendingRef = useRef(false);
   const arcanaMajorPendingRef = useRef(false);
   const otherThingsPendingRef = useRef(false);
-  const lastFirestoreInventoryRef = useRef<string | undefined>(undefined);
 
   const { onChange: otherThingsDebounced, flush: otherThingsFlush } = useDebouncedSave<Partial<CharacterData>>(onSave);
 
-  useEffect(() => {
-    const incoming = JSON.stringify([data?.inventoryChecked, data?.inventoryUses, data?.inventorySmallChecked, data?.inventoryUndefined, data?.inventorySmallUndefined, data?.inventoryOtherThings]);
-    if (incoming === lastFirestoreInventoryRef.current) return;
-    lastFirestoreInventoryRef.current = incoming;
-    if (data?.inventoryChecked !== undefined) setInventoryChecked(data.inventoryChecked);
-    if (data?.inventoryUses !== undefined) setInventoryUses(data.inventoryUses);
-    if (data?.inventorySmallChecked !== undefined) setSmallChecked(data.inventorySmallChecked);
-    if (data?.inventoryUndefined !== undefined) setUndefinedMain(data.inventoryUndefined);
-    if (data?.inventorySmallUndefined !== undefined) setUndefinedSmall(data.inventorySmallUndefined);
-    if (!otherThingsPendingRef.current && data?.inventoryOtherThings !== undefined) setOtherThings(data.inventoryOtherThings);
-  }, [data]);
-
-  useEffect(() => {
-    if (arcanaMinorPendingRef.current) return;
-    setArcanaMinor(data?.arcanaMinor ?? []);
-  }, [data?.arcanaMinor]);
-
-  useEffect(() => {
-    if (arcanaMajorPendingRef.current) return;
-    setArcanaMajor(data?.arcanaMajor ?? []);
-  }, [data?.arcanaMajor]);
+  useFirestoreSync(data?.inventoryChecked ?? {}, setInventoryChecked);
+  useFirestoreSync(data?.inventoryUses ?? {}, setInventoryUses);
+  useFirestoreSync(data?.inventorySmallChecked ?? {}, setSmallChecked);
+  useFirestoreSync(data?.inventoryUndefined ?? 0, setUndefinedMain);
+  useFirestoreSync(data?.inventorySmallUndefined ?? 0, setUndefinedSmall);
+  useFirestoreSync(data?.inventoryOtherThings ?? '', setOtherThings, otherThingsPendingRef);
+  useFirestoreSync(data?.arcanaMinor ?? [], setArcanaMinor, arcanaMinorPendingRef);
+  useFirestoreSync(data?.arcanaMajor ?? [], setArcanaMajor, arcanaMajorPendingRef);
 
   const handleMainChecked = useCallback((id: string, val: boolean) => {
     setInventoryChecked((prev) => {

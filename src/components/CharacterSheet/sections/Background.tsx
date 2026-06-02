@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import { useCollapsibleSection } from '@/hooks/useCollapsibleSection';
+import { useFirestoreSync } from '@/hooks/useFirestoreSync';
 import { useToast } from '@/components/primitives';
 import { PlaybookSection } from '../PlaybookSection';
 import { BackgroundOptionItem } from './BackgroundOption';
@@ -31,7 +32,6 @@ export const Background = ({ playbookKey, options, level = 0, data, onSave }: Ba
   freeTextRef.current = freeText;
   const onSaveRef = useRef(onSave);
   onSaveRef.current = onSave;
-  const lastFirestoreBackgroundRef = useRef<string | undefined>(undefined);
 
   const saveFreeText = useCallback(
     (answers: Record<string, string>) => onSaveRef.current?.({ backgroundFreeText: answers }) ?? Promise.resolve(),
@@ -39,15 +39,10 @@ export const Background = ({ playbookKey, options, level = 0, data, onSave }: Ba
   );
   const { onChange: debouncedFreeText } = useDebouncedSave(saveFreeText, 1000);
 
-  useEffect(() => {
-    const incoming = JSON.stringify([data?.background, data?.backgroundChoices, data?.backgroundFreeText, data?.backgroundUses]);
-    if (incoming === lastFirestoreBackgroundRef.current) return;
-    lastFirestoreBackgroundRef.current = incoming;
-    if (data?.background !== undefined) setSelectedOption(data.background);
-    if (data?.backgroundChoices !== undefined) setSelectedChoices(data.backgroundChoices);
-    if (data?.backgroundFreeText !== undefined) setFreeText(data.backgroundFreeText);
-    if (data?.backgroundUses !== undefined) setBackgroundUses(data.backgroundUses);
-  }, [data?.background, data?.backgroundChoices, data?.backgroundFreeText, data?.backgroundUses]);
+  useFirestoreSync(data?.background ?? '', setSelectedOption);
+  useFirestoreSync(data?.backgroundChoices ?? [], setSelectedChoices);
+  useFirestoreSync(data?.backgroundFreeText ?? {}, setFreeText);
+  useFirestoreSync(data?.backgroundUses ?? {}, setBackgroundUses);
 
   const { isCollapsed, setIsCollapsed, handleToggleCollapse } = useCollapsibleSection(!!selectedOption);
 

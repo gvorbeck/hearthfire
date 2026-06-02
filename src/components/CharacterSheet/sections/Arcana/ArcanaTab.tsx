@@ -1,4 +1,5 @@
-import { useState, useCallback, useEffect, useMemo, useRef, memo } from 'react';
+import { useState, useCallback, useMemo, useRef, memo } from 'react';
+import { useFirestoreSync } from '@/hooks/useFirestoreSync';
 import clsx from 'clsx';
 import { Button, Text } from '@/components/primitives';
 import { MINOR_ARCANA } from '@/lib/arcanaMinor';
@@ -86,15 +87,8 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
   const minorPendingRef = useRef(false);
   const majorPendingRef = useRef(false);
 
-  useEffect(() => {
-    if (minorPendingRef.current) return;
-    setArcanaMinor(data?.arcanaMinor ?? []);
-  }, [data?.arcanaMinor]);
-
-  useEffect(() => {
-    if (majorPendingRef.current) return;
-    setArcanaMajor(data?.arcanaMajor ?? []);
-  }, [data?.arcanaMajor]);
+  useFirestoreSync(data?.arcanaMinor ?? [], setArcanaMinor, minorPendingRef);
+  useFirestoreSync(data?.arcanaMajor ?? [], setArcanaMajor, majorPendingRef);
 
   const saveMinor = useCallback(
     (next: ArcanaMinorEntry[]) => {

@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { useFirestoreSync } from '@/hooks/useFirestoreSync';
 import { PlaybookSection } from '../PlaybookSection';
 import { Collapse, Text, Toggle, useToast } from '@/components/primitives';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
@@ -145,18 +146,12 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
   onSaveRef.current = onSave;
   addToastRef.current = addToast;
 
-  // Known limitation: Firestore's onSnapshot delivers a new object reference on every update, so
-  // this effect fires whenever the parent re-renders with fresh data and overwrites any in-flight
-  // optimistic state that hasn't confirmed yet. The window is small (one round-trip) and all five
-  // state fields share the same pattern, so we accept it rather than adding complexity.
-  useEffect(() => {
-    setSelected(data?.typeMoves ?? {});
-    setUses(data?.typeMoveUses ?? {});
-    setUses2(data?.typeMoveUses2 ?? {});
-    setTakes(data?.typeMoveTakes ?? {});
-    setCheckLists(data?.typeMoveCheckList ?? {});
-    setCheckListLevels(data?.typeMoveCheckListLevels ?? {});
-  }, [data?.typeMoves, data?.typeMoveUses, data?.typeMoveUses2, data?.typeMoveTakes, data?.typeMoveCheckList, data?.typeMoveCheckListLevels]);
+  useFirestoreSync(data?.typeMoves ?? {}, setSelected);
+  useFirestoreSync(data?.typeMoveUses ?? {}, setUses);
+  useFirestoreSync(data?.typeMoveUses2 ?? {}, setUses2);
+  useFirestoreSync(data?.typeMoveTakes ?? {}, setTakes);
+  useFirestoreSync(data?.typeMoveCheckList ?? {}, setCheckLists);
+  useFirestoreSync(data?.typeMoveCheckListLevels ?? {}, setCheckListLevels);
 
   const handleSelect = useCallback((id: string, value: boolean) => {
     if (forcedMoveIdsRef.current.has(id)) return;
