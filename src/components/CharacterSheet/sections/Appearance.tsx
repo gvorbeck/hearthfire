@@ -46,7 +46,7 @@ export const Appearance = ({ rows, data, onSave }: AppearanceProps = {}) => {
     const nextSelected = { ...prev, [String(rowIndex)]: value };
     setSelected(nextSelected);
     onSaveRef.current?.({ appearance: nextSelected, appearanceCustom: customTextRef.current })
-      .catch(() => { setSelected(prev); addToast('Failed to save appearance.'); });
+      .catch(() => { setSelected(prev); addToast('Failed to save appearance.', 'error'); });
   }, []);
 
   const handleCustomToggle = useCallback(() => {
@@ -56,10 +56,10 @@ export const Appearance = ({ rows, data, onSave }: AppearanceProps = {}) => {
       if (!next) {
         setCustomText('');
         onSaveRef.current?.({ appearance: selectedRef.current, appearanceCustom: '' })
-          .catch(() => { setIsCustom(true); setCustomText(prevCustom); addToast('Failed to save appearance.'); });
+          .catch(() => { setIsCustom(true); setCustomText(prevCustom); addToast('Failed to save appearance.', 'error'); });
       } else {
         onSaveRef.current?.({ appearance: selectedRef.current, appearanceCustom: prevCustom })
-          .catch(() => { setIsCustom(false); addToast('Failed to save appearance.'); });
+          .catch(() => { setIsCustom(false); addToast('Failed to save appearance.', 'error'); });
       }
       return next;
     });

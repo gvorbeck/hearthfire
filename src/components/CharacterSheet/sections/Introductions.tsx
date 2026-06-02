@@ -55,7 +55,7 @@ export const Introductions = ({ config, data, onSave }: IntroductionsProps = {})
   const handleQuestion = useCallback((id: string, checked: boolean) => {
     setQuestions((prev) => {
       const next = { ...prev, [id]: checked };
-      onSave?.({ introductionQuestions: next }).catch(() => { setQuestions(prev); addToast('Failed to save.'); });
+      onSave?.({ introductionQuestions: next }).catch(() => { setQuestions(prev); addToast('Failed to save.', 'error'); });
       return next;
     });
   }, [onSave, addToast]);

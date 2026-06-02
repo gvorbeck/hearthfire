@@ -91,15 +91,15 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
       setArmor(typeConfig.armor);
       setDamage(typeConfig.damage);
       return saveImmediate({ animalType: val, animalHp: typeConfig.hp, animalArmor: typeConfig.armor, animalDamage: typeConfig.damage })
-        .catch(() => { setAnimalType(prevType); setHp(prevHp); setArmor(prevArmor); setDamage(prevDamage); addToast('Failed to save.'); });
+        .catch(() => { setAnimalType(prevType); setHp(prevHp); setArmor(prevArmor); setDamage(prevDamage); addToast('Failed to save.', 'error'); });
     }
-    return saveImmediate({ animalType: val }).catch(() => { setAnimalType(prevType); addToast('Failed to save.'); });
+    return saveImmediate({ animalType: val }).catch(() => { setAnimalType(prevType); addToast('Failed to save.', 'error'); });
   }, [saveImmediate, animalType, hp, armor, damage, setHp, setArmor, setDamage, addToast]);
 
   const handleTypePickChange = useCallback((id: string, checked: boolean) => {
     setTypePicks((prev) => {
       const next = { ...prev, [id]: checked };
-      saveImmediate({ animalTypePicks: next }).catch(() => { setTypePicks(prev); addToast('Failed to save.'); });
+      saveImmediate({ animalTypePicks: next }).catch(() => { setTypePicks(prev); addToast('Failed to save.', 'error'); });
       return next;
     });
   }, [saveImmediate, addToast]);
@@ -120,14 +120,14 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
   const handleTypeCustomCheckedChange = useCallback((typeId: string, checked: boolean) => {
     setTypeCustomChecked((prev) => {
       const next = { ...prev, [typeId]: checked };
-      saveImmediate({ animalTypeCustomChecked: next }).catch(() => { setTypeCustomChecked(prev); addToast('Failed to save.'); });
+      saveImmediate({ animalTypeCustomChecked: next }).catch(() => { setTypeCustomChecked(prev); addToast('Failed to save.', 'error'); });
       return next;
     });
   }, [saveImmediate, addToast]);
 
   const handleLoyaltyChange = useCallback((n: number) => {
     setLoyalty((prev) => {
-      saveImmediate({ animalLoyalty: n }).catch(() => { setLoyalty(prev); addToast('Failed to save.'); });
+      saveImmediate({ animalLoyalty: n }).catch(() => { setLoyalty(prev); addToast('Failed to save.', 'error'); });
       return n;
     });
   }, [saveImmediate, addToast]);
@@ -135,7 +135,7 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
   const handleBeastOfLegendChange = useCallback((id: string, checked: boolean) => {
     setBeastOfLegend((prev) => {
       const next = { ...prev, [id]: checked };
-      saveImmediate({ animalBeastOfLegend: next }).catch(() => { setBeastOfLegend(prev); addToast('Failed to save.'); });
+      saveImmediate({ animalBeastOfLegend: next }).catch(() => { setBeastOfLegend(prev); addToast('Failed to save.', 'error'); });
       return next;
     });
   }, [saveImmediate, addToast]);

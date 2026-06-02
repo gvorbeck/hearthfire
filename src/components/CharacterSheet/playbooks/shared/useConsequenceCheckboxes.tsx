@@ -36,14 +36,14 @@ export const useConsequenceCheckboxes = (
     const prev = checkedRef.current;
     const next = { ...prev, [id]: isChecked };
     setChecked(next);
-    saveImmediate({ [consequenceKey]: next }).catch(() => { setChecked(prev); addToast('Failed to save.'); });
+    saveImmediate({ [consequenceKey]: next }).catch(() => { setChecked(prev); addToast('Failed to save.', 'error'); });
   }, [saveImmediate, consequenceKey, addToast]);
 
   const updateChecked = useCallback((updater: (prev: Record<string, boolean>) => Record<string, boolean>) => {
     const prev = checkedRef.current;
     const next = updater(prev);
     setChecked(next);
-    saveImmediate({ [consequenceKey]: next }).catch(() => { setChecked(prev); addToast('Failed to save.'); });
+    saveImmediate({ [consequenceKey]: next }).catch(() => { setChecked(prev); addToast('Failed to save.', 'error'); });
   }, [saveImmediate, consequenceKey, addToast]);
 
   const items = useMemo(() => labels.map((c) => ({

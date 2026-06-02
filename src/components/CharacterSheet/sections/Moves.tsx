@@ -151,35 +151,35 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
     const prev = selectedRef.current;
     const next = { ...prev, [id]: value };
     setSelected(next);
-    onSaveRef.current({ typeMoves: next }).catch(() => { setSelected(prev); addToastRef.current('Failed to save move selection.'); });
+    onSaveRef.current({ typeMoves: next }).catch(() => { setSelected(prev); addToastRef.current('Failed to save move selection.', 'error'); });
   }, []);
 
   const handleUses = useCallback((id: string, count: number) => {
     const prev = usesRef.current;
     const next = { ...prev, [id]: count };
     setUses(next);
-    onSaveRef.current({ typeMoveUses: next }).catch(() => { setUses(prev); addToastRef.current('Failed to save move uses.'); });
+    onSaveRef.current({ typeMoveUses: next }).catch(() => { setUses(prev); addToastRef.current('Failed to save move uses.', 'error'); });
   }, []);
 
   const handleUses2 = useCallback((id: string, count: number) => {
     const prev = uses2Ref.current;
     const next = { ...prev, [id]: count };
     setUses2(next);
-    onSaveRef.current({ typeMoveUses2: next }).catch(() => { setUses2(prev); addToastRef.current('Failed to save move uses.'); });
+    onSaveRef.current({ typeMoveUses2: next }).catch(() => { setUses2(prev); addToastRef.current('Failed to save move uses.', 'error'); });
   }, []);
 
   const handleTakes = useCallback((id: string, count: number) => {
     const prev = takesRef.current;
     const next = { ...prev, [id]: count };
     setTakes(next);
-    onSaveRef.current({ typeMoveTakes: next }).catch(() => { setTakes(prev); addToastRef.current('Failed to save move takes.'); });
+    onSaveRef.current({ typeMoveTakes: next }).catch(() => { setTakes(prev); addToastRef.current('Failed to save move takes.', 'error'); });
   }, []);
 
   const handleCheckList = useCallback((id: string, itemId: string, checked: boolean) => {
     const prev = checkListsRef.current;
     const next = { ...prev, [id]: { ...prev[id], [itemId]: checked } };
     setCheckLists(next);
-    onSaveRef.current({ typeMoveCheckList: next }).catch(() => { setCheckLists(prev); addToastRef.current('Failed to save checklist.'); });
+    onSaveRef.current({ typeMoveCheckList: next }).catch(() => { setCheckLists(prev); addToastRef.current('Failed to save checklist.', 'error'); });
   }, []);
 
   const handleCheckListLevel = useCallback((id: string, itemId: string, lvl: number | null) => {
@@ -189,7 +189,7 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
     const nextItem = lvl !== null ? { ...prevItem, [itemId]: lvl } : rest;
     const next = { ...prev, [id]: nextItem };
     setCheckListLevels(next);
-    onSaveRef.current({ typeMoveCheckListLevels: next }).catch(() => { setCheckListLevels(prev); addToastRef.current('Failed to save checklist.'); });
+    onSaveRef.current({ typeMoveCheckListLevels: next }).catch(() => { setCheckListLevels(prev); addToastRef.current('Failed to save checklist.', 'error'); });
   }, []);
 
   const playbookLabel = PLAYBOOKS.find((p) => p.value === playbook)?.label ?? playbook;

@@ -37,6 +37,12 @@
   color: var(--text-primary);
 }
 
+.success {
+  background-color: color-mix(in srgb, var(--color-success) 12%, var(--surface-overlay));
+  border-color: color-mix(in srgb, var(--color-success) 40%, transparent);
+  color: var(--text-primary);
+}
+
 .icon {
   flex-shrink: 0;
 }
@@ -50,6 +56,13 @@
 
 .icon.info {
   color: var(--color-gold-300);
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.icon.success {
+  color: var(--color-success);
   background: none;
   border: none;
   padding: 0;

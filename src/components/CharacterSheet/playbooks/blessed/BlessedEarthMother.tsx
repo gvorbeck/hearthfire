@@ -51,7 +51,7 @@ export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) =>
     (value: string) => {
       const prev = shrineRef.current;
       setShrine(value);
-      onSave(featurePatch(data, { earthMotherShrine: value })).catch(() => { setShrine(prev); addToast('Failed to save.'); });
+      onSave(featurePatch(data, { earthMotherShrine: value })).catch(() => { setShrine(prev); addToast('Failed to save.', 'error'); });
     },
     [onSave, data, addToast]
   );
@@ -61,7 +61,7 @@ export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) =>
       const prev = offeringsRef.current;
       const next = { ...prev, [id]: checked };
       setOfferings(next);
-      onSave(featurePatch(data, { earthMotherOfferings: next })).catch(() => { setOfferings(prev); addToast('Failed to save.'); });
+      onSave(featurePatch(data, { earthMotherOfferings: next })).catch(() => { setOfferings(prev); addToast('Failed to save.', 'error'); });
     },
     [onSave, data, addToast]
   );

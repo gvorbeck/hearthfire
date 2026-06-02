@@ -55,7 +55,7 @@ export const Background = ({ playbookKey, options, level = 0, data, onSave }: Ba
     onSaveRef.current?.({ background: value, backgroundChoices: [] }).catch(() => {
       setSelectedOption(prev);
       setIsCollapsed(false);
-      addToast('Failed to save background selection.');
+      addToast('Failed to save background selection.', 'error');
     });
   }, [addToast, setIsCollapsed]);
 
@@ -64,7 +64,7 @@ export const Background = ({ playbookKey, options, level = 0, data, onSave }: Ba
     setSelectedChoices(choices);
     onSaveRef.current?.({ background: selectedOptionRef.current, backgroundChoices: choices }).catch(() => {
       setSelectedChoices(prev);
-      addToast('Failed to save background choices.');
+      addToast('Failed to save background choices.', 'error');
     });
   }, [addToast]);
 
@@ -72,7 +72,7 @@ export const Background = ({ playbookKey, options, level = 0, data, onSave }: Ba
     const prev = backgroundUsesRef.current;
     const next = { ...prev, [optValue]: count };
     setBackgroundUses(next);
-    onSaveRef.current?.({ backgroundUses: next }).catch(() => { setBackgroundUses(prev); addToast('Failed to save.'); });
+    onSaveRef.current?.({ backgroundUses: next }).catch(() => { setBackgroundUses(prev); addToast('Failed to save.', 'error'); });
   }, [addToast]);
 
   if (!options) return <PlaybookSection title="Background" />;

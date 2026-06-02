@@ -403,16 +403,16 @@ export const FollowersInsert = ({ data, onSave }: FollowersInsertProps) => {
   const saveFollowers = useCallback((next: FollowerData[], prev?: FollowerData[]) => {
     saveImmediate({ followers: next }).catch(() => {
       if (prev) setFollowers(prev);
-      addToast('Failed to save.');
+      addToast('Failed to save.', 'error');
     });
   }, [saveImmediate, addToast]);
 
   const saveFollowersDebounced = useCallback((next: FollowerData[]) => {
-    saveDebounced({ followers: next }, () => addToast('Failed to save.'));
+    saveDebounced({ followers: next }, () => addToast('Failed to save.', 'error'));
   }, [saveDebounced, addToast]);
 
   const flushFollowers = useCallback(() => {
-    flushDebounce({ followers: followersRef.current }).catch(() => addToast('Failed to save.'));
+    flushDebounce({ followers: followersRef.current }).catch(() => addToast('Failed to save.', 'error'));
   }, [flushDebounce, addToast]);
 
   const handleAdd = useCallback(() => {

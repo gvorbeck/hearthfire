@@ -36,6 +36,14 @@
   --color-ember-600: #b84a22;
   --color-danger: var(--color-ember-400);
 
+  /* Moss — success accent */
+  --color-moss-400: #6abf7a;
+  --color-success: var(--color-moss-400);
+
+  /* Amber — warning accent */
+  --color-amber-400: #f59e0b;
+  --color-warning: var(--color-amber-400);
+
   --font-serif: 'IM Fell English', Georgia, serif;
   --font-sans: 'Inter', system-ui, sans-serif;
 

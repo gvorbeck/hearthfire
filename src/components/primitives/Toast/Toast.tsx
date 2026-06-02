@@ -6,7 +6,7 @@ import { Icon } from '../Icon/Icon';
 import { Text } from '../Text/Text';
 import styles from './Toast.module.css';
 
-type ToastVariant = 'error' | 'info';
+type ToastVariant = 'error' | 'info' | 'success';
 
 interface ToastItem {
   id: string;
@@ -34,11 +34,12 @@ const ToastEntry = ({
   const cx = clsx(styles.toast, styles[item.variant], item.exiting && styles.exiting);
   const iconCx = clsx(styles.icon, styles[item.variant]);
   const handleDismissItem = useCallback(() => onDismiss(item.id), [onDismiss, item.id]);
+  const iconName = ({ error: 'warning', success: 'check', info: 'info' } as const)[item.variant];
 
   return (
     <div role="alert" className={cx}>
       <span className={iconCx}>
-        <Icon name={item.variant === 'error' ? 'warning' : 'check'} size="small" />
+        <Icon name={iconName} size="small" />
       </span>
       <span className={styles.body}>
         <Text as="span" size="xs">{item.message}</Text>
@@ -68,7 +69,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
     timers.current.set(id, removeTimer);
   }, []);
 
-  const addToast = useCallback((message: string, variant: ToastVariant = 'error') => {
+  const addToast = useCallback((message: string, variant: ToastVariant = 'info') => {
     const id = crypto.randomUUID();
     setToasts((prev) => [...prev, { id, message, variant, exiting: false }]);
     const timer = setTimeout(() => startExit(id), AUTO_DISMISS_MS);

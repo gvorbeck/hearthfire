@@ -56,7 +56,7 @@ export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) =>
       const prev = isRef.current;
       const next = { ...prev, [key]: value };
       setIs(next);
-      onSave(featurePatch(data, { sacredPouchIs: next })).catch(() => { setIs(prev); addToast('Failed to save.'); });
+      onSave(featurePatch(data, { sacredPouchIs: next })).catch(() => { setIs(prev); addToast('Failed to save.', 'error'); });
     },
     [onSave, data, addToast]
   );
@@ -66,7 +66,7 @@ export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) =>
       const value = e.currentTarget.value;
       const prev = traitRef.current;
       setTrait(value);
-      onSave(featurePatch(data, { sacredPouchTrait: value })).catch(() => { setTrait(prev); addToast('Failed to save.'); });
+      onSave(featurePatch(data, { sacredPouchTrait: value })).catch(() => { setTrait(prev); addToast('Failed to save.', 'error'); });
     },
     [onSave, data, addToast]
   );

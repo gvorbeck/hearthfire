@@ -131,7 +131,7 @@ export const GhostInsert = ({ data, onSave }: GhostInsertProps) => {
     const handleFuryChange = (count: number) => {
       const prev = furyChecked;
       setFuryChecked(count);
-      saveImmediate({ ghostPoltergeistFury: count }).catch(() => { setFuryChecked(prev); addToast('Failed to save.'); });
+      saveImmediate({ ghostPoltergeistFury: count }).catch(() => { setFuryChecked(prev); addToast('Failed to save.', 'error'); });
     };
     return (
       <div className={styles.furySection}>
