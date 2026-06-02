@@ -217,7 +217,11 @@ const GameContent = ({
         <div className={styles.sections}>
           <div className={styles.sectionCharacters}>
             <Heading as="h2" size="label">Characters</Heading>
-            {orderedCharacters.length > 0 && (
+            {orderedCharacters.length === 0 ? (
+              <div className={styles.placeholder}>
+                <Text size="sm" color="muted">Your party roster is empty. Add a character to get started.</Text>
+              </div>
+            ) : (
               <Stack gap={3}>
                 {orderedCharacters.map((character) => (
                   <CharacterRow
@@ -236,7 +240,7 @@ const GameContent = ({
               </Stack>
             )}
             <Button variant="secondary" size="xl" fullWidth onClick={onOpenAddCharacter} disabled={existingPlaybooks.length >= PLAYBOOKS.length}>
-              Add Character
+              Add Character Playbook
             </Button>
           </div>
 
@@ -251,7 +255,7 @@ const GameContent = ({
             <div className={styles.section}>
               <Heading as="h2" size="label">GM Playbook</Heading>
               <Link to={`/game/${id}/gm`}>
-                <Button variant="secondary" size="xl" fullWidth>Open Playbook</Button>
+                <Button variant="secondary" size="xl" fullWidth>Open GM Playbook</Button>
               </Link>
             </div>
           </div>
