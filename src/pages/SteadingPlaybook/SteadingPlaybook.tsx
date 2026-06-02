@@ -2,13 +2,13 @@ import { useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { PageMeta } from '@/components/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
-import { Heading, ScrollToTop, Tabs, RuleDivider, Dropdown } from '@/components/primitives';
+import { ScrollToTop, Tabs, Dropdown, Button } from '@/components/primitives';
 import type { DropdownGroup } from '@/components/primitives';
+import { PageHeader } from '@/components/PageHeader/PageHeader';
 import { SteadingResources } from '@/components/Playbook/sections/SteadingResources';
 import { SteadingFortifications } from '@/components/Playbook/sections/SteadingFortifications';
 import { PlaybookSection } from '@/components/CharacterSheet/PlaybookSection';
 import { GameGuard } from '@/components/GameGuard/GameGuard';
-import { Breadcrumb } from '@/components/Breadcrumb/Breadcrumb';
 import { DEFAULT_GAME_NAME, playbookLabel } from '@/lib/constants';
 import { SteadingStats } from '@/components/Playbook/sections/SteadingStats';
 import { SteadingImprovements } from '@/components/Playbook/sections/SteadingImprovements';
@@ -48,9 +48,9 @@ const NpcFilterRow = ({ g, npcFilter, onFilterChange }: NpcFilterRowProps) => {
         className={styles.npcFilterDropdown}
       />
       {npcFilter && (
-        <button type="button" className={styles.npcFilterClear} onClick={() => onFilterChange('')}>
+        <Button variant="ghost" size="sm" className={styles.npcFilterClear} onClick={() => onFilterChange('')}>
           Clear filter
-        </button>
+        </Button>
       )}
     </div>
   );
@@ -81,10 +81,92 @@ const buildFilterGroups = (g: GameSession): DropdownGroup<string>[] => {
   return groups;
 };
 
+interface SteadingTabProps {
+  steading: Partial<SteadingData>;
+  updateSteading: (patch: Partial<SteadingData>) => Promise<void>;
+}
+
+const SteadingTab = ({ steading, updateSteading }: SteadingTabProps) => (
+  <div className={styles.layout}>
+    <div className={styles.columns}>
+      <div className={styles.colLeft}>
+        <PlaybookSection title="Stats & Debilities">
+          <SteadingStats steading={steading} onSave={updateSteading} />
+        </PlaybookSection>
+      </div>
+      <div className={styles.colRight}>
+        <PlaybookSection title="Resources">
+          <SteadingResources
+            resources={steading.resources}
+            improvements={steading.improvements}
+            gmImprovements={steading.gmImprovements}
+            onSave={updateSteading}
+          />
+        </PlaybookSection>
+        <PlaybookSection title="Fortifications">
+          <SteadingFortifications
+            fortifications={steading.fortifications}
+            improvements={steading.improvements}
+            gmImprovements={steading.gmImprovements}
+            onSave={updateSteading}
+          />
+        </PlaybookSection>
+        <PlaybookSection title="Assets">
+          <SteadingAssets steading={steading} onSave={updateSteading} />
+        </PlaybookSection>
+      </div>
+    </div>
+  </div>
+);
+
+const ImprovementsTab = ({ steading, updateSteading }: SteadingTabProps) => (
+  <div className={styles.layout}>
+    <div className={styles.colFull}>
+      <PlaybookSection title="Improvements">
+        <SteadingImprovements improvements={steading.improvements} gmImprovements={steading.gmImprovements} onSave={updateSteading} />
+      </PlaybookSection>
+    </div>
+  </div>
+);
+
+interface NpcsTabProps {
+  g: GameSession;
+  steading: Partial<SteadingData>;
+  updateSteading: (patch: Partial<SteadingData>) => Promise<void>;
+  npcFilter: string;
+  onFilterChange: (value: string) => void;
+}
+
+const NpcsTab = ({ g, steading, updateSteading, npcFilter, onFilterChange }: NpcsTabProps) => (
+  <div className={styles.layout}>
+    <NpcFilterRow g={g} npcFilter={npcFilter} onFilterChange={onFilterChange} />
+    <div className={styles.columns}>
+      <div className={styles.colLeft}>
+        <PlaybookSection title="Residents of Stonetop">
+          <SteadingNPCs section="residents" npcs={steading.residents} onSave={updateSteading} game={g} filterTargetId={npcFilter} />
+        </PlaybookSection>
+      </div>
+      <div className={styles.colRight}>
+        <PlaybookSection title="Notable Neighbors">
+          <SteadingNPCs section="neighbors" npcs={steading.neighbors} onSave={updateSteading} game={g} filterTargetId={npcFilter} />
+        </PlaybookSection>
+      </div>
+    </div>
+  </div>
+);
+
+const ReferenceTab = ({ steading, updateSteading }: SteadingTabProps) => (
+  <div className={styles.layout}>
+    <div className={styles.colFull}>
+      <SteadingReference placesOfInterest={steading.placesOfInterest} onSave={updateSteading} />
+    </div>
+  </div>
+);
+
 const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
   const headerRef = useRef<HTMLDivElement>(null);
   const gameName = g.name || DEFAULT_GAME_NAME;
-  const steading = useMemo(() => g.steading ?? {}, [g.steading]);
+  const steading = g.steading ?? {};
   const [npcFilter, setNpcFilter] = useState('');
 
   const crumbs = useMemo(() => [
@@ -95,80 +177,19 @@ const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
   const tabs = useMemo(() => [
     {
       label: 'Steading',
-      content: (
-        <div className={styles.layout}>
-          <div className={styles.columns}>
-            <div className={styles.colLeft}>
-              <PlaybookSection title="Stats & Debilities">
-                <SteadingStats steading={steading} onSave={updateSteading} />
-              </PlaybookSection>
-            </div>
-            <div className={styles.colRight}>
-              <PlaybookSection title="Resources">
-                <SteadingResources
-                  resources={steading.resources}
-                  improvements={steading.improvements}
-                  gmImprovements={steading.gmImprovements}
-                  onSave={updateSteading}
-                />
-              </PlaybookSection>
-              <PlaybookSection title="Fortifications">
-                <SteadingFortifications
-                  fortifications={steading.fortifications}
-                  improvements={steading.improvements}
-                  gmImprovements={steading.gmImprovements}
-                  onSave={updateSteading}
-                />
-              </PlaybookSection>
-              <PlaybookSection title="Assets">
-                <SteadingAssets steading={steading} onSave={updateSteading} />
-              </PlaybookSection>
-            </div>
-          </div>
-        </div>
-      ),
+      content: <SteadingTab steading={steading} updateSteading={updateSteading} />,
     },
     {
       label: 'Improvements',
-      content: (
-        <div className={styles.layout}>
-          <div className={styles.colFull}>
-            <PlaybookSection title="Improvements">
-              <SteadingImprovements improvements={steading.improvements} gmImprovements={steading.gmImprovements} onSave={updateSteading} />
-            </PlaybookSection>
-          </div>
-        </div>
-      ),
+      content: <ImprovementsTab steading={steading} updateSteading={updateSteading} />,
     },
     {
       label: 'NPCs',
-      content: (
-        <div className={styles.layout}>
-          <NpcFilterRow g={g} npcFilter={npcFilter} onFilterChange={setNpcFilter} />
-          <div className={styles.columns}>
-            <div className={styles.colLeft}>
-              <PlaybookSection title="Residents of Stonetop">
-                <SteadingNPCs section="residents" npcs={steading.residents} onSave={updateSteading} game={g} filterTargetId={npcFilter} />
-              </PlaybookSection>
-            </div>
-            <div className={styles.colRight}>
-              <PlaybookSection title="Notable Neighbors">
-                <SteadingNPCs section="neighbors" npcs={steading.neighbors} onSave={updateSteading} game={g} filterTargetId={npcFilter} />
-              </PlaybookSection>
-            </div>
-          </div>
-        </div>
-      ),
+      content: <NpcsTab g={g} steading={steading} updateSteading={updateSteading} npcFilter={npcFilter} onFilterChange={setNpcFilter} />,
     },
     {
       label: 'Reference',
-      content: (
-        <div className={styles.layout}>
-          <div className={styles.colFull}>
-            <SteadingReference placesOfInterest={steading.placesOfInterest} onSave={updateSteading} />
-          </div>
-        </div>
-      ),
+      content: <ReferenceTab steading={steading} updateSteading={updateSteading} />,
     },
   ], [g, steading, updateSteading, npcFilter]);
 
@@ -179,10 +200,8 @@ const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
         description={`Stonetop steading playbook for ${gameName}. Track stats, improvements, assets, and NPCs.`}
       />
       <ScrollToTop sentinelRef={headerRef} />
-      <div ref={headerRef} className={styles.header}>
-        <Breadcrumb crumbs={crumbs} />
-        <Heading as="h2" size="xl" className={styles.title}>Steading Playbook</Heading>
-        <RuleDivider className={styles.titleRule} />
+      <div ref={headerRef}>
+        <PageHeader crumbs={crumbs} title="Steading Playbook" gameId={id} />
       </div>
       <Tabs
         aria-label="Steading sections"
