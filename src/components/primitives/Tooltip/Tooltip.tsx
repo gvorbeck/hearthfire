@@ -24,7 +24,6 @@ export const Tooltip = ({ text, side = 'top', className, noTabStop = false, tool
     <span
       ref={anchorRef as React.MutableRefObject<HTMLSpanElement | null>}
       className={wrapperCx}
-      role={noTabStop ? undefined : 'button'}
       aria-describedby={tooltipId}
       tabIndex={noTabStop ? undefined : 0}
       {...anchorProps}
