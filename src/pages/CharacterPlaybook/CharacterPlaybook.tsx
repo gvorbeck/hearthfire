@@ -1,9 +1,11 @@
-import React, { useRef, useCallback, useMemo, useState, useId } from 'react';
+import React, { useRef, useCallback, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
-import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Modal, Radio, RadioGroup, Icon, Text } from '@/components/ui';
+import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Icon, Text } from '@/components/ui';
+import { AddInsertModal } from './modals/AddInsertModal';
+import { RemoveInsertModal } from './modals/RemoveInsertModal';
 import { GameGuard } from '@/components/app/GameGuard/GameGuard';
 import { PageLayout } from '@/components/app/PageLayout/PageLayout';
 import { Background, RadioSelect, Appearance, Stats, Moves, SpecialPossessions, Introductions, Inventory } from '@/components/character/sections';
@@ -153,64 +155,6 @@ const PLAYBOOK_TAB_CONFIGS: Partial<Record<PlaybookType, PlaybookTabConfig[]>> =
 const getPlaybookTabs = (playbook: PlaybookType, data: CharacterData | undefined) =>
   (PLAYBOOK_TAB_CONFIGS[playbook] ?? []).filter(({ when }) => !when || when(data));
 
-const REMOVE_INSERT_WARNINGS: Partial<Record<InsertOption, string>> = {
-  Followers: 'All followers and their data will be permanently lost.',
-};
-
-const RemoveInsertModal = ({ open, insert, onClose, onConfirm }: { open: boolean; insert: InsertOption | null; onClose: () => void; onConfirm: () => void }) => {
-  const headingId = useId();
-  if (!insert) return null;
-  const warning = REMOVE_INSERT_WARNINGS[insert];
-  return (
-    <Modal open={open} onClose={onClose} aria-labelledby={headingId}>
-      <Heading as="h2" size="md" id={headingId}>Remove {insert}?</Heading>
-      <Text font="serif" color="muted" className={styles.removeInsertWarning}>
-        This will remove the <strong>{insert}</strong> tab from this character sheet.
-        {warning && ` ${warning}`}
-      </Text>
-      <div className={styles.insertActions}>
-        <Button variant="secondary" onClick={onClose}>Cancel</Button>
-        <Button variant="primary" onClick={onConfirm}>Remove</Button>
-      </div>
-    </Modal>
-  );
-};
-
-const AddInsertModal = ({ open, onClose, onAdd, existingInserts }: { open: boolean; onClose: () => void; onAdd: (insert: InsertOption) => void; existingInserts: string[] }) => {
-  const headingId = useId();
-  const availableOptions = INSERT_OPTIONS.filter((opt) => !existingInserts.includes(opt));
-  const [selected, setSelected] = useState<InsertOption>(() => availableOptions[0] ?? INSERT_OPTIONS[0]);
-
-  const handleSelectChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSelected(e.currentTarget.value as InsertOption);
-  }, []);
-
-  const handleAdd = useCallback(() => {
-    onAdd(selected);
-  }, [onAdd, selected]);
-
-  return (
-    <Modal open={open} onClose={onClose} aria-labelledby={headingId}>
-      <Heading as="h2" size="md" id={headingId}>Add an Insert</Heading>
-      <RadioGroup legend="Insert type" legendHidden className={styles.insertOptions}>
-        {availableOptions.map((opt) => (
-          <Radio
-            key={opt}
-            name="insert-option"
-            value={opt}
-            label={opt}
-            checked={selected === opt}
-            onChange={handleSelectChange}
-          />
-        ))}
-      </RadioGroup>
-      <div className={styles.insertActions}>
-        <Button variant="secondary" onClick={onClose}>Cancel</Button>
-        <Button variant="primary" onClick={handleAdd}>Add</Button>
-      </div>
-    </Modal>
-  );
-};
 
 const resolveStaticTabContent = (
   id: string,
@@ -351,7 +295,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
         onActiveChange={handleActiveChange}
         onAdd={handleOpenAddTab}
       />
-      <AddInsertModal key={addTabOpen ? 'open' : 'closed'} open={addTabOpen} onClose={handleCloseAddTab} onAdd={handleAddInsert} existingInserts={characterData?.inserts ?? []} />
+      <AddInsertModal open={addTabOpen} onClose={handleCloseAddTab} onAdd={handleAddInsert} existingInserts={characterData?.inserts ?? []} />
       <RemoveInsertModal open={removeInsert !== null} insert={removeInsert} onClose={handleCloseRemoveInsert} onConfirm={handleConfirmRemoveInsert} />
     </PageLayout>
   );
