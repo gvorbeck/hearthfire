@@ -191,7 +191,7 @@ const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
       label: 'Reference',
       content: <ReferenceTab steading={steading} updateSteading={updateSteading} />,
     },
-  ], [g, steading, updateSteading, npcFilter]);
+  ], [g.characters, steading, updateSteading, npcFilter]);
 
   return (
     <main className={styles.page}>
