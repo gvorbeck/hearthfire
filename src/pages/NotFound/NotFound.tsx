@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { PageMeta } from '@/components/PageMeta/PageMeta';
-import { Button, Heading, Text } from '@/components/primitives';
+import { PageMeta } from '@/components/app/PageMeta/PageMeta';
+import { Button, Heading, Text } from '@/components/ui';
 import styles from './NotFound.module.css';
 
 export const NotFound = () => {

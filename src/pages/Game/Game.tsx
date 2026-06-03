@@ -1,14 +1,14 @@
 import { useState, useId, useCallback, useMemo, useEffect, useRef, memo } from 'react';
 import clsx from 'clsx';
 import { useParams, Link, useLocation } from 'react-router-dom';
-import { PageMeta } from '@/components/PageMeta/PageMeta';
+import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { DEFAULT_GAME_NAME, PLAYBOOKS } from '@/lib/constants';
-import { Button, Heading, Icon, Modal, Stack, Text } from '@/components/primitives';
+import { Button, Heading, Icon, Modal, Stack, Text } from '@/components/ui';
 import { GameIdModal } from './GameIdModal';
 import { AddCharacterModal } from './AddCharacterModal';
-import { GameGuard } from '@/components/GameGuard/GameGuard';
-import { PageHeader } from '@/components/PageHeader/PageHeader';
+import { GameGuard } from '@/components/app/GameGuard/GameGuard';
+import { PageHeader } from '@/components/app/PageHeader/PageHeader';
 import type { Character, GameSession } from '@/types';
 import styles from './Game.module.css';
 

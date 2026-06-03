@@ -1,13 +1,13 @@
 import React, { useRef, useCallback, useMemo, useState, useId } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { PageMeta } from '@/components/PageMeta/PageMeta';
+import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
-import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Modal, Radio, RadioGroup, Icon, Text } from '@/components/primitives';
-import { GameGuard } from '@/components/GameGuard/GameGuard';
-import { PageHeader } from '@/components/PageHeader/PageHeader';
-import { Background, RadioSelect, Appearance, Stats, Moves, SpecialPossessions, Introductions, Inventory } from '@/components/CharacterSheet/sections';
-import { ArcanaTab } from '@/components/CharacterSheet/sections/Arcana/ArcanaTab';
+import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Modal, Radio, RadioGroup, Icon, Text } from '@/components/ui';
+import { GameGuard } from '@/components/app/GameGuard/GameGuard';
+import { PageHeader } from '@/components/app/PageHeader/PageHeader';
+import { Background, RadioSelect, Appearance, Stats, Moves, SpecialPossessions, Introductions, Inventory } from '@/components/character/sections';
+import { ArcanaTab } from '@/components/character/sections/Arcana/ArcanaTab';
 import { BACKGROUND_OPTIONS, FOX_LIFE_OF_CRIME_BACKGROUND } from '@/lib/backgroundOptions';
 import { INSTINCT_OPTIONS } from '@/lib/instinctOptions';
 import { APPEARANCE_OPTIONS } from '@/lib/appearanceOptions';
@@ -29,8 +29,8 @@ import {
   SeekerCollection,
   WouldBeHeroFearAnger,
   RevenantInsert, GhostInsert, ThrallInsert, FollowersInsert,
-} from '@/components/CharacterSheet/playbooks';
-import charSheetStyles from '@/components/CharacterSheet/CharacterSheet.module.css';
+} from '@/components/character/playbooks';
+import charSheetStyles from '@/components/character/CharacterSheet.module.css';
 import type { Character, CharacterData, GameSession, PlaybookType, PlaybookFeatures } from '@/types';
 import styles from './CharacterPlaybook.module.css';
 

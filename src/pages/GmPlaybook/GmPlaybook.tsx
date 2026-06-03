@@ -1,12 +1,12 @@
 import { useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { PageMeta } from '@/components/PageMeta/PageMeta';
+import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
-import { ScrollToTop, Tabs } from '@/components/primitives';
-import { PageHeader } from '@/components/PageHeader/PageHeader';
-import { PlaybookSection } from '@/components/CharacterSheet/PlaybookSection';
-import { CoreLoop, GmMoves, Principles, DamageAndDebilities, ContentSection, Threats, IWonder, Expeditions, Sites, Discoveries, Hazards, Monsters, NPCs, Followers, Homefront, FlowOfPlay } from '@/components/Playbook/sections';
-import { GameGuard } from '@/components/GameGuard/GameGuard';
+import { ScrollToTop, Tabs } from '@/components/ui';
+import { PageHeader } from '@/components/app/PageHeader/PageHeader';
+import { PlaybookSection } from '@/components/character/PlaybookSection';
+import { CoreLoop, GmMoves, Principles, DamageAndDebilities, ContentSection, Threats, IWonder, Expeditions, Sites, Discoveries, Hazards, Monsters, NPCs, Followers, Homefront, FlowOfPlay } from '@/components/gm-playbook/sections';
+import { GameGuard } from '@/components/app/GameGuard/GameGuard';
 import { DEFAULT_GAME_NAME } from '@/lib/constants';
 import type { ContentLists, GameSession } from '@/types';
 import styles from './GmPlaybook.module.css';

@@ -1,6 +1,6 @@
 import { HelmetProvider } from 'react-helmet-async';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { ToastProvider } from '@/components/primitives';
+import { ToastProvider } from '@/components/app';
 import { render } from '@testing-library/react';
 import type { RenderResult } from '@testing-library/react';
 

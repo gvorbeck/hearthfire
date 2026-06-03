@@ -1,10 +1,10 @@
 import { useState, useCallback, useId } from 'react';
 import clsx from 'clsx';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { PageMeta } from '@/components/PageMeta/PageMeta';
+import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { createGame, createGameWithId } from '@/lib/game';
 import { useGameIdCheck } from '@/hooks/useGameIdCheck';
-import { Button, Heading, Input, RuleDivider, Stack, Text } from '@/components/primitives';
+import { Button, Heading, Input, RuleDivider, Stack, Text } from '@/components/ui';
 import styles from './Home.module.css';
 
 const STATUS_MESSAGES = {

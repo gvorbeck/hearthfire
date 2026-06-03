@@ -5,8 +5,8 @@ import {
   Heading,
   Modal,
   Text,
-  useToast,
-} from '@/components/primitives';
+} from '@/components/ui';
+import { useToast } from '@/components/app';
 import { PLAYBOOKS } from '@/lib/constants';
 import type { Character, PlaybookType } from '@/types';
 import styles from './AddCharacterModal.module.css';

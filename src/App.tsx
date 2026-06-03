@@ -5,7 +5,7 @@ import {
   TopBar,
   ToastProvider,
   ErrorBoundary,
-} from "@/components/primitives";
+} from "@/components/app";
 import styles from "@/App.module.css";
 
 const CURRENT_YEAR = new Date().getFullYear();
