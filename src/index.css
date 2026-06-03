@@ -106,6 +106,25 @@
   --text-hero: clamp(3rem, 8vw, 5rem);
 }
 
+[data-theme="light"] {
+  --surface-page: var(--color-stone-50);
+  --surface-panel: var(--color-stone-100);
+  --surface-raised: var(--color-stone-200);
+  --surface-overlay: var(--color-stone-300);
+
+  --border-subtle: var(--color-stone-300);
+  --border-strong: var(--color-stone-400);
+
+  --text-primary: var(--color-stone-800);
+  --text-secondary: var(--color-stone-600);
+  --text-accent: var(--color-gold-600);
+  --text-heading: var(--color-gold-600);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
 *,
 *::before,
 *::after {

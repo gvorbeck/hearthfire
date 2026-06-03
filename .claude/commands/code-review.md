@@ -130,7 +130,7 @@ Design system: primitives in `src/components/primitives/` (Button, Text, Heading
 
 ## Output Format
 
-No emojis. Very simple and concise language throughout — write as if explaining to a who has no understanding of the problem, not a senior engineer who needs technical depth.
+No emojis. Very simple and concise language throughout — write as if explaining to a five year old, not a senior engineer who needs technical depth.
 
 Group findings by file, then by severity:
 

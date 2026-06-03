@@ -22,6 +22,9 @@
  * to var(--content-width) via the padding approach so it aligns with page content.
  */
 .topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   border-bottom: 1px solid var(--border-subtle);
   margin-bottom: var(--spacing-6);
   padding: var(--spacing-3) max(var(--spacing-6), calc((100% - var(--content-width)) / 2 + var(--spacing-6)));

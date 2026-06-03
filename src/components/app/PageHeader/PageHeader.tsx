@@ -9,6 +9,7 @@ import {
 } from "@/components/ui";
 import { useToast } from "@/components/app";
 import { Breadcrumb } from "./Breadcrumb";
+import { ThemeToggle } from "./ThemeToggle";
 import { SiteBanner } from "@/components/app/SiteBanner/SiteBanner";
 import { SITE_BANNER } from "@/lib/siteBanner";
 import type { Crumb } from "@/types";
@@ -239,6 +240,7 @@ export const PageHeader = (props: Props) => {
       {!simple && (
         <div className={styles.topBar}>
           <Heading as="h1" size="md" className={styles.wordmark}>Hearthfire</Heading>
+          <ThemeToggle />
         </div>
       )}
 
