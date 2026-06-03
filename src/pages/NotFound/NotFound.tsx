@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import { PageMeta } from '@/components/PageMeta/PageMeta';
-import { Button, Heading, Text } from '@/components/primitives';
+import { PageMeta } from '@/components/app/PageMeta/PageMeta';
+import { PageLayout } from '@/components/app/PageLayout/PageLayout';
+import { Button, Heading, Text } from '@/components/ui';
 import styles from './NotFound.module.css';
 
 export const NotFound = () => {
@@ -8,23 +9,25 @@ export const NotFound = () => {
   const handleReturnHome = () => navigate('/');
 
   return (
-    <main className={styles.page}>
+    <PageLayout simple>
       <PageMeta
         title="404 — Lost | Hearthfire"
         description="You've wandered off the path."
       />
-      <div className={styles.content}>
-        <Text aria-label="404 error" className={styles.code}>404</Text>
-        <Heading as="h2" size="xl" className={styles.heading}>
-          You've wandered off the path.
-        </Heading>
-        <Text color="muted">
-          Nothing here but cold ash.
-        </Text>
-        <Button onClick={handleReturnHome} size="lg">
-          Return Home
-        </Button>
+      <div className={styles.page}>
+        <div className={styles.content}>
+          <Text aria-label="404 error" className={styles.code}>404</Text>
+          <Heading as="h2" size="xl" className={styles.heading}>
+            You've wandered off the path.
+          </Heading>
+          <Text color="muted">
+            Nothing here but cold ash.
+          </Text>
+          <Button onClick={handleReturnHome} size="lg">
+            Return Home
+          </Button>
+        </div>
       </div>
-    </main>
+    </PageLayout>
   );
 };

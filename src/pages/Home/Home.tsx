@@ -1,10 +1,11 @@
 import { useState, useCallback, useId } from 'react';
 import clsx from 'clsx';
-import { useNavigate } from 'react-router-dom';
-import { PageMeta } from '@/components/PageMeta/PageMeta';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { PageMeta } from '@/components/app/PageMeta/PageMeta';
+import { PageLayout } from '@/components/app/PageLayout/PageLayout';
 import { createGame, createGameWithId } from '@/lib/game';
 import { useGameIdCheck } from '@/hooks/useGameIdCheck';
-import { Button, Heading, Input, RuleDivider, Stack, Text } from '@/components/primitives';
+import { Button, Heading, Input, RuleDivider, Stack, Text } from '@/components/ui';
 import styles from './Home.module.css';
 
 const STATUS_MESSAGES = {
@@ -17,6 +18,7 @@ const STATUS_MESSAGES = {
 
 export const Home = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const customIdHintId = useId();
 
   const [joinId, setJoinId] = useState('');
@@ -79,12 +81,13 @@ export const Home = () => {
   );
 
   return (
-    <main className={styles.page}>
+    <PageLayout simple>
       <PageMeta
         title="Hearthfire — Stonetop Party Tracker"
         description="Track your Stonetop TTRPG campaign — manage characters, GM playbook, and game sessions."
-        url={window.location.href}
+        url={`${window.location.origin}${location.pathname}`}
       />
+      <div className={styles.page}>
       <div className={styles.hero}>
         <Text className={styles.eyebrow}>Party Tracker</Text>
         <Heading as="h1" size="xl" className={styles.wordmark}>Hearthfire</Heading>
@@ -157,6 +160,7 @@ export const Home = () => {
           </form>
         </div>
       </div>
-    </main>
+      </div>
+    </PageLayout>
   );
 };

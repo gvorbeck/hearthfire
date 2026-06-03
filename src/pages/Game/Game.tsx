@@ -1,14 +1,14 @@
 import { useState, useId, useCallback, useMemo, useEffect, useRef, memo } from 'react';
 import clsx from 'clsx';
 import { useParams, Link, useLocation } from 'react-router-dom';
-import { PageMeta } from '@/components/PageMeta/PageMeta';
+import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { DEFAULT_GAME_NAME, PLAYBOOKS } from '@/lib/constants';
-import { Button, Heading, Icon, Modal, Stack, Text } from '@/components/primitives';
-import { GameIdModal } from '@/components/GameIdModal/GameIdModal';
-import { AddCharacterModal } from '@/components/AddCharacterModal/AddCharacterModal';
-import { GameGuard } from '@/components/GameGuard/GameGuard';
-import { PageHeader } from '@/components/PageHeader/PageHeader';
+import { Button, Heading, Icon, Modal, Stack, Text } from '@/components/ui';
+import { GameIdModal } from './GameIdModal';
+import { AddCharacterModal } from './AddCharacterModal';
+import { GameGuard } from '@/components/app/GameGuard/GameGuard';
+import { PageLayout } from '@/components/app/PageLayout/PageLayout';
 import type { Character, GameSession } from '@/types';
 import styles from './Game.module.css';
 
@@ -206,14 +206,13 @@ const GameContent = ({
         onClose={handleCloseRemoveModal}
         onConfirm={handleConfirmRemove}
       />
-      <main className={styles.page}>
-        <PageHeader
-          crumbs={[{ label: gameName }]}
-          title={gameName}
-          titleLabel="Edit game name"
-          gameId={id}
-          onSaveTitle={onSaveTitle}
-        />
+      <PageLayout
+        crumbs={[{ label: gameName }]}
+        title={gameName}
+        titleLabel="Edit game name"
+        gameId={id}
+        onSaveTitle={onSaveTitle}
+      >
         <div className={styles.sections}>
           <div className={styles.sectionCharacters}>
             <Heading as="h2" size="label">Characters</Heading>
@@ -260,7 +259,7 @@ const GameContent = ({
             </div>
           </div>
         </div>
-      </main>
+      </PageLayout>
     </>
   );
 };

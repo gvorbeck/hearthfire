@@ -1,31 +1,22 @@
 .page {
+  flex: 1;
   position: relative;
-  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background-color: var(--surface-page);
 }
 
 .page::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
-  background-image: url("/404-village.webp");
+  background-image: url('/404-village.webp');
   background-size: cover;
   background-position: center 30%;
   opacity: 0.6;
-  mask-image: radial-gradient(
-    ellipse 80% 70% at 50% 40%,
-    black 20%,
-    transparent 80%
-  );
-  -webkit-mask-image: radial-gradient(
-    ellipse 80% 70% at 50% 40%,
-    black 20%,
-    transparent 80%
-  );
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 20%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 20%, transparent 80%);
 }
 
 .content {

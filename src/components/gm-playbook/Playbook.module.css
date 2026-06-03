@@ -1,0 +1,21 @@
+/* ── Inline muted label ─────────────────────────────── */
+.muted {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  font-family: var(--font-sans);
+  font-weight: normal;
+}
+
+/* ── Spacing ────────────────────────────────────────── */
+.spacerTop {
+  margin-top: var(--spacing-6);
+}
+
+/* ── Paragraphs ─────────────────────────────────────── */
+.paragraphs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+

@@ -1,13 +1,13 @@
 import React, { useRef, useCallback, useMemo, useState, useId } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { PageMeta } from '@/components/PageMeta/PageMeta';
+import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
-import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Modal, Radio, RadioGroup, Icon, Text } from '@/components/primitives';
-import { GameGuard } from '@/components/GameGuard/GameGuard';
-import { PageHeader } from '@/components/PageHeader/PageHeader';
-import { Background, RadioSelect, Appearance, Stats, Moves, SpecialPossessions, Introductions, Inventory } from '@/components/CharacterSheet/sections';
-import { ArcanaTab } from '@/components/CharacterSheet/sections/Arcana/ArcanaTab';
+import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Modal, Radio, RadioGroup, Icon, Text } from '@/components/ui';
+import { GameGuard } from '@/components/app/GameGuard/GameGuard';
+import { PageLayout } from '@/components/app/PageLayout/PageLayout';
+import { Background, RadioSelect, Appearance, Stats, Moves, SpecialPossessions, Introductions, Inventory } from '@/components/character/sections';
+import { ArcanaTab } from '@/components/character/sections/Arcana/ArcanaTab';
 import { BACKGROUND_OPTIONS, FOX_LIFE_OF_CRIME_BACKGROUND } from '@/lib/backgroundOptions';
 import { INSTINCT_OPTIONS } from '@/lib/instinctOptions';
 import { APPEARANCE_OPTIONS } from '@/lib/appearanceOptions';
@@ -29,8 +29,8 @@ import {
   SeekerCollection,
   WouldBeHeroFearAnger,
   RevenantInsert, GhostInsert, ThrallInsert, FollowersInsert,
-} from '@/components/CharacterSheet/playbooks';
-import charSheetStyles from '@/components/CharacterSheet/CharacterSheet.module.css';
+} from '@/components/character/playbooks';
+import charSheetStyles from '@/components/character/CharacterSheet.module.css';
 import type { Character, CharacterData, GameSession, PlaybookType, PlaybookFeatures } from '@/types';
 import styles from './CharacterPlaybook.module.css';
 
@@ -63,10 +63,7 @@ const INSERT_INSTINCT_KEYS: { feature: keyof PlaybookFeatures; label: string }[]
 ];
 
 
-const PCPlaybookTab = ({ character, playbookOption, onSave, insertInstinctNote }: { character: Character; playbookOption: (typeof PLAYBOOKS)[number]; onSave: (data: Partial<CharacterData>) => Promise<void>; insertInstinctNote: string | undefined }) => {
-  const level = getCharacterLevel(character);
-  const { playbook, data } = character;
-
+const PCPlaybookTab = ({ playbook, data, level, playbookOption, onSave, insertInstinctNote }: { playbook: PlaybookType; data: CharacterData | undefined; level: number; playbookOption: (typeof PLAYBOOKS)[number]; onSave: (data: Partial<CharacterData>) => Promise<void>; insertInstinctNote: string | undefined }) => {
   const foxChooseOverride = playbook === 'fox' && data?.background === FOX_LIFE_OF_CRIME_BACKGROUND
     ? { count: 3, note: '+1 from A Life of Crime' }
     : undefined;
@@ -238,7 +235,9 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
     [updateCharacterName, character.id]
   );
 
-  useAutoFollowers(character.data?.specialPossessions, character.data?.inserts, handleSaveCharacterData);
+  const { data: characterData, playbook } = character;
+
+  useAutoFollowers(characterData?.specialPossessions, characterData?.inserts, handleSaveCharacterData);
 
   const {
     addTabOpen,
@@ -252,7 +251,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
   } = useInsertTabs(
     character,
     handleSaveCharacterData,
-    (playbook, data) => getPlaybookTabs(playbook, data).length,
+    (playbookArg, data) => getPlaybookTabs(playbookArg, data).length,
     setActiveIndex,
   );
 
@@ -268,36 +267,36 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
     { label: playbookLabel },
   ], [gameName, id, playbookLabel]);
 
-  const playbookTabs = getPlaybookTabs(character.playbook, character.data);
+  const playbookTabs = getPlaybookTabs(playbook, characterData);
 
   const level = getCharacterLevel(character);
-  const features = resolvePlaybookFeatures(character.data);
+  const features = resolvePlaybookFeatures(characterData);
   const insertInstinctMatch = INSERT_INSTINCT_KEYS.find(({ feature }) => !!features[feature]);
   const insertInstinctNote = insertInstinctMatch ? `Replaced by your ${insertInstinctMatch.label} instinct` : undefined;
 
-  const showInvocationsBadge = computeInvocationBadge(character.playbook, level, features);
+  const showInvocationsBadge = computeInvocationBadge(playbook, level, features);
   const invocationsTabIndex = playbookTabs.findIndex(({ id }) => id === 'invocations');
 
   const handleActiveChange = useCallback((i: number) => {
     setActiveIndex(i);
     if (showInvocationsBadge && invocationsTabIndex !== -1 && i === 3 + invocationsTabIndex) {
       // Fire-and-forget: badge dismissal is best-effort, losing it on failure is acceptable UX
-      handleSaveCharacterData(featurePatch(character.data, { lightbearerInvocationsBadgeDismissedAt: level })).catch(() => {});
+      handleSaveCharacterData(featurePatch(characterData, { lightbearerInvocationsBadgeDismissedAt: level })).catch(() => {});
     }
-  }, [showInvocationsBadge, invocationsTabIndex, handleSaveCharacterData, character.data, level]);
+  }, [showInvocationsBadge, invocationsTabIndex, handleSaveCharacterData, characterData, level]);
 
   const tabs = useMemo(() => [
     {
       label: 'PC Playbook',
-      content: <PCPlaybookTab character={character} playbookOption={playbookOption} onSave={handleSaveCharacterData} insertInstinctNote={insertInstinctNote} />,
+      content: <PCPlaybookTab playbook={playbook} data={characterData} level={level} playbookOption={playbookOption} onSave={handleSaveCharacterData} insertInstinctNote={insertInstinctNote} />,
     },
     {
       label: 'Inventory',
-      content: resolveStaticTabContent('inventory', character.data, prosperity, handleSaveCharacterData),
+      content: resolveStaticTabContent('inventory', characterData, prosperity, handleSaveCharacterData),
     },
     {
       label: 'Arcana',
-      content: resolveStaticTabContent('arcana', character.data, prosperity, handleSaveCharacterData),
+      content: resolveStaticTabContent('arcana', characterData, prosperity, handleSaveCharacterData),
     },
     ...playbookTabs.map(({ id: tabId, label, render }) => ({
       label,
@@ -307,36 +306,34 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
       badgeTooltip: tabId === 'invocations' && showInvocationsBadge
         ? 'A new Invocation can be selected'
         : undefined,
-      content: render(character.data, handleSaveCharacterData, prosperity),
+      content: render(characterData, handleSaveCharacterData, prosperity),
     })),
-    ...(character.data?.inserts ?? []).map((label) => ({
+    ...(characterData?.inserts ?? []).map((label) => ({
       label,
-      content: resolveStaticTabContent(label, character.data, prosperity, handleSaveCharacterData),
+      content: resolveStaticTabContent(label, characterData, prosperity, handleSaveCharacterData),
       onRemove: INSERT_OPTIONS.includes(label as InsertOption)
         ? removeInsertHandlers[label as InsertOption]
         : undefined,
       removeTooltip: `Remove ${label}`,
     })),
-  ], [character, playbookOption, handleSaveCharacterData, playbookTabs, showInvocationsBadge, prosperity, removeInsertHandlers]);
+  ], [characterData, playbook, level, playbookOption, handleSaveCharacterData, insertInstinctNote, playbookTabs, showInvocationsBadge, prosperity, removeInsertHandlers]);
 
   return (
-    <main className={styles.page}>
+    <PageLayout
+      crumbs={crumbs}
+      title={characterName || playbookLabel}
+      titleLabel="Edit character name"
+      subtitle={characterName ? playbookLabel : undefined}
+      icon={<Icon playbookIcon={playbook} />}
+      gameId={id}
+      onSaveTitle={handleSaveCharacterName}
+    >
       <PageMeta
         title={pageTitle}
         description={`${playbookLabel} for ${gameName}. Track background, stats, moves, and more.`}
       />
       <ScrollToTop sentinelRef={headerRef} />
-      <div ref={headerRef}>
-        <PageHeader
-          crumbs={crumbs}
-          title={characterName || playbookLabel}
-          titleLabel="Edit character name"
-          subtitle={characterName ? playbookLabel : undefined}
-          icon={<Icon playbookIcon={character.playbook} />}
-          gameId={id}
-          onSaveTitle={handleSaveCharacterName}
-        />
-      </div>
+      <div ref={headerRef} />
       {playbookOption.description && (
         <Text font="serif" size="lg" italic className={styles.description}>{playbookOption.description}</Text>
       )}
@@ -348,9 +345,9 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
         onActiveChange={handleActiveChange}
         onAdd={handleOpenAddTab}
       />
-      <AddInsertModal key={addTabOpen ? 'open' : 'closed'} open={addTabOpen} onClose={handleCloseAddTab} onAdd={handleAddInsert} existingInserts={character.data?.inserts ?? []} />
+      <AddInsertModal key={addTabOpen ? 'open' : 'closed'} open={addTabOpen} onClose={handleCloseAddTab} onAdd={handleAddInsert} existingInserts={characterData?.inserts ?? []} />
       <RemoveInsertModal open={removeInsert !== null} insert={removeInsert} onClose={handleCloseRemoveInsert} onConfirm={handleConfirmRemoveInsert} />
-    </main>
+    </PageLayout>
   );
 };
 
@@ -367,19 +364,23 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
 
   if (!playbookOption) {
     return (
-      <main className={styles.centered}>
-        <Heading as="h2" size="md">Playbook not found</Heading>
-        <Link to={`/game/${id}`}><Button variant="secondary">Back to Game</Button></Link>
-      </main>
+      <PageLayout simple>
+        <div className={styles.centered}>
+          <Heading as="h2" size="md">Playbook not found</Heading>
+          <Link to={`/game/${id}`}><Button variant="secondary">Back to Game</Button></Link>
+        </div>
+      </PageLayout>
     );
   }
 
   if (!character) {
     return (
-      <main className={styles.centered}>
-        <Heading as="h2" size="md">Character not found</Heading>
-        <Link to={`/game/${id}`}><Button variant="secondary">Back to Game</Button></Link>
-      </main>
+      <PageLayout simple>
+        <div className={styles.centered}>
+          <Heading as="h2" size="md">Character not found</Heading>
+          <Link to={`/game/${id}`}><Button variant="secondary">Back to Game</Button></Link>
+        </div>
+      </PageLayout>
     );
   }
 

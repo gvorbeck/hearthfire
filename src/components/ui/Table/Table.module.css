@@ -1,0 +1,110 @@
+/* ── Table ──────────────────────────────────────────── */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: var(--spacing-3);
+  font-size: var(--text-sm);
+}
+
+.table tbody tr {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.tableCell {
+  padding: var(--spacing-2) var(--spacing-3) var(--spacing-2) 0;
+  color: var(--color-stone-200);
+  vertical-align: top;
+}
+
+.tableCellIndent {
+  padding: var(--spacing-1) var(--spacing-3) var(--spacing-1) var(--spacing-5);
+  color: var(--color-stone-300);
+  vertical-align: top;
+}
+
+.tableGroupRow td {
+  padding-top: var(--spacing-3);
+}
+
+.tableGroupCell {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  padding-bottom: var(--spacing-1);
+}
+
+.tableValue {
+  text-align: right;
+  white-space: nowrap;
+  color: var(--color-gold-300);
+  font-family: var(--font-serif);
+  font-size: var(--text-md);
+  font-weight: normal;
+  letter-spacing: 0.02em;
+  padding-right: 0;
+  vertical-align: top;
+}
+
+.tableTh {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-stone-400);
+  padding: var(--spacing-2) var(--spacing-3) var(--spacing-2) 0;
+  text-align: left;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.tableTh:last-child {
+  text-align: right;
+}
+
+/* ── Bordered table variant ─────────────────────────── */
+.tableWrapper {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-top: var(--spacing-4);
+}
+
+.tableTitle {
+  text-align: center;
+  font-family: var(--font-serif);
+  font-size: var(--text-md);
+  color: var(--text-primary);
+  padding: var(--spacing-3) var(--spacing-4) var(--spacing-2);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.tableBordered {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.tableBordered .tableCell {
+  padding-left: var(--spacing-4);
+}
+
+.tableBordered .tableCellIndent {
+  padding-left: var(--spacing-8);
+}
+
+.tableBordered .tableGroupCell {
+  padding-left: var(--spacing-4);
+}
+
+.tableBordered .tableTh:first-child {
+  padding-left: var(--spacing-4);
+}
+
+.tableBordered .tableValue,
+.tableBordered .tableTh:last-child {
+  padding-right: var(--spacing-4);
+}

@@ -1,0 +1,24 @@
+/*
+ * .main — the <main> element for inner pages (Game, GM Playbook, etc.).
+ * Grows to fill remaining vertical space (keeps footer pinned to bottom).
+ * Owns the shared content constraints: padding, max-width, and centering.
+ */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-8) var(--spacing-6);
+  max-width: var(--content-width);
+  margin: 0 auto;
+  width: 100%;
+}
+
+/*
+ * .mainSimple — the <main> element for simple pages (Home, NotFound).
+ * No padding or max-width — these pages own their full-bleed layout.
+ */
+.mainSimple {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}

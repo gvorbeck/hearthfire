@@ -161,6 +161,8 @@ export type PlaybookType =
   | 'seeker'
   | 'would-be-hero';
 
+// Intentionally flat: Firestore shallow-merge (updateDoc with dot-notation) requires top-level keys.
+// Per-playbook namespacing would require a data migration of all existing documents.
 export interface PlaybookFeatures {
   sacredPouchIs?: Record<string, string>;
   sacredPouchTrait?: string;

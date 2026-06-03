@@ -1,0 +1,62 @@
+.wrapper {
+  composes: wrapper from "../field.module.css";
+}
+
+.labelRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-3);
+}
+
+.label {
+  composes: label from "../field.module.css";
+}
+
+.note {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.input {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  background-color: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-2) var(--spacing-3);
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+  width: 100%;
+}
+
+.input::placeholder {
+  color: var(--color-stone-400);
+}
+
+.input:focus {
+  border-color: var(--color-gold-500);
+  background-color: var(--surface-overlay);
+  outline: none;
+}
+
+.input:focus-visible {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: 2px;
+}
+
+.input.hasError {
+  border-color: var(--color-ember-400);
+}
+
+.error {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--color-ember-400);
+}
+
+textarea.input {
+  resize: vertical;
+  min-height: 5rem;
+}
