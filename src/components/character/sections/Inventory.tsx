@@ -184,6 +184,44 @@ const ArcanaItemRow = memo(({ id, name, weight, carried, onCarriedChange }: Arca
   );
 });
 
+interface UndefinedProvisionsProps {
+  total: number;
+  checked: number;
+  onChange: (n: number) => void;
+}
+
+const UndefinedProvisions = memo(({ total, checked, onChange }: UndefinedProvisionsProps) => (
+  <span className={styles.undefinedBoxes} role="group" aria-label={`Undefined: ${checked} of ${total}`}>
+    {Array.from({ length: total }, (_, i) => (
+      <UndefinedProvisionBox
+        key={`undefined-${total}-${i}`}
+        index={i}
+        checked={checked}
+        onChange={onChange}
+      />
+    ))}
+  </span>
+));
+
+interface UndefinedProvisionBoxProps {
+  index: number;
+  checked: number;
+  onChange: (n: number) => void;
+}
+
+const UndefinedProvisionBox = memo(({ index, checked, onChange }: UndefinedProvisionBoxProps) => {
+  const isFilled = index < checked;
+  const handleChange = useCallback(() => onChange(isFilled ? index : index + 1), [index, isFilled, onChange]);
+  return (
+    <Checkbox
+      variant="provision"
+      checked={isFilled}
+      onChange={handleChange}
+      aria-label={isFilled ? `Clear undefined item ${index + 1}` : `Mark undefined item ${index + 1}`}
+    />
+  );
+});
+
 interface ProsperityOptionRowProps {
   val: -1 | 0 | 1 | 2;
   selected: boolean;
@@ -353,7 +391,7 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
             <Stack gap={2}>
               <Stack direction="row" gap={3} align="center">
                 <span className={styles.undefinedLabel}>Undefined</span>
-                <UseDots total={UNDEFINED_MAIN_COUNT} checked={undefinedMain} onChange={handleUndefinedMain} />
+                <UndefinedProvisions total={UNDEFINED_MAIN_COUNT} checked={undefinedMain} onChange={handleUndefinedMain} />
               </Stack>
               <Text font="serif" color="muted" leading="normal">
                 {parseInlineMarkdown('When you **Have What You Need**, move ◈ from here to ◊ below.')}
@@ -446,7 +484,7 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
             <Stack gap={2}>
               <Stack direction="row" gap={3} align="center">
                 <span className={styles.undefinedLabel}>Undefined</span>
-                <UseDots total={UNDEFINED_SMALL_COUNT} checked={undefinedSmall} onChange={handleUndefinedSmall} />
+                <UndefinedProvisions total={UNDEFINED_SMALL_COUNT} checked={undefinedSmall} onChange={handleUndefinedSmall} />
               </Stack>
               <Text font="serif" color="muted" leading="normal">
                 {parseInlineMarkdown("When you **Have What You Need**, move ◈ from here to items below, or expend supplies to mark an additional □.")}
