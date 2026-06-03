@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useLatest } from '@/hooks/useLatest';
 import clsx from 'clsx';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
@@ -175,9 +175,22 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
   const debilitiesRef = useLatest(debilities);
   const hasAutoInitialized = useRef(false);
 
+  const syncedStats = useMemo(() => statsFromData(data, hpMax), [
+    data?.statStr, data?.statDex, data?.statInt, data?.statWis, data?.statCon, data?.statCha,
+    data?.statHp, data?.statArmor, data?.statXp, data?.statLevel,
+    hpMax,
+  ]);
+
+  const syncedDebilities = useMemo(() => debilitiesFromData(data), [
+    data?.debilityWeakened, data?.debilityDazed, data?.debilityMiserable,
+  ]);
+
   useEffect(() => {
-    setStats(statsFromData(data, hpMax));
-    setDebilities(debilitiesFromData(data));
+    setStats(syncedStats);
+    setDebilities(syncedDebilities);
+  }, [syncedStats, syncedDebilities]);
+
+  useEffect(() => {
     if (!data || hasAutoInitialized.current) return;
     const patch: Partial<CharacterData> = {};
     if (hpMax !== undefined && !data.statHp) patch.statHp = String(hpMax);
@@ -186,12 +199,7 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
       hasAutoInitialized.current = true;
       onSaveRef.current?.(patch);
     }
-  }, [
-    data?.statStr, data?.statDex, data?.statInt, data?.statWis, data?.statCon, data?.statCha,
-    data?.statHp, data?.statArmor, data?.statXp, data?.statLevel,
-    data?.debilityWeakened, data?.debilityDazed, data?.debilityMiserable,
-    hpMax,
-  ]);
+  }, [data, hpMax]);
 
   const savePayload = useCallback(
     (payload: Partial<CharacterData>) => onSaveRef.current?.(payload) ?? Promise.resolve(),
