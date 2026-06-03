@@ -63,10 +63,7 @@ const INSERT_INSTINCT_KEYS: { feature: keyof PlaybookFeatures; label: string }[]
 ];
 
 
-const PCPlaybookTab = ({ character, playbookOption, onSave, insertInstinctNote }: { character: Character; playbookOption: (typeof PLAYBOOKS)[number]; onSave: (data: Partial<CharacterData>) => Promise<void>; insertInstinctNote: string | undefined }) => {
-  const level = getCharacterLevel(character);
-  const { playbook, data } = character;
-
+const PCPlaybookTab = ({ playbook, data, level, playbookOption, onSave, insertInstinctNote }: { playbook: PlaybookType; data: CharacterData | undefined; level: number; playbookOption: (typeof PLAYBOOKS)[number]; onSave: (data: Partial<CharacterData>) => Promise<void>; insertInstinctNote: string | undefined }) => {
   const foxChooseOverride = playbook === 'fox' && data?.background === FOX_LIFE_OF_CRIME_BACKGROUND
     ? { count: 3, note: '+1 from A Life of Crime' }
     : undefined;
@@ -238,7 +235,9 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
     [updateCharacterName, character.id]
   );
 
-  useAutoFollowers(character.data?.specialPossessions, character.data?.inserts, handleSaveCharacterData);
+  const { data: characterData, playbook } = character;
+
+  useAutoFollowers(characterData?.specialPossessions, characterData?.inserts, handleSaveCharacterData);
 
   const {
     addTabOpen,
@@ -252,7 +251,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
   } = useInsertTabs(
     character,
     handleSaveCharacterData,
-    (playbook, data) => getPlaybookTabs(playbook, data).length,
+    (playbookArg, data) => getPlaybookTabs(playbookArg, data).length,
     setActiveIndex,
   );
 
@@ -268,36 +267,36 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
     { label: playbookLabel },
   ], [gameName, id, playbookLabel]);
 
-  const playbookTabs = getPlaybookTabs(character.playbook, character.data);
+  const playbookTabs = getPlaybookTabs(playbook, characterData);
 
   const level = getCharacterLevel(character);
-  const features = resolvePlaybookFeatures(character.data);
+  const features = resolvePlaybookFeatures(characterData);
   const insertInstinctMatch = INSERT_INSTINCT_KEYS.find(({ feature }) => !!features[feature]);
   const insertInstinctNote = insertInstinctMatch ? `Replaced by your ${insertInstinctMatch.label} instinct` : undefined;
 
-  const showInvocationsBadge = computeInvocationBadge(character.playbook, level, features);
+  const showInvocationsBadge = computeInvocationBadge(playbook, level, features);
   const invocationsTabIndex = playbookTabs.findIndex(({ id }) => id === 'invocations');
 
   const handleActiveChange = useCallback((i: number) => {
     setActiveIndex(i);
     if (showInvocationsBadge && invocationsTabIndex !== -1 && i === 3 + invocationsTabIndex) {
       // Fire-and-forget: badge dismissal is best-effort, losing it on failure is acceptable UX
-      handleSaveCharacterData(featurePatch(character.data, { lightbearerInvocationsBadgeDismissedAt: level })).catch(() => {});
+      handleSaveCharacterData(featurePatch(characterData, { lightbearerInvocationsBadgeDismissedAt: level })).catch(() => {});
     }
-  }, [showInvocationsBadge, invocationsTabIndex, handleSaveCharacterData, character.data, level]);
+  }, [showInvocationsBadge, invocationsTabIndex, handleSaveCharacterData, characterData, level]);
 
   const tabs = useMemo(() => [
     {
       label: 'PC Playbook',
-      content: <PCPlaybookTab character={character} playbookOption={playbookOption} onSave={handleSaveCharacterData} insertInstinctNote={insertInstinctNote} />,
+      content: <PCPlaybookTab playbook={playbook} data={characterData} level={level} playbookOption={playbookOption} onSave={handleSaveCharacterData} insertInstinctNote={insertInstinctNote} />,
     },
     {
       label: 'Inventory',
-      content: resolveStaticTabContent('inventory', character.data, prosperity, handleSaveCharacterData),
+      content: resolveStaticTabContent('inventory', characterData, prosperity, handleSaveCharacterData),
     },
     {
       label: 'Arcana',
-      content: resolveStaticTabContent('arcana', character.data, prosperity, handleSaveCharacterData),
+      content: resolveStaticTabContent('arcana', characterData, prosperity, handleSaveCharacterData),
     },
     ...playbookTabs.map(({ id: tabId, label, render }) => ({
       label,
@@ -307,17 +306,17 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
       badgeTooltip: tabId === 'invocations' && showInvocationsBadge
         ? 'A new Invocation can be selected'
         : undefined,
-      content: render(character.data, handleSaveCharacterData, prosperity),
+      content: render(characterData, handleSaveCharacterData, prosperity),
     })),
-    ...(character.data?.inserts ?? []).map((label) => ({
+    ...(characterData?.inserts ?? []).map((label) => ({
       label,
-      content: resolveStaticTabContent(label, character.data, prosperity, handleSaveCharacterData),
+      content: resolveStaticTabContent(label, characterData, prosperity, handleSaveCharacterData),
       onRemove: INSERT_OPTIONS.includes(label as InsertOption)
         ? removeInsertHandlers[label as InsertOption]
         : undefined,
       removeTooltip: `Remove ${label}`,
     })),
-  ], [character, playbookOption, handleSaveCharacterData, playbookTabs, showInvocationsBadge, prosperity, removeInsertHandlers]);
+  ], [characterData, playbook, level, playbookOption, handleSaveCharacterData, insertInstinctNote, playbookTabs, showInvocationsBadge, prosperity, removeInsertHandlers]);
 
   return (
     <main className={styles.page}>
@@ -332,7 +331,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
           title={characterName || playbookLabel}
           titleLabel="Edit character name"
           subtitle={characterName ? playbookLabel : undefined}
-          icon={<Icon playbookIcon={character.playbook} />}
+          icon={<Icon playbookIcon={playbook} />}
           gameId={id}
           onSaveTitle={handleSaveCharacterName}
         />
@@ -348,7 +347,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
         onActiveChange={handleActiveChange}
         onAdd={handleOpenAddTab}
       />
-      <AddInsertModal key={addTabOpen ? 'open' : 'closed'} open={addTabOpen} onClose={handleCloseAddTab} onAdd={handleAddInsert} existingInserts={character.data?.inserts ?? []} />
+      <AddInsertModal key={addTabOpen ? 'open' : 'closed'} open={addTabOpen} onClose={handleCloseAddTab} onAdd={handleAddInsert} existingInserts={characterData?.inserts ?? []} />
       <RemoveInsertModal open={removeInsert !== null} insert={removeInsert} onClose={handleCloseRemoveInsert} onConfirm={handleConfirmRemoveInsert} />
     </main>
   );
