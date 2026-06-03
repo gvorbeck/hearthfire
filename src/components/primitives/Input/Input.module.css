@@ -2,8 +2,19 @@
   composes: wrapper from "../field.module.css";
 }
 
+.labelRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-3);
+}
+
 .label {
   composes: label from "../field.module.css";
+}
+
+.note {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
 }
 
 .input {

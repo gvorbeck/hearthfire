@@ -4,6 +4,7 @@ import styles from './Input.module.css';
 
 interface BaseProps {
   label?: string;
+  note?: string;
   id?: string;
   error?: string;
   className?: string;
@@ -15,7 +16,7 @@ type TextareaProps = BaseProps & { multiline: true } & TextareaHTMLAttributes<HT
 type Props = InputProps | TextareaProps;
 
 export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, Props>(
-  ({ label, id, error, className, multiline, ...props }, ref) => {
+  ({ label, note, id, error, className, multiline, ...props }, ref) => {
     const generatedId = useId();
     const resolvedId = id ?? generatedId;
     const errorId = error ? `${generatedId}-error` : undefined;
@@ -52,7 +53,10 @@ export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, Props>(
 
     return (
       <div className={styles.wrapper}>
-        <label htmlFor={resolvedId} className={styles.label}>{label}</label>
+        <div className={styles.labelRow}>
+          <label htmlFor={resolvedId} className={styles.label}>{label}</label>
+          {note && <span className={styles.note}>{note}</span>}
+        </div>
         {el}
         {error && <span id={errorId} className={styles.error}>{error}</span>}
       </div>
