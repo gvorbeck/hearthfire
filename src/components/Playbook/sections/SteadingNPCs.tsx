@@ -81,9 +81,7 @@ const RelationshipRow = ({ rel, groups, position, onTypeChange, onTargetChange, 
 
   return (
     <div className={styles.relRow}>
-      <input
-        type="text"
-        className={styles.relTypeInput}
+      <Input
         value={rel.type}
         placeholder='e.g. "mother", "rival"'
         aria-label={`Relationship ${position} type`}
