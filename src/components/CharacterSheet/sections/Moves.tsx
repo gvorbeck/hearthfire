@@ -47,17 +47,6 @@ const getLockReason = (
   return `Requires ${parts.join(' and ')}`;
 };
 
-const PLAYBOOK_HELPER_TEXT: Partial<Record<PlaybookType, string>> = {
-  blessed: 'You start with Spirit Tongue, Call the Spirits, 1 from your Background, and 1 of your choice.',
-  'would-be-hero': 'You start with Anger is a Gift, Potential for Greatness, and 2 other moves of your choice.',
-  seeker: 'You start with Well Versed, Work With What You\'ve Got, plus 1 from your Background.',
-  ranger: 'You start with Home on the Range, any moves from your Background, plus 1 of your choice.',
-  marshal: 'You start with Crew, Logistics, any moves from your Background, and 1 move of your choice.',
-  judge: 'You start with Censure, Chronicler of Stonetop, plus 2 more of your choice.',
-  lightbearer: 'You start with Consecrated Flame and Invoke the Sun God, plus 1 more of your choice.',
-  heavy: 'You start with Dangerous, Hard to Kill, and either Armored OR Uncanny Reflexes.',
-  fox: 'You start with Ambush OR Skill at Arms; Danger Sense OR Perceptive; and 1 of your choice.',
-};
 
 interface MoveSectionProps {
   label: string;
@@ -192,7 +181,9 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
     onSaveRef.current({ typeMoveCheckListLevels: next }).catch(() => { setCheckListLevels(prev); addToastRef.current('Failed to save checklist.', 'error'); });
   }, []);
 
-  const playbookLabel = PLAYBOOKS.find((p) => p.value === playbook)?.label ?? playbook;
+  const playbookEntry = PLAYBOOKS.find((p) => p.value === playbook);
+  const playbookLabel = playbookEntry?.label ?? playbook;
+  const playbookHelperText = playbookEntry?.helperText;
 
   // Stable per-move bound functions — only rebuilt when the move list changes (i.e. playbook switch).
   // Handlers have [] deps via refs, so this memo never invalidates due to state changes.
@@ -312,8 +303,8 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
             />
           }
         >
-          {PLAYBOOK_HELPER_TEXT[playbook] && (
-            <Text color="muted" className={styles.helperText}>{parseInlineMarkdown(PLAYBOOK_HELPER_TEXT[playbook]!)}</Text>
+          {playbookHelperText && (
+            <Text color="muted" className={styles.helperText}>{parseInlineMarkdown(playbookHelperText)}</Text>
           )}
           {visibleTypeMoves.length > 0 ? (
             <div className={styles.moveGrid}>{moveNodes}</div>
