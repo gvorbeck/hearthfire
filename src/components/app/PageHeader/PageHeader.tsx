@@ -132,6 +132,95 @@ export const PageHeader = (props: Props) => {
 
   const copyLabel = copied ? "Copied!" : "Copy game ID";
 
+  /*
+   * Page identity block — only built in full mode, kept as a variable
+   * so the JSX below stays readable without an IIFE.
+   */
+  let pageIdentity: React.ReactNode = null;
+  if (!simple) {
+    const { crumbs, title, subtitle, icon, gameId } = props as FullProps;
+    const onSaveTitle = (props as FullProps).onSaveTitle;
+    const titleLabel = (props as FullProps).titleLabel;
+
+    pageIdentity = (
+      <div className={styles.body}>
+        <Breadcrumb crumbs={crumbs} />
+        <div className={styles.titleRow}>
+          {icon && (
+            <span className={styles.titleIcon} aria-hidden="true">
+              {icon}
+            </span>
+          )}
+          {onSaveTitle && editing ? (
+            <Input
+              ref={inputRef as React.Ref<HTMLInputElement>}
+              className={styles.titleInput}
+              value={value}
+              onChange={handleChange}
+              onBlur={commit}
+              onKeyDown={handleKeyDown}
+              aria-label={titleLabel}
+            />
+          ) : (
+            <>
+              <Heading as="h2" size="xl">
+                {title}
+              </Heading>
+              {onSaveTitle && (
+                <Tooltip
+                  text="Edit name"
+                  side="top"
+                  noTabStop
+                  tooltipId={editTooltipId}
+                >
+                  <Button
+                    variant="ghost"
+                    icon="pencil"
+                    size="sm"
+                    className={styles.editBtn}
+                    onClick={startEditing}
+                    aria-label={titleLabel!}
+                    aria-describedby={editTooltipId}
+                  />
+                </Tooltip>
+              )}
+            </>
+          )}
+        </div>
+        {subtitle && (
+          <Text color="muted" size="xs" className={styles.subtitle}>
+            {subtitle}
+          </Text>
+        )}
+        <div className={styles.gameId}>
+          <Text color="muted" size="xs">
+            Game ID:{" "}
+            <Text as="span" color="accent" size="xs">
+              {gameId}
+            </Text>
+          </Text>
+          <Tooltip
+            text={copyLabel}
+            side="top"
+            noTabStop
+            tooltipId={copyTooltipId}
+          >
+            <Button
+              variant="ghost"
+              icon={copied ? "check" : "copy"}
+              size="sm"
+              className={styles.copyBtn}
+              onClick={copyGameId}
+              aria-label={copyLabel}
+              aria-describedby={copyTooltipId}
+            />
+          </Tooltip>
+        </div>
+        <RuleDivider className={styles.rule} />
+      </div>
+    );
+  }
+
   return (
     /*
      * <header> is the correct semantic landmark here — it wraps the entire
@@ -169,99 +258,10 @@ export const PageHeader = (props: Props) => {
       )}
 
       {/*
-       * Page identity — breadcrumbs, title, game ID.
-       * Only rendered in full mode. Each piece below:
-       *
-       *   Breadcrumb   — shows where you are, e.g. "My Game → GM Playbook"
-       *   titleRow     — the page title; pencil button appears if editable
-       *   subtitle     — optional smaller label below the title
-       *   gameId row   — the game's unique ID with a one-click copy button
-       *   RuleDivider  — decorative horizontal rule to close the header block
+       * Page identity — breadcrumbs, title, game ID, rule divider.
+       * Only rendered in full mode.
        */}
-      {!simple && (() => {
-        const { crumbs, title, subtitle, icon, gameId } = props as FullProps;
-        const fullProps = props as FullProps;
-        const onSaveTitle = fullProps.onSaveTitle;
-        const titleLabel = fullProps.titleLabel;
-
-        return (
-          <div className={styles.body}>
-            <Breadcrumb crumbs={crumbs} />
-            <div className={styles.titleRow}>
-              {icon && (
-                <span className={styles.titleIcon} aria-hidden="true">
-                  {icon}
-                </span>
-              )}
-              {onSaveTitle && editing ? (
-                <Input
-                  ref={inputRef as React.Ref<HTMLInputElement>}
-                  className={styles.titleInput}
-                  value={value}
-                  onChange={handleChange}
-                  onBlur={commit}
-                  onKeyDown={handleKeyDown}
-                  aria-label={titleLabel}
-                />
-              ) : (
-                <>
-                  <Heading as="h2" size="xl">
-                    {title}
-                  </Heading>
-                  {onSaveTitle && (
-                    <Tooltip
-                      text="Edit name"
-                      side="top"
-                      noTabStop
-                      tooltipId={editTooltipId}
-                    >
-                      <Button
-                        variant="ghost"
-                        icon="pencil"
-                        size="sm"
-                        className={styles.editBtn}
-                        onClick={startEditing}
-                        aria-label={titleLabel!}
-                        aria-describedby={editTooltipId}
-                      />
-                    </Tooltip>
-                  )}
-                </>
-              )}
-            </div>
-            {subtitle && (
-              <Text color="muted" size="xs" className={styles.subtitle}>
-                {subtitle}
-              </Text>
-            )}
-            <div className={styles.gameId}>
-              <Text color="muted" size="xs">
-                Game ID:{" "}
-                <Text as="span" color="accent" size="xs">
-                  {gameId}
-                </Text>
-              </Text>
-              <Tooltip
-                text={copyLabel}
-                side="top"
-                noTabStop
-                tooltipId={copyTooltipId}
-              >
-                <Button
-                  variant="ghost"
-                  icon={copied ? "check" : "copy"}
-                  size="sm"
-                  className={styles.copyBtn}
-                  onClick={copyGameId}
-                  aria-label={copyLabel}
-                  aria-describedby={copyTooltipId}
-                />
-              </Tooltip>
-            </div>
-            <RuleDivider className={styles.rule} />
-          </div>
-        );
-      })()}
+      {pageIdentity}
     </header>
   );
 };
