@@ -10,6 +10,7 @@ import {
 import { useToast } from "@/components/app";
 import { Breadcrumb } from "./Breadcrumb";
 import { SiteBanner } from "@/components/app/SiteBanner/SiteBanner";
+import { SITE_BANNER } from "@/lib/siteBanner";
 import type { Crumb } from "@/types";
 import styles from "./PageHeader.module.css";
 
@@ -228,23 +229,7 @@ export const PageHeader = (props: Props) => {
      */
     <header className={styles.header}>
 
-      {/*
-       * SiteBanner — site-wide notification strip.
-       * The content is hardcoded here because it applies to the whole site,
-       * not to any individual page. Remove the JSX inside when the message
-       * is no longer relevant; the banner disappears automatically when empty.
-       */}
-      <SiteBanner>
-        <strong>Under Construction</strong> — This app is a work in progress.
-        Found a bug?{" "}
-        <a
-          href="https://github.com/gvorbeck/hearthfire/issues"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Open an issue on GitHub.
-        </a>
-      </SiteBanner>
+      {SITE_BANNER && <SiteBanner>{SITE_BANNER}</SiteBanner>}
 
       {/*
        * TopBar — the "Hearthfire" wordmark strip.
