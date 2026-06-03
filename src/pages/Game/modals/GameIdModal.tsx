@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Modal } from '@/components/ui/Modal/Modal';
 import { Button, Heading, Text } from '@/components/ui';
 import styles from './GameIdModal.module.css';
@@ -20,7 +20,14 @@ export const GameIdModal = ({ gameId, open, onClose }: GameIdModalProps) => {
     };
   }, []);
 
-  const handleCopy = async () => {
+  useEffect(() => {
+    if (open) {
+      setCopied(false);
+      setCopyError(false);
+    }
+  }, [open]);
+
+  const handleCopy = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(gameId);
       setCopied(true);
@@ -29,7 +36,7 @@ export const GameIdModal = ({ gameId, open, onClose }: GameIdModalProps) => {
     } catch {
       setCopyError(true);
     }
-  };
+  }, [gameId]);
 
   return (
     <Modal open={open} onClose={onClose} aria-labelledby="game-id-modal-title">

@@ -1,12 +1,13 @@
-import { useState, useId, useCallback, useMemo, useEffect, useRef, memo } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef, memo } from 'react';
 import clsx from 'clsx';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { DEFAULT_GAME_NAME, PLAYBOOKS } from '@/lib/constants';
-import { Button, Heading, Icon, Modal, Stack, Text } from '@/components/ui';
-import { GameIdModal } from './GameIdModal';
-import { AddCharacterModal } from './AddCharacterModal';
+import { Button, Heading, Icon, Stack, Text } from '@/components/ui';
+import { GameIdModal } from './modals/GameIdModal';
+import { AddCharacterModal } from './modals/AddCharacterModal';
+import { RemoveCharacterModal } from './modals/RemoveCharacterModal';
 import { GameGuard } from '@/components/app/GameGuard/GameGuard';
 import { PageLayout } from '@/components/app/PageLayout/PageLayout';
 import type { Character, GameSession } from '@/types';
@@ -16,47 +17,6 @@ interface LocationState {
   isNew?: boolean;
 }
 
-interface RemoveCharacterModalProps {
-  character: Character | null;
-  onClose: () => void;
-  onConfirm: () => Promise<void>;
-}
-
-const RemoveCharacterModal = ({ character, onClose, onConfirm }: RemoveCharacterModalProps) => {
-  const headingId = useId();
-  const [removing, setRemoving] = useState(false);
-
-  const handleConfirm = useCallback(async () => {
-    setRemoving(true);
-    try {
-      await onConfirm();
-      setRemoving(false);
-      onClose();
-    } catch {
-      setRemoving(false);
-    }
-  }, [onConfirm, onClose]);
-
-  const playbookOption = PLAYBOOKS.find((p) => p.value === character?.playbook);
-  const playbookLabel = `${playbookOption?.label ?? character?.playbook} Playbook`;
-  const characterName = character?.name?.trim();
-  const displayName = characterName ? `${characterName} (${playbookLabel})` : playbookLabel;
-
-  return (
-    <Modal open={character !== null} onClose={onClose} aria-labelledby={headingId}>
-      <Heading as="h2" size="sm" id={headingId}>Remove character?</Heading>
-      <Text size="xs" color="muted">
-        <strong>{displayName}</strong> will be permanently removed from this game. All character data will be lost and cannot be recovered.
-      </Text>
-      <div className={styles.modalActions}>
-        <Button variant="ghost" size="md" onClick={onClose} disabled={removing}>Cancel</Button>
-        <Button variant="primary" size="md" className={styles.removeBtn} onClick={handleConfirm} disabled={removing}>
-          {removing ? 'Removing…' : 'Remove character'}
-        </Button>
-      </div>
-    </Modal>
-  );
-};
 
 interface CharacterRowProps {
   character: Character;
@@ -78,10 +38,11 @@ const CharacterRow = memo(({ character, gameId, showGrip, isDragging, onRemove, 
   const handleRemove = useCallback(() => onRemove(character), [onRemove, character]);
   const handleDragStart = useCallback((e: React.DragEvent) => onDragStart(e, character.id), [onDragStart, character.id]);
   const handleDragOver = useCallback((e: React.DragEvent) => onDragOver(e, character.id), [onDragOver, character.id]);
+  const cx = clsx(styles.characterRow, isDragging && styles.dragging);
 
   return (
     <div
-      className={clsx(styles.characterRow, isDragging && styles.dragging)}
+      className={cx}
       draggable={showGrip}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
@@ -150,7 +111,10 @@ const GameContent = ({
   const handleRemoveCharacter = useCallback((character: Character) => setRemovingCharacter(character), []);
   const handleCloseRemoveModal = useCallback(() => setRemovingCharacter(null), []);
   const handleConfirmRemove = useCallback(
-    () => onRemoveCharacter(removingCharacter!.id),
+    () => {
+      if (!removingCharacter) return Promise.resolve();
+      return onRemoveCharacter(removingCharacter.id);
+    },
     [onRemoveCharacter, removingCharacter],
   );
 
