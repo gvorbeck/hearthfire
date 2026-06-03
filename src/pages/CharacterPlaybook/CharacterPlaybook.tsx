@@ -68,6 +68,12 @@ const PCPlaybookTab = ({ playbook, data, level, playbookOption, onSave, insertIn
     ? { count: 3, note: '+1 from A Life of Crime' }
     : undefined;
 
+  const pfgLevels = playbook === 'would-be-hero' ? data?.typeMoveCheckListLevels?.['wbh-potential-for-greatness'] : undefined;
+  const pfgDamageUpgrade = !!pfgLevels?.['pfg-damage'];
+  const pfgHpUpgrade = !!pfgLevels?.['pfg-hp'];
+  const damage = pfgDamageUpgrade ? 'd8' : playbookOption?.damage;
+  const hpMax = pfgHpUpgrade ? (playbookOption?.hpMax ?? 0) + 4 : playbookOption?.hpMax;
+
   return (
     <div className={styles.layout}>
       <div className={styles.columns}>
@@ -75,8 +81,8 @@ const PCPlaybookTab = ({ playbook, data, level, playbookOption, onSave, insertIn
           <Stats
             data={data}
             onSave={onSave}
-            hpMax={playbookOption?.hpMax}
-            damage={playbookOption?.damage}
+            hpMax={hpMax}
+            damage={damage}
             scoreInstruction={playbook === 'would-be-hero' ? WOULD_BE_HERO_SCORE_INSTRUCTION : undefined}
           />
           <Background playbookKey={playbook} options={BACKGROUND_OPTIONS[playbook]} level={level} data={data} onSave={onSave} />
