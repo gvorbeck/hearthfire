@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { arrayUnion, doc, onSnapshot, runTransaction, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { GAMES_COLLECTION } from '@/lib/constants';
-import type { Character, CharacterData, ContentLists, GameSession, SteadingData } from '@/types';
+import type { Character, CharacterData, ContentLists, GameSession, GmImprovement, NpcRelationship, SteadingData, SteadingNPC } from '@/types';
 
 interface UseGameResult {
   game: GameSession | null;
@@ -19,8 +19,19 @@ interface UseGameResult {
   reorderCharacters: (characters: Character[]) => Promise<void>;
 }
 
+const VALID_PLAYBOOKS = new Set<string>([
+  'blessed', 'fox', 'heavy', 'judge', 'lightbearer', 'marshal', 'ranger', 'seeker', 'would-be-hero',
+]);
+
+const isCharacter = (v: unknown): v is Character =>
+  typeof v === 'object' && v !== null &&
+  typeof (v as Record<string, unknown>).id === 'string' &&
+  typeof (v as Record<string, unknown>).name === 'string' &&
+  VALID_PLAYBOOKS.has((v as Record<string, unknown>).playbook as string) &&
+  typeof (v as Record<string, unknown>).level === 'number';
+
 export const parseCharacters = (raw: { characters?: unknown }): Character[] =>
-  Array.isArray(raw?.characters) ? (raw.characters as Character[]).filter(Boolean) : [];
+  Array.isArray(raw?.characters) ? (raw.characters as unknown[]).filter(isCharacter) : [];
 
 export const parseContent = (raw: unknown): ContentLists | undefined => {
   if (typeof raw !== 'object' || raw === null) return undefined;
@@ -34,9 +45,66 @@ export const parseContent = (raw: unknown): ContentLists | undefined => {
 
 const num = (v: unknown): number | undefined => typeof v === 'number' ? v : undefined;
 const strArr = (v: unknown): string[] | undefined =>
-  Array.isArray(v) ? v as string[] : typeof v === 'string' && v ? v.split('\n').filter(Boolean) : undefined;
+  Array.isArray(v) ? (v as unknown[]).filter((x): x is string => typeof x === 'string') : typeof v === 'string' && v ? v.split('\n').filter(Boolean) : undefined;
 
 const VALID_SIZES = new Set(['hamlet', 'village', 'town', 'city']);
+
+const parseDebilities = (v: unknown): SteadingData['debilities'] => {
+  if (typeof v !== 'object' || v === null) return undefined;
+  const r = v as Record<string, unknown>;
+  return {
+    diminished: typeof r.diminished === 'boolean' ? r.diminished : undefined,
+    lacking: typeof r.lacking === 'boolean' ? r.lacking : undefined,
+    malcontent: typeof r.malcontent === 'boolean' ? r.malcontent : undefined,
+  };
+};
+
+const isNpcRelationship = (v: unknown): v is NpcRelationship =>
+  typeof v === 'object' && v !== null &&
+  typeof (v as Record<string, unknown>).id === 'string' &&
+  typeof (v as Record<string, unknown>).type === 'string' &&
+  typeof (v as Record<string, unknown>).targetId === 'string' &&
+  ((v as Record<string, unknown>).targetKind === 'pc' ||
+   (v as Record<string, unknown>).targetKind === 'resident' ||
+   (v as Record<string, unknown>).targetKind === 'neighbor');
+
+const parseNpc = (v: unknown): SteadingNPC | null => {
+  if (typeof v !== 'object' || v === null) return null;
+  const r = v as Record<string, unknown>;
+  if (typeof r.id !== 'string' || typeof r.name !== 'string') return null;
+  return {
+    id: r.id,
+    name: r.name,
+    pronouns: typeof r.pronouns === 'string' ? r.pronouns : undefined,
+    occupation: typeof r.occupation === 'string' ? r.occupation : undefined,
+    traits: Array.isArray(r.traits) ? (r.traits as unknown[]).filter((t): t is string => typeof t === 'string') : undefined,
+    relationships: Array.isArray(r.relationships) ? (r.relationships as unknown[]).filter(isNpcRelationship) : undefined,
+    notes: typeof r.notes === 'string' ? r.notes : undefined,
+  };
+};
+
+const parseNpcs = (v: unknown): SteadingNPC[] | undefined => {
+  if (!Array.isArray(v)) return undefined;
+  return (v as unknown[]).map(parseNpc).filter((n): n is SteadingNPC => n !== null);
+};
+
+const parseGmImprovement = (v: unknown, i: number): GmImprovement | null => {
+  if (typeof v !== 'object' || v === null) return null;
+  const r = v as Record<string, unknown>;
+  if (typeof r.title !== 'string' || typeof r.summary !== 'string' ||
+      typeof r.requirements !== 'string' || typeof r.effects !== 'string' ||
+      typeof r.completed !== 'boolean') return null;
+  const cat = r.category;
+  return {
+    id: typeof r.id === 'string' ? r.id : `gm-imp-legacy-${i}`,
+    title: r.title,
+    summary: r.summary,
+    requirements: r.requirements,
+    effects: r.effects,
+    completed: r.completed,
+    category: cat === 'resource' || cat === 'fortification' || cat === 'asset' ? cat : null,
+  };
+};
 
 export const parseSteading = (raw: unknown): SteadingData | undefined => {
   if (typeof raw !== 'object' || raw === null) return undefined;
@@ -48,24 +116,28 @@ export const parseSteading = (raw: unknown): SteadingData | undefined => {
     prosperity: num(r.prosperity),
     defenses: num(r.defenses),
     surplus: num(r.surplus),
-    debilities: typeof r.debilities === 'object' && r.debilities !== null ? r.debilities as SteadingData['debilities'] : undefined,
+    debilities: parseDebilities(r.debilities),
     resources: strArr(r.resources),
     fortifications: strArr(r.fortifications),
-    improvements: typeof r.improvements === 'object' && r.improvements !== null ? r.improvements as Record<string, boolean> : undefined,
-    gmImprovements: Array.isArray(r.gmImprovements)
-      ? (r.gmImprovements as SteadingData['gmImprovements'])!.map((g, i) => ({ ...g, id: g.id ?? `gm-imp-legacy-${i}` }))
+    improvements: typeof r.improvements === 'object' && r.improvements !== null
+      ? Object.fromEntries(Object.entries(r.improvements as Record<string, unknown>).filter(([, iv]) => typeof iv === 'boolean')) as Record<string, boolean>
       : undefined,
-    assetsList: Array.isArray(r.assetsList) ? r.assetsList as string[] : undefined,
+    gmImprovements: Array.isArray(r.gmImprovements)
+      ? (r.gmImprovements as unknown[]).map(parseGmImprovement).filter((g): g is GmImprovement => g !== null)
+      : undefined,
+    assetsList: Array.isArray(r.assetsList) ? (r.assetsList as unknown[]).filter((x): x is string => typeof x === 'string') : undefined,
     silverPurses: num(r.silverPurses),
     silverHandfuls: num(r.silverHandfuls),
     silverCoins: num(r.silverCoins),
     goldPurses: num(r.goldPurses),
     goldHandfuls: num(r.goldHandfuls),
     goldCoins: num(r.goldCoins),
-    residents: Array.isArray(r.residents) ? r.residents as SteadingData['residents'] : undefined,
-    neighbors: Array.isArray(r.neighbors) ? r.neighbors as SteadingData['neighbors'] : undefined,
-    neighborNotes: typeof r.neighborNotes === 'object' && r.neighborNotes !== null ? r.neighborNotes as Record<string, string> : undefined,
-    placesOfInterest: Array.isArray(r.placesOfInterest) ? r.placesOfInterest as string[] : undefined,
+    residents: parseNpcs(r.residents),
+    neighbors: parseNpcs(r.neighbors),
+    neighborNotes: typeof r.neighborNotes === 'object' && r.neighborNotes !== null
+      ? Object.fromEntries(Object.entries(r.neighborNotes as Record<string, unknown>).filter(([, iv]) => typeof iv === 'string')) as Record<string, string>
+      : undefined,
+    placesOfInterest: Array.isArray(r.placesOfInterest) ? (r.placesOfInterest as unknown[]).filter((x): x is string => typeof x === 'string') : undefined,
   };
 };
 
