@@ -1,43 +1,49 @@
-import { useState, useId, useCallback } from 'react';
+import { useState, useId, useCallback, useEffect } from 'react';
 import { Button, Heading, Modal, Text } from '@/components/ui';
 import { PLAYBOOKS } from '@/lib/constants';
 import type { Character } from '@/types';
 import styles from './RemoveCharacterModal.module.css';
 
 interface RemoveCharacterModalProps {
+  open: boolean;
   character: Character | null;
   onClose: () => void;
   onConfirm: () => Promise<void>;
 }
 
-export const RemoveCharacterModal = ({ character, onClose, onConfirm }: RemoveCharacterModalProps) => {
+export const RemoveCharacterModal = ({ open, character, onClose, onConfirm }: RemoveCharacterModalProps) => {
   const headingId = useId();
   const [removing, setRemoving] = useState(false);
+
+  useEffect(() => {
+    if (!open) setRemoving(false);
+  }, [open]);
 
   const handleConfirm = useCallback(async () => {
     setRemoving(true);
     try {
       await onConfirm();
+      setRemoving(false);
       onClose();
     } catch {
       setRemoving(false);
     }
   }, [onConfirm, onClose]);
 
-  if (!character) return null;
-
-  const playbookOption = PLAYBOOKS.find((p) => p.value === character.playbook);
-  const playbookLabel = `${playbookOption?.label ?? character.playbook} Playbook`;
-  const characterName = character.name?.trim();
+  const playbookOption = character ? PLAYBOOKS.find((p) => p.value === character.playbook) : null;
+  const playbookLabel = character ? `${playbookOption?.label ?? character.playbook} Playbook` : '';
+  const characterName = character?.name?.trim();
   const displayName = characterName ? `${characterName} (${playbookLabel})` : playbookLabel;
 
   return (
-    <Modal open onClose={onClose} aria-labelledby={headingId}>
+    <Modal open={open} onClose={onClose} aria-labelledby={headingId}>
       <Heading as="h2" size="sm" id={headingId}>Remove character?</Heading>
-      <Text size="xs" color="muted">
-        <strong>{displayName}</strong> will be permanently removed from this game. All character data will be lost and cannot be recovered.
-      </Text>
-      <div className={styles.modalActions}>
+      {character && (
+        <Text size="xs" color="muted">
+          <strong>{displayName}</strong> will be permanently removed from this game. All character data will be lost and cannot be recovered.
+        </Text>
+      )}
+      <div className={styles.actions}>
         <Button variant="ghost" size="md" onClick={onClose} disabled={removing}>Cancel</Button>
         <Button variant="primary" size="md" className={styles.removeBtn} onClick={handleConfirm} disabled={removing}>
           {removing ? 'Removing…' : 'Remove character'}

@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Modal } from '@/components/ui/Modal/Modal';
-import { Button, Heading, Text } from '@/components/ui';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { Button, Heading, Modal, Text } from '@/components/ui';
 import styles from './GameIdModal.module.css';
 
 interface GameIdModalProps {
@@ -10,6 +9,7 @@ interface GameIdModalProps {
 }
 
 export const GameIdModal = ({ gameId, open, onClose }: GameIdModalProps) => {
+  const headingId = useId();
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState(false);
   const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -39,8 +39,8 @@ export const GameIdModal = ({ gameId, open, onClose }: GameIdModalProps) => {
   }, [gameId]);
 
   return (
-    <Modal open={open} onClose={onClose} aria-labelledby="game-id-modal-title">
-      <Heading as="h2" size="md" id="game-id-modal-title">Your Game ID</Heading>
+    <Modal open={open} onClose={onClose} aria-labelledby={headingId}>
+      <Heading as="h2" size="md" id={headingId}>Your Game ID</Heading>
 
       <div className={styles.idRow}>
         <Text as="span" color="accent" className={styles.idText}>{gameId}</Text>

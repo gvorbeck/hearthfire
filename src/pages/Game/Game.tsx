@@ -42,8 +42,10 @@ const CharacterRow = memo(({ character, gameId, showGrip, isDragging, onRemove, 
 
   return (
     <div
+      role="listitem"
       className={cx}
       draggable={showGrip}
+      aria-label={showGrip ? `${buttonLabel}, drag to reorder` : buttonLabel}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDrop={onDrop}
@@ -166,6 +168,7 @@ const GameContent = ({
         onAdd={onAddCharacter}
       />
       <RemoveCharacterModal
+        open={!!removingCharacter}
         character={removingCharacter}
         onClose={handleCloseRemoveModal}
         onConfirm={handleConfirmRemove}
@@ -185,7 +188,7 @@ const GameContent = ({
                 <Text size="sm" color="muted">Your party roster is empty. Add a character to get started.</Text>
               </div>
             ) : (
-              <Stack gap={3}>
+              <Stack gap={3} role="list">
                 {orderedCharacters.map((character) => (
                   <CharacterRow
                     key={character.id}
