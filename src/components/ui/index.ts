@@ -6,7 +6,7 @@ export { Dropdown } from './Dropdown/Dropdown';
 export type { DropdownOption, DropdownGroup } from './Dropdown/Dropdown';
 export { Heading } from './Heading/Heading';
 export { Icon } from './Icon/Icon';
-export type { IconName, PlaybookIconName } from './Icon/Icon';
+export type { IconName, PlaybookIconName, LogoIconName } from './Icon/Icon';
 export { Input } from './Input/Input';
 export { Modal } from './Modal/Modal';
 export { Radio } from './Radio/Radio';

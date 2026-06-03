@@ -5,7 +5,7 @@ import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { PageLayout } from '@/components/app/PageLayout/PageLayout';
 import { createGame, createGameWithId } from '@/lib/game';
 import { useGameIdCheck } from '@/hooks/useGameIdCheck';
-import { Button, Heading, Input, RuleDivider, Stack, Text } from '@/components/ui';
+import { Button, Heading, Icon, Input, RuleDivider, Stack, Text } from '@/components/ui';
 import styles from './Home.module.css';
 
 const STATUS_MESSAGES = {
@@ -89,8 +89,13 @@ export const Home = () => {
       />
       <div className={styles.page}>
       <div className={styles.hero}>
-        <Text className={styles.eyebrow}>Party Tracker</Text>
-        <Heading as="h1" size="xl" className={styles.wordmark}>Hearthfire</Heading>
+        <div className={styles.logoWrap}>
+          <Icon logoIcon="stonetop" className={styles.logo} />
+          <div className={styles.heroText}>
+            <Text className={styles.eyebrow}>Party Tracker</Text>
+            <Heading as="h1" size="xl" className={styles.wordmark}>Hearthfire</Heading>
+          </div>
+        </div>
         <RuleDivider className={styles.rule} />
         <Text className={styles.subtitle}>For the Stonetop TTRPG by Jeremy Strandberg</Text>
       </div>

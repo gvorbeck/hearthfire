@@ -16,6 +16,33 @@
   gap: 0;
 }
 
+.logoWrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.logo {
+  position: absolute;
+  width: 360px;
+  height: 360px;
+  top: -120px;
+  color: var(--color-gold-400);
+  opacity: 0.35;
+  pointer-events: none;
+  user-select: none;
+}
+
+.heroText {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: var(--spacing-8) 0;
+}
+
 .eyebrow {
   font-family: var(--font-sans);
   font-size: var(--text-xs);
@@ -77,13 +104,18 @@
 }
 
 .card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: var(--spacing-6);
   right: var(--spacing-6);
   height: 1px;
-  background: linear-gradient(to right, transparent, var(--border-accent), transparent);
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--border-accent),
+    transparent
+  );
   opacity: 0.5;
 }
 

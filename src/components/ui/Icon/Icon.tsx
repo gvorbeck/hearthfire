@@ -1,8 +1,11 @@
 import type { SVGProps } from 'react';
 import { playbookIcons } from './playbookIcons';
 import type { PlaybookIconName } from './playbookIcons';
+import { logoIcons } from './logoIcons';
+import type { LogoIconName } from './logoIcons';
 
 export type { PlaybookIconName };
+export type { LogoIconName };
 
 const icons = {
   'chevron-up': (
@@ -163,12 +166,26 @@ const sizeMap: Record<IconSize, number> = {
   large: 24,
 };
 
-type StrokeIconProps = SVGProps<SVGSVGElement> & { name: IconName; playbookIcon?: never; size?: IconSize };
-type PlaybookIconProps = SVGProps<SVGSVGElement> & { playbookIcon: PlaybookIconName; name?: never; size?: never };
-type IconProps = StrokeIconProps | PlaybookIconProps;
+type StrokeIconProps = SVGProps<SVGSVGElement> & { name: IconName; playbookIcon?: never; logoIcon?: never; size?: IconSize };
+type PlaybookIconProps = SVGProps<SVGSVGElement> & { playbookIcon: PlaybookIconName; name?: never; logoIcon?: never; size?: never };
+type LogoIconProps = SVGProps<SVGSVGElement> & { logoIcon: LogoIconName; name?: never; playbookIcon?: never; size?: never };
+type IconProps = StrokeIconProps | PlaybookIconProps | LogoIconProps;
 
-export const Icon = ({ name, playbookIcon, size = 'medium', ...props }: IconProps) => {
-  const px = sizeMap[size];
+export const Icon = ({ name, playbookIcon, logoIcon, size = 'medium', ...props }: IconProps) => {
+  if (logoIcon) {
+    const { viewBox, paths } = logoIcons[logoIcon];
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox={viewBox}
+        fill="currentColor"
+        aria-hidden="true"
+        {...props}
+      >
+        {paths}
+      </svg>
+    );
+  }
 
   if (playbookIcon) {
     const { viewBox, paths } = playbookIcons[playbookIcon];
@@ -185,6 +202,7 @@ export const Icon = ({ name, playbookIcon, size = 'medium', ...props }: IconProp
     );
   }
 
+  const px = sizeMap[size];
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
