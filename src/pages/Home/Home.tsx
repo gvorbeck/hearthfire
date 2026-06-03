@@ -1,6 +1,6 @@
 import { useState, useCallback, useId } from 'react';
 import clsx from 'clsx';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { PageMeta } from '@/components/PageMeta/PageMeta';
 import { createGame, createGameWithId } from '@/lib/game';
 import { useGameIdCheck } from '@/hooks/useGameIdCheck';
@@ -17,6 +17,7 @@ const STATUS_MESSAGES = {
 
 export const Home = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const customIdHintId = useId();
 
   const [joinId, setJoinId] = useState('');
@@ -83,7 +84,7 @@ export const Home = () => {
       <PageMeta
         title="Hearthfire — Stonetop Party Tracker"
         description="Track your Stonetop TTRPG campaign — manage characters, GM playbook, and game sessions."
-        url={window.location.href}
+        url={`${window.location.origin}${location.pathname}`}
       />
       <div className={styles.hero}>
         <Text className={styles.eyebrow}>Party Tracker</Text>
