@@ -1,9 +1,9 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { ScrollToTop, Tabs } from '@/components/ui';
-import { PageHeader } from '@/components/app/PageHeader/PageHeader';
+import { PageLayout } from '@/components/app/PageLayout/PageLayout';
 import { PlaybookSection } from '@/components/character/PlaybookSection';
 import { CoreLoop, GmMoves, Principles, DamageAndDebilities, ContentSection, Threats, IWonder, Expeditions, Sites, Discoveries, Hazards, Monsters, NPCs, Followers, Homefront, FlowOfPlay } from '@/components/gm-playbook/sections';
 import { GameGuard } from '@/components/app/GameGuard/GameGuard';
@@ -81,12 +81,12 @@ const GmPlaybookContent = ({ g, id, updateContent, updateField }: GmPlaybookCont
   const gameName = g.name || DEFAULT_GAME_NAME;
   const saveIWonder = useCallback((value: string) => updateField('iWonder', value), [updateField]);
 
-  const crumbs = [
+  const crumbs = useMemo(() => [
     { label: gameName, to: `/game/${id}` },
     { label: 'GM Playbook' },
-  ];
+  ], [gameName, id]);
 
-  const tabs = [
+  const tabs = useMemo(() => [
     {
       label: 'Reference',
       content: <ReferenceTabContent />,
@@ -120,28 +120,22 @@ const GmPlaybookContent = ({ g, id, updateContent, updateField }: GmPlaybookCont
       label: 'World',
       content: <WorldTabContent />,
     },
-  ];
+  ], [g.content, g.iWonder, updateContent, saveIWonder]);
 
   return (
-    <main className={styles.page}>
+    <PageLayout crumbs={crumbs} title="GM Playbook" gameId={id}>
       <PageMeta
         title={`GM Playbook — ${gameName} — Hearthfire`}
         description={`GM playbook for ${gameName}. Core loop, moves, principles, and session tools.`}
       />
       <ScrollToTop sentinelRef={headerRef} />
-      <div ref={headerRef}>
-        <PageHeader
-          crumbs={crumbs}
-          title="GM Playbook"
-          gameId={id}
-        />
-      </div>
+      <div ref={headerRef} />
       <Tabs
         aria-label="GM Playbook sections"
         className={styles.tabs}
         tabs={tabs}
       />
-    </main>
+    </PageLayout>
   );
 };
 

@@ -8,7 +8,7 @@ import { Button, Heading, Icon, Modal, Stack, Text } from '@/components/ui';
 import { GameIdModal } from './GameIdModal';
 import { AddCharacterModal } from './AddCharacterModal';
 import { GameGuard } from '@/components/app/GameGuard/GameGuard';
-import { PageHeader } from '@/components/app/PageHeader/PageHeader';
+import { PageLayout } from '@/components/app/PageLayout/PageLayout';
 import type { Character, GameSession } from '@/types';
 import styles from './Game.module.css';
 
@@ -206,14 +206,13 @@ const GameContent = ({
         onClose={handleCloseRemoveModal}
         onConfirm={handleConfirmRemove}
       />
-      <main className={styles.page}>
-        <PageHeader
-          crumbs={[{ label: gameName }]}
-          title={gameName}
-          titleLabel="Edit game name"
-          gameId={id}
-          onSaveTitle={onSaveTitle}
-        />
+      <PageLayout
+        crumbs={[{ label: gameName }]}
+        title={gameName}
+        titleLabel="Edit game name"
+        gameId={id}
+        onSaveTitle={onSaveTitle}
+      >
         <div className={styles.sections}>
           <div className={styles.sectionCharacters}>
             <Heading as="h2" size="label">Characters</Heading>
@@ -260,7 +259,7 @@ const GameContent = ({
             </div>
           </div>
         </div>
-      </main>
+      </PageLayout>
     </>
   );
 };

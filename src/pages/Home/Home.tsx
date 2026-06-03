@@ -2,6 +2,7 @@ import { useState, useCallback, useId } from 'react';
 import clsx from 'clsx';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { PageMeta } from '@/components/app/PageMeta/PageMeta';
+import { PageLayout } from '@/components/app/PageLayout/PageLayout';
 import { createGame, createGameWithId } from '@/lib/game';
 import { useGameIdCheck } from '@/hooks/useGameIdCheck';
 import { Button, Heading, Input, RuleDivider, Stack, Text } from '@/components/ui';
@@ -80,12 +81,13 @@ export const Home = () => {
   );
 
   return (
-    <main className={styles.page}>
+    <PageLayout simple>
       <PageMeta
         title="Hearthfire — Stonetop Party Tracker"
         description="Track your Stonetop TTRPG campaign — manage characters, GM playbook, and game sessions."
         url={`${window.location.origin}${location.pathname}`}
       />
+      <div className={styles.page}>
       <div className={styles.hero}>
         <Text className={styles.eyebrow}>Party Tracker</Text>
         <Heading as="h1" size="xl" className={styles.wordmark}>Hearthfire</Heading>
@@ -158,6 +160,7 @@ export const Home = () => {
           </form>
         </div>
       </div>
-    </main>
+      </div>
+    </PageLayout>
   );
 };

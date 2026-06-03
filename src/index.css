@@ -99,6 +99,11 @@
   --bp-md: 768px;   /* tablet portrait */
   --bp-lg: 1024px;  /* tablet landscape / small desktop */
   --bp-xl: 1280px;  /* desktop */
+
+  --content-width: 1200px; /* max width for page content and header alignment */
+
+  /* Hero display size — for the Home wordmark only; outside the Major Third scale */
+  --text-hero: clamp(3rem, 8vw, 5rem);
 }
 
 *,

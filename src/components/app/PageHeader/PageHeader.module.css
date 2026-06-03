@@ -1,5 +1,38 @@
+/*
+ * .header — the semantic <header> landmark that wraps the entire top-of-page
+ * block: SiteBanner, wordmark strip, and page identity section.
+ * margin-bottom creates breathing room before the page content starts.
+ */
 .header {
   margin-bottom: var(--spacing-10);
+}
+
+/*
+ * .body — wrapper around the page identity section (breadcrumbs, title,
+ * game ID, rule divider). Uses the same padding formula as .topBar so
+ * the content aligns with the var(--content-width) page content column.
+ */
+.body {
+  padding: 0 max(var(--spacing-6), calc((100% - var(--content-width)) / 2 + var(--spacing-6)));
+}
+
+/*
+ * .topBar — the thin site-wide nav strip at the very top.
+ * Spans the full viewport width; its inner content is constrained
+ * to var(--content-width) via the padding approach so it aligns with page content.
+ */
+.topBar {
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: var(--spacing-6);
+  padding: var(--spacing-3) max(var(--spacing-6), calc((100% - var(--content-width)) / 2 + var(--spacing-6)));
+}
+
+/*
+ * .wordmark — the "Hearthfire" site name text in the top bar.
+ * Slight letter-spacing to match the brand feel.
+ */
+.wordmark {
+  letter-spacing: 0.03em;
 }
 
 .titleRow {
@@ -52,10 +85,6 @@
   outline-offset: 2px;
 }
 
-.saveError {
-  margin-top: var(--spacing-1);
-  color: var(--color-error, #e05c5c);
-}
 
 .subtitle {
   margin-top: var(--spacing-1);

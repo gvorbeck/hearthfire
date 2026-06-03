@@ -28,7 +28,7 @@
 
 .wordmark {
   font-family: var(--font-serif);
-  font-size: clamp(3rem, 8vw, 5rem);
+  font-size: var(--text-hero);
   line-height: 1;
   color: var(--text-heading);
   font-weight: normal;

@@ -1,57 +1,11 @@
 import { lazy, Suspense } from "react";
-import { Routes, Route, Outlet } from "react-router-dom";
-import {
-  SiteBanner,
-  TopBar,
-  ToastProvider,
-  ErrorBoundary,
-} from "@/components/app";
-import styles from "@/App.module.css";
+import { Routes, Route } from "react-router-dom";
+import { ToastProvider, ErrorBoundary } from "@/components/app";
 
-const CURRENT_YEAR = new Date().getFullYear();
-
-const Shell = () => (
-  <>
-    <SiteBanner>
-      <strong>Under Construction</strong> — This app is a work in progress.
-      Found a bug?{" "}
-      <a
-        href="https://github.com/gvorbeck/hearthfire/issues"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Open an issue on GitHub.
-      </a>
-    </SiteBanner>
-    <Outlet />
-    <footer className={styles.footer}>
-      Stonetop is written by Jeremy Strandberg and published by Lampblack &amp;
-      Brimstone. Text released under CC BY-SA 4.0. Some concepts derived from
-      Dungeon World by Sage LaTorra &amp; Adam Koebel (CC BY).
-      <br />
-      &copy; {CURRENT_YEAR}{" "}
-      <a href="https://iamgarrett.com" target="_blank" rel="noreferrer">
-        J. Garrett Vorbeck
-      </a>
-      {" · "}
-      <a
-        href="https://github.com/gvorbeck/hearthfire"
-        target="_blank"
-        rel="noreferrer"
-      >
-        GitHub
-      </a>
-    </footer>
-  </>
-);
-
-const WithTopBar = () => (
-  <>
-    <TopBar />
-    <Outlet />
-  </>
-);
-
+/*
+ * Each page is lazy-loaded — its JS bundle is only fetched the first time
+ * the user navigates to that route, keeping the initial load fast.
+ */
 const Home = lazy(() =>
   import("@/pages/Home/Home").then((m) => ({ default: m.Home })),
 );
@@ -77,24 +31,36 @@ const NotFound = lazy(() =>
   import("@/pages/NotFound/NotFound").then((m) => ({ default: m.NotFound })),
 );
 
+/*
+ * App — the root of the entire application.
+ *
+ * Wraps everything in:
+ *   ToastProvider  — makes toast notifications available to every component
+ *   ErrorBoundary  — catches JS crashes and shows a fallback UI
+ *   Suspense       — shows nothing while a lazy page bundle is loading
+ *
+ * Route map:
+ *   /                        → Home
+ *   /game/:id                → Game (party overview)
+ *   /game/:id/gm             → GM Playbook
+ *   /game/:id/steading       → Steading Playbook
+ *   /game/:id/:playbook      → Character Playbook (one per playbook type)
+ *   *                        → NotFound (404)
+ *
+ * SiteBanner, the TopBar wordmark, and the footer are all handled inside
+ * PageLayout / PageHeader, so no shared shell wrapper is needed here.
+ */
 export const App = () => (
   <ToastProvider>
     <ErrorBoundary>
       <Suspense fallback={null}>
         <Routes>
-          <Route element={<Shell />}>
-            <Route path="/" element={<Home />} />
-            <Route element={<WithTopBar />}>
-              <Route path="/game/:id" element={<Game />} />
-              <Route path="/game/:id/gm" element={<GmPlaybook />} />
-              <Route path="/game/:id/steading" element={<SteadingPlaybook />} />
-              <Route
-                path="/game/:id/:playbook"
-                element={<CharacterPlaybook />}
-              />
-              <Route path="*" element={<NotFound />} />
-            </Route>
-          </Route>
+          <Route path="/" element={<Home />} />
+          <Route path="/game/:id" element={<Game />} />
+          <Route path="/game/:id/gm" element={<GmPlaybook />} />
+          <Route path="/game/:id/steading" element={<SteadingPlaybook />} />
+          <Route path="/game/:id/:playbook" element={<CharacterPlaybook />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
     </ErrorBoundary>

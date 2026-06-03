@@ -4,7 +4,7 @@ import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { ScrollToTop, Tabs, Dropdown, Button } from '@/components/ui';
 import type { DropdownGroup } from '@/components/ui';
-import { PageHeader } from '@/components/app/PageHeader/PageHeader';
+import { PageLayout } from '@/components/app/PageLayout/PageLayout';
 import { SteadingResources } from '@/components/gm-playbook/sections/SteadingResources';
 import { SteadingFortifications } from '@/components/gm-playbook/sections/SteadingFortifications';
 import { PlaybookSection } from '@/components/character/PlaybookSection';
@@ -194,21 +194,19 @@ const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
   ], [g.characters, steading, updateSteading, npcFilter]);
 
   return (
-    <main className={styles.page}>
+    <PageLayout crumbs={crumbs} title="Steading Playbook" gameId={id}>
       <PageMeta
         title={`Steading Playbook — ${gameName} — Hearthfire`}
         description={`Stonetop steading playbook for ${gameName}. Track stats, improvements, assets, and NPCs.`}
       />
       <ScrollToTop sentinelRef={headerRef} />
-      <div ref={headerRef}>
-        <PageHeader crumbs={crumbs} title="Steading Playbook" gameId={id} />
-      </div>
+      <div ref={headerRef} />
       <Tabs
         aria-label="Steading sections"
         className={styles.tabs}
         tabs={tabs}
       />
-    </main>
+    </PageLayout>
   );
 };
 

@@ -5,7 +5,7 @@ import { useGame } from '@/hooks/useGame';
 import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
 import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Modal, Radio, RadioGroup, Icon, Text } from '@/components/ui';
 import { GameGuard } from '@/components/app/GameGuard/GameGuard';
-import { PageHeader } from '@/components/app/PageHeader/PageHeader';
+import { PageLayout } from '@/components/app/PageLayout/PageLayout';
 import { Background, RadioSelect, Appearance, Stats, Moves, SpecialPossessions, Introductions, Inventory } from '@/components/character/sections';
 import { ArcanaTab } from '@/components/character/sections/Arcana/ArcanaTab';
 import { BACKGROUND_OPTIONS, FOX_LIFE_OF_CRIME_BACKGROUND } from '@/lib/backgroundOptions';
@@ -319,23 +319,21 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
   ], [characterData, playbook, level, playbookOption, handleSaveCharacterData, insertInstinctNote, playbookTabs, showInvocationsBadge, prosperity, removeInsertHandlers]);
 
   return (
-    <main className={styles.page}>
+    <PageLayout
+      crumbs={crumbs}
+      title={characterName || playbookLabel}
+      titleLabel="Edit character name"
+      subtitle={characterName ? playbookLabel : undefined}
+      icon={<Icon playbookIcon={playbook} />}
+      gameId={id}
+      onSaveTitle={handleSaveCharacterName}
+    >
       <PageMeta
         title={pageTitle}
         description={`${playbookLabel} for ${gameName}. Track background, stats, moves, and more.`}
       />
       <ScrollToTop sentinelRef={headerRef} />
-      <div ref={headerRef}>
-        <PageHeader
-          crumbs={crumbs}
-          title={characterName || playbookLabel}
-          titleLabel="Edit character name"
-          subtitle={characterName ? playbookLabel : undefined}
-          icon={<Icon playbookIcon={playbook} />}
-          gameId={id}
-          onSaveTitle={handleSaveCharacterName}
-        />
-      </div>
+      <div ref={headerRef} />
       {playbookOption.description && (
         <Text font="serif" size="lg" italic className={styles.description}>{playbookOption.description}</Text>
       )}
@@ -349,7 +347,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
       />
       <AddInsertModal key={addTabOpen ? 'open' : 'closed'} open={addTabOpen} onClose={handleCloseAddTab} onAdd={handleAddInsert} existingInserts={characterData?.inserts ?? []} />
       <RemoveInsertModal open={removeInsert !== null} insert={removeInsert} onClose={handleCloseRemoveInsert} onConfirm={handleConfirmRemoveInsert} />
-    </main>
+    </PageLayout>
   );
 };
 
@@ -366,19 +364,23 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
 
   if (!playbookOption) {
     return (
-      <main className={styles.centered}>
-        <Heading as="h2" size="md">Playbook not found</Heading>
-        <Link to={`/game/${id}`}><Button variant="secondary">Back to Game</Button></Link>
-      </main>
+      <PageLayout simple>
+        <div className={styles.centered}>
+          <Heading as="h2" size="md">Playbook not found</Heading>
+          <Link to={`/game/${id}`}><Button variant="secondary">Back to Game</Button></Link>
+        </div>
+      </PageLayout>
     );
   }
 
   if (!character) {
     return (
-      <main className={styles.centered}>
-        <Heading as="h2" size="md">Character not found</Heading>
-        <Link to={`/game/${id}`}><Button variant="secondary">Back to Game</Button></Link>
-      </main>
+      <PageLayout simple>
+        <div className={styles.centered}>
+          <Heading as="h2" size="md">Character not found</Heading>
+          <Link to={`/game/${id}`}><Button variant="secondary">Back to Game</Button></Link>
+        </div>
+      </PageLayout>
     );
   }
 
