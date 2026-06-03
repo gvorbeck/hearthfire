@@ -306,6 +306,7 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1, chooseOver
       collapsible={isComplete}
       isCollapsed={isCollapsed}
       onToggleCollapse={handleToggleCollapse}
+      forceChildren
     >
       <div className={styles.list}>
         {visibleItems.map((p) => {
