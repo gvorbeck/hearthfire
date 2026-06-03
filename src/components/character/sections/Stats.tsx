@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useLatest } from '@/hooks/useLatest';
+import { useFirestoreSync } from '@/hooks/useFirestoreSync';
 import clsx from 'clsx';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import { Checkbox, Input, Text } from '@/components/ui';
@@ -186,11 +187,6 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
   ]);
 
   useEffect(() => {
-    setStats(syncedStats);
-    setDebilities(syncedDebilities);
-  }, [syncedStats, syncedDebilities]);
-
-  useEffect(() => {
     if (!data || hasAutoInitialized.current) return;
     const patch: Partial<CharacterData> = {};
     if (hpMax !== undefined && !data.statHp) patch.statHp = String(hpMax);
@@ -205,7 +201,10 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
     (payload: Partial<CharacterData>) => onSaveRef.current?.(payload) ?? Promise.resolve(),
     [],
   );
-  const { onChange: debouncedSave, flush } = useDebouncedSave(savePayload, 1000);
+  const { onChange: debouncedSave, flush, isPendingRef } = useDebouncedSave(savePayload, 1000);
+
+  useFirestoreSync(syncedStats, setStats, isPendingRef);
+  useFirestoreSync(syncedDebilities, setDebilities, isPendingRef);
 
   const handleStatChange = useCallback((key: keyof StatsState, val: string) => {
     const next = { ...statsRef.current, [key]: val };
