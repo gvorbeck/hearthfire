@@ -9,6 +9,7 @@ export type Possession = {
   usesLabel?: string;
   isCustom?: boolean;
   isAlwaysSelected?: boolean;
+  alwaysSelectedForBackground?: string;
   selectOneSubItem?: boolean;
   maxSubItems?: number;
   stockKey?: Extract<keyof CharacterData, 'sacredPouchStock'>;
@@ -252,6 +253,7 @@ export const SPECIAL_POSSESSIONS_OPTIONS: Partial<Record<PlaybookType, PlaybookS
         id: 'aviary',
         name: 'Aviary',
         label: '**Aviary**: thick gloves, bird hoods, tethers, seed, ◊ messenger birds, ◊ birdcages, etc.',
+        alwaysSelectedForBackground: 'missionary',
       },
       CARPENTERS_TOOLS,
       ENGINEERS_TOOLS,

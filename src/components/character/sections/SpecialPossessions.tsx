@@ -198,6 +198,17 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1, chooseOver
   const usesRef = useLatest(uses);
   const customTextRef = useLatest(customText);
   const customDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const background = data?.background;
+
+  const alwaysSelectedIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const p of config?.items ?? []) {
+      if (p.isAlwaysSelected || (p.alwaysSelectedForBackground && p.alwaysSelectedForBackground === background)) {
+        ids.add(p.id);
+      }
+    }
+    return ids;
+  }, [config?.items, background]);
 
   useEffect(() => {
     setSelected(data?.specialPossessions ?? {});
@@ -209,13 +220,13 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1, chooseOver
   useEffect(() => {
     if (!config?.items.length) return;
     const topIds = new Set(config.items.map(p => p.id));
-    const count = Object.entries(selected).filter(([k, v]) => v && topIds.has(k)).length;
+    const count = Object.entries(selected).filter(([k, v]) => v && topIds.has(k) && !alwaysSelectedIds.has(k)).length;
     const pc = config.pickCount ?? PICK_COUNT;
     if (count >= pc && !hasInitializedCollapse.current) {
       hasInitializedCollapse.current = true;
       setIsCollapsed(true);
     }
-  }, [selected, config]);
+  }, [selected, config, alwaysSelectedIds]);
 
   const handleToggle = useCallback((id: string, checked: boolean) => {
     const prev = selectedRef.current;
@@ -289,12 +300,12 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1, chooseOver
   const topLevelIds = new Set(config.items.map(p => p.id));
   const basePick = config.pickCount ?? PICK_COUNT;
   const pickCount = chooseOverride?.count ?? basePick;
-  const selectedCount = Object.entries(selected).filter(([k, v]) => v && topLevelIds.has(k)).length;
+  const selectedCount = Object.entries(selected).filter(([k, v]) => v && topLevelIds.has(k) && !alwaysSelectedIds.has(k)).length;
   const atMax = selectedCount >= basePick;
   const warn = selectedCount < basePick;
   const isComplete = !warn;
   const visibleItems = isCollapsed && isComplete
-    ? config.items.filter((p) => p.isAlwaysSelected || selected[p.id])
+    ? config.items.filter((p) => alwaysSelectedIds.has(p.id) || selected[p.id])
     : config.items;
 
   return (
@@ -310,16 +321,17 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1, chooseOver
     >
       <div className={styles.list}>
         {visibleItems.map((p) => {
-          const checked = p.isAlwaysSelected ? true : (selected[p.id] ?? false);
+          const alwaysSelected = alwaysSelectedIds.has(p.id);
+          const checked = alwaysSelected ? true : (selected[p.id] ?? false);
           return (
             <div key={p.id} className={styles.possessionRow}>
               <Checkbox
                 aria-label={p.name}
                 checked={checked}
-                disabled={p.isAlwaysSelected || (!checked && atMax)}
-                aria-disabled={p.isAlwaysSelected ? 'true' : undefined}
-                readOnly={p.isAlwaysSelected}
-                onChange={p.isAlwaysSelected ? undefined : (e) => handleToggle(p.id, e.target.checked)}
+                disabled={alwaysSelected || (!checked && atMax)}
+                aria-disabled={alwaysSelected ? 'true' : undefined}
+                readOnly={alwaysSelected}
+                onChange={alwaysSelected ? undefined : (e) => handleToggle(p.id, e.target.checked)}
                 className={styles.checkbox}
                 label={
                   <PossessionLabel

@@ -101,6 +101,9 @@ When you ***spend days, weeks, or months poring over the Chronicle***, ask the G
           { value: 'unz', label: '**Unz** (from the Hillfolk)' },
         ],
       },
+      postContent: `When you ***call upon the Judge of another steading for aid or information***, they are oathbound to give it. You are likewise oathbound to support them.
+
+You have an aviary in addition to your usual choice of special possessions (go mark it now). When you ***send a message via trained bird***, as is the way of the Judges of your order, the GM will tell you if and when you receive a response, and what it says.`,
     },
     {
       value: 'prophet',
