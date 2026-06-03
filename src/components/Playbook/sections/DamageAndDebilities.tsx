@@ -1,6 +1,5 @@
 import { memo } from 'react';
-import { Heading, Text, List } from '@/components/primitives';
-import { PlaybookTable, PlaybookCallout } from '@/components/Playbook';
+import { Heading, Text, List, Table, Callout } from '@/components/primitives';
 import styles from '@/pages/GmPlaybook/GmPlaybook.module.css';
 
 export const DamageAndDebilities = memo(() => (
@@ -8,7 +7,7 @@ export const DamageAndDebilities = memo(() => (
     <Text>Deal damage when your GM move has someone getting hurt, banged up, knocked around, injured. If it's caused by a danger, deal damage per its stats. Otherwise:</Text>
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">What would it do to a normal person?</Heading>
-      <PlaybookTable rows={[
+      <Table rows={[
         { label: 'Bruises & scrapes; pain; light burns', value: 'd4' },
         { label: 'Nasty flesh wounds/bruises/burns', value: 'd6' },
         { label: 'Broken bones; deep/wide burns', value: 'd8' },
@@ -23,10 +22,10 @@ export const DamageAndDebilities = memo(() => (
         'Miserable: distressed, grumpy, unwell, in pain. Disadvantage to CON and CHA.',
       ]} />
     </div>
-    <PlaybookCallout title="RECOVER">
+    <Callout title="RECOVER">
       <Text>When you <strong>take time to catch your breath and tend to what ails you</strong>, expend 1 use of supplies and recover HP equal to 4+Prosperity. You can't gain this benefit again until you take more damage.</Text>
       <Text>When you <strong>tend to a debility or a problematic wound</strong>, say how. The GM will either say that it's taken care of or tell you what's required to do so (Defying Danger, expending supplies or some other resource, finding ___, Making Camp, etc.).</Text>
-    </PlaybookCallout>
+    </Callout>
     <div className={styles.subsection}>
       <Text>When they tend to a debility or problematic wound, additional requirements might include:</Text>
       <List variant="dash" items={[

@@ -1,5 +1,4 @@
-import { Heading, Text, List } from "@/components/primitives";
-import { PlaybookTable, PlaybookCallout } from "@/components/Playbook";
+import { Heading, Text, List, Table, Callout } from "@/components/primitives";
 import playbookStyles from "@/components/Playbook/Playbook.module.css";
 import styles from "@/pages/GmPlaybook/GmPlaybook.module.css";
 
@@ -47,7 +46,7 @@ export const Monsters = () => (
       <Text>
         <strong>How does it usually hunt or fight?</strong> (pick 1)
       </Text>
-      <PlaybookTable
+      <Table
         rows={[
           { label: "In large groups (6 or more)", value: "horde" },
           { label: "In small groups (2-5 per group)", value: "group" },
@@ -57,7 +56,7 @@ export const Monsters = () => (
       <Text>
         <strong>How big is it?</strong> (pick 1)
       </Text>
-      <PlaybookTable
+      <Table
         rows={[
           { label: "Cat-sized or smaller", value: "tiny" },
           { label: "Like a human child", value: "small" },
@@ -69,7 +68,7 @@ export const Monsters = () => (
       <Text>
         <strong>What is its nature?</strong> (add all that apply)
       </Text>
-      <PlaybookTable
+      <Table
         rows={[
           { label: "Lacks physical form", value: "spirit" },
           { label: "Between physical and spiritual", value: "fae" },
@@ -82,7 +81,7 @@ export const Monsters = () => (
       <Text>
         <strong>What is it notable for?</strong> (add all that apply)
       </Text>
-      <PlaybookTable
+      <Table
         rows={[
           { label: "Amassing trinkets and treasure", value: "hoarder" },
           { label: "Avoiding fights, fleeing early", value: "cautious" },
@@ -103,7 +102,7 @@ export const Monsters = () => (
       <Text>
         <strong>How does it hunt or fight?</strong> (pick 1)
       </Text>
-      <PlaybookTable
+      <Table
         rows={[
           { label: "In large groups (horde)", value: "3 HP" },
           { label: "In small groups (group)", value: "6 HP" },
@@ -113,7 +112,7 @@ export const Monsters = () => (
       <Text>
         <strong>How big is it?</strong> (pick 1)
       </Text>
-      <PlaybookTable
+      <Table
         rows={[
           { label: "Cat-sized or smaller (tiny)", value: "−2 HP" },
           { label: "Human-sized (adult or child)", value: "+0 HP" },
@@ -124,7 +123,7 @@ export const Monsters = () => (
       <Text>
         <strong>It…</strong> (choose all that apply)
       </Text>
-      <PlaybookTable
+      <Table
         rows={[
           { label: "… is particularly tough or durable", value: "+4 HP" },
           { label: "… is smiled upon by the fates", value: "+2 HP" },
@@ -141,7 +140,7 @@ export const Monsters = () => (
       <Text>
         <strong>What protects it?</strong> (pick 1)
       </Text>
-      <PlaybookTable
+      <Table
         rows={[
           { label: "Naught but cloth and flesh", value: "0 armor" },
           { label: "Leathers or thick hide", value: "1 armor" },
@@ -153,7 +152,7 @@ export const Monsters = () => (
       <Text>
         <strong>It…</strong> (choose all that apply)
       </Text>
-      <PlaybookTable
+      <Table
         rows={[
           { label: "… is cat-sized or smaller (tiny)", value: "+1 armor" },
           { label: "… bears a shield, or similar", value: "+1 armor" },
@@ -170,7 +169,7 @@ export const Monsters = () => (
       <Text>
         <strong>How does it hunt or fight?</strong> (pick 1)
       </Text>
-      <PlaybookTable
+      <Table
         rows={[
           { label: "In large groups (6 or more, horde)", value: "d6" },
           { label: "In small groups (2-5, group)", value: "d8" },
@@ -180,7 +179,7 @@ export const Monsters = () => (
       <Text>
         <strong>What's the nature of its attack?</strong> (pick all that apply)
       </Text>
-      <PlaybookTable
+      <Table
         rows={[
           { label: "Useful up close and personal", value: "hand" },
           { label: "Works well at sword's reach", value: "close" },
@@ -200,7 +199,7 @@ export const Monsters = () => (
       <Text>
         <strong>How big is it?</strong> (pick 1)
       </Text>
-      <PlaybookTable
+      <Table
         rows={[
           {
             label: "Cat-sized or smaller (tiny)",
@@ -221,7 +220,7 @@ export const Monsters = () => (
       <Text>
         <strong>What else applies?</strong> (pick all that do)
       </Text>
-      <PlaybookTable
+      <Table
         rows={[
           { label: "It's impressively strong", value: "+2 damage, forceful" },
           { label: "It strikes deftly and precisely", value: "+1 piercing" },
@@ -270,7 +269,7 @@ export const Monsters = () => (
       <Text>
         Write moves that fill in the blank: "The monster can/will ___."
       </Text>
-      <PlaybookTable
+      <Table
         columnHeaders={["If the monster…", "write a move based on…"]}
         rows={[
           { label: "… is deceptive/sneaky", value: "… wits or dirty tricks." },
@@ -339,7 +338,7 @@ export const Monsters = () => (
     </div>
 
     <div className={styles.subsection}>
-      <PlaybookCallout title="Monsters & followers">
+      <Callout title="Monsters & followers">
         <Text>
           When you{" "}
           <strong>
@@ -363,7 +362,7 @@ export const Monsters = () => (
           , use their stats as-is. If you haven't already done so, write some GM
           moves for them.
         </Text>
-      </PlaybookCallout>
+      </Callout>
     </div>
   </div>
 );

@@ -1,5 +1,4 @@
-import { Heading, Text, List } from "@/components/primitives";
-import { PlaybookTable } from "@/components/Playbook";
+import { Heading, Text, List, Table } from "@/components/primitives";
 import { parseInlineMarkdown } from "@/lib/parseMarkdown";
 import playbookStyles from "@/components/Playbook/Playbook.module.css";
 import styles from "@/pages/GmPlaybook/GmPlaybook.module.css";
@@ -102,7 +101,7 @@ const stepsItems = [
       Hit points
     </Heading>
     <Text>{parseInlineMarkdown("**How resilient are they?** (pick all that apply)")}</Text>
-    <PlaybookTable
+    <Table
       rows={[
         { label: "Weak/frail/soft", value: "3 HP" },
         { label: "Able-bodied", value: "6 HP" },
@@ -118,7 +117,7 @@ const stepsItems = [
       Armor
     </Heading>
     <Text>{parseInlineMarkdown("**What protects them?** (pick all that apply)")}</Text>
-    <PlaybookTable
+    <Table
       rows={[
         { label: "Naught but cloth and flesh", value: "0 armor" },
         { label: "Leathers or thick hide", value: "1 armor" },
@@ -137,7 +136,7 @@ const stepsItems = [
       Damage
     </Heading>
     <Text>{parseInlineMarkdown("**How dangerous are they?** (pick 1)")}</Text>
-    <PlaybookTable
+    <Table
       rows={[
         { label: "Not very", value: "d4 damage" },
         { label: "Can defend themselves", value: "d6 damage" },

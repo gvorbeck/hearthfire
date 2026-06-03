@@ -1,5 +1,4 @@
-import { Fragment } from 'react';
-import styles from './Playbook.module.css';
+import styles from './Table.module.css';
 
 type DataRow = { label: string; value: string; indent?: boolean };
 type GroupRow = { group: string };
@@ -14,7 +13,7 @@ type Props = {
   bordered?: boolean;
 };
 
-export const PlaybookTable = ({ rows, title, columnHeaders, bordered }: Props) => {
+export const Table = ({ rows, title, columnHeaders, bordered }: Props) => {
   const table = (
     <table className={bordered ? styles.tableBordered : styles.table}>
       {columnHeaders && (
@@ -32,7 +31,7 @@ export const PlaybookTable = ({ rows, title, columnHeaders, bordered }: Props) =
               <td colSpan={2} className={styles.tableGroupCell}>{row.group}</td>
             </tr>
           ) : (
-            <tr key={row.label}>
+            <tr key={`row-${row.label}`}>
               <td className={row.indent ? styles.tableCellIndent : styles.tableCell}>{row.label}</td>
               <td className={styles.tableValue}>{row.value}</td>
             </tr>
@@ -51,5 +50,5 @@ export const PlaybookTable = ({ rows, title, columnHeaders, bordered }: Props) =
     );
   }
 
-  return <Fragment>{table}</Fragment>;
+  return table;
 };

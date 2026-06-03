@@ -28,3 +28,5 @@ export { ToastProvider, useToast } from './Toast/Toast';
 export { ErrorBoundary } from './ErrorBoundary/ErrorBoundary';
 export { RepeaterField } from './RepeaterField/RepeaterField';
 export { TagInput } from './TagInput/TagInput';
+export { Table } from './Table/Table';
+export { Callout } from './Callout/Callout';

@@ -8,7 +8,7 @@ import {
   Tooltip,
   useToast,
 } from "@/components/primitives";
-import { Breadcrumb } from "@/components/Breadcrumb/Breadcrumb";
+import { Breadcrumb } from "./Breadcrumb";
 import type { Crumb } from "@/types";
 import styles from "./PageHeader.module.css";
 

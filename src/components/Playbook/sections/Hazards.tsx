@@ -1,5 +1,4 @@
-import { Heading, Text, List } from '@/components/primitives';
-import { PlaybookTable } from '@/components/Playbook';
+import { Heading, Text, List, Table } from '@/components/primitives';
 import playbookStyles from '@/components/Playbook/Playbook.module.css';
 import styles from '@/pages/GmPlaybook/GmPlaybook.module.css';
 
@@ -47,7 +46,7 @@ export const Hazards = () => (
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">If it deals damage</Heading>
       <Text><strong>What would it do to a typical person?</strong> (pick 1)</Text>
-      <PlaybookTable
+      <Table
         rows={[
           { label: 'Bruises & scrapes; pain; light burns', value: 'd4' },
           { label: 'Nasty flesh wounds, bruises, burns', value: 'd6' },
@@ -56,7 +55,7 @@ export const Hazards = () => (
         ]}
       />
       <Text><strong>If…</strong> (choose all that apply)</Text>
-      <PlaybookTable
+      <Table
         rows={[
           { label: '… armor can\'t protect them', value: 'ignores armor' },
           { label: '… it cuts through leather/hide', value: '1 piercing, messy' },

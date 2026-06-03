@@ -3,10 +3,10 @@ import clsx from 'clsx';
 import type { Crumb } from '@/types';
 import styles from './Breadcrumb.module.css';
 
-interface BreadcrumbProps {
+type BreadcrumbProps = {
   crumbs: Crumb[];
   className?: string;
-}
+};
 
 export const Breadcrumb = ({ crumbs, className }: BreadcrumbProps) => (
   <nav aria-label="breadcrumb" className={clsx(styles.base, className)}>
@@ -16,7 +16,7 @@ export const Breadcrumb = ({ crumbs, className }: BreadcrumbProps) => (
       </li>
       {crumbs.map((crumb) => (
         <li key={crumb.label} className={styles.item}>
-          <span className={styles.separator} aria-hidden>›</span>
+          <span className={styles.separator} aria-hidden="true">›</span>
           {crumb.to ? (
             <Link to={crumb.to} className={styles.link}>{crumb.label}</Link>
           ) : (

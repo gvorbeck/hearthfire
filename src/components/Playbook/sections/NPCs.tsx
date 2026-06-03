@@ -1,5 +1,4 @@
-import { Heading, Text, List } from '@/components/primitives';
-import { PlaybookCallout } from '@/components/Playbook';
+import { Heading, Text, List, Callout } from '@/components/primitives';
 import playbookStyles from '@/components/Playbook/Playbook.module.css';
 import styles from '@/pages/GmPlaybook/GmPlaybook.module.css';
 
@@ -132,9 +131,9 @@ export const NPCs = () => (
     </div>
 
     <div className={styles.subsection}>
-      <PlaybookCallout title="PERSUADE (vs. NPCs)">
+      <Callout title="PERSUADE (vs. NPCs)">
         <Text>When you <strong><em>press or entice an NPC</em></strong>, say what you want them to do (or not do). If they <strong>have reason to resist</strong>, roll +CHA: <strong>on a 10+</strong>, they either do as you want or reveal the easiest way to convince them; <strong>on a 7-9</strong>, they reveal something you can do to convince them, though it'll likely be costly, tricky, or distasteful.</Text>
-      </PlaybookCallout>
+      </Callout>
       <Text className={playbookStyles.spacerTop}>Things that might convince an NPC:</Text>
       <List variant="dash" items={[
         'A promise/oath/vow',

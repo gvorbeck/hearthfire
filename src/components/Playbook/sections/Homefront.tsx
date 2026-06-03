@@ -1,5 +1,4 @@
-import { Heading, Text, Icon, List } from "@/components/primitives";
-import { PlaybookCallout } from "@/components/Playbook";
+import { Heading, Text, Icon, List, Callout } from "@/components/primitives";
 import { parseInlineMarkdown } from "@/lib/parseMarkdown";
 import playbookStyles from "@/components/Playbook/Playbook.module.css";
 import styles from "@/pages/GmPlaybook/GmPlaybook.module.css";
@@ -236,7 +235,7 @@ export const Homefront = () => (
     </div>
 
     <div className={styles.subsection}>
-      <PlaybookCallout title="MAKE A PLAN">
+      <Callout title="MAKE A PLAN">
         <Text>
           When you{" "}
           <strong>
@@ -270,7 +269,7 @@ export const Homefront = () => (
             "The steading must Pull Together ___ times, each requiring ___",
           ]}
         />
-      </PlaybookCallout>
+      </Callout>
     </div>
 
     <div className={styles.subsection}>

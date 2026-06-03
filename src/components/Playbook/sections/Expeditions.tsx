@@ -1,14 +1,13 @@
-import { Heading, Text, List } from '@/components/primitives';
-import { PlaybookTable, PlaybookCallout } from '@/components/Playbook';
+import { Heading, Text, List, Table, Callout } from '@/components/primitives';
 import styles from '@/pages/GmPlaybook/GmPlaybook.module.css';
 
 export const Expeditions = () => (
   <div>
 
-    <PlaybookCallout title="CHART A COURSE">
+    <Callout title="CHART A COURSE">
       <Text>When you <strong>wish to travel to a distant place</strong>, name or describe your destination ("Gordin's Delve," "the hagr's lair," or "wherever these tracks lead"). If the route is unclear, tell the GM how you intend to reach it. The GM will then tell you what's required, the risks, and how long it will likely take.</Text>
       <Text>When you <strong>set out on the journey</strong>, the GM will present each of the challenges one at a time—plus any surprises that you couldn't have seen coming—in whatever order makes the most sense. Address them all and reach your destination.</Text>
-    </PlaybookCallout>
+    </Callout>
 
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Requirements</Heading>
@@ -38,7 +37,7 @@ export const Expeditions = () => (
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">When the way is perilous</Heading>
       <Text>On each leg of travel, <strong>point to a looming danger</strong> or <strong>introduce a danger</strong>. Maybe roll a Die of Fate.</Text>
-      <PlaybookTable
+      <Table
         columnHeaders={['What happens', '1d6']}
         rows={[
           { label: 'A danger springs on them, unavoidable', value: '1' },
@@ -50,7 +49,7 @@ export const Expeditions = () => (
     </div>
 
     <div className={styles.subsection}>
-      <PlaybookTable
+      <Table
         title="Travel times"
         columnHeaders={['Journey', 'Time']}
         bordered
@@ -92,7 +91,7 @@ export const Expeditions = () => (
         'Do you start a fire? What do you use for fuel?',
       ]} />
       <Text>If you know something will happen, it happens. If you think something might happen, but aren't sure, then ask someone to roll the Die of Fate.</Text>
-      <PlaybookTable
+      <Table
         columnHeaders={['What happens', '1d6']}
         rows={[
           { label: 'Something dangerous approaches, inclined to do harm', value: '1' },
@@ -157,7 +156,7 @@ export const Expeditions = () => (
       <Heading as="h3" size="sm">Random weather</Heading>
       <Text>You decide the weather, but if you want, ask a player to roll the Die of Fate.</Text>
       <div className={styles.weatherGrid}>
-        <PlaybookTable
+        <Table
           columnHeaders={['Late Winter / Early Spring', '1d6']}
           rows={[
             { label: 'Snow/sleet/hail; an early thunderstorm; or cold, soaking rain', value: '1' },
@@ -166,7 +165,7 @@ export const Expeditions = () => (
             { label: 'A fine, sunny spring day; clouds/wind gusts', value: '5–6' },
           ]}
         />
-        <PlaybookTable
+        <Table
           columnHeaders={['Spring / Early Summer', '1d6']}
           rows={[
             { label: 'Heavy storm (wind, hail, thunder, lightning)', value: '1' },
@@ -175,7 +174,7 @@ export const Expeditions = () => (
             { label: 'Warm, sunny, pleasant', value: '5–6' },
           ]}
         />
-        <PlaybookTable
+        <Table
           columnHeaders={['Summer', '1d6']}
           rows={[
             { label: 'Heavy storm (wind, hail, thunder, lightning, tornadoes)', value: '1' },
@@ -185,7 +184,7 @@ export const Expeditions = () => (
             { label: 'Warm, sunny, breezy, perfect', value: '6' },
           ]}
         />
-        <PlaybookTable
+        <Table
           columnHeaders={['Late Summer / Early Autumn', '1d6']}
           rows={[
             { label: 'Powerful thunderstorm or cold, soaking rain', value: '1' },
@@ -195,7 +194,7 @@ export const Expeditions = () => (
             { label: 'Warm, sunny, breezy, perfect', value: '6' },
           ]}
         />
-        <PlaybookTable
+        <Table
           columnHeaders={['Autumn', '1d6']}
           rows={[
             { label: 'Cold, drenching rain and/or sleet', value: '1' },
@@ -204,7 +203,7 @@ export const Expeditions = () => (
             { label: 'Crisp, breezy', value: '4–6' },
           ]}
         />
-        <PlaybookTable
+        <Table
           columnHeaders={['Winter', '1d6']}
           rows={[
             { label: 'Blizzard: wind, snow, all of it', value: '1' },
