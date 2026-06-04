@@ -244,7 +244,11 @@ export const useGame = (gameId: string): UseGameResult => {
           dotted[`steading.improvements.${ik}`] = iv;
         }
       } else {
-        dotted[`steading.${k}`] = v;
+        // Strip undefined fields from array elements (e.g. parsed NPCs with optional fields)
+        // before writing to Firestore, which rejects undefined values.
+        dotted[`steading.${k}`] = Array.isArray(v)
+          ? JSON.parse(JSON.stringify(v))
+          : v;
       }
     }
     await updateDoc(doc(db, GAMES_COLLECTION, gameId), dotted);
