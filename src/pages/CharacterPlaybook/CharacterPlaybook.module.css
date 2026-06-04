@@ -14,35 +14,6 @@
   gap: var(--spacing-6);
 }
 
-.columns {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--spacing-6);
-  align-items: start;
-}
-
-@media (min-width: 768px) { /* --bp-md */
-  .columns {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-.colLeft {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-6);
-}
-
-.colRight {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-6);
-}
-
-.colFull {
-  width: 100%;
-}
-
 .centered {
   flex: 1;
   display: flex;
@@ -51,20 +22,4 @@
   justify-content: center;
   gap: var(--spacing-4);
   padding: var(--spacing-16) var(--spacing-4);
-}
-
-.insertOptions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3);
-}
-
-.insertActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--spacing-3);
-}
-
-.removeInsertWarning {
-  margin: var(--spacing-4) 0;
 }

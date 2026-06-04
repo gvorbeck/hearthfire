@@ -2,7 +2,7 @@ import { useCallback, useMemo, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
-import { ScrollToTop, Tabs } from '@/components/ui';
+import { ScrollToTop, Tabs, PlaybookColumns } from '@/components/ui';
 import { PageLayout } from '@/components/app/PageLayout/PageLayout';
 import { PlaybookSection } from '@/components/character/PlaybookSection';
 import { CoreLoop, GmMoves, Principles, DamageAndDebilities, ContentSection, Threats, IWonder, Expeditions, Sites, Discoveries, Hazards, Monsters, NPCs, Followers, Homefront, FlowOfPlay } from '@/components/gm-playbook/sections';
@@ -12,61 +12,57 @@ import type { ContentLists, GameSession } from '@/types';
 import styles from './GmPlaybook.module.css';
 
 const ReferenceTabContent = () => (
-  <div className={styles.layout}>
-    <div className={styles.columns}>
-      <div className={styles.colLeft}>
-        <PlaybookSection title="The Core Loop" collapsible>
-          <CoreLoop />
-        </PlaybookSection>
-        <PlaybookSection title="GM Moves" collapsible>
-          <GmMoves />
-        </PlaybookSection>
-      </div>
-      <div className={styles.colRight}>
-        <PlaybookSection title="Principles" collapsible>
-          <Principles />
-        </PlaybookSection>
-        <PlaybookSection title="Damage & Debilities" collapsible>
-          <DamageAndDebilities />
-        </PlaybookSection>
-      </div>
-    </div>
-  </div>
+  <PlaybookColumns
+    left={<>
+      <PlaybookSection title="The Core Loop" collapsible>
+        <CoreLoop />
+      </PlaybookSection>
+      <PlaybookSection title="GM Moves" collapsible>
+        <GmMoves />
+      </PlaybookSection>
+    </>}
+    right={<>
+      <PlaybookSection title="Principles" collapsible>
+        <Principles />
+      </PlaybookSection>
+      <PlaybookSection title="Damage & Debilities" collapsible>
+        <DamageAndDebilities />
+      </PlaybookSection>
+    </>}
+  />
 );
 
 const WorldTabContent = () => (
-  <div className={styles.layout}>
-    <div className={styles.columns}>
-      <div className={styles.colLeft}>
-        <PlaybookSection title="Expeditions" collapsible>
-          <Expeditions />
-        </PlaybookSection>
-        <PlaybookSection title="Sites" collapsible>
-          <Sites />
-        </PlaybookSection>
-        <PlaybookSection title="Discoveries" collapsible>
-          <Discoveries />
-        </PlaybookSection>
-        <PlaybookSection title="Hazards" collapsible>
-          <Hazards />
-        </PlaybookSection>
-      </div>
-      <div className={styles.colRight}>
-        <PlaybookSection title="Monsters" collapsible>
-          <Monsters />
-        </PlaybookSection>
-        <PlaybookSection title="NPCs" collapsible>
-          <NPCs />
-        </PlaybookSection>
-        <PlaybookSection title="Followers" collapsible>
-          <Followers />
-        </PlaybookSection>
-        <PlaybookSection title="Homefront" collapsible>
-          <Homefront />
-        </PlaybookSection>
-      </div>
-    </div>
-  </div>
+  <PlaybookColumns
+    left={<>
+      <PlaybookSection title="Expeditions" collapsible>
+        <Expeditions />
+      </PlaybookSection>
+      <PlaybookSection title="Sites" collapsible>
+        <Sites />
+      </PlaybookSection>
+      <PlaybookSection title="Discoveries" collapsible>
+        <Discoveries />
+      </PlaybookSection>
+      <PlaybookSection title="Hazards" collapsible>
+        <Hazards />
+      </PlaybookSection>
+    </>}
+    right={<>
+      <PlaybookSection title="Monsters" collapsible>
+        <Monsters />
+      </PlaybookSection>
+      <PlaybookSection title="NPCs" collapsible>
+        <NPCs />
+      </PlaybookSection>
+      <PlaybookSection title="Followers" collapsible>
+        <Followers />
+      </PlaybookSection>
+      <PlaybookSection title="Homefront" collapsible>
+        <Homefront />
+      </PlaybookSection>
+    </>}
+  />
 );
 
 interface GmPlaybookContentProps {
@@ -94,26 +90,24 @@ const GmPlaybookContent = ({ g, id, updateContent, updateField }: GmPlaybookCont
     {
       label: 'Session',
       content: (
-        <div className={styles.layout}>
-          <div className={styles.columns}>
-            <div className={styles.colLeft}>
-              <PlaybookSection title="Flow of Play" collapsible>
-                <FlowOfPlay />
-              </PlaybookSection>
-              <PlaybookSection title="Content" collapsible>
-                <ContentSection content={g.content} onSave={updateContent} />
-              </PlaybookSection>
-            </div>
-            <div className={styles.colRight}>
-              <PlaybookSection title="I Wonder…" collapsible>
-                <IWonder value={g.iWonder ?? ''} onSave={saveIWonder} />
-              </PlaybookSection>
-              <PlaybookSection title="Threats" collapsible>
-                <Threats />
-              </PlaybookSection>
-            </div>
-          </div>
-        </div>
+        <PlaybookColumns
+          left={<>
+            <PlaybookSection title="Flow of Play" collapsible>
+              <FlowOfPlay />
+            </PlaybookSection>
+            <PlaybookSection title="Content" collapsible>
+              <ContentSection content={g.content} onSave={updateContent} />
+            </PlaybookSection>
+          </>}
+          right={<>
+            <PlaybookSection title="I Wonder…" collapsible>
+              <IWonder value={g.iWonder ?? ''} onSave={saveIWonder} />
+            </PlaybookSection>
+            <PlaybookSection title="Threats" collapsible>
+              <Threats />
+            </PlaybookSection>
+          </>}
+        />
       ),
     },
     {

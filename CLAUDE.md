@@ -34,16 +34,17 @@ src/
     GmPlaybook/            # GM reference playbook
     CharacterPlaybook/     # Per-character sheet with tabbed sections
   components/
-    primitives/            # Design-system atoms — ALWAYS check here before creating new UI
+    ui/                    # Design-system atoms — ALWAYS check here before creating new UI
       Button, Checkbox, CheckboxGroup, Collapse, Divider, Dropdown, Heading, Icon,
-      Input, List, Modal, Radio, RuleDivider, ScrollToTop, SiteBanner, Stack,
-      Tabs, Text, Toggle, Tooltip, UseDots
-    CharacterSheet/        # Character sheet sections and playbook-specific overrides
+      Input, List, Modal, PlaybookColumns, Radio, RuleDivider, ScrollToTop, Stack,
+      Table, Tabs, Text, Toggle, Tooltip, UseDots
+    app/                   # App-level chrome — ErrorBoundary, GameGuard, PageHeader, PageLayout, PageMeta, SiteBanner, Toast
+    character/             # Character sheet sections and playbook-specific overrides
       Move/                # Move component (with body icons, citation, collapse)
-      sections/            # Moves, CharacterStats, Appearance, Background, Instinct, etc.
-      playbooks/blessed/   # Blessed-specific overrides for each section
-    Playbook/              # GM playbook layout primitives (PlaybookCallout, PlaybookTable, etc.)
-    PageHeader, Breadcrumb, AddCharacterModal, GameGuard, GameIdModal, PageMeta
+      sections/            # CharacterStats, Appearance, Background, Instinct, etc.
+      playbooks/           # Per-playbook overrides (blessed, fox, heavy, …)
+    gm-playbook/           # GM playbook sections
+    fields/                # Form field composites (RepeaterField, TagInput)
 ```
 
 ## Code Style

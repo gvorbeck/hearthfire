@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useId, useMemo } from 'react';
 import {
   Button,
   Dropdown,
@@ -24,6 +24,7 @@ export const AddCharacterModal = ({
   existingPlaybooks,
   onAdd,
 }: AddCharacterModalProps) => {
+  const headingId = useId();
   const { addToast } = useToast();
   const [playbook, setPlaybook] = useState<PlaybookType | ''>('');
 
@@ -55,9 +56,9 @@ export const AddCharacterModal = ({
     <Modal
       open={open}
       onClose={handleClose}
-      aria-labelledby="add-character-modal-title"
+      aria-labelledby={headingId}
     >
-      <Heading as="h2" size="md" id="add-character-modal-title">
+      <Heading as="h2" size="md" id={headingId}>
         Add Character
       </Heading>
       <Dropdown

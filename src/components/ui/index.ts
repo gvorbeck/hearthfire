@@ -24,3 +24,4 @@ export { Tooltip } from './Tooltip/Tooltip';
 export { Toggle } from './Toggle/Toggle';
 export { Table } from './Table/Table';
 export { Callout } from './Callout/Callout';
+export { PlaybookColumns } from './PlaybookColumns/PlaybookColumns';

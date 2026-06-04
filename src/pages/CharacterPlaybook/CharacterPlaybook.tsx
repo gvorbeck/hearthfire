@@ -1,9 +1,11 @@
-import React, { useRef, useCallback, useMemo, useState, useId } from 'react';
+import React, { useRef, useCallback, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
-import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Modal, Radio, RadioGroup, Icon, Text } from '@/components/ui';
+import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Icon, Text, PlaybookColumns } from '@/components/ui';
+import { AddInsertModal } from './modals/AddInsertModal';
+import { RemoveInsertModal } from './modals/RemoveInsertModal';
 import { GameGuard } from '@/components/app/GameGuard/GameGuard';
 import { PageLayout } from '@/components/app/PageLayout/PageLayout';
 import { Background, RadioSelect, Appearance, Stats, Moves, SpecialPossessions, Introductions, Inventory } from '@/components/character/sections';
@@ -76,8 +78,8 @@ const PCPlaybookTab = ({ playbook, data, level, playbookOption, onSave, insertIn
 
   return (
     <div className={styles.layout}>
-      <div className={styles.columns}>
-        <div className={styles.colLeft}>
+      <PlaybookColumns
+        left={<>
           <Stats
             data={data}
             onSave={onSave}
@@ -86,8 +88,8 @@ const PCPlaybookTab = ({ playbook, data, level, playbookOption, onSave, insertIn
             scoreInstruction={playbook === 'would-be-hero' ? WOULD_BE_HERO_SCORE_INSTRUCTION : undefined}
           />
           <Background playbookKey={playbook} options={BACKGROUND_OPTIONS[playbook]} level={level} data={data} onSave={onSave} />
-        </div>
-        <div className={styles.colRight}>
+        </>}
+        right={<>
           <RadioSelect playbookKey={playbook} options={INSTINCT_OPTIONS[playbook]} data={data} onSave={onSave} overrideNote={insertInstinctNote} />
           <Appearance rows={APPEARANCE_OPTIONS[playbook]} data={data} onSave={onSave} />
           <RadioSelect
@@ -100,28 +102,20 @@ const PCPlaybookTab = ({ playbook, data, level, playbookOption, onSave, insertIn
             noCustom
             instruction="Stonetop is your home, or close enough, but where are you (or your family) from originally? Pick an origin, then choose a matching name or make up your own — edit it in the header above."
           />
-        </div>
-      </div>
-      <div className={styles.colFull}>
-        <Moves playbook={playbook} data={data} onSave={onSave} level={level} />
-      </div>
-      <div className={styles.colFull}>
-        <SpecialPossessions config={SPECIAL_POSSESSIONS_OPTIONS[playbook]} data={data} onSave={onSave} level={level} chooseOverride={foxChooseOverride} />
-      </div>
-      <div className={styles.columns}>
-        <div className={styles.colLeft}>
-          {PLAYBOOK_SECTIONS[playbook] && (
-            <div className={charSheetStyles.stack}>
-              {PLAYBOOK_SECTIONS[playbook]!.map(({ key, Component }) => (
-                <Component key={key} data={data} onSave={onSave} />
-              ))}
-            </div>
-          )}
-        </div>
-        <div className={styles.colRight}>
-          <Introductions config={INTRODUCTIONS_OPTIONS[playbook]} data={data} onSave={onSave} />
-        </div>
-      </div>
+        </>}
+      />
+      <PlaybookColumns full={<Moves playbook={playbook} data={data} onSave={onSave} level={level} />} />
+      <PlaybookColumns full={<SpecialPossessions config={SPECIAL_POSSESSIONS_OPTIONS[playbook]} data={data} onSave={onSave} level={level} chooseOverride={foxChooseOverride} />} />
+      <PlaybookColumns
+        left={PLAYBOOK_SECTIONS[playbook] ? (
+          <div className={charSheetStyles.stack}>
+            {PLAYBOOK_SECTIONS[playbook]!.map(({ key, Component }) => (
+              <Component key={key} data={data} onSave={onSave} />
+            ))}
+          </div>
+        ) : undefined}
+        right={<Introductions config={INTRODUCTIONS_OPTIONS[playbook]} data={data} onSave={onSave} />}
+      />
     </div>
   );
 };
@@ -153,64 +147,6 @@ const PLAYBOOK_TAB_CONFIGS: Partial<Record<PlaybookType, PlaybookTabConfig[]>> =
 const getPlaybookTabs = (playbook: PlaybookType, data: CharacterData | undefined) =>
   (PLAYBOOK_TAB_CONFIGS[playbook] ?? []).filter(({ when }) => !when || when(data));
 
-const REMOVE_INSERT_WARNINGS: Partial<Record<InsertOption, string>> = {
-  Followers: 'All followers and their data will be permanently lost.',
-};
-
-const RemoveInsertModal = ({ open, insert, onClose, onConfirm }: { open: boolean; insert: InsertOption | null; onClose: () => void; onConfirm: () => void }) => {
-  const headingId = useId();
-  if (!insert) return null;
-  const warning = REMOVE_INSERT_WARNINGS[insert];
-  return (
-    <Modal open={open} onClose={onClose} aria-labelledby={headingId}>
-      <Heading as="h2" size="md" id={headingId}>Remove {insert}?</Heading>
-      <Text font="serif" color="muted" className={styles.removeInsertWarning}>
-        This will remove the <strong>{insert}</strong> tab from this character sheet.
-        {warning && ` ${warning}`}
-      </Text>
-      <div className={styles.insertActions}>
-        <Button variant="secondary" onClick={onClose}>Cancel</Button>
-        <Button variant="primary" onClick={onConfirm}>Remove</Button>
-      </div>
-    </Modal>
-  );
-};
-
-const AddInsertModal = ({ open, onClose, onAdd, existingInserts }: { open: boolean; onClose: () => void; onAdd: (insert: InsertOption) => void; existingInserts: string[] }) => {
-  const headingId = useId();
-  const availableOptions = INSERT_OPTIONS.filter((opt) => !existingInserts.includes(opt));
-  const [selected, setSelected] = useState<InsertOption>(() => availableOptions[0] ?? INSERT_OPTIONS[0]);
-
-  const handleSelectChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSelected(e.currentTarget.value as InsertOption);
-  }, []);
-
-  const handleAdd = useCallback(() => {
-    onAdd(selected);
-  }, [onAdd, selected]);
-
-  return (
-    <Modal open={open} onClose={onClose} aria-labelledby={headingId}>
-      <Heading as="h2" size="md" id={headingId}>Add an Insert</Heading>
-      <RadioGroup legend="Insert type" legendHidden className={styles.insertOptions}>
-        {availableOptions.map((opt) => (
-          <Radio
-            key={opt}
-            name="insert-option"
-            value={opt}
-            label={opt}
-            checked={selected === opt}
-            onChange={handleSelectChange}
-          />
-        ))}
-      </RadioGroup>
-      <div className={styles.insertActions}>
-        <Button variant="secondary" onClick={onClose}>Cancel</Button>
-        <Button variant="primary" onClick={handleAdd}>Add</Button>
-      </div>
-    </Modal>
-  );
-};
 
 const resolveStaticTabContent = (
   id: string,
@@ -351,7 +287,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
         onActiveChange={handleActiveChange}
         onAdd={handleOpenAddTab}
       />
-      <AddInsertModal key={addTabOpen ? 'open' : 'closed'} open={addTabOpen} onClose={handleCloseAddTab} onAdd={handleAddInsert} existingInserts={characterData?.inserts ?? []} />
+      <AddInsertModal open={addTabOpen} onClose={handleCloseAddTab} onAdd={handleAddInsert} existingInserts={characterData?.inserts ?? []} />
       <RemoveInsertModal open={removeInsert !== null} insert={removeInsert} onClose={handleCloseRemoveInsert} onConfirm={handleConfirmRemoveInsert} />
     </PageLayout>
   );
@@ -373,7 +309,7 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
       <PageLayout simple>
         <div className={styles.centered}>
           <Heading as="h2" size="md">Playbook not found</Heading>
-          <Link to={`/game/${id}`}><Button variant="secondary">Back to Game</Button></Link>
+          <Button as={Link} to={`/game/${id}`} variant="secondary">Back to Game</Button>
         </div>
       </PageLayout>
     );
@@ -384,7 +320,7 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
       <PageLayout simple>
         <div className={styles.centered}>
           <Heading as="h2" size="md">Character not found</Heading>
-          <Link to={`/game/${id}`}><Button variant="secondary">Back to Game</Button></Link>
+          <Button as={Link} to={`/game/${id}`} variant="secondary">Back to Game</Button>
         </div>
       </PageLayout>
     );

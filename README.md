@@ -103,10 +103,11 @@ npm run preview
 ```
 src/
 ├── components/
-│   ├── primitives/       # Reusable UI (Button, Input, Checkbox, Dropdown, …)
-│   ├── CharacterSheet/   # Per-playbook character form sections
-│   ├── Playbook/         # Shared playbook content rendering
-│   └── …                 # Modals, guards, navigation
+│   ├── ui/               # Design-system atoms (Button, Input, Checkbox, PlaybookColumns, …)
+│   ├── app/              # App chrome (ErrorBoundary, GameGuard, PageHeader, PageLayout, …)
+│   ├── character/        # Character sheet sections and per-playbook overrides
+│   ├── gm-playbook/      # GM playbook sections
+│   └── fields/           # Form field composites (RepeaterField, TagInput)
 ├── hooks/
 │   ├── useGame.ts        # Game state: load, update, add characters
 │   └── useDebouncedSave.ts
