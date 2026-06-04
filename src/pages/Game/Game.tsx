@@ -38,12 +38,13 @@ const CharacterRow = memo(({ character, gameId, showGrip, isDragging, onRemove, 
   const handleRemove = useCallback(() => onRemove(character), [onRemove, character]);
   const handleDragStart = useCallback((e: React.DragEvent) => onDragStart(e, character.id), [onDragStart, character.id]);
   const handleDragOver = useCallback((e: React.DragEvent) => onDragOver(e, character.id), [onDragOver, character.id]);
-  const cx = clsx(styles.characterRow, isDragging && styles.dragging);
+  const rowCx = clsx(styles.characterRow, isDragging && styles.dragging);
+  const linkCx = clsx(styles.characterLink, styles.characterLinkBtn);
 
   return (
     <div
       role="listitem"
-      className={cx}
+      className={rowCx}
       draggable={showGrip}
       aria-label={showGrip ? `${buttonLabel}, drag to reorder` : buttonLabel}
       onDragStart={handleDragStart}
@@ -56,11 +57,9 @@ const CharacterRow = memo(({ character, gameId, showGrip, isDragging, onRemove, 
           <Icon name="grip" size="small" />
         </span>
       )}
-      <Link to={`/game/${gameId}/${character.playbook}`} className={styles.characterLink}>
-        <Button variant="secondary" size="xl" fullWidth className={styles.characterLinkBtn}>
-          <span className={styles.characterBtnText}>{buttonLabel}</span>
-        </Button>
-      </Link>
+      <Button as={Link} to={`/game/${gameId}/${character.playbook}`} variant="secondary" size="xl" fullWidth className={linkCx}>
+        <span className={styles.characterBtnText}>{buttonLabel}</span>
+      </Button>
       <Button
         variant="ghost"
         icon="trash"
@@ -213,16 +212,12 @@ const GameContent = ({
           <div className={styles.sectionRight}>
             <div className={styles.section}>
               <Heading as="h2" size="label">Stonetop</Heading>
-              <Link to={`/game/${id}/steading`}>
-                <Button variant="secondary" size="xl" fullWidth>Open Steading Playbook</Button>
-              </Link>
+              <Button as={Link} to={`/game/${id}/steading`} variant="secondary" size="xl" fullWidth>Open Steading Playbook</Button>
             </div>
 
             <div className={styles.section}>
               <Heading as="h2" size="label">GM Playbook</Heading>
-              <Link to={`/game/${id}/gm`}>
-                <Button variant="secondary" size="xl" fullWidth>Open GM Playbook</Button>
-              </Link>
+              <Button as={Link} to={`/game/${id}/gm`} variant="secondary" size="xl" fullWidth>Open GM Playbook</Button>
             </div>
           </div>
         </div>

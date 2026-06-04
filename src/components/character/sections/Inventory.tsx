@@ -3,7 +3,7 @@ import { useLatest } from '@/hooks/useLatest';
 import { useFirestoreSync } from '@/hooks/useFirestoreSync';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import clsx from 'clsx';
-import { Checkbox, Divider, Heading, Input, List, Stack, Text, UseDots } from '@/components/ui';
+import { Checkbox, Divider, Heading, Input, List, PlaybookColumns, Stack, Text, UseDots } from '@/components/ui';
 import { useToast } from '@/components/app';
 import { RepeaterField } from '@/components/fields';
 import { PlaybookSection } from '../PlaybookSection';
@@ -364,10 +364,9 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
 
 
   return (
-    <div className={styles.root}>
-      <div className={styles.columns}>
-        <div className={styles.mainCol}>
-          <PlaybookSection title="Inventory">
+    <PlaybookColumns
+      left={
+        <PlaybookSection title="Inventory">
             <Text font="serif" color="muted" leading="normal">
               {parseInlineMarkdown('When you **Outfit**, mark a number of ◊ below, on specific items or Undefined.')}
             </Text>
@@ -470,10 +469,9 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
               />
             </Stack>
           </PlaybookSection>
-        </div>
-
-        <div className={styles.sideCol}>
-          <PlaybookSection title="Small items">
+      }
+      right={<>
+        <PlaybookSection title="Small items">
             <Text font="serif" color="muted" leading="normal">Fit in a pocket, pouch, or boot.</Text>
             <Text font="serif" color="muted" leading="normal">
               {parseInlineMarkdown('When you **Outfit**, mark □ below equal to 4+Prosperity.')}
@@ -522,8 +520,7 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
               ))}
             </div>
           </PlaybookSection>
-        </div>
-      </div>
-    </div>
+      </>}
+    />
   );
 };
