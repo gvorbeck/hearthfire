@@ -157,7 +157,6 @@
 .diceBtn {
   flex-shrink: 0;
   color: var(--text-secondary);
-  margin-bottom: var(--spacing-1);
 }
 
 .form {

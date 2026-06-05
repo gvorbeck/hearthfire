@@ -80,12 +80,11 @@ export const MinorArcanaCard = ({
         <Button
           variant="ghost"
           size="sm"
+          icon="close"
           onClick={onRemove}
           aria-label={`Remove ${arcanum.name}`}
           className={styles.removeBtn}
-        >
-          ×
-        </Button>
+        />
       </div>
 
       <div className={styles.description}>
