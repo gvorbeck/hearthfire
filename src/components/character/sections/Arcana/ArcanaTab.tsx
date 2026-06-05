@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useRef, memo } from 'react';
+import { useState, useCallback, useMemo, useRef, memo, type KeyboardEvent } from 'react';
 import { useFirestoreSync } from '@/hooks/useFirestoreSync';
 import clsx from 'clsx';
 import { Button, Text } from '@/components/ui';
@@ -85,6 +85,7 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
   const [arcanaMinor, setArcanaMinor] = useState<ArcanaMinorEntry[]>(data?.arcanaMinor ?? []);
   const [arcanaMajor, setArcanaMajor] = useState<ArcanaMajorEntry[]>(data?.arcanaMajor ?? []);
   const minorPendingRef = useRef(false);
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const majorPendingRef = useRef(false);
 
   useFirestoreSync(data?.arcanaMinor ?? [], setArcanaMinor, minorPendingRef);
@@ -270,17 +271,46 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
   const minorTabCx = clsx(styles.subTab, subTab === 'minor' && styles.subTabActive);
   const majorTabCx = clsx(styles.subTab, subTab === 'major' && styles.subTabActive);
 
+  const handleTabKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDivElement>) => {
+      const tabs: ArcanaSubTab[] = ['minor', 'major'];
+      const currentIndex = tabs.indexOf(subTab);
+      let nextIndex: number | null = null;
+
+      if (e.key === 'ArrowRight') {
+        nextIndex = (currentIndex + 1) % tabs.length;
+      } else if (e.key === 'ArrowLeft') {
+        nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        nextIndex = 0;
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        nextIndex = tabs.length - 1;
+      }
+
+      if (nextIndex !== null) {
+        e.preventDefault();
+        setSubTab(tabs[nextIndex]);
+        tabRefs.current[nextIndex]?.focus();
+      }
+    },
+    [subTab],
+  );
+
   return (
     <div className={styles.root}>
       <div className={styles.tabRow}>
-        <div className={styles.subTabBar} role="tablist">
+        <div className={styles.subTabBar} role="tablist" onKeyDown={handleTabKeyDown}>
           <button
+            ref={(el) => { tabRefs.current[0] = el; }}
             id="arcana-minor-tab"
             role="tab"
             className={minorTabCx}
             onClick={() => setSubTab('minor')}
             aria-selected={subTab === 'minor'}
             aria-controls="arcana-minor-panel"
+            tabIndex={subTab === 'minor' ? 0 : -1}
           >
             Minor Arcana
             {arcanaMinor.length > 0 && (
@@ -288,12 +318,14 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
             )}
           </button>
           <button
+            ref={(el) => { tabRefs.current[1] = el; }}
             id="arcana-major-tab"
             role="tab"
             className={majorTabCx}
             onClick={() => setSubTab('major')}
             aria-selected={subTab === 'major'}
             aria-controls="arcana-major-panel"
+            tabIndex={subTab === 'major' ? 0 : -1}
           >
             Major Arcana
             {arcanaMajor.length > 0 && (
