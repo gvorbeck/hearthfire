@@ -40,6 +40,18 @@
   max-width: 36rem;
 }
 
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .code {
   font-size: var(--text-3xl);
   font-weight: 700;

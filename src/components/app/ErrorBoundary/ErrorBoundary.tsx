@@ -20,7 +20,8 @@ export class ErrorBoundary extends Component<Props, State> {
   render = () => {
     if (this.state.hasError) {
       return (
-        <main role="alert" className={styles.page}>
+        <main className={styles.page}>
+          <div role="alert" className={styles.srOnly} aria-atomic="true">Something went wrong.</div>
           <div className={styles.content}>
             <Text className={styles.code}>!</Text>
             <Heading as="h1" size="xl">Something went wrong.</Heading>
