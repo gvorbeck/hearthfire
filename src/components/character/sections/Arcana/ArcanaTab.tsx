@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useRef, memo, type KeyboardEvent } from 'react';
 import { useFirestoreSync } from '@/hooks/useFirestoreSync';
 import clsx from 'clsx';
-import { Button, Text } from '@/components/ui';
+import { Button, Text, Tooltip } from '@/components/ui';
 import { MINOR_ARCANA } from '@/lib/arcanaMinor';
 import { MAJOR_ARCANA } from '@/lib/arcanaMajor';
 import type { MinorArcanum, MajorArcanum, ArcanaMinorEntry, ArcanaMajorEntry, CharacterData } from '@/types';
@@ -111,7 +111,6 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
     [onSave, data?.arcanaMajor],
   );
 
-  // Minor handlers
   const existingMinorIds = useMemo(() => arcanaMinor.map((a) => a.id), [arcanaMinor]);
 
   const handleAddMinor = useCallback(
@@ -129,6 +128,14 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
     },
     [arcanaMinor, saveMinor],
   );
+
+  const handleRandomMinor = useCallback(() => {
+    if (minorPendingRef.current) return;
+    const available = MINOR_ARCANA.filter((a) => !arcanaMinor.some((e) => e.id === a.id));
+    if (available.length === 0) return;
+    const pick = available[Math.floor(Math.random() * available.length)];
+    handleAddMinor(pick);
+  }, [arcanaMinor, handleAddMinor]);
 
   const handleRemoveMinor = useCallback(
     (id: string) => {
@@ -173,7 +180,6 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
     [arcanaMinor, saveMinor],
   );
 
-  // Major handlers
   const existingMajorIds = useMemo(() => arcanaMajor.map((a) => a.id), [arcanaMajor]);
 
   const handleAddMajor = useCallback(
@@ -346,6 +352,15 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
             >
               Add Minor Arcanum
             </Button>
+            <Tooltip text="Add a random minor arcanum" side="right" noTabStop>
+              <Button
+                variant="secondary"
+                size="sm"
+                icon="dice"
+                onClick={handleRandomMinor}
+                aria-label="Add random minor arcanum"
+              />
+            </Tooltip>
           </div>
 
           {arcanaMinor.length === 0 ? (
