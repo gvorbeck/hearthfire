@@ -273,7 +273,27 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
   return (
     <div className={styles.root}>
       <div className={styles.tabRow}>
-        <div className={styles.subTabBar} role="tablist">
+        <div
+          className={styles.subTabBar}
+          role="tablist"
+          onKeyDown={(e) => {
+            const tabs = ['minor', 'major'] as const;
+            const idx = tabs.indexOf(subTab);
+            if (e.key === 'ArrowRight') {
+              e.preventDefault();
+              setSubTab(tabs[(idx + 1) % tabs.length]);
+            } else if (e.key === 'ArrowLeft') {
+              e.preventDefault();
+              setSubTab(tabs[(idx - 1 + tabs.length) % tabs.length]);
+            } else if (e.key === 'Home') {
+              e.preventDefault();
+              setSubTab(tabs[0]);
+            } else if (e.key === 'End') {
+              e.preventDefault();
+              setSubTab(tabs[tabs.length - 1]);
+            }
+          }}
+        >
           <button
             id="arcana-minor-tab"
             role="tab"
