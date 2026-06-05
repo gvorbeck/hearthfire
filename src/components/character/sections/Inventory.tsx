@@ -232,7 +232,7 @@ const PROSPERITY_NOTES: Record<number, string> = { [-1]: 'Gear is crude', 0: 'St
 const ProsperityOptionRow = memo(({ val, selected }: ProsperityOptionRowProps) => {
   const cx = clsx(styles.prosperityOption, selected && styles.prosperitySelected);
   return (
-    <div className={cx}>
+    <div className={cx} aria-current={selected ? true : undefined}>
       <span className={styles.prosperityValue}>{val > 0 ? `+${val}` : val}</span>
       <span className={styles.prosperityNote}>{PROSPERITY_NOTES[val]}</span>
     </div>
