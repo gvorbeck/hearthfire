@@ -257,15 +257,18 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
   const [otherThings, setOtherThings] = useState<string>(() => data?.inventoryOtherThings ?? '');
   const [arcanaMinor, setArcanaMinor] = useState(() => data?.arcanaMinor ?? []);
   const [arcanaMajor, setArcanaMajor] = useState(() => data?.arcanaMajor ?? []);
+  const inventoryCheckedPendingRef = useRef(false);
+  const inventoryUsesPendingRef = useRef(false);
+  const smallCheckedPendingRef = useRef(false);
   const arcanaMinorPendingRef = useRef(false);
   const arcanaMajorPendingRef = useRef(false);
   const otherThingsPendingRef = useRef(false);
 
   const { onChange: otherThingsDebounced, flush: otherThingsFlush } = useDebouncedSave<Partial<CharacterData>>(onSave);
 
-  useFirestoreSync(data?.inventoryChecked ?? {}, setInventoryChecked);
-  useFirestoreSync(data?.inventoryUses ?? {}, setInventoryUses);
-  useFirestoreSync(data?.inventorySmallChecked ?? {}, setSmallChecked);
+  useFirestoreSync(data?.inventoryChecked ?? {}, setInventoryChecked, inventoryCheckedPendingRef);
+  useFirestoreSync(data?.inventoryUses ?? {}, setInventoryUses, inventoryUsesPendingRef);
+  useFirestoreSync(data?.inventorySmallChecked ?? {}, setSmallChecked, smallCheckedPendingRef);
   useFirestoreSync(data?.inventoryUndefined ?? 0, setUndefinedMain);
   useFirestoreSync(data?.inventorySmallUndefined ?? 0, setUndefinedSmall);
   useFirestoreSync(data?.inventoryOtherThings ?? '', setOtherThings, otherThingsPendingRef);
@@ -275,7 +278,10 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
   const handleMainChecked = useCallback((id: string, val: boolean) => {
     setInventoryChecked((prev) => {
       const next = { ...prev, [id]: val };
-      onSave({ inventoryChecked: next }).catch(() => { setInventoryChecked(prev); addToast('Failed to save.', 'error'); });
+      inventoryCheckedPendingRef.current = true;
+      onSave({ inventoryChecked: next })
+        .catch(() => { setInventoryChecked(prev); addToast('Failed to save.', 'error'); })
+        .finally(() => { inventoryCheckedPendingRef.current = false; });
       return next;
     });
   }, [onSave, addToast]);
@@ -283,7 +289,10 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
   const handleMainUses = useCallback((id: string, n: number) => {
     setInventoryUses((prev) => {
       const next = { ...prev, [id]: n };
-      onSave({ inventoryUses: next }).catch(() => { setInventoryUses(prev); addToast('Failed to save.', 'error'); });
+      inventoryUsesPendingRef.current = true;
+      onSave({ inventoryUses: next })
+        .catch(() => { setInventoryUses(prev); addToast('Failed to save.', 'error'); })
+        .finally(() => { inventoryUsesPendingRef.current = false; });
       return next;
     });
   }, [onSave, addToast]);
@@ -303,7 +312,10 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
   const handleSmallChecked = useCallback((id: string, val: boolean) => {
     setSmallChecked((prev) => {
       const next = { ...prev, [id]: val };
-      onSave({ inventorySmallChecked: next }).catch(() => { setSmallChecked(prev); addToast('Failed to save.', 'error'); });
+      smallCheckedPendingRef.current = true;
+      onSave({ inventorySmallChecked: next })
+        .catch(() => { setSmallChecked(prev); addToast('Failed to save.', 'error'); })
+        .finally(() => { smallCheckedPendingRef.current = false; });
       return next;
     });
   }, [onSave, addToast]);
