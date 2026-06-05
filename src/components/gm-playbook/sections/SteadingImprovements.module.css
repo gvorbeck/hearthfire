@@ -159,6 +159,11 @@
   border-bottom-color: var(--border-accent);
 }
 
+.gmTitleInput:focus-visible {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: 2px;
+}
+
 .gmTextarea {
   font-family: var(--font-serif);
   font-size: var(--text-sm);
@@ -176,4 +181,9 @@
 .gmTextarea:focus {
   outline: none;
   border-bottom-color: var(--border-accent);
+}
+
+.gmTextarea:focus-visible {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: 2px;
 }
