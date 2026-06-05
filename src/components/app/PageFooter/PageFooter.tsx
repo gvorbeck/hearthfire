@@ -13,7 +13,12 @@ export const PageFooter = () => (
     {/* Game credit line — required by the CC BY-SA 4.0 license. */}
     Stonetop is written by Jeremy Strandberg and published by Lampblack &amp;
     Brimstone. Text released under CC BY-SA 4.0. Some concepts derived from
-    Dungeon World by Sage LaTorra &amp; Adam Koebel (CC BY).
+    Dungeon World by Sage LaTorra &amp; Adam Koebel (CC BY). Logo icon
+    commissioned from{" "}
+    <a href="https://www.macteg.com/" target="_blank" rel="noreferrer">
+      Macteg
+    </a>
+    .
     <br />
     {/* App credit line — links to the developer's site and the GitHub repo. */}
     &copy; {CURRENT_YEAR}{" "}

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import { useDebouncedSave } from './useDebouncedSave';
+import { useToast } from '@/components/app';
 import type { CharacterData, PlaybookFeatures } from '@/types';
 
 // Intentionally broad — callers are responsible for passing the right key type.
@@ -12,6 +13,8 @@ export const usePlaybookChecked = (
   onSave: (data: Partial<CharacterData>) => Promise<void>,
   checkedKey: FeatureKey,
 ) => {
+  const { addToast } = useToast();
+
   const [checked, setChecked] = useState<Record<string, boolean>>(
     () => (resolvePlaybookFeatures(data)[checkedKey] as Record<string, boolean> | undefined) ?? {},
   );
@@ -25,8 +28,8 @@ export const usePlaybookChecked = (
     const prev = checked;
     const next = { ...checked, [id]: value };
     setChecked(next);
-    onSave(featurePatch(data, { [checkedKey]: next })).catch(() => setChecked(prev));
-  }, [checked, onSave, data, checkedKey]);
+    onSave(featurePatch(data, { [checkedKey]: next })).catch(() => { setChecked(prev); addToast('Failed to save. Try again.', 'error'); });
+  }, [checked, onSave, data, checkedKey, addToast]);
 
   return { checked, handleChange };
 };
@@ -37,6 +40,7 @@ export const usePlaybookCheckedWithAnswers = (
   checkedKey: FeatureKey,
   answersKey: FeatureKey,
 ) => {
+  const { addToast } = useToast();
   const dataRef = useRef(data);
   dataRef.current = data;
 
@@ -78,8 +82,8 @@ export const usePlaybookCheckedWithAnswers = (
     const prev = checked;
     const next = { ...checked, [id]: value };
     setChecked(next);
-    onSave(featurePatch(dataRef.current, { [checkedKey]: next })).catch(() => setChecked(prev));
-  }, [checked, onSave, checkedKey]);
+    onSave(featurePatch(dataRef.current, { [checkedKey]: next })).catch(() => { setChecked(prev); addToast('Failed to save. Try again.', 'error'); });
+  }, [checked, onSave, checkedKey, addToast]);
 
   return { checked, handleChange, answers, handleAnswer, flushAnswers: handleFlushAnswers };
 };

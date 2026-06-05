@@ -32,7 +32,7 @@ const ArcanaOption = memo(
     const cx = clsx(styles.item, isSelected && styles.itemSelected);
     const handleClick = useCallback(() => onSelect(item), [onSelect, item]);
     return (
-      <button
+      <div
         id={`${idPrefix}-${item.id}`}
         role="option"
         aria-selected={isSelected}
@@ -41,7 +41,7 @@ const ArcanaOption = memo(
       >
         <span className={styles.itemName}>{item.name}</span>
         {item.tags && <span className={styles.itemTags}>{item.tags}</span>}
-      </button>
+      </div>
     );
   },
 ) as <T extends ArcanaItem>(props: ArcanaOptionProps<T>) => React.ReactElement;
@@ -89,6 +89,34 @@ export const AddArcanaModal = <T extends ArcanaItem>({
     setSelected(null);
   }, []);
 
+  const handleListKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (results.length === 0) return;
+      const currentIndex = selected ? results.findIndex((a) => a.id === selected.id) : -1;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        const next = results[(currentIndex + 1) % results.length];
+        setSelected(next);
+        document.getElementById(`${idPrefix}-${next.id}`)?.scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        const prev = results[(currentIndex - 1 + results.length) % results.length];
+        setSelected(prev);
+        document.getElementById(`${idPrefix}-${prev.id}`)?.scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        setSelected(results[0]);
+        document.getElementById(`${idPrefix}-${results[0].id}`)?.scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        const last = results[results.length - 1];
+        setSelected(last);
+        document.getElementById(`${idPrefix}-${last.id}`)?.scrollIntoView({ block: 'nearest' });
+      }
+    },
+    [results, selected, idPrefix],
+  );
+
   const listCx = clsx(styles.list, results.length === 0 && styles.listEmpty);
   const allAdded = existing.size === items.length;
 
@@ -118,6 +146,8 @@ export const AddArcanaModal = <T extends ArcanaItem>({
         role="listbox"
         aria-label={title}
         aria-activedescendant={selected ? `${idPrefix}-${selected.id}` : undefined}
+        tabIndex={0}
+        onKeyDown={handleListKeyDown}
       >
         {results.length === 0 ? (
           <Text as="p" size="sm" color="muted" className={styles.empty}>

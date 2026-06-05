@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Heading, Text, Input } from '@/components/ui';
+import { useToast } from '@/components/app';
 import { ImprovementList } from './ImprovementList';
 import type { SteadingData } from '@/types';
 import styles from './SteadingAssets.module.css';
@@ -79,6 +80,7 @@ interface SteadingAssetsProps {
 }
 
 export const SteadingAssets = ({ steading, onSave }: SteadingAssetsProps) => {
+  const { addToast } = useToast();
   const {
     assetsList = [],
     improvements = {},
@@ -90,6 +92,18 @@ export const SteadingAssets = ({ steading, onSave }: SteadingAssetsProps) => {
     goldHandfuls = 0,
     goldCoins = 0,
   } = steading;
+  const pendingRef = useRef(0);
+  const [localAssetsList, setLocalAssetsList] = useState<string[]>(() => assetsList);
+  const [localCurrency, setLocalCurrency] = useState<Record<CurrencyKey, number>>(() => ({
+    silverPurses, silverHandfuls, silverCoins, goldPurses, goldHandfuls, goldCoins,
+  }));
+
+  useEffect(() => {
+    if (pendingRef.current === 0) {
+      setLocalAssetsList(assetsList);
+      setLocalCurrency({ silverPurses, silverHandfuls, silverCoins, goldPurses, goldHandfuls, goldCoins });
+    }
+  }, [assetsList, silverPurses, silverHandfuls, silverCoins, goldPurses, goldHandfuls, goldCoins]);
   const hasHerdOfHorses = !!improvements['herd-of-horses'];
 
   const fixedItems = useMemo(() => [
@@ -111,8 +125,22 @@ export const SteadingAssets = ({ steading, onSave }: SteadingAssetsProps) => {
     return record;
   }, [improvementItems]);
 
-  const handleSaveList = useCallback((items: string[]) => onSave({ assetsList: items }), [onSave]);
-  const handleCurrencySave = useCallback((key: CurrencyKey, v: number) => onSave({ [key]: v }), [onSave]);
+  const handleSaveList = useCallback((items: string[]) => {
+    const prev = localAssetsList;
+    setLocalAssetsList(items);
+    pendingRef.current += 1;
+    return onSave({ assetsList: items })
+      .catch(() => { setLocalAssetsList(prev); addToast('Failed to save.', 'error'); })
+      .finally(() => { pendingRef.current -= 1; });
+  }, [onSave, addToast, localAssetsList]);
+  const handleCurrencySave = useCallback((key: CurrencyKey, v: number) => {
+    const prev = localCurrency[key];
+    setLocalCurrency((c) => ({ ...c, [key]: v }));
+    pendingRef.current += 1;
+    onSave({ [key]: v })
+      .catch(() => { setLocalCurrency((c) => ({ ...c, [key]: prev })); addToast('Failed to save.', 'error'); })
+      .finally(() => { pendingRef.current -= 1; });
+  }, [onSave, addToast, localCurrency]);
 
   return (
     <div className={styles.root}>
@@ -123,7 +151,7 @@ export const SteadingAssets = ({ steading, onSave }: SteadingAssetsProps) => {
       <ImprovementList
         fixedItems={fixedItems}
         improvementItems={improvementItems}
-        customItems={assetsList}
+        customItems={localAssetsList}
         improvements={assetImprovements}
         onSave={handleSaveList}
         addLabel="Add asset"
@@ -133,15 +161,15 @@ export const SteadingAssets = ({ steading, onSave }: SteadingAssetsProps) => {
       <div className={styles.currency}>
         <Heading as="h3" size="label">Silver</Heading>
         <div className={styles.currencyGrid}>
-          <CurrencyField label="Purses"   fieldKey="silverPurses"   savedValue={silverPurses}   onSave={handleCurrencySave} />
-          <CurrencyField label="Handfuls" fieldKey="silverHandfuls" savedValue={silverHandfuls} onSave={handleCurrencySave} />
-          <CurrencyField label="Coins"    fieldKey="silverCoins"    savedValue={silverCoins}    onSave={handleCurrencySave} />
+          <CurrencyField label="Purses"   fieldKey="silverPurses"   savedValue={localCurrency.silverPurses}   onSave={handleCurrencySave} />
+          <CurrencyField label="Handfuls" fieldKey="silverHandfuls" savedValue={localCurrency.silverHandfuls} onSave={handleCurrencySave} />
+          <CurrencyField label="Coins"    fieldKey="silverCoins"    savedValue={localCurrency.silverCoins}    onSave={handleCurrencySave} />
         </div>
         <Heading as="h3" size="label">Gold</Heading>
         <div className={styles.currencyGrid}>
-          <CurrencyField label="Purses"   fieldKey="goldPurses"   savedValue={goldPurses}   onSave={handleCurrencySave} />
-          <CurrencyField label="Handfuls" fieldKey="goldHandfuls" savedValue={goldHandfuls} onSave={handleCurrencySave} />
-          <CurrencyField label="Coins"    fieldKey="goldCoins"    savedValue={goldCoins}    onSave={handleCurrencySave} />
+          <CurrencyField label="Purses"   fieldKey="goldPurses"   savedValue={localCurrency.goldPurses}   onSave={handleCurrencySave} />
+          <CurrencyField label="Handfuls" fieldKey="goldHandfuls" savedValue={localCurrency.goldHandfuls} onSave={handleCurrencySave} />
+          <CurrencyField label="Coins"    fieldKey="goldCoins"    savedValue={localCurrency.goldCoins}    onSave={handleCurrencySave} />
         </div>
       </div>
     </div>

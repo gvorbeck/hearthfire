@@ -1,5 +1,6 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { GmImprovement, SteadingData } from '@/types';
+import { useToast } from '@/components/app';
 import { ImprovementList } from './ImprovementList';
 
 const FIXED_RESOURCES = [
@@ -29,7 +30,22 @@ interface SteadingResourcesProps {
 }
 
 export const SteadingResources = ({ resources, improvements = {}, gmImprovements, onSave }: SteadingResourcesProps) => {
-  const handleSave = useCallback((items: string[]) => onSave({ resources: items }), [onSave]);
+  const { addToast } = useToast();
+  const pendingRef = useRef(0);
+  const [localResources, setLocalResources] = useState<string[]>(() => resources ?? []);
+
+  useEffect(() => {
+    if (pendingRef.current === 0) setLocalResources(resources ?? []);
+  }, [resources]);
+
+  const handleSave = useCallback((items: string[]) => {
+    const prev = localResources;
+    setLocalResources(items);
+    pendingRef.current += 1;
+    return onSave({ resources: items })
+      .catch(() => { setLocalResources(prev); addToast('Failed to save.', 'error'); })
+      .finally(() => { pendingRef.current -= 1; });
+  }, [onSave, addToast, localResources]);
 
   const extraItems = useMemo(
     () => (gmImprovements ?? []).filter((g) => g.completed && g.category === 'resource' && g.title).map((g) => g.title),
@@ -41,7 +57,7 @@ export const SteadingResources = ({ resources, improvements = {}, gmImprovements
       fixedItems={FIXED_RESOURCES}
       improvementItems={IMPROVEMENT_RESOURCES}
       extraItems={extraItems}
-      customItems={resources}
+      customItems={localResources}
       improvements={improvements}
       onSave={handleSave}
       addLabel="Add resource"

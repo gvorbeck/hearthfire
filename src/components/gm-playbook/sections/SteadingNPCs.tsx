@@ -1,7 +1,8 @@
-import { useState, useCallback, useId, useMemo } from 'react';
+import { useState, useCallback, useEffect, useId, useMemo, useRef } from 'react';
 import { Heading, Text, Button, Modal, Input, Dropdown } from '@/components/ui';
 import { TagInput } from '@/components/fields';
 import type { DropdownGroup } from '@/components/ui';
+import { useToast } from '@/components/app';
 import { randomNpcName } from '@/lib/npcNames';
 import { PLAYBOOKS } from '@/lib/constants';
 import type { SteadingData, SteadingNPC, NpcRelationship, GameSession } from '@/types';
@@ -429,13 +430,28 @@ const buildNameMap = (game: GameSession): Map<string, string> => {
 };
 
 export const SteadingNPCs = ({ section, npcs = [], onSave, game, filterTargetId }: SteadingNPCsProps) => {
+  const { addToast } = useToast();
   const { title, description } = NPC_CONFIG[section];
-  const saveNpcs = useCallback((updated: SteadingNPC[]) => onSave({ [section]: updated }), [onSave, section]);
+  const pendingRef = useRef(0);
+  const [localNpcs, setLocalNpcs] = useState<SteadingNPC[]>(() => npcs);
+
+  useEffect(() => {
+    if (pendingRef.current === 0) setLocalNpcs(npcs);
+  }, [npcs]);
+
+  const saveNpcs = useCallback((updated: SteadingNPC[]) => {
+    const prev = localNpcs;
+    setLocalNpcs(updated);
+    pendingRef.current += 1;
+    onSave({ [section]: updated })
+      .catch(() => { setLocalNpcs(prev); addToast('Failed to save.', 'error'); })
+      .finally(() => { pendingRef.current -= 1; });
+  }, [onSave, addToast, section, localNpcs]);
   const visibleNpcs = useMemo(
     () => filterTargetId
-      ? npcs.filter((n) => (n.relationships ?? []).some((r) => r.targetId === filterTargetId))
-      : npcs,
-    [npcs, filterTargetId],
+      ? localNpcs.filter((n) => (n.relationships ?? []).some((r) => r.targetId === filterTargetId))
+      : localNpcs,
+    [localNpcs, filterTargetId],
   );
   const groups = useMemo(
     () => buildGroups(game),
@@ -457,7 +473,7 @@ export const SteadingNPCs = ({ section, npcs = [], onSave, game, filterTargetId 
       title={title}
       description={description}
       npcs={visibleNpcs}
-      allNpcs={npcs}
+      allNpcs={localNpcs}
       onUpdate={saveNpcs}
       relationshipGroups={groups}
       resolveTarget={resolveTarget}

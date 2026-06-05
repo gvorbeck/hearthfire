@@ -81,9 +81,9 @@ export const SeekerCollection = ({ data, onSave }: SeekerCollectionProps) => {
         {parseInlineMarkdown("**MINOR ARCANA**")}
       </Text>
       <Text as="p" size="xs" color="muted">
-        Ask the GM for the minor arcana cards. Draw 3 at random and review both
-        sides. Choose one whose secrets you have unlocked, one you have not yet
-        mastered, and one you have not yet found.
+        Go to your Arcana tab and add 3 random minor arcana. Choose one whose
+        secrets you have unlocked, one you have not yet mastered, and one you
+        have not yet found.
       </Text>
       <AnswerPrompts
         prompts={ANSWER_PROMPTS.slice(1)}

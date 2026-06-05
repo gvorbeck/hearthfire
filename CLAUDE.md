@@ -52,7 +52,7 @@ src/
 - **Arrow functions only** — no `function` declarations
 - **CSS Modules** — no inline styles, no global class names
 - **clsx** — import at top of file; hoist className logic above JSX
-- **No comments** unless the _why_ is non-obvious (hidden constraint, workaround, subtle invariant)
+- **Comments** — welcome; use them to explain both what and why
 - **No invented game content** — never fabricate moves, stats, or TTRPG data; leave arrays empty for the user to fill
 - **No premature abstractions** — three similar lines beats an early helper
 - **No index-only `key` props** — never use array index alone as a `key`; always encode a stable identifier (e.g. `key={\`item-${total}-${i}\`}` or a real ID field)

@@ -1,5 +1,6 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { GmImprovement, SteadingData } from '@/types';
+import { useToast } from '@/components/app';
 import { ImprovementList } from './ImprovementList';
 
 const FIXED_FORTIFICATIONS = [
@@ -26,7 +27,22 @@ interface SteadingFortificationsProps {
 }
 
 export const SteadingFortifications = ({ fortifications, improvements = {}, gmImprovements, onSave }: SteadingFortificationsProps) => {
-  const handleSave = useCallback((items: string[]) => onSave({ fortifications: items }), [onSave]);
+  const { addToast } = useToast();
+  const pendingRef = useRef(0);
+  const [localFortifications, setLocalFortifications] = useState<string[]>(() => fortifications ?? []);
+
+  useEffect(() => {
+    if (pendingRef.current === 0) setLocalFortifications(fortifications ?? []);
+  }, [fortifications]);
+
+  const handleSave = useCallback((items: string[]) => {
+    const prev = localFortifications;
+    setLocalFortifications(items);
+    pendingRef.current += 1;
+    return onSave({ fortifications: items })
+      .catch(() => { setLocalFortifications(prev); addToast('Failed to save.', 'error'); })
+      .finally(() => { pendingRef.current -= 1; });
+  }, [onSave, addToast, localFortifications]);
 
   const improvementItems = useMemo(() => {
     const replaced = new Set(
@@ -45,7 +61,7 @@ export const SteadingFortifications = ({ fortifications, improvements = {}, gmIm
       fixedItems={FIXED_FORTIFICATIONS}
       improvementItems={improvementItems}
       extraItems={extraItems}
-      customItems={fortifications}
+      customItems={localFortifications}
       improvements={improvements}
       onSave={handleSave}
       addLabel="Add fortification"
