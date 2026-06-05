@@ -1,6 +1,8 @@
-import { useCallback, useId } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { Heading, Text, Checkbox, Button, Radio } from '@/components/ui';
+import { useToast } from '@/components/app';
+import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { SteadingData, SteadingSize } from '@/types';
 import styles from './SteadingStats.module.css';
 
@@ -63,28 +65,84 @@ interface SteadingStatsProps {
   onSave: (patch: Partial<SteadingData>) => Promise<void>;
 }
 
+type NumericStatKey = 'fortunes' | 'population' | 'prosperity' | 'defenses' | 'surplus';
+
+
+const readStats = (s: SteadingData): Record<NumericStatKey, number> => ({
+  fortunes: s.fortunes ?? 1,
+  population: s.population ?? 0,
+  prosperity: s.prosperity ?? 0,
+  defenses: s.defenses ?? 0,
+  surplus: s.surplus ?? 1,
+});
+
 export const SteadingStats = ({ steading, onSave }: SteadingStatsProps) => {
-  const fortunes = steading.fortunes ?? 1;
-  const population = steading.population ?? 0;
-  const prosperity = steading.prosperity ?? 0;
-  const defenses = steading.defenses ?? 0;
-  const surplus = steading.surplus ?? 1;
-  const debilities = steading.debilities ?? {};
+  const { addToast } = useToast();
+  const pendingRef = useRef(0);
+  const [stats, setStats] = useState<Record<NumericStatKey, number>>(() => readStats(steading));
+  const [size, setSize] = useState<SteadingSize>(() => steading.size ?? 'village');
+  const [debilities, setDebilities] = useState(() => steading.debilities ?? {});
 
-  const size = steading.size ?? 'village';
-  const saveSize = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onSave({ size: e.target.value as SteadingSize }), [onSave]);
+  useEffect(() => {
+    if (pendingRef.current > 0) return;
+    setStats(readStats(steading));
+    setSize(steading.size ?? 'village');
+    setDebilities(steading.debilities ?? {});
+  }, [steading]);
 
-  const saveFortunes = useCallback((v: number) => onSave({ fortunes: v }), [onSave]);
-  const savePopulation = useCallback((v: number) => onSave({ population: v }), [onSave]);
-  const saveProsperity = useCallback((v: number) => onSave({ prosperity: v }), [onSave]);
-  const saveDefenses = useCallback((v: number) => onSave({ defenses: v }), [onSave]);
-  const saveSurplus = useCallback((v: number) => onSave({ surplus: v }), [onSave]);
-  const handleDecrementSurplus = useCallback(() => saveSurplus(Math.max(0, surplus - 1)), [saveSurplus, surplus]);
-  const handleIncrementSurplus = useCallback(() => saveSurplus(surplus + 1), [saveSurplus, surplus]);
+  const saveStat = useCallback((key: NumericStatKey, v: number) => {
+    const prev = stats[key];
+    setStats((s) => ({ ...s, [key]: v }));
+    pendingRef.current += 1;
+    onSave({ [key]: v })
+      .catch(() => { setStats((s) => ({ ...s, [key]: prev })); addToast('Failed to save.', 'error'); })
+      .finally(() => { pendingRef.current -= 1; });
+  }, [onSave, addToast, stats]);
+
+  const saveFortunes = useCallback((v: number) => saveStat('fortunes', v), [saveStat]);
+  const savePopulation = useCallback((v: number) => saveStat('population', v), [saveStat]);
+  const saveProsperity = useCallback((v: number) => saveStat('prosperity', v), [saveStat]);
+  const saveDefenses = useCallback((v: number) => saveStat('defenses', v), [saveStat]);
+
+  const saveSize = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const next = e.target.value as SteadingSize;
+    const prev = size;
+    setSize(next);
+    pendingRef.current += 1;
+    onSave({ size: next })
+      .catch(() => { setSize(prev); addToast('Failed to save.', 'error'); })
+      .finally(() => { pendingRef.current -= 1; });
+  }, [onSave, addToast, size]);
+
+  const handleDecrementSurplus = useCallback(() => {
+    const prev = stats.surplus;
+    const next = Math.max(0, prev - 1);
+    setStats((s) => ({ ...s, surplus: next }));
+    pendingRef.current += 1;
+    onSave({ surplus: next })
+      .catch(() => { setStats((s) => ({ ...s, surplus: prev })); addToast('Failed to save.', 'error'); })
+      .finally(() => { pendingRef.current -= 1; });
+  }, [onSave, addToast, stats.surplus]);
+
+  const handleIncrementSurplus = useCallback(() => {
+    const prev = stats.surplus;
+    const next = prev + 1;
+    setStats((s) => ({ ...s, surplus: next }));
+    pendingRef.current += 1;
+    onSave({ surplus: next })
+      .catch(() => { setStats((s) => ({ ...s, surplus: prev })); addToast('Failed to save.', 'error'); })
+      .finally(() => { pendingRef.current -= 1; });
+  }, [onSave, addToast, stats.surplus]);
 
   const toggleDebility = useCallback((key: keyof NonNullable<SteadingData['debilities']>) => {
-    onSave({ debilities: { ...debilities, [key]: !debilities[key] } });
-  }, [onSave, debilities]);
+    const next = { ...debilities, [key]: !debilities[key] };
+    const prev = debilities;
+    setDebilities(next);
+    pendingRef.current += 1;
+    onSave({ debilities: next })
+      .catch(() => { setDebilities(prev); addToast('Failed to save.', 'error'); })
+      .finally(() => { pendingRef.current -= 1; });
+  }, [onSave, addToast, debilities]);
 
   const toggleDiminished = useCallback(() => toggleDebility('diminished'), [toggleDebility]);
   const toggleLacking = useCallback(() => toggleDebility('lacking'), [toggleDebility]);
@@ -117,25 +175,25 @@ export const SteadingStats = ({ steading, onSave }: SteadingStatsProps) => {
         <StatStepper
           label="Fortunes"
           description="Morale & social cohesion. Rolls for Seasons Change & Requisition. Resets to +1 each season."
-          value={fortunes}
+          value={stats.fortunes}
           onChange={saveFortunes}
         />
         <StatStepper
           label="Population"
           description="Able bodies relative to Size. Adds to Muster & Pull Together — and to Surplus consumed each winter."
-          value={population}
+          value={stats.population}
           onChange={savePopulation}
         />
         <StatStepper
           label="Prosperity"
           description="Quality of goods, tools, and services. Rolls for Trade & Barter; adds to supply uses, HP recovery, and weapon piercing."
-          value={prosperity}
+          value={stats.prosperity}
           onChange={saveProsperity}
         />
         <StatStepper
           label="Defenses"
           description="Martial readiness of the steading. Rolls for Deploy."
-          value={defenses}
+          value={stats.defenses}
           onChange={saveDefenses}
         />
       </div>
@@ -149,10 +207,10 @@ export const SteadingStats = ({ steading, onSave }: SteadingStatsProps) => {
               size="sm"
               icon="minus"
               onClick={handleDecrementSurplus}
-              disabled={surplus <= 0}
+              disabled={stats.surplus <= 0}
               aria-label="Decrease Surplus"
             />
-            <span className={styles.statValue}>{surplus}</span>
+            <span className={styles.statValue}>{stats.surplus}</span>
             <Button
               variant="ghost"
               size="sm"
@@ -170,7 +228,7 @@ export const SteadingStats = ({ steading, onSave }: SteadingStatsProps) => {
         <div className={styles.debilityList}>
           <div className={styles.debility}>
             <Checkbox
-              label={<span><strong>Diminished</strong>, by injury/sickness/doubt</span>}
+              label={parseInlineMarkdown('**Diminished**, by injury/sickness/doubt')}
               checked={!!debilities.diminished}
               onChange={toggleDiminished}
             />
@@ -178,7 +236,7 @@ export const SteadingStats = ({ steading, onSave }: SteadingStatsProps) => {
           </div>
           <div className={styles.debility}>
             <Checkbox
-              label={<span><strong>Lacking</strong>, due to shortages/hoarding/distrust</span>}
+              label={parseInlineMarkdown('**Lacking**, due to shortages/hoarding/distrust')}
               checked={!!debilities.lacking}
               onChange={toggleLacking}
             />
@@ -186,7 +244,7 @@ export const SteadingStats = ({ steading, onSave }: SteadingStatsProps) => {
           </div>
           <div className={styles.debility}>
             <Checkbox
-              label={<span><strong>Malcontent</strong>, from fear/anger/despair</span>}
+              label={parseInlineMarkdown('**Malcontent**, from fear/anger/despair')}
               checked={!!debilities.malcontent}
               onChange={toggleMalcontent}
             />

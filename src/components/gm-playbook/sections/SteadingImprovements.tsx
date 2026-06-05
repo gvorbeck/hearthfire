@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { Button, Heading, List, Text, Checkbox, Input, Radio, RadioGroup } from '@/components/ui';
+import { useToast } from '@/components/app';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { SteadingData, GmImprovement } from '@/types';
 import styles from './SteadingImprovements.module.css';
@@ -627,8 +628,10 @@ const ReqCheckItem = ({
 };
 
 export const SteadingImprovements = ({ improvements = {}, gmImprovements, onSave }: SteadingImprovementsProps) => {
-  const improvementsRef = useRef(improvements);
-  improvementsRef.current = improvements;
+  const { addToast } = useToast();
+  const pendingImprovementsRef = useRef(0);
+  const pendingSlotsRef = useRef(0);
+  const [localImprovements, setLocalImprovements] = useState<Record<string, boolean>>(() => improvements);
 
   const onSaveRef = useRef(onSave);
   onSaveRef.current = onSave;
@@ -638,7 +641,11 @@ export const SteadingImprovements = ({ improvements = {}, gmImprovements, onSave
   const localSlotsRef = useRef(localSlots);
 
   useEffect(() => {
-    if (!focusedRef.current) {
+    if (pendingImprovementsRef.current === 0) setLocalImprovements(improvements);
+  }, [improvements]);
+
+  useEffect(() => {
+    if (!focusedRef.current && pendingSlotsRef.current === 0) {
       const next = gmImprovements ?? [];
       localSlotsRef.current = next;
       setLocalSlots(next);
@@ -646,12 +653,22 @@ export const SteadingImprovements = ({ improvements = {}, gmImprovements, onSave
   }, [gmImprovements]);
 
   const toggleKey = useCallback((key: string) => {
-    onSaveRef.current({ improvements: { [key]: !improvementsRef.current[key] } });
-  }, []);
+    const next = { ...localImprovements, [key]: !localImprovements[key] };
+    const prev = localImprovements;
+    setLocalImprovements(next);
+    pendingImprovementsRef.current += 1;
+    onSaveRef.current({ improvements: { [key]: next[key] } })
+      .catch(() => { setLocalImprovements(prev); addToast('Failed to save.', 'error'); })
+      .finally(() => { pendingImprovementsRef.current -= 1; });
+  }, [addToast, localImprovements]);
 
   const saveSlots = useCallback((slots: GmImprovement[]) => {
-    onSaveRef.current({ gmImprovements: slots });
-  }, []);
+    const prev = localSlotsRef.current;
+    pendingSlotsRef.current += 1;
+    onSaveRef.current({ gmImprovements: slots })
+      .catch(() => { localSlotsRef.current = prev; setLocalSlots(prev); addToast('Failed to save.', 'error'); })
+      .finally(() => { pendingSlotsRef.current -= 1; });
+  }, [addToast]);
 
   const handleSlotFocus = useCallback(() => { focusedRef.current = true; }, []);
 
@@ -701,7 +718,7 @@ export const SteadingImprovements = ({ improvements = {}, gmImprovements, onSave
       <Text size="xs" color="muted">Check an improvement when all requirements are met. The GM may reveal additional improvements in play.</Text>
       <div className={styles.list}>
         {IMPROVEMENTS.map((imp) => {
-          const completed = !!improvements[imp.id];
+          const completed = !!localImprovements[imp.id];
           const itemCx = clsx(styles.item, completed && styles.itemCompleted);
           return (
             <div key={imp.id} className={itemCx}>
@@ -726,7 +743,7 @@ export const SteadingImprovements = ({ improvements = {}, gmImprovements, onSave
                       <div key={`${imp.id}-cb-${blockIdx}`} className={styles.checkList}>
                         {block.items.map((item, itemIdx) => {
                           const keys = makeReqKeys(imp.id, blockIdx, itemIdx, item.count ?? 1);
-                          const checkedValues = keys.map((k) => !!improvements[k]);
+                          const checkedValues = keys.map((k) => !!localImprovements[k]);
                           return (
                           <ReqCheckItem
                             key={`${imp.id}-b${blockIdx}i${itemIdx}`}
