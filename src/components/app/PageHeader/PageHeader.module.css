@@ -4,7 +4,7 @@
  * margin-bottom creates breathing room before the page content starts.
  */
 .header {
-  margin-bottom: var(--spacing-10);
+  /* margin-bottom: var(--spacing-10); */
 }
 
 /*
@@ -13,7 +13,11 @@
  * the content aligns with the var(--content-width) page content column.
  */
 .body {
-  padding: 0 max(var(--spacing-6), calc((100% - var(--content-width)) / 2 + var(--spacing-6)));
+  padding: 0
+    max(
+      var(--spacing-6),
+      calc((100% - var(--content-width)) / 2 + var(--spacing-6))
+    );
 }
 
 /*
@@ -27,7 +31,11 @@
   justify-content: space-between;
   border-bottom: 1px solid var(--border-subtle);
   margin-bottom: var(--spacing-6);
-  padding: var(--spacing-3) max(var(--spacing-6), calc((100% - var(--content-width)) / 2 + var(--spacing-6)));
+  padding: var(--spacing-3)
+    max(
+      var(--spacing-6),
+      calc((100% - var(--content-width)) / 2 + var(--spacing-6))
+    );
 }
 
 /*
@@ -87,7 +95,6 @@
   outline: 2px solid var(--color-gold-400);
   outline-offset: 2px;
 }
-
 
 .subtitle {
   margin-top: var(--spacing-1);
