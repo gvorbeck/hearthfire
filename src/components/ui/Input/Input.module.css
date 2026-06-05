@@ -59,4 +59,5 @@
 textarea.input {
   resize: vertical;
   min-height: 5rem;
+  field-sizing: content;
 }
