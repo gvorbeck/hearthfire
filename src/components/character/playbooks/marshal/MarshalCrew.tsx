@@ -385,6 +385,8 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
     });
   }, [addToast]);
 
+  const infoStaticCx = clsx(styles.infoInput, styles.infoStatic);
+
   return (
     <div className={styles.root}>
       <PlaybookSection title="Crew">
@@ -420,7 +422,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
             <span className={styles.infoLabel}>Armor <span className={styles.statNote}>(starts at 0)</span></span>
           </div>
           <div className={styles.infoBox}>
-            <span className={clsx(styles.infoInput, styles.infoStatic)}>{CREW_DAMAGE}</span>
+            <span className={infoStaticCx}>{CREW_DAMAGE}</span>
             <span className={styles.infoLabel}>Damage <span className={styles.statNote}>(starts at d6)</span></span>
           </div>
         </div>

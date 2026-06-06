@@ -252,6 +252,7 @@ const FollowerCard = memo(
     const doubleGear = follower.gear?.slice(GEAR_SINGLE_COUNT) ?? [];
 
     const followerLabel = follower.name || `Follower ${index + 1}`;
+    const loyaltyLabelCx = clsx(styles.fieldLabel, styles.loyaltyLabel);
 
     return (
       <section className={styles.card} aria-labelledby={headingId}>
@@ -479,7 +480,7 @@ const FollowerCard = memo(
               as="span"
               size="xs"
               color="muted"
-              className={clsx(styles.fieldLabel, styles.loyaltyLabel)}
+              className={loyaltyLabelCx}
             >
               Loyalty
             </Text>

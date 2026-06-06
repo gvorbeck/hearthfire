@@ -165,9 +165,10 @@ const MysteryMoveBlock = memo(({
   );
 
   const isMultiHp = !!(move.follower?.hpCount && move.follower.hpCount > 1);
+  const mysteryMoveCx = clsx(styles.mysteryMove, checked && styles.mysteryMoveChosen);
 
   return (
-    <div className={clsx(styles.mysteryMove, checked && styles.mysteryMoveChosen)}>
+    <div className={mysteryMoveCx}>
       <label className={styles.mysteryMoveHeader}>
         <Checkbox checked={checked} onChange={handleToggle} />
         <div className={styles.mysteryMoveTitle}>
