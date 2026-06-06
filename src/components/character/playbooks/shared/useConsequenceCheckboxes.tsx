@@ -1,8 +1,7 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useLatest } from '@/hooks/useLatest';
+import { useCallback, useMemo } from 'react';
+import { useOptimisticField } from '@/hooks/useOptimisticField';
 import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
-import { useToast } from '@/components/app';
 import type { CharacterData, PlaybookFeatures } from '@/types';
 
 type ConsequenceKey = Extract<{
@@ -21,30 +20,21 @@ export const useConsequenceCheckboxes = (
   labels: ConsequenceLabel[],
   isDisabled?: (id: string, checked: Record<string, boolean>) => boolean,
 ) => {
-  const { addToast } = useToast();
-  const [checked, setChecked] = useState<Record<string, boolean>>(
-    () => (resolvePlaybookFeatures(data)[consequenceKey] as Record<string, boolean> | undefined) ?? {},
-  );
-  const checkedRef = useLatest(checked);
+  const firestoreValue = (resolvePlaybookFeatures(data)[consequenceKey] as Record<string, boolean> | undefined) ?? {};
 
-  useEffect(() => {
-    const val = resolvePlaybookFeatures(data)[consequenceKey] as Record<string, boolean> | undefined;
-    if (val !== undefined) setChecked(val);
-  }, [data, consequenceKey]);
+  const { value: checked, ref: checkedRef, save } = useOptimisticField(
+    firestoreValue,
+    (next) => saveImmediate({ [consequenceKey]: next }),
+    'Failed to save.',
+  );
 
   const handleChange = useCallback((id: string, isChecked: boolean) => {
-    const prev = checkedRef.current;
-    const next = { ...prev, [id]: isChecked };
-    setChecked(next);
-    saveImmediate({ [consequenceKey]: next }).catch(() => { setChecked(prev); addToast('Failed to save.', 'error'); });
-  }, [saveImmediate, consequenceKey, addToast]);
+    save({ ...checkedRef.current, [id]: isChecked });
+  }, [save]);
 
   const updateChecked = useCallback((updater: (prev: Record<string, boolean>) => Record<string, boolean>) => {
-    const prev = checkedRef.current;
-    const next = updater(prev);
-    setChecked(next);
-    saveImmediate({ [consequenceKey]: next }).catch(() => { setChecked(prev); addToast('Failed to save.', 'error'); });
-  }, [saveImmediate, consequenceKey, addToast]);
+    save(updater(checkedRef.current));
+  }, [save]);
 
   const items = useMemo(() => labels.map((c) => ({
     id: c.id,

@@ -1,7 +1,6 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useLatest } from '@/hooks/useLatest';
+import { useCallback } from 'react';
+import { useOptimisticField } from '@/hooks/useOptimisticField';
 import { Divider, Radio, RadioGroup, Text } from '@/components/ui';
-import { useToast } from '@/components/app';
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
@@ -33,44 +32,27 @@ interface BlessedSacredPouchProps {
 }
 
 export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) => {
-  const { addToast } = useToast();
-  const [is, setIs] = useState<Record<string, string>>(() => resolvePlaybookFeatures(data).sacredPouchIs ?? {});
-  const [trait, setTrait] = useState<string>(() => resolvePlaybookFeatures(data).sacredPouchTrait ?? '');
-  const isRef = useLatest(is);
-  const traitRef = useLatest(trait);
+  const features = resolvePlaybookFeatures(data);
 
-  const lastFirestoreSacredPouchRef = useRef<string | undefined>(undefined);
-
-  useEffect(() => {
-    const incoming = JSON.stringify(data?.playbookFeatures);
-    if (incoming === lastFirestoreSacredPouchRef.current) return;
-    lastFirestoreSacredPouchRef.current = incoming;
-    const f = resolvePlaybookFeatures(data);
-    if (f.sacredPouchIs !== undefined) setIs(f.sacredPouchIs);
-    if (f.sacredPouchTrait !== undefined) setTrait(f.sacredPouchTrait);
-  }, [data]);
-
-  const handleIs = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const key = e.currentTarget.dataset.key!;
-      const value = e.currentTarget.value;
-      const prev = isRef.current;
-      const next = { ...prev, [key]: value };
-      setIs(next);
-      onSave(featurePatch(data, { sacredPouchIs: next })).catch(() => { setIs(prev); addToast('Failed to save.', 'error'); });
-    },
-    [onSave, data, addToast]
+  const { value: is, ref: isRef, save: saveIs } = useOptimisticField(
+    features.sacredPouchIs ?? {},
+    (next) => onSave(featurePatch(data, { sacredPouchIs: next })),
+    'Failed to save.',
+  );
+  const { value: trait, save: saveTrait } = useOptimisticField(
+    features.sacredPouchTrait ?? '',
+    (next) => onSave(featurePatch(data, { sacredPouchTrait: next })),
+    'Failed to save.',
   );
 
-  const handleTrait = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.currentTarget.value;
-      const prev = traitRef.current;
-      setTrait(value);
-      onSave(featurePatch(data, { sacredPouchTrait: value })).catch(() => { setTrait(prev); addToast('Failed to save.', 'error'); });
-    },
-    [onSave, data, addToast]
-  );
+  const handleIs = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const key = e.currentTarget.dataset.key!;
+    saveIs({ ...isRef.current, [key]: e.currentTarget.value });
+  }, [saveIs]);
+
+  const handleTrait = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    saveTrait(e.currentTarget.value);
+  }, [saveTrait]);
 
   return (
     <PlaybookSection title="Sacred Pouch">

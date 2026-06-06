@@ -1,10 +1,10 @@
 import { useState, useRef, useMemo, useCallback, memo } from 'react';
 import { useLatest } from '@/hooks/useLatest';
 import { useFirestoreSync } from '@/hooks/useFirestoreSync';
+import { useCharacterField } from '@/hooks/useCharacterField';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import clsx from 'clsx';
 import { Checkbox, Divider, Heading, Input, List, PlaybookColumns, Stack, Text, UseDots } from '@/components/ui';
-import { useToast } from '@/components/app';
 import { RepeaterField } from '@/components/fields';
 import { PlaybookSection } from '../PlaybookSection';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
@@ -232,7 +232,7 @@ const PROSPERITY_NOTES: Record<number, string> = { [-1]: 'Gear is crude', 0: 'St
 const ProsperityOptionRow = memo(({ val, selected }: ProsperityOptionRowProps) => {
   const cx = clsx(styles.prosperityOption, selected && styles.prosperitySelected);
   return (
-    <div className={cx}>
+    <div className={cx} aria-current={selected ? true : undefined}>
       <span className={styles.prosperityValue}>{val > 0 ? `+${val}` : val}</span>
       <span className={styles.prosperityNote}>{PROSPERITY_NOTES[val]}</span>
     </div>
@@ -246,67 +246,43 @@ interface InventoryProps {
 }
 
 export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
-  const { addToast } = useToast();
-  const [inventoryChecked, setInventoryChecked] = useState<Record<string, boolean>>(() => data?.inventoryChecked ?? {});
-  const [inventoryUses, setInventoryUses] = useState<Record<string, number>>(() => data?.inventoryUses ?? {});
-  const [smallChecked, setSmallChecked] = useState<Record<string, boolean>>(() => data?.inventorySmallChecked ?? {});
-  const [undefinedMain, setUndefinedMain] = useState<number>(() => data?.inventoryUndefined ?? 0);
-  const [undefinedSmall, setUndefinedSmall] = useState<number>(() => data?.inventorySmallUndefined ?? 0);
-  const undefinedMainRef = useLatest(undefinedMain);
-  const undefinedSmallRef = useLatest(undefinedSmall);
+  const onSaveRef = useLatest(onSave);
+
+  const { value: inventoryChecked, ref: inventoryCheckedRef, save: saveInventoryChecked } = useCharacterField('inventoryChecked', data?.inventoryChecked ?? {}, onSave, 'Failed to save.');
+  const { value: inventoryUses, ref: inventoryUsesRef, save: saveInventoryUses } = useCharacterField('inventoryUses', data?.inventoryUses ?? {}, onSave, 'Failed to save.');
+  const { value: smallChecked, ref: smallCheckedRef, save: saveSmallChecked } = useCharacterField('inventorySmallChecked', data?.inventorySmallChecked ?? {}, onSave, 'Failed to save.');
+  const { value: undefinedMain, save: saveUndefinedMain } = useCharacterField('inventoryUndefined', data?.inventoryUndefined ?? 0, onSave, 'Failed to save.');
+  const { value: undefinedSmall, save: saveUndefinedSmall } = useCharacterField('inventorySmallUndefined', data?.inventorySmallUndefined ?? 0, onSave, 'Failed to save.');
+  const { value: arcanaMinor, ref: arcanaMinorRef, save: saveArcanaMinor } = useCharacterField('arcanaMinor', data?.arcanaMinor ?? [], onSave, 'Failed to save.');
+  const { value: arcanaMajor, ref: arcanaMajorRef, save: saveArcanaMajor } = useCharacterField('arcanaMajor', data?.arcanaMajor ?? [], onSave, 'Failed to save.');
   const [otherThings, setOtherThings] = useState<string>(() => data?.inventoryOtherThings ?? '');
-  const [arcanaMinor, setArcanaMinor] = useState(() => data?.arcanaMinor ?? []);
-  const [arcanaMajor, setArcanaMajor] = useState(() => data?.arcanaMajor ?? []);
-  const arcanaMinorPendingRef = useRef(false);
-  const arcanaMajorPendingRef = useRef(false);
   const otherThingsPendingRef = useRef(false);
 
-  const { onChange: otherThingsDebounced, flush: otherThingsFlush } = useDebouncedSave<Partial<CharacterData>>(onSave);
+  const otherThingsSave = (value: Partial<CharacterData>) =>
+    onSaveRef.current(value).finally(() => { otherThingsPendingRef.current = false; });
+  const { onChange: otherThingsDebounced, flush: otherThingsFlush } = useDebouncedSave<Partial<CharacterData>>(otherThingsSave);
 
-  useFirestoreSync(data?.inventoryChecked ?? {}, setInventoryChecked);
-  useFirestoreSync(data?.inventoryUses ?? {}, setInventoryUses);
-  useFirestoreSync(data?.inventorySmallChecked ?? {}, setSmallChecked);
-  useFirestoreSync(data?.inventoryUndefined ?? 0, setUndefinedMain);
-  useFirestoreSync(data?.inventorySmallUndefined ?? 0, setUndefinedSmall);
   useFirestoreSync(data?.inventoryOtherThings ?? '', setOtherThings, otherThingsPendingRef);
-  useFirestoreSync(data?.arcanaMinor ?? [], setArcanaMinor, arcanaMinorPendingRef);
-  useFirestoreSync(data?.arcanaMajor ?? [], setArcanaMajor, arcanaMajorPendingRef);
 
   const handleMainChecked = useCallback((id: string, val: boolean) => {
-    setInventoryChecked((prev) => {
-      const next = { ...prev, [id]: val };
-      onSave({ inventoryChecked: next }).catch(() => { setInventoryChecked(prev); addToast('Failed to save.', 'error'); });
-      return next;
-    });
-  }, [onSave, addToast]);
+    saveInventoryChecked({ ...inventoryCheckedRef.current, [id]: val });
+  }, [saveInventoryChecked]);
 
   const handleMainUses = useCallback((id: string, n: number) => {
-    setInventoryUses((prev) => {
-      const next = { ...prev, [id]: n };
-      onSave({ inventoryUses: next }).catch(() => { setInventoryUses(prev); addToast('Failed to save.', 'error'); });
-      return next;
-    });
-  }, [onSave, addToast]);
+    saveInventoryUses({ ...inventoryUsesRef.current, [id]: n });
+  }, [saveInventoryUses]);
 
   const handleUndefinedMain = useCallback((n: number) => {
-    const prev = undefinedMainRef.current;
-    setUndefinedMain(n);
-    onSave({ inventoryUndefined: n }).catch(() => { setUndefinedMain(prev); addToast('Failed to save.', 'error'); });
-  }, [onSave, addToast]);
+    saveUndefinedMain(n);
+  }, [saveUndefinedMain]);
 
   const handleUndefinedSmall = useCallback((n: number) => {
-    const prev = undefinedSmallRef.current;
-    setUndefinedSmall(n);
-    onSave({ inventorySmallUndefined: n }).catch(() => { setUndefinedSmall(prev); addToast('Failed to save.', 'error'); });
-  }, [onSave, addToast]);
+    saveUndefinedSmall(n);
+  }, [saveUndefinedSmall]);
 
   const handleSmallChecked = useCallback((id: string, val: boolean) => {
-    setSmallChecked((prev) => {
-      const next = { ...prev, [id]: val };
-      onSave({ inventorySmallChecked: next }).catch(() => { setSmallChecked(prev); addToast('Failed to save.', 'error'); });
-      return next;
-    });
-  }, [onSave, addToast]);
+    saveSmallChecked({ ...smallCheckedRef.current, [id]: val });
+  }, [saveSmallChecked]);
 
   const handleOtherThingsChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value;
@@ -320,35 +296,21 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
       .finally(() => { otherThingsPendingRef.current = false; });
   }, [otherThingsFlush]);
 
-  const handleSavePossessions = useCallback(async (items: { checked: boolean; text: string; weight: 1 | 2 }[]) => {
-    await onSave({ inventoryPossessions: items });
-  }, [onSave]);
+  const handleSavePossessions = async (items: { checked: boolean; text: string; weight: 1 | 2 }[]) => {
+    await onSaveRef.current({ inventoryPossessions: items });
+  };
 
-  const handleSaveSmallCustom = useCallback(async (items: { checked: boolean; text: string }[]) => {
-    await onSave({ inventorySmallCustom: items });
-  }, [onSave]);
+  const handleSaveSmallCustom = async (items: { checked: boolean; text: string }[]) => {
+    await onSaveRef.current({ inventorySmallCustom: items });
+  };
 
   const handleArcanaCarried = useCallback((id: string, carried: boolean) => {
-    setArcanaMinor((prev) => {
-      const next = prev.map((e) => e.id === id ? { ...e, carried } : e);
-      arcanaMinorPendingRef.current = true;
-      onSave({ arcanaMinor: next })
-        .catch(() => { setArcanaMinor(prev); addToast('Failed to save.', 'error'); })
-        .finally(() => { arcanaMinorPendingRef.current = false; });
-      return next;
-    });
-  }, [onSave, addToast]);
+    saveArcanaMinor(arcanaMinorRef.current.map((e) => e.id === id ? { ...e, carried } : e));
+  }, [saveArcanaMinor]);
 
   const handleArcanaMajorCarried = useCallback((id: string, carried: boolean) => {
-    setArcanaMajor((prev) => {
-      const next = prev.map((e) => e.id === id ? { ...e, carried } : e);
-      arcanaMajorPendingRef.current = true;
-      onSave({ arcanaMajor: next })
-        .catch(() => { setArcanaMajor(prev); addToast('Failed to save.', 'error'); })
-        .finally(() => { arcanaMajorPendingRef.current = false; });
-      return next;
-    });
-  }, [onSave, addToast]);
+    saveArcanaMajor(arcanaMajorRef.current.map((e) => e.id === id ? { ...e, carried } : e));
+  }, [saveArcanaMajor]);
 
   const totalLoad = useMemo(
     () => computeTotalLoad({ ...data, inventoryChecked, inventoryUndefined: undefinedMain, arcanaMinor, arcanaMajor }),
@@ -367,159 +329,159 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
     <PlaybookColumns
       left={
         <PlaybookSection title="Inventory">
+          <Text font="serif" color="muted" leading="normal">
+            {parseInlineMarkdown('When you **Outfit**, mark a number of ◊ below, on specific items or Undefined.')}
+          </Text>
+          <List
+            variant="bullet"
+            items={[
+              parseInlineMarkdown('For a **light load** *(quick & quiet)*, mark up to 3 ◈'),
+              parseInlineMarkdown('For a **normal load**, mark 4–6 ◈'),
+              parseInlineMarkdown('For a **heavy load** *(noisy, slow, hot, quick to tire)*, mark 7–9 ◈'),
+            ]}
+          />
+
+          <div className={styles.loadRow}>
+            <span className={loadCx}>
+              {parseInlineMarkdown(`${totalLoad} ◈ — ${loadLabel}`)}
+            </span>
+          </div>
+
+          <Divider />
+
+          <Stack gap={2}>
+            <Stack direction="row" gap={3} align="center">
+              <span className={styles.undefinedLabel}>Undefined</span>
+              <UndefinedProvisions total={UNDEFINED_MAIN_COUNT} checked={undefinedMain} onChange={handleUndefinedMain} />
+            </Stack>
             <Text font="serif" color="muted" leading="normal">
-              {parseInlineMarkdown('When you **Outfit**, mark a number of ◊ below, on specific items or Undefined.')}
+              {parseInlineMarkdown('When you **Have What You Need**, move ◈ from here to ◊ below.')}
             </Text>
-            <List
-              variant="bullet"
-              items={[
-                parseInlineMarkdown('For a **light load** *(quick & quiet)*, mark up to 3 ◈'),
-                parseInlineMarkdown('For a **normal load**, mark 4–6 ◈'),
-                parseInlineMarkdown('For a **heavy load** *(noisy, slow, hot, quick to tire)*, mark 7–9 ◈'),
-              ]}
-            />
+          </Stack>
 
-            <div className={styles.loadRow}>
-              <span className={loadCx}>
-                {parseInlineMarkdown(`${totalLoad} ◈ — ${loadLabel}`)}
-              </span>
-            </div>
+          <Divider />
 
-            <Divider />
+          <Stack gap={2}>
+            {MAIN_ITEMS.map((item) => (
+              <MainItemRow
+                key={item.id}
+                item={item}
+                checked={inventoryChecked[item.id] ?? false}
+                uses={inventoryUses[item.id] ?? 0}
+                prosperity={prosperity}
+                onCheckedChange={handleMainChecked}
+                onUsesChange={handleMainUses}
+              />
+            ))}
+          </Stack>
 
-            <Stack gap={2}>
-              <Stack direction="row" gap={3} align="center">
-                <span className={styles.undefinedLabel}>Undefined</span>
-                <UndefinedProvisions total={UNDEFINED_MAIN_COUNT} checked={undefinedMain} onChange={handleUndefinedMain} />
-              </Stack>
-              <Text font="serif" color="muted" leading="normal">
-                {parseInlineMarkdown('When you **Have What You Need**, move ◈ from here to ◊ below.')}
-              </Text>
-            </Stack>
+          <Divider />
 
-            <Divider />
-
-            <Stack gap={2}>
-              {MAIN_ITEMS.map((item) => (
-                <MainItemRow
-                  key={item.id}
-                  item={item}
-                  checked={inventoryChecked[item.id] ?? false}
-                  uses={inventoryUses[item.id] ?? 0}
-                  prosperity={prosperity}
-                  onCheckedChange={handleMainChecked}
-                  onUsesChange={handleMainUses}
+          <Stack gap={2}>
+            <Heading as="h4" size="sm">Possessions, items, loot</Heading>
+            {arcanaMinor.map((entry) => {
+              const arcanum = MINOR_ARCANA.find((a) => a.id === entry.id);
+              if (!arcanum?.weight) return null;
+              return (
+                <ArcanaItemRow
+                  key={entry.id}
+                  id={entry.id}
+                  name={arcanum.name}
+                  weight={arcanum.weight}
+                  carried={!!entry.carried}
+                  onCarriedChange={handleArcanaCarried}
                 />
-              ))}
-            </Stack>
+              );
+            })}
+            {arcanaMajor.map((entry) => {
+              const arcanum = MAJOR_ARCANA.find((a) => a.id === entry.id);
+              if (!arcanum?.weight) return null;
+              return (
+                <ArcanaItemRow
+                  key={entry.id}
+                  id={entry.id}
+                  name={arcanum.name}
+                  weight={arcanum.weight}
+                  carried={!!entry.carried}
+                  onCarriedChange={handleArcanaMajorCarried}
+                />
+              );
+            })}
+            <RepeaterField
+              variant="checked-weight"
+              items={data?.inventoryPossessions ?? []}
+              onSave={handleSavePossessions}
+              addLabel="Add possession"
+              itemLabel="Possession"
+            />
+          </Stack>
 
-            <Divider />
+          <Divider />
 
-            <Stack gap={2}>
-              <Heading as="h4" size="sm">Possessions, items, loot</Heading>
-              {arcanaMinor.map((entry) => {
-                const arcanum = MINOR_ARCANA.find((a) => a.id === entry.id);
-                if (!arcanum?.weight) return null;
-                return (
-                  <ArcanaItemRow
-                    key={entry.id}
-                    id={entry.id}
-                    name={arcanum.name}
-                    weight={arcanum.weight}
-                    carried={!!entry.carried}
-                    onCarriedChange={handleArcanaCarried}
-                  />
-                );
-              })}
-              {arcanaMajor.map((entry) => {
-                const arcanum = MAJOR_ARCANA.find((a) => a.id === entry.id);
-                if (!arcanum?.weight) return null;
-                return (
-                  <ArcanaItemRow
-                    key={entry.id}
-                    id={entry.id}
-                    name={arcanum.name}
-                    weight={arcanum.weight}
-                    carried={!!entry.carried}
-                    onCarriedChange={handleArcanaMajorCarried}
-                  />
-                );
-              })}
-              <RepeaterField
-                variant="checked-weight"
-                items={data?.inventoryPossessions ?? []}
-                onSave={handleSavePossessions}
-                addLabel="Add possession"
-                itemLabel="Possession"
-              />
-            </Stack>
-
-            <Divider />
-
-            <Stack gap={2}>
-              <Heading as="h4" size="sm">{parseInlineMarkdown('Other things *(animals, kits, stashed items, etc.)*')}</Heading>
-              <Input
-                multiline
-                value={otherThings}
-                placeholder="Notes…"
-                aria-label="Other things"
-                rows={3}
-                onChange={handleOtherThingsChange}
-                onBlur={handleOtherThingsBlur}
-              />
-            </Stack>
-          </PlaybookSection>
+          <Stack gap={2}>
+            <Heading as="h4" size="sm">{parseInlineMarkdown('Other things *(animals, kits, stashed items, etc.)*')}</Heading>
+            <Input
+              multiline
+              value={otherThings}
+              placeholder="Notes…"
+              aria-label="Other things"
+              rows={3}
+              onChange={handleOtherThingsChange}
+              onBlur={handleOtherThingsBlur}
+            />
+          </Stack>
+        </PlaybookSection>
       }
       right={<>
         <PlaybookSection title="Small items">
-            <Text font="serif" color="muted" leading="normal">Fit in a pocket, pouch, or boot.</Text>
-            <Text font="serif" color="muted" leading="normal">
-              {parseInlineMarkdown('When you **Outfit**, mark □ below equal to 4+Prosperity.')}
-            </Text>
+          <Text font="serif" color="muted" leading="normal">Fit in a pocket, pouch, or boot.</Text>
+          <Text font="serif" color="muted" leading="normal">
+            {parseInlineMarkdown('When you **Outfit**, mark □ below equal to 4+Prosperity.')}
+          </Text>
 
-            <Divider />
+          <Divider />
 
-            <Stack gap={2}>
-              <Stack direction="row" gap={3} align="center">
-                <span className={styles.undefinedLabel}>Undefined</span>
-                <UndefinedProvisions total={UNDEFINED_SMALL_COUNT} checked={undefinedSmall} onChange={handleUndefinedSmall} />
-              </Stack>
-              <Text font="serif" color="muted" leading="normal">
-                {parseInlineMarkdown("When you **Have What You Need**, move ◈ from here to items below, or expend supplies to mark an additional □.")}
-              </Text>
+          <Stack gap={2}>
+            <Stack direction="row" gap={3} align="center">
+              <span className={styles.undefinedLabel}>Undefined</span>
+              <UndefinedProvisions total={UNDEFINED_SMALL_COUNT} checked={undefinedSmall} onChange={handleUndefinedSmall} />
             </Stack>
+            <Text font="serif" color="muted" leading="normal">
+              {parseInlineMarkdown("When you **Have What You Need**, move ◈ from here to items below, or expend supplies to mark an additional □.")}
+            </Text>
+          </Stack>
 
-            <Divider />
+          <Divider />
 
-            <Stack gap={1}>
-              {SMALL_ITEMS.map((item) => (
-                <SmallItemRow
-                  key={item.id}
-                  item={item}
-                  checked={smallChecked[item.id] ?? false}
-                  onCheckedChange={handleSmallChecked}
-                />
-              ))}
-              <RepeaterField
-                variant="checked"
-                items={data?.inventorySmallCustom ?? []}
-                onSave={handleSaveSmallCustom}
-                addLabel="Add small item"
-                itemLabel="Small item"
+          <Stack gap={1}>
+            {SMALL_ITEMS.map((item) => (
+              <SmallItemRow
+                key={item.id}
+                item={item}
+                checked={smallChecked[item.id] ?? false}
+                onCheckedChange={handleSmallChecked}
               />
-            </Stack>
-          </PlaybookSection>
+            ))}
+            <RepeaterField
+              variant="checked"
+              items={data?.inventorySmallCustom ?? []}
+              onSave={handleSaveSmallCustom}
+              addLabel="Add small item"
+              itemLabel="Small item"
+            />
+          </Stack>
+        </PlaybookSection>
 
-          <PlaybookSection title="Prosperity">
-            <Text font="serif" color="muted" leading="normal">
-              Affects uses from Supplies, HP from Recover, and piercing on iron weapons. Set by the GM.
-            </Text>
-            <div className={styles.prosperityList}>
-              {([-1, 0, 1, 2] as const).map((val) => (
-                <ProsperityOptionRow key={val} val={val} selected={prosperity === val} />
-              ))}
-            </div>
-          </PlaybookSection>
+        <PlaybookSection title="Prosperity">
+          <Text font="serif" color="muted" leading="normal">
+            Affects uses from Supplies, HP from Recover, and piercing on iron weapons. Set by the GM.
+          </Text>
+          <div className={styles.prosperityList}>
+            {([-1, 0, 1, 2] as const).map((val) => (
+              <ProsperityOptionRow key={val} val={val} selected={prosperity === val} />
+            ))}
+          </div>
+        </PlaybookSection>
       </>}
     />
   );

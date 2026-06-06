@@ -30,14 +30,14 @@ export const ImprovementList = ({
   itemLabel,
 }: ImprovementListProps) => {
   const allFixed = [
-    ...fixedItems.map((label) => ({ label, fromImprovement: false })),
-    ...improvementItems.filter((imp) => improvements[imp.id]).map(({ label }) => ({ label, fromImprovement: true })),
-    ...extraItems.map((label) => ({ label, fromImprovement: true })),
+    ...fixedItems.map((label) => ({ id: label, label, fromImprovement: false })),
+    ...improvementItems.filter((imp) => improvements[imp.id]).map(({ id, label }) => ({ id, label, fromImprovement: true })),
+    ...extraItems.map((label) => ({ id: label, label, fromImprovement: true })),
   ];
 
-  const listItems = allFixed.map(({ label, fromImprovement }, i) => (
-    <span key={`fixed-${label.slice(0, 16)}-${i}`} className={styles.fixedItem}>
-      {parseInlineMarkdown(label)}
+  const listItems = allFixed.map(({ id, label, fromImprovement }) => (
+    <span key={id} className={styles.fixedItem}>
+      <span>{parseInlineMarkdown(label)}</span>
       {fromImprovement && (
         <Tooltip text="Added by a completed improvement" side="top">
           <Icon name="info" size="small" className={styles.infoIcon} />

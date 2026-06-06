@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useLatest } from '@/hooks/useLatest';
+import { useOptimisticField } from '@/hooks/useOptimisticField';
+import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import clsx from 'clsx';
 import { Checkbox, Input, Radio, UseDots } from '@/components/ui';
 import { useToast } from '@/components/app';
@@ -189,16 +191,27 @@ const PossessionLabel = ({ p, checked, selected, uses, onToggle, onRadioSelect, 
 
 export const SpecialPossessions = ({ config, data, onSave, level = 1, chooseOverride }: SpecialPossessionsProps = {}) => {
   const { addToast } = useToast();
-  const [selected, setSelected] = useState<Record<string, boolean>>(() => data?.specialPossessions ?? {});
-  const [uses, setUses] = useState<Record<string, number>>(() => data?.specialPossessionUses ?? {});
+  const onSaveRef = useLatest(onSave);
+  const { value: selected, ref: selectedRef, save: saveSelected } = useOptimisticField(
+    data?.specialPossessions ?? {},
+    (next) => onSaveRef.current?.({ specialPossessions: next }) ?? Promise.resolve(),
+    'Failed to save possession.',
+  );
+  const { value: uses, ref: usesRef, save: saveUses } = useOptimisticField(
+    data?.specialPossessionUses ?? {},
+    (next) => onSaveRef.current?.({ specialPossessionUses: next }) ?? Promise.resolve(),
+    'Failed to save.',
+  );
   const [customText, setCustomText] = useState<string>(() => data?.specialPossessionCustom ?? '');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const hasInitializedCollapse = useRef(false);
-  const selectedRef = useLatest(selected);
-  const usesRef = useLatest(uses);
   const customTextRef = useLatest(customText);
-  const customDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const background = data?.background;
+
+  const { onChange: customSaveDebounced, flush: customSaveFlush } = useDebouncedSave<string>(
+    (next) => onSaveRef.current?.({ specialPossessionCustom: next }) ?? Promise.resolve(),
+    1000,
+  );
 
   const alwaysSelectedIds = useMemo(() => {
     const ids = new Set<string>();
@@ -209,13 +222,6 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1, chooseOver
     }
     return ids;
   }, [config?.items, background]);
-
-  useEffect(() => {
-    setSelected(data?.specialPossessions ?? {});
-    setUses(data?.specialPossessionUses ?? {});
-  }, [data?.specialPossessions, data?.specialPossessionUses]);
-
-  useEffect(() => () => { if (customDebounceRef.current) clearTimeout(customDebounceRef.current); }, []);
 
   useEffect(() => {
     if (!config?.items.length) return;
@@ -229,11 +235,8 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1, chooseOver
   }, [selected, config, alwaysSelectedIds]);
 
   const handleToggle = useCallback((id: string, checked: boolean) => {
-    const prev = selectedRef.current;
-    const next = { ...prev, [id]: checked };
-    setSelected(next);
-    onSave?.({ specialPossessions: next }).catch(() => { setSelected(prev); addToast('Failed to save possession.', 'error'); });
-  }, [onSave, addToast]);
+    saveSelected({ ...selectedRef.current, [id]: checked });
+  }, [saveSelected]);
 
   const handleRadioSelect = useCallback((possessionId: string, key: string) => {
     const prev = selectedRef.current;
@@ -242,20 +245,16 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1, chooseOver
       if (k.startsWith(`${possessionId}-`)) next[k] = false;
     }
     next[key] = true;
-    setSelected(next);
-    onSave?.({ specialPossessions: next }).catch(() => { setSelected(prev); addToast('Failed to save possession.', 'error'); });
-  }, [onSave, addToast]);
+    saveSelected(next);
+  }, [saveSelected]);
 
   const handleUses = useCallback((id: string, count: number) => {
-    const prev = usesRef.current;
-    const next = { ...prev, [id]: count };
-    setUses(next);
-    onSave?.({ specialPossessionUses: next }).catch(() => { setUses(prev); addToast('Failed to save.', 'error'); });
-  }, [onSave, addToast]);
+    saveUses({ ...usesRef.current, [id]: count });
+  }, [saveUses]);
 
   const handleStock = useCallback((stockKey: Extract<keyof CharacterData, 'sacredPouchStock'>, stock: number) => {
-    onSave?.({ [stockKey]: stock })?.catch(() => addToast('Failed to save.', 'error'));
-  }, [onSave, addToast]);
+    onSaveRef.current?.({ [stockKey]: stock })?.catch(() => addToast('Failed to save.', 'error'));
+  }, [addToast]);
 
   const stockExtra = useMemo(() => {
     const stockItem = config?.items.find(p => p.stockKey);
@@ -283,17 +282,12 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1, chooseOver
   const handleCustomChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setCustomText(value);
-    if (customDebounceRef.current) clearTimeout(customDebounceRef.current);
-    customDebounceRef.current = setTimeout(() => {
-      onSave?.({ specialPossessionCustom: customTextRef.current })
-        ?.catch(() => addToast('Failed to save.', 'error'));
-    }, 1000);
-  }, [onSave, addToast]);
+    customSaveDebounced(value);
+  }, [customSaveDebounced]);
 
-  const handleCustomBlur = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
-    if (customDebounceRef.current) clearTimeout(customDebounceRef.current);
-    onSave?.({ specialPossessionCustom: e.target.value })?.catch(() => addToast('Failed to save.', 'error'));
-  }, [onSave, addToast]);
+  const handleCustomBlur = useCallback(() => {
+    customSaveFlush(customTextRef.current);
+  }, [customSaveFlush, customTextRef]);
 
   if (!config?.items.length) return <PlaybookSection title="Special Possessions" />;
 

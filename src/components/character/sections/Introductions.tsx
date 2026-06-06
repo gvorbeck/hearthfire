@@ -1,6 +1,8 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
+import { useLatest } from '@/hooks/useLatest';
+import { useOptimisticField } from '@/hooks/useOptimisticField';
 import { CheckboxGroup, List, Text } from '@/components/ui';
-import { useToast } from '@/components/app';
+import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { PlaybookSection } from '../PlaybookSection';
 import type { CharacterData, IntroductionsConfig } from '@/types';
 import styles from './Introductions.module.css';
@@ -13,15 +15,13 @@ interface IntroductionsProps {
 
 const STEP_1 = (
   <Text key="step-1" font="serif" color="muted" leading="tight">
-    On your first turn, <strong>introduce yourself</strong> by name, pronouns, background,
-    origin, and appearance.
+    {parseInlineMarkdown('On your first turn, **introduce yourself** by name, pronouns, background, origin, and appearance.')}
   </Text>
 );
 
 const STEP_2 = (
   <Text key="step-2" font="serif" color="muted" leading="tight">
-    On your second turn, <strong>describe your special possessions</strong> and how you
-    contribute to the village (beyond working the fields).
+    {parseInlineMarkdown('On your second turn, **describe your special possessions** and how you contribute to the village (beyond working the fields).')}
   </Text>
 );
 
@@ -44,22 +44,16 @@ const STEP_8 = (
 );
 
 export const Introductions = ({ config, data, onSave }: IntroductionsProps = {}) => {
-  const { addToast } = useToast();
-  const [questions, setQuestions] = useState<Record<string, boolean>>(
-    () => data?.introductionQuestions ?? {}
+  const onSaveRef = useLatest(onSave);
+  const { value: questions, ref: questionsRef, save: saveQuestions } = useOptimisticField(
+    data?.introductionQuestions ?? {},
+    (next) => onSaveRef.current?.({ introductionQuestions: next }) ?? Promise.resolve(),
+    'Failed to save.',
   );
 
-  useEffect(() => {
-    if (data?.introductionQuestions !== undefined) setQuestions(data.introductionQuestions);
-  }, [data?.introductionQuestions]);
-
   const handleQuestion = useCallback((id: string, checked: boolean) => {
-    setQuestions((prev) => {
-      const next = { ...prev, [id]: checked };
-      onSave?.({ introductionQuestions: next }).catch(() => { setQuestions(prev); addToast('Failed to save.', 'error'); });
-      return next;
-    });
-  }, [onSave, addToast]);
+    saveQuestions({ ...questionsRef.current, [id]: checked });
+  }, [saveQuestions]);
 
   const items = useMemo(() => {
     if (!config) return [];
@@ -70,8 +64,7 @@ export const Introductions = ({ config, data, onSave }: IntroductionsProps = {})
       <Text key="step-3" font="serif" color="muted" leading="tight">{step3}</Text>,
       <div key="step-4">
         <Text font="serif" color="muted" leading="tight">
-          On your next turn, <strong>answer one of the following</strong>, naming one or more
-          NPCs who live in Stonetop.
+          {parseInlineMarkdown('On your next turn, **answer one of the following**, naming one or more NPCs who live in Stonetop.')}
         </Text>
         <div className={styles.questionList}>
           <CheckboxGroup
@@ -84,8 +77,7 @@ export const Introductions = ({ config, data, onSave }: IntroductionsProps = {})
       STEP_5,
       <div key="step-6">
         <Text font="serif" color="muted" leading="tight">
-          On your next turn, <strong>ask your fellow PCs one of these</strong>. When others ask
-          you, answer as you like.
+          {parseInlineMarkdown('On your next turn, **ask your fellow PCs one of these**. When others ask you, answer as you like.')}
         </Text>
         <div className={styles.questionList}>
           <CheckboxGroup
@@ -105,9 +97,7 @@ export const Introductions = ({ config, data, onSave }: IntroductionsProps = {})
   return (
     <PlaybookSection title="Introductions">
       <Text font="serif" color="muted" className={styles.intro}>
-        Wait here for everyone else. When everyone&apos;s ready, take turns introducing your
-        characters. When <strong>someone reveals something and you want to know more</strong>, ask
-        them about it. When <strong>someone asks you a question</strong>, answer it truthfully.
+        {parseInlineMarkdown("Wait here for everyone else. When everyone's ready, take turns introducing your characters. When **someone reveals something and you want to know more**, ask them about it. When **someone asks you a question**, answer it truthfully.")}
       </Text>
       <List variant="numbered" items={items} />
     </PlaybookSection>

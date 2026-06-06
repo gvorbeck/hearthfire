@@ -1,9 +1,8 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useLatest } from '@/hooks/useLatest';
-import { useFirestoreSync } from '@/hooks/useFirestoreSync';
+import { useCharacterField } from '@/hooks/useCharacterField';
 import { PlaybookSection } from '../PlaybookSection';
 import { Collapse, Text, Toggle } from '@/components/ui';
-import { useToast } from '@/components/app';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { Move } from '../Move';
 import type { MoveDefinition } from '@/types';
@@ -56,6 +55,15 @@ interface MoveSectionProps {
   emptyText: string;
 }
 
+const STATIC_SECTIONS: MoveSectionProps[] = [
+  { label: 'Basic Moves', helperText: 'These are the most commonly triggered moves, the ones that can come up in many different contexts.', moves: BASIC_MOVES, emptyText: 'No basic moves yet.' },
+  { label: 'Special Moves', helperText: 'These moves are always in play, but they either affect other moves or are triggered by very specific circumstances.', moves: SPECIAL_MOVES, emptyText: 'No special moves yet.' },
+  { label: 'Follower Moves', helperText: 'These moves apply when you interact with your **followers** (page 64).', moves: FOLLOWER_MOVES, emptyText: 'No follower moves yet.' },
+  { label: 'Expedition Moves', helperText: 'These moves apply when you prepare for, undertake, or return from an expedition.', moves: EXPEDITION_MOVES, emptyText: 'No expedition moves yet.' },
+  { label: 'Homefront Moves', helperText: "These moves apply during downtime, or when you're interacting with a steading's population and resources.", moves: HOMEFRONT_MOVES, emptyText: 'No homefront moves yet.' },
+  { label: 'Custom Moves', helperText: 'These moves apply only to specific game or setting elements, and only if you choose to use them. Consult your GM.', moves: CUSTOM_MOVES, emptyText: 'No custom moves yet.' },
+];
+
 const MoveSection = ({ label, helperText, moves, emptyText }: MoveSectionProps) => (
   <Collapse label={label}>
     <Text color="muted" className={styles.helperText}>{parseInlineMarkdown(helperText)}</Text>
@@ -79,7 +87,6 @@ interface MovesProps {
 }
 
 export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
-  const { addToast } = useToast();
   const typeMoves = useMemo(() => PLAYBOOK_MOVES[playbook] ?? [], [playbook]);
   const forcedMoveIds = useMemo(
     () => new Set(data?.background ? (BACKGROUND_FORCED_MOVES[playbook]?.[data.background] ?? []) : []),
@@ -90,47 +97,21 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
     [playbook, data?.background]
   );
 
-  const [selected, setSelected] = useState<Record<string, boolean>>(
-    () => data?.typeMoves ?? {}
-  );
-  const [uses, setUses] = useState<Record<string, number>>(
-    () => data?.typeMoveUses ?? {}
-  );
+  const { value: selected, ref: selectedRef, save: saveSelected } = useCharacterField('typeMoves', data?.typeMoves ?? {}, onSave, 'Failed to save move selection.');
+  const { value: uses, ref: usesRef, save: saveUses } = useCharacterField('typeMoveUses', data?.typeMoveUses ?? {}, onSave, 'Failed to save move uses.');
   // uses2 matches the Firestore field name (typeMoveUses2); the Move prop is usesAlt.
-  const [uses2, setUses2] = useState<Record<string, number>>(
-    () => data?.typeMoveUses2 ?? {}
-  );
-  const [takes, setTakes] = useState<Record<string, number>>(
-    () => data?.typeMoveTakes ?? {}
-  );
+  const { value: uses2, ref: uses2Ref, save: saveUses2 } = useCharacterField('typeMoveUses2', data?.typeMoveUses2 ?? {}, onSave, 'Failed to save move uses.');
+  const { value: takes, ref: takesRef, save: saveTakes } = useCharacterField('typeMoveTakes', data?.typeMoveTakes ?? {}, onSave, 'Failed to save move takes.');
   // Only used for non-leveled checklists; leveled moves use checkListLevels as their sole store.
-  const [checkLists, setCheckLists] = useState<Record<string, Record<string, boolean>>>(
-    () => data?.typeMoveCheckList ?? {}
-  );
-  const [checkListLevels, setCheckListLevels] = useState<Record<string, Record<string, number>>>(
-    () => data?.typeMoveCheckListLevels ?? {}
-  );
+  const { value: checkLists, ref: checkListsRef, save: saveCheckLists } = useCharacterField('typeMoveCheckList', data?.typeMoveCheckList ?? {}, onSave, 'Failed to save checklist.');
+  const { value: checkListLevels, ref: checkListLevelsRef, save: saveCheckListLevels } = useCharacterField('typeMoveCheckListLevels', data?.typeMoveCheckListLevels ?? {}, onSave, 'Failed to save checklist.');
+
   const [isHideUnselected, setIsHideUnselected] = useState(false);
   const handleHideUnselected = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setIsHideUnselected(e.target.checked), []);
 
-  const selectedRef = useLatest(selected);
-  const usesRef = useLatest(uses);
-  const uses2Ref = useLatest(uses2);
-  const takesRef = useLatest(takes);
-  const checkListsRef = useLatest(checkLists);
-  const checkListLevelsRef = useLatest(checkListLevels);
   const forcedMoveIdsRef = useLatest(forcedMoveIds);
   const typeMovesRef = useLatest(typeMoves);
   const levelRef = useLatest(level);
-  const onSaveRef = useLatest(onSave);
-  const addToastRef = useLatest(addToast);
-
-  useFirestoreSync(data?.typeMoves ?? {}, setSelected);
-  useFirestoreSync(data?.typeMoveUses ?? {}, setUses);
-  useFirestoreSync(data?.typeMoveUses2 ?? {}, setUses2);
-  useFirestoreSync(data?.typeMoveTakes ?? {}, setTakes);
-  useFirestoreSync(data?.typeMoveCheckList ?? {}, setCheckLists);
-  useFirestoreSync(data?.typeMoveCheckListLevels ?? {}, setCheckListLevels);
 
   const handleSelect = useCallback((id: string, value: boolean) => {
     if (forcedMoveIdsRef.current.has(id)) return;
@@ -138,49 +119,33 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
     if (!move) return;
     const lockReason = getLockReason(move, typeMovesRef.current, levelRef.current, selectedRef.current);
     if (lockReason) return;
-    const prev = selectedRef.current;
-    const next = { ...prev, [id]: value };
-    setSelected(next);
-    onSaveRef.current({ typeMoves: next }).catch(() => { setSelected(prev); addToastRef.current('Failed to save move selection.', 'error'); });
-  }, []);
+    saveSelected({ ...selectedRef.current, [id]: value });
+  }, [saveSelected]);
 
   const handleUses = useCallback((id: string, count: number) => {
-    const prev = usesRef.current;
-    const next = { ...prev, [id]: count };
-    setUses(next);
-    onSaveRef.current({ typeMoveUses: next }).catch(() => { setUses(prev); addToastRef.current('Failed to save move uses.', 'error'); });
-  }, []);
+    saveUses({ ...usesRef.current, [id]: count });
+  }, [saveUses]);
 
   const handleUses2 = useCallback((id: string, count: number) => {
-    const prev = uses2Ref.current;
-    const next = { ...prev, [id]: count };
-    setUses2(next);
-    onSaveRef.current({ typeMoveUses2: next }).catch(() => { setUses2(prev); addToastRef.current('Failed to save move uses.', 'error'); });
-  }, []);
+    saveUses2({ ...uses2Ref.current, [id]: count });
+  }, [saveUses2]);
 
   const handleTakes = useCallback((id: string, count: number) => {
-    const prev = takesRef.current;
-    const next = { ...prev, [id]: count };
-    setTakes(next);
-    onSaveRef.current({ typeMoveTakes: next }).catch(() => { setTakes(prev); addToastRef.current('Failed to save move takes.', 'error'); });
-  }, []);
+    saveTakes({ ...takesRef.current, [id]: count });
+  }, [saveTakes]);
 
   const handleCheckList = useCallback((id: string, itemId: string, checked: boolean) => {
     const prev = checkListsRef.current;
-    const next = { ...prev, [id]: { ...prev[id], [itemId]: checked } };
-    setCheckLists(next);
-    onSaveRef.current({ typeMoveCheckList: next }).catch(() => { setCheckLists(prev); addToastRef.current('Failed to save checklist.', 'error'); });
-  }, []);
+    saveCheckLists({ ...prev, [id]: { ...prev[id], [itemId]: checked } });
+  }, [saveCheckLists]);
 
   const handleCheckListLevel = useCallback((id: string, itemId: string, lvl: number | null) => {
     const prev = checkListLevelsRef.current;
     const prevItem = prev[id] ?? {};
     const { [itemId]: _removed, ...rest } = prevItem;
     const nextItem = lvl !== null ? { ...prevItem, [itemId]: lvl } : rest;
-    const next = { ...prev, [id]: nextItem };
-    setCheckListLevels(next);
-    onSaveRef.current({ typeMoveCheckListLevels: next }).catch(() => { setCheckListLevels(prev); addToastRef.current('Failed to save checklist.', 'error'); });
-  }, []);
+    saveCheckListLevels({ ...prev, [id]: nextItem });
+  }, [saveCheckListLevels]);
 
   const playbookEntry = PLAYBOOKS.find((p) => p.value === playbook);
   const playbookLabel = playbookEntry?.label ?? playbook;
@@ -256,42 +221,9 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
   return (
     <PlaybookSection title="Moves">
       <div className={styles.collapseStack}>
-        <MoveSection
-          label="Basic Moves"
-          helperText="These are the most commonly triggered moves, the ones that can come up in many different contexts."
-          moves={BASIC_MOVES}
-          emptyText="No basic moves yet."
-        />
-        <MoveSection
-          label="Special Moves"
-          helperText="These moves are always in play, but they either affect other moves or are triggered by very specific circumstances."
-          moves={SPECIAL_MOVES}
-          emptyText="No special moves yet."
-        />
-        <MoveSection
-          label="Follower Moves"
-          helperText="These moves apply when you interact with your **followers** (page 64)."
-          moves={FOLLOWER_MOVES}
-          emptyText="No follower moves yet."
-        />
-        <MoveSection
-          label="Expedition Moves"
-          helperText="These moves apply when you prepare for, undertake, or return from an expedition."
-          moves={EXPEDITION_MOVES}
-          emptyText="No expedition moves yet."
-        />
-        <MoveSection
-          label="Homefront Moves"
-          helperText="These moves apply during downtime, or when you're interacting with a steading's population and resources."
-          moves={HOMEFRONT_MOVES}
-          emptyText="No homefront moves yet."
-        />
-        <MoveSection
-          label="Custom Moves"
-          helperText="These moves apply only to specific game or setting elements, and only if you choose to use them. Consult your GM."
-          moves={CUSTOM_MOVES}
-          emptyText="No custom moves yet."
-        />
+        {STATIC_SECTIONS.map((s) => (
+          <MoveSection key={s.label} {...s} />
+        ))}
 
         <Collapse
           label={`${playbookLabel} Moves`}

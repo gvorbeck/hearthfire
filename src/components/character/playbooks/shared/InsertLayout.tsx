@@ -1,6 +1,5 @@
-import { useCallback, type ReactNode } from 'react';
+import { useCallback, useMemo, type ReactNode } from 'react';
 import { CheckboxGroup, Text } from '@/components/ui';
-import { useToast } from '@/components/app';
 import { PlaybookSection } from '../../PlaybookSection';
 import { Move } from '../../Move';
 import type { MoveDefinition } from '@/types';
@@ -12,6 +11,8 @@ import { useConsequenceCheckboxes } from './useConsequenceCheckboxes';
 import type { CharacterData, PlaybookFeatures } from '@/types';
 import type { RadioOption } from '@/types';
 import styles from './InsertLayout.module.css';
+
+const INSTINCT_OPTIONS = INSERT_INSTINCT_OPTIONS.map((opt) => ({ value: opt.value, label: opt.label, description: opt.description }));
 
 type ConsequenceKey = Extract<{
   [K in keyof PlaybookFeatures]: PlaybookFeatures[K] extends Record<string, boolean> | undefined ? K : never;
@@ -57,9 +58,8 @@ export const InsertLayout = ({
   consequenceAddon,
   checkboxGroupItemGap,
 }: InsertLayoutProps) => {
-  const { addToast } = useToast();
   const {
-    instinct, setInstinct, purpose, setPurpose, purposeNames,
+    instinct, saveInstinct, purpose, savePurpose, purposeNames,
     handlePurposeNameChange, handlePurposeNameBlur,
     saveImmediate,
   } = useInsertSections(data, onSave, sectionKeys);
@@ -78,26 +78,16 @@ export const InsertLayout = ({
   );
 
   const handleInstinctSave = useCallback(
-    (patch: Partial<CharacterData>) => {
-      const prev = instinct;
-      setInstinct(patch.instinct ?? '');
-      return saveImmediate({ [sectionKeys.instinct]: patch.instinct ?? '' }).catch(() => { setInstinct(prev); addToast('Failed to save.', 'error'); });
-    },
-    [saveImmediate, instinct, setInstinct, sectionKeys.instinct, addToast],
+    (patch: Partial<CharacterData>) => { saveInstinct(patch.instinct ?? ''); return Promise.resolve(); },
+    [saveInstinct],
   );
 
   const handlePurposeSave = useCallback(
-    (patch: Partial<CharacterData>) => {
-      const prev = purpose;
-      setPurpose(patch.instinct ?? '');
-      return saveImmediate({ [sectionKeys.purpose]: patch.instinct ?? '' }).catch(() => { setPurpose(prev); addToast('Failed to save.', 'error'); });
-    },
-    [saveImmediate, purpose, setPurpose, sectionKeys.purpose, addToast],
+    (patch: Partial<CharacterData>) => { savePurpose(patch.instinct ?? ''); return Promise.resolve(); },
+    [savePurpose],
   );
 
-  const instinctOptions = INSERT_INSTINCT_OPTIONS.map((opt) => ({ value: opt.value, label: opt.label, description: opt.description }));
-
-  const purposeOptions = INSERT_PURPOSE_OPTIONS.map((opt): RadioOption => ({
+  const purposeOptions = useMemo(() => INSERT_PURPOSE_OPTIONS.map((opt): RadioOption => ({
     value: opt.value,
     label: opt.label,
     detail: (
@@ -108,14 +98,14 @@ export const InsertLayout = ({
         onNameBlur={handlePurposeNameBlur}
       />
     ),
-  }));
+  })), [purposeNames, handlePurposeNameChange, handlePurposeNameBlur]);
 
   return (
     <div className={styles.root}>
       <RadioSelect
         playbookKey={`${playbookName}-instinct`}
         title="Instinct"
-        options={instinctOptions}
+        options={INSTINCT_OPTIONS}
         data={{ instinct, instinctCustom: '' } as CharacterData}
         onSave={handleInstinctSave}
         noCustom
