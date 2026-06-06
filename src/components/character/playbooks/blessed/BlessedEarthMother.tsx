@@ -1,7 +1,6 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useLatest } from '@/hooks/useLatest';
+import { useCallback } from 'react';
+import { useOptimisticField } from '@/hooks/useOptimisticField';
 import { CheckboxGroup, Divider, Radio, RadioGroup, Text } from '@/components/ui';
-import { useToast } from '@/components/app';
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import type { CharacterData } from '@/types';
@@ -31,47 +30,28 @@ interface BlessedEarthMotherProps {
 }
 
 export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) => {
-  const { addToast } = useToast();
-  const [shrine, setShrine] = useState<string>(() => resolvePlaybookFeatures(data).earthMotherShrine ?? '');
-  const [offerings, setOfferings] = useState<Record<string, boolean>>(() => resolvePlaybookFeatures(data).earthMotherOfferings ?? {});
-  const shrineRef = useLatest(shrine);
-  const offeringsRef = useLatest(offerings);
+  const features = resolvePlaybookFeatures(data);
 
-  const lastFirestoreEarthMotherRef = useRef<string | undefined>(undefined);
-
-  useEffect(() => {
-    const incoming = JSON.stringify(data?.playbookFeatures);
-    if (incoming === lastFirestoreEarthMotherRef.current) return;
-    lastFirestoreEarthMotherRef.current = incoming;
-    const f = resolvePlaybookFeatures(data);
-    if (f.earthMotherShrine !== undefined) setShrine(f.earthMotherShrine);
-    if (f.earthMotherOfferings !== undefined) setOfferings(f.earthMotherOfferings);
-  }, [data]);
-
-  const handleShrine = useCallback(
-    (value: string) => {
-      const prev = shrineRef.current;
-      setShrine(value);
-      onSave(featurePatch(data, { earthMotherShrine: value })).catch(() => { setShrine(prev); addToast('Failed to save.', 'error'); });
-    },
-    [onSave, data, addToast]
+  const { value: shrine, save: saveShrine } = useOptimisticField(
+    features.earthMotherShrine ?? '',
+    (next) => onSave(featurePatch(data, { earthMotherShrine: next })),
+    'Failed to save.',
+  );
+  const { value: offerings, ref: offeringsRef, save: saveOfferings } = useOptimisticField(
+    features.earthMotherOfferings ?? {},
+    (next) => onSave(featurePatch(data, { earthMotherOfferings: next })),
+    'Failed to save.',
   );
 
-  const handleOffering = useCallback(
-    (id: string, checked: boolean) => {
-      const prev = offeringsRef.current;
-      const next = { ...prev, [id]: checked };
-      setOfferings(next);
-      onSave(featurePatch(data, { earthMotherOfferings: next })).catch(() => { setOfferings(prev); addToast('Failed to save.', 'error'); });
-    },
-    [onSave, data, addToast]
-  );
+  const handleOffering = useCallback((id: string, checked: boolean) => {
+    saveOfferings({ ...offeringsRef.current, [id]: checked });
+  }, [saveOfferings]);
 
   return (
     <PlaybookSection title="The Earth Mother">
       <div className={styles.body}>
         <Text as="p" size="xs" color="muted" leading="normal">
-          {"Danu has long been revered by all peoples, though not always worshipped or served by priests. In Stonetop’s Pavilion of the Gods, Danu’s shrine is…"}
+          {"Danu has long been revered by all peoples, though not always worshipped or served by priests. In Stonetop's Pavilion of the Gods, Danu's shrine is…"}
         </Text>
         <Text as="p" size="xs" color="muted" className={styles.instruction}>(choose 1)</Text>
         <RadioGroup legend="The shrine is…" legendHidden className={styles.shrineOptions}>
@@ -81,7 +61,7 @@ export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) =>
               name="earth-mother-shrine"
               value={opt}
               checked={shrine === opt}
-              onChange={() => handleShrine(opt)}
+              onChange={() => saveShrine(opt)}
               label={<span className={styles.optionLabel}>{opt}</span>}
             />
           ))}

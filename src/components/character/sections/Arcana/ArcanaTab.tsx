@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo, useRef, memo, type KeyboardEvent } from 'react';
-import { useFirestoreSync } from '@/hooks/useFirestoreSync';
+import { useOptimisticField } from '@/hooks/useOptimisticField';
 import clsx from 'clsx';
 import { Button, Text, Tooltip } from '@/components/ui';
 import { MINOR_ARCANA } from '@/lib/arcanaMinor';
@@ -81,34 +81,17 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
   const [subTab, setSubTab] = useState<ArcanaSubTab>('minor');
   const [minorModalOpen, setMinorModalOpen] = useState(false);
   const [majorModalOpen, setMajorModalOpen] = useState(false);
-
-  const [arcanaMinor, setArcanaMinor] = useState<ArcanaMinorEntry[]>(data?.arcanaMinor ?? []);
-  const [arcanaMajor, setArcanaMajor] = useState<ArcanaMajorEntry[]>(data?.arcanaMajor ?? []);
-  const minorPendingRef = useRef(false);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const majorPendingRef = useRef(false);
 
-  useFirestoreSync(data?.arcanaMinor ?? [], setArcanaMinor, minorPendingRef);
-  useFirestoreSync(data?.arcanaMajor ?? [], setArcanaMajor, majorPendingRef);
-
-  const saveMinor = useCallback(
-    (next: ArcanaMinorEntry[]) => {
-      minorPendingRef.current = true;
-      onSave({ arcanaMinor: next })
-        .catch(() => { setArcanaMinor(data?.arcanaMinor ?? []); })
-        .finally(() => { minorPendingRef.current = false; });
-    },
-    [onSave, data?.arcanaMinor],
+  const { value: arcanaMinor, ref: arcanaMinorRef, save: saveMinor } = useOptimisticField(
+    data?.arcanaMinor ?? [],
+    (next) => onSave({ arcanaMinor: next }),
+    'Failed to save.',
   );
-
-  const saveMajor = useCallback(
-    (next: ArcanaMajorEntry[]) => {
-      majorPendingRef.current = true;
-      onSave({ arcanaMajor: next })
-        .catch(() => { setArcanaMajor(data?.arcanaMajor ?? []); })
-        .finally(() => { majorPendingRef.current = false; });
-    },
-    [onSave, data?.arcanaMajor],
+  const { value: arcanaMajor, ref: arcanaMajorRef, save: saveMajor } = useOptimisticField(
+    data?.arcanaMajor ?? [],
+    (next) => onSave({ arcanaMajor: next }),
+    'Failed to save.',
   );
 
   const existingMinorIds = useMemo(() => arcanaMinor.map((a) => a.id), [arcanaMinor]);
@@ -121,63 +104,52 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
         const count = arcanum.move.follower.hpCount ?? 1;
         entry.followerHp = Array.from({ length: count }, () => arcanum.move.follower!.hp);
       }
-      const next = [...arcanaMinor, entry];
-      setArcanaMinor(next);
-      saveMinor(next);
+      saveMinor([...arcanaMinorRef.current, entry]);
       setMinorModalOpen(false);
     },
-    [arcanaMinor, saveMinor],
+    [saveMinor],
   );
 
   const handleRandomMinor = useCallback(() => {
-    if (minorPendingRef.current) return;
-    const available = MINOR_ARCANA.filter((a) => !arcanaMinor.some((e) => e.id === a.id));
+    const available = MINOR_ARCANA.filter((a) => !arcanaMinorRef.current.some((e) => e.id === a.id));
     if (available.length === 0) return;
     const pick = available[Math.floor(Math.random() * available.length)];
     handleAddMinor(pick);
-  }, [arcanaMinor, handleAddMinor]);
+  }, [handleAddMinor]);
 
   const handleRemoveMinor = useCallback(
     (id: string) => {
-      const next = arcanaMinor.filter((a) => a.id !== id);
-      setArcanaMinor(next);
-      saveMinor(next);
+      saveMinor(arcanaMinorRef.current.filter((a) => a.id !== id));
     },
-    [arcanaMinor, saveMinor],
+    [saveMinor],
   );
 
   const handleToggleRequirement = useCallback(
     (id: string, key: string, checked: boolean) => {
-      const next = arcanaMinor.map((a) =>
+      saveMinor(arcanaMinorRef.current.map((a) =>
         a.id === id ? { ...a, requirementsChecked: { ...a.requirementsChecked, [key]: checked } } : a,
-      );
-      setArcanaMinor(next);
-      saveMinor(next);
+      ));
     },
-    [arcanaMinor, saveMinor],
+    [saveMinor],
   );
 
   const handleMinorTrackerChange = useCallback(
     (id: string, value: number) => {
-      const next = arcanaMinor.map((a) => (a.id === id ? { ...a, trackerValue: value } : a));
-      setArcanaMinor(next);
-      saveMinor(next);
+      saveMinor(arcanaMinorRef.current.map((a) => (a.id === id ? { ...a, trackerValue: value } : a)));
     },
-    [arcanaMinor, saveMinor],
+    [saveMinor],
   );
 
   const handleMinorFollowerHpChange = useCallback(
     (id: string, index: number, value: number) => {
-      const next = arcanaMinor.map((a) => {
+      saveMinor(arcanaMinorRef.current.map((a) => {
         if (a.id !== id) return a;
         const followerHp = [...(a.followerHp ?? [])];
         followerHp[index] = value;
         return { ...a, followerHp };
-      });
-      setArcanaMinor(next);
-      saveMinor(next);
+      }));
     },
-    [arcanaMinor, saveMinor],
+    [saveMinor],
   );
 
   const existingMajorIds = useMemo(() => arcanaMajor.map((a) => a.id), [arcanaMajor]);
@@ -190,48 +162,40 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
         mysteryMovesChecked: {},
         consequencesMarked: {},
       };
-      const next = [...arcanaMajor, entry];
-      setArcanaMajor(next);
-      saveMajor(next);
+      saveMajor([...arcanaMajorRef.current, entry]);
       setMajorModalOpen(false);
     },
-    [arcanaMajor, saveMajor],
+    [saveMajor],
   );
 
   const handleRemoveMajor = useCallback(
     (id: string) => {
-      const next = arcanaMajor.filter((a) => a.id !== id);
-      setArcanaMajor(next);
-      saveMajor(next);
+      saveMajor(arcanaMajorRef.current.filter((a) => a.id !== id));
     },
-    [arcanaMajor, saveMajor],
+    [saveMajor],
   );
 
   const handleMajorMarksChange = useCallback(
     (id: string, value: number) => {
-      const next = arcanaMajor.map((a) => (a.id === id ? { ...a, marksValue: value } : a));
-      setArcanaMajor(next);
-      saveMajor(next);
+      saveMajor(arcanaMajorRef.current.map((a) => (a.id === id ? { ...a, marksValue: value } : a)));
     },
-    [arcanaMajor, saveMajor],
+    [saveMajor],
   );
 
   const handleMysteryMoveToggle = useCallback(
     (id: string, moveId: string, checked: boolean) => {
-      const next = arcanaMajor.map((a) =>
+      saveMajor(arcanaMajorRef.current.map((a) =>
         a.id === id
           ? { ...a, mysteryMovesChecked: { ...a.mysteryMovesChecked, [moveId]: checked } }
           : a,
-      );
-      setArcanaMajor(next);
-      saveMajor(next);
+      ));
     },
-    [arcanaMajor, saveMajor],
+    [saveMajor],
   );
 
   const handleConsequenceToggle = useCallback(
     (id: string, consequenceId: string, checked: boolean) => {
-      const next = arcanaMajor.map((a) => {
+      saveMajor(arcanaMajorRef.current.map((a) => {
         if (a.id !== id) return a;
         const consequencesMarked = { ...a.consequencesMarked, [consequenceId]: checked };
         if (!consequenceId.startsWith('task-')) return { ...a, consequencesMarked };
@@ -239,40 +203,41 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
         const taskCount = arcanum?.marks.tasks?.length ?? 0;
         const marksValue = Array.from({ length: taskCount }, (_, i) => !!consequencesMarked[`task-${i}`]).filter(Boolean).length;
         return { ...a, consequencesMarked, marksValue };
-      });
-      setArcanaMajor(next);
-      saveMajor(next);
+      }));
     },
-    [arcanaMajor, saveMajor],
+    [saveMajor],
   );
 
   const handleMajorTrackerChange = useCallback(
     (id: string, moveId: string, value: number) => {
-      const next = arcanaMajor.map((a) =>
+      saveMajor(arcanaMajorRef.current.map((a) =>
         a.id === id
           ? { ...a, trackerValues: { ...a.trackerValues, [moveId]: value } }
           : a,
-      );
-      setArcanaMajor(next);
-      saveMajor(next);
+      ));
     },
-    [arcanaMajor, saveMajor],
+    [saveMajor],
   );
 
   const handleMajorFollowerHpChange = useCallback(
     (id: string, moveId: string, index: number, value: number) => {
-      const next = arcanaMajor.map((a) => {
+      saveMajor(arcanaMajorRef.current.map((a) => {
         if (a.id !== id) return a;
         const existing = a.followerHp?.[moveId] ?? [];
         const updated = [...existing];
         updated[index] = value;
         return { ...a, followerHp: { ...a.followerHp, [moveId]: updated } };
-      });
-      setArcanaMajor(next);
-      saveMajor(next);
+      }));
     },
-    [arcanaMajor, saveMajor],
+    [saveMajor],
   );
+
+  const handleSelectMinorTab = useCallback(() => setSubTab('minor'), []);
+  const handleSelectMajorTab = useCallback(() => setSubTab('major'), []);
+  const handleOpenMinorModal = useCallback(() => setMinorModalOpen(true), []);
+  const handleOpenMajorModal = useCallback(() => setMajorModalOpen(true), []);
+  const handleCloseMinorModal = useCallback(() => setMinorModalOpen(false), []);
+  const handleCloseMajorModal = useCallback(() => setMajorModalOpen(false), []);
 
   const minorTabCx = clsx(styles.subTab, subTab === 'minor' && styles.subTabActive);
   const majorTabCx = clsx(styles.subTab, subTab === 'major' && styles.subTabActive);
@@ -313,7 +278,7 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
             id="arcana-minor-tab"
             role="tab"
             className={minorTabCx}
-            onClick={() => setSubTab('minor')}
+            onClick={handleSelectMinorTab}
             aria-selected={subTab === 'minor'}
             aria-controls="arcana-minor-panel"
             tabIndex={subTab === 'minor' ? 0 : -1}
@@ -328,7 +293,7 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
             id="arcana-major-tab"
             role="tab"
             className={majorTabCx}
-            onClick={() => setSubTab('major')}
+            onClick={handleSelectMajorTab}
             aria-selected={subTab === 'major'}
             aria-controls="arcana-major-panel"
             tabIndex={subTab === 'major' ? 0 : -1}
@@ -348,7 +313,7 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
               variant="secondary"
               size="sm"
               icon="plus"
-              onClick={() => setMinorModalOpen(true)}
+              onClick={handleOpenMinorModal}
             >
               Add Minor Arcanum
             </Button>
@@ -396,7 +361,7 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
               variant="secondary"
               size="sm"
               icon="plus"
-              onClick={() => setMajorModalOpen(true)}
+              onClick={handleOpenMajorModal}
             >
               Add Major Arcanum
             </Button>
@@ -433,7 +398,7 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
       <AddArcanaModal
         key={minorModalOpen ? 'open' : 'closed'}
         open={minorModalOpen}
-        onClose={() => setMinorModalOpen(false)}
+        onClose={handleCloseMinorModal}
         onAdd={handleAddMinor}
         items={MINOR_ARCANA}
         existingIds={existingMinorIds}
@@ -445,7 +410,7 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
       <AddArcanaModal
         key={majorModalOpen ? 'major-open' : 'major-closed'}
         open={majorModalOpen}
-        onClose={() => setMajorModalOpen(false)}
+        onClose={handleCloseMajorModal}
         onAdd={handleAddMajor}
         items={MAJOR_ARCANA}
         existingIds={existingMajorIds}

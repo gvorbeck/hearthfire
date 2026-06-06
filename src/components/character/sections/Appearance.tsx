@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useLatest } from '@/hooks/useLatest';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import { useCollapsibleSection } from '@/hooks/useCollapsibleSection';
-import { Checkbox, Radio, RadioGroup, Text } from '@/components/ui';
+import { useOptimisticField } from '@/hooks/useOptimisticField';
+import { Checkbox, Input, Radio, RadioGroup, Text } from '@/components/ui';
 import { useToast } from '@/components/app';
 import { PlaybookSection } from '../PlaybookSection';
 import type { AppearanceRows } from '@/lib/appearanceOptions';
@@ -19,22 +20,21 @@ interface AppearanceProps {
 
 export const Appearance = ({ rows, data, onSave }: AppearanceProps = {}) => {
   const { addToast } = useToast();
-  const [selected, setSelected] = useState<Record<string, string>>(data?.appearance ?? {});
+  const onSaveRef = useLatest(onSave);
   const [isCustom, setIsCustom] = useState<boolean>(Boolean(data?.appearanceCustom));
   const [customText, setCustomText] = useState<string>(data?.appearanceCustom ?? '');
-  const onSaveRef = useLatest(onSave);
-  const selectedRef = useLatest(selected);
   const customTextRef = useLatest(customText);
 
-  const saveCustomText = useCallback(
-    (value: string) => onSaveRef.current?.({ appearance: selectedRef.current, appearanceCustom: value }) ?? Promise.resolve(),
-    [],
+  // appearance and appearanceCustom are always written together.
+  const { value: selected, ref: selectedRef, save: saveSelected, pendingRef: appearancePendingRef } = useOptimisticField(
+    data?.appearance ?? {},
+    (next) => onSaveRef.current?.({ appearance: next, appearanceCustom: customTextRef.current }) ?? Promise.resolve(),
+    'Failed to save appearance.',
   );
-  const { onChange: debouncedCustomChange, flush: flushCustomOnBlur } = useDebouncedSave(saveCustomText, 1000);
 
-  useEffect(() => {
-    if (data?.appearance !== undefined) setSelected(data.appearance);
-  }, [data?.appearance]);
+  const saveCustomText = (value: string) =>
+    onSaveRef.current?.({ appearance: selectedRef.current, appearanceCustom: value }) ?? Promise.resolve();
+  const { onChange: debouncedCustomChange, flush: flushCustomOnBlur } = useDebouncedSave(saveCustomText, 1000);
 
   const isCompleteInit = Boolean(data?.appearanceCustom) ||
     (rows ? rows.every((_, i) => Boolean((data?.appearance ?? {})[String(i)])) : false);
@@ -43,28 +43,27 @@ export const Appearance = ({ rows, data, onSave }: AppearanceProps = {}) => {
   const handleSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const rowIndex = Number(e.currentTarget.dataset.row);
     const value = e.currentTarget.value;
-    const prev = selectedRef.current;
-    const nextSelected = { ...prev, [String(rowIndex)]: value };
-    setSelected(nextSelected);
-    onSaveRef.current?.({ appearance: nextSelected, appearanceCustom: customTextRef.current })
-      .catch(() => { setSelected(prev); addToast('Failed to save appearance.', 'error'); });
-  }, []);
+    saveSelected({ ...selectedRef.current, [String(rowIndex)]: value });
+  }, [saveSelected]);
 
   const handleCustomToggle = useCallback(() => {
     const prevCustom = customTextRef.current;
     setIsCustom((prev) => {
       const next = !prev;
+      appearancePendingRef.current = true;
       if (!next) {
         setCustomText('');
         onSaveRef.current?.({ appearance: selectedRef.current, appearanceCustom: '' })
-          .catch(() => { setIsCustom(true); setCustomText(prevCustom); addToast('Failed to save appearance.', 'error'); });
+          .catch(() => { setIsCustom(true); setCustomText(prevCustom); addToast('Failed to save appearance.', 'error'); })
+          .finally(() => { appearancePendingRef.current = false; });
       } else {
         onSaveRef.current?.({ appearance: selectedRef.current, appearanceCustom: prevCustom })
-          .catch(() => { setIsCustom(false); addToast('Failed to save appearance.', 'error'); });
+          .catch(() => { setIsCustom(false); addToast('Failed to save appearance.', 'error'); })
+          .finally(() => { appearancePendingRef.current = false; });
       }
       return next;
     });
-  }, [addToast]);
+  }, [addToast, appearancePendingRef, customTextRef, onSaveRef, selectedRef]);
 
   const handleCustomChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -126,7 +125,7 @@ export const Appearance = ({ rows, data, onSave }: AppearanceProps = {}) => {
               onChange={handleCustomToggle}
               label={
                 isCustom ? (
-                  <input
+                  <Input
                     className={styles.customInput}
                     value={customText}
                     placeholder="Describe your appearance…"

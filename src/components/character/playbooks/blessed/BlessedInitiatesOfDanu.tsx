@@ -1,4 +1,6 @@
-import { useState, useEffect, useCallback, useRef, memo } from 'react';
+import { useCallback, memo } from 'react';
+import { useOptimisticField } from '@/hooks/useOptimisticField';
+import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import { useLatest } from '@/hooks/useLatest';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import { Input, Radio, RadioGroup, Text, UseDots, CheckboxGroup } from '@/components/ui';
@@ -280,58 +282,53 @@ interface BlessedInitiatesOfDanuProps {
 }
 
 export const BlessedInitiatesOfDanu = ({ data, onSave }: BlessedInitiatesOfDanuProps) => {
-  const features = resolvePlaybookFeatures(data);
-  const [hp, setHp] = useState<Record<string, string>>(() => features.initiateHp ?? {});
-  const [loyalty, setLoyalty] = useState<Record<string, number>>(() => features.initiateLoyalty ?? {});
-  const [picks, setPicks] = useState<Record<string, Record<string, string>>>(() => features.initiatePicks ?? {});
-  const [rites, setRites] = useState<Record<string, string>>(() => features.initiateRites ?? {});
-
-  useEffect(() => {
-    const f = resolvePlaybookFeatures(data);
-    if (f.initiateHp !== undefined) setHp(f.initiateHp);
-    if (f.initiateLoyalty !== undefined) setLoyalty(f.initiateLoyalty);
-    if (f.initiatePicks !== undefined) setPicks(f.initiatePicks);
-    if (f.initiateRites !== undefined) setRites(f.initiateRites);
-  }, [data?.playbookFeatures]);
-
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const onSaveRef = useLatest(onSave);
   const dataRef = useLatest(data);
+  const features = resolvePlaybookFeatures(data);
 
-  useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
+  const { value: hp, ref: hpRef, setValue: setHp } = useOptimisticField(
+    features.initiateHp ?? {},
+    (next) => onSave(featurePatch(data, { initiateHp: next })),
+    'Failed to save.',
+  );
+  const { value: loyalty, ref: loyaltyRef, save: saveLoyalty } = useOptimisticField(
+    features.initiateLoyalty ?? {},
+    (next) => onSave(featurePatch(data, { initiateLoyalty: next })),
+    'Failed to save.',
+  );
+  const { value: picks, ref: picksRef, save: savePicks } = useOptimisticField(
+    features.initiatePicks ?? {},
+    (next) => onSave(featurePatch(data, { initiatePicks: next })),
+    'Failed to save.',
+  );
+  const { value: rites, ref: ritesRef, save: saveRites } = useOptimisticField(
+    features.initiateRites ?? {},
+    (next) => onSave(featurePatch(data, { initiateRites: next })),
+    'Failed to save.',
+  );
+
+  const { onChange: hpDebounced } = useDebouncedSave<Record<string, string>>(
+    (next) => onSave(featurePatch(dataRef.current, { initiateHp: next })),
+    1000,
+  );
 
   const handleHpChange = useCallback((initiateValue: string, value: string) => {
-    setHp((prev) => {
-      const next = { ...prev, [initiateValue]: value };
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => onSaveRef.current(featurePatch(dataRef.current, { initiateHp: next })), 1000);
-      return next;
-    });
-  }, []);
+    const next = { ...hpRef.current, [initiateValue]: value };
+    setHp(next);
+    hpDebounced(next);
+  }, [setHp, hpDebounced]);
 
   const handleLoyaltyChange = useCallback((initiateValue: string, n: number) => {
-    setLoyalty((prev) => {
-      const next = { ...prev, [initiateValue]: n };
-      onSaveRef.current(featurePatch(dataRef.current, { initiateLoyalty: next })).catch(() => {});
-      return next;
-    });
-  }, []);
+    saveLoyalty({ ...loyaltyRef.current, [initiateValue]: n });
+  }, [saveLoyalty]);
 
   const handlePickChange = useCallback((initiateValue: string, lineKey: string, option: string) => {
-    setPicks((prev) => {
-      const next = { ...prev, [initiateValue]: { ...(prev[initiateValue] ?? {}), [lineKey]: option } };
-      onSaveRef.current(featurePatch(dataRef.current, { initiatePicks: next })).catch(() => {});
-      return next;
-    });
-  }, []);
+    const prev = picksRef.current;
+    savePicks({ ...prev, [initiateValue]: { ...(prev[initiateValue] ?? {}), [lineKey]: option } });
+  }, [savePicks]);
 
   const handleRitesChange = useCallback((initiateValue: string, value: string) => {
-    setRites((prev) => {
-      const next = { ...prev, [initiateValue]: value };
-      onSaveRef.current(featurePatch(dataRef.current, { initiateRites: next })).catch(() => {});
-      return next;
-    });
-  }, []);
+    saveRites({ ...ritesRef.current, [initiateValue]: value });
+  }, [saveRites]);
 
   const chosen = data?.backgroundChoices ?? [];
   const visibleInitiates = INITIATES.filter((i) => chosen.includes(i.value));

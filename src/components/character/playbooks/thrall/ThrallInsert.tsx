@@ -1,12 +1,13 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useCallback } from 'react';
 import clsx from 'clsx';
 import { Button, Input, Text } from '@/components/ui';
-import { useToast } from '@/components/app';
 import { PlaybookSection } from '../../PlaybookSection';
 import { Move } from '../../Move';
 import type { MoveDefinition } from '@/types';
 import { RadioSelect } from '../../sections/RadioSelect';
-import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
+import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
+import { useOptimisticField } from '@/hooks/useOptimisticField';
+import { usePlaybookField } from '@/hooks/usePlaybookField';
 import { useCrewSave } from '../shared/useCrewSave';
 import { useTrackedField } from '../shared/useTrackedField';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
@@ -232,78 +233,64 @@ interface ThrallInsertProps {
 }
 
 export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
-  const { addToast } = useToast();
   const { saveDebounced, saveImmediate, flushDebounce } = useCrewSave(data, onSave);
 
   const init = resolvePlaybookFeatures(data);
-  const { value: master, setValue: setMaster, handleChange: handleMasterChange, handleBlur: handleMasterBlur } =
+  const { value: master, handleChange: handleMasterChange, handleBlur: handleMasterBlur } =
     useTrackedField(init.thrallMaster ?? '', 'thrallMaster', saveDebounced, flushDebounce);
-  const [favor, setFavor] = useState<number>(init.thrallFavor ?? 0);
-  const [marksGained, setMarksGained] = useState<Record<string, boolean>>(init.thrallMarksGained ?? {});
-  const [marksCrossedOff, setMarksCrossedOff] = useState<Record<string, boolean>>(init.thrallMarksCrossedOff ?? {});
-  const [thrallInstinct, setThrallInstinct] = useState<string>(init.thrallInstinct ?? '');
-  const [thrallImpulse, setThrallImpulse] = useState<string>(init.thrallImpulse ?? '');
-  const [thrallImpulseCustom, setThrallImpulseCustom] = useState<string>(init.thrallImpulseCustom ?? '');
 
-  const lastFirestoreThrallRef = useRef<string | undefined>(undefined);
-
-  useEffect(() => {
-    const incoming = JSON.stringify(data?.playbookFeatures);
-    if (incoming === lastFirestoreThrallRef.current) return;
-    lastFirestoreThrallRef.current = incoming;
-    const f = resolvePlaybookFeatures(data);
-    if (f.thrallMaster !== undefined) setMaster(f.thrallMaster);
-    if (f.thrallFavor !== undefined) setFavor(f.thrallFavor);
-    if (f.thrallMarksGained !== undefined) setMarksGained(f.thrallMarksGained);
-    if (f.thrallMarksCrossedOff !== undefined) setMarksCrossedOff(f.thrallMarksCrossedOff);
-    if (f.thrallInstinct !== undefined) setThrallInstinct(f.thrallInstinct);
-    if (f.thrallImpulse !== undefined) setThrallImpulse(f.thrallImpulse);
-    if (f.thrallImpulseCustom !== undefined) setThrallImpulseCustom(f.thrallImpulseCustom);
-  }, [data, setMaster]);
+  const { value: favor, save: saveFavor } = useOptimisticField(
+    init.thrallFavor ?? 0,
+    (next) => onSave(featurePatch(data, { thrallFavor: next })),
+    'Failed to save.',
+  );
+  const { value: marksGained, ref: marksGainedRef, save: saveMarksGained } = useOptimisticField(
+    init.thrallMarksGained ?? {},
+    (next) => onSave(featurePatch(data, { thrallMarksGained: next })),
+    'Failed to save.',
+  );
+  const { value: marksCrossedOff, ref: marksCrossedOffRef, save: saveMarksCrossedOff } = useOptimisticField(
+    init.thrallMarksCrossedOff ?? {},
+    (next) => onSave(featurePatch(data, { thrallMarksCrossedOff: next })),
+    'Failed to save.',
+  );
+  const { value: thrallInstinct, save: saveThrallInstinct } = usePlaybookField('thrallInstinct', init.thrallInstinct ?? '', saveImmediate, 'Failed to save.');
+  const { value: thrallImpulse, ref: thrallImpulseRef, setValue: setThrallImpulse, pendingRef: thrallImpulsePendingRef } = usePlaybookField('thrallImpulse', init.thrallImpulse ?? '', saveImmediate, 'Failed to save.');
+  const { value: thrallImpulseCustom, ref: thrallImpulseCustomRef, setValue: setThrallImpulseCustom, pendingRef: thrallImpulseCustomPendingRef } = usePlaybookField('thrallImpulseCustom', init.thrallImpulseCustom ?? '', saveImmediate, 'Failed to save.');
 
   // RadioSelect writes to patch.instinct; remap to thrall-specific Firestore fields.
   const handleInstinctSave = useCallback(
-    (patch: Partial<CharacterData>) => {
-      const prev = thrallInstinct;
-      setThrallInstinct(patch.instinct ?? '');
-      return saveImmediate({ thrallInstinct: patch.instinct ?? '' }).catch(() => { setThrallInstinct(prev); addToast('Failed to save.', 'error'); });
-    },
-    [saveImmediate, thrallInstinct, addToast],
+    (patch: Partial<CharacterData>) => { saveThrallInstinct(patch.instinct ?? ''); return Promise.resolve(); },
+    [saveThrallInstinct],
   );
 
   const handleImpulseSave = useCallback(
     (patch: Partial<CharacterData>) => {
-      const prevImpulse = thrallImpulse; const prevCustom = thrallImpulseCustom;
+      const prevImpulse = thrallImpulseRef.current;
+      const prevCustom = thrallImpulseCustomRef.current;
+      thrallImpulsePendingRef.current = true;
+      thrallImpulseCustomPendingRef.current = true;
       setThrallImpulse(patch.instinct ?? '');
       setThrallImpulseCustom(patch.instinctCustom ?? '');
       return saveImmediate({ thrallImpulse: patch.instinct ?? '', thrallImpulseCustom: patch.instinctCustom ?? '' })
-        .catch(() => { setThrallImpulse(prevImpulse); setThrallImpulseCustom(prevCustom); addToast('Failed to save.', 'error'); });
+        .catch(() => { setThrallImpulse(prevImpulse); setThrallImpulseCustom(prevCustom); })
+        .finally(() => { thrallImpulsePendingRef.current = false; thrallImpulseCustomPendingRef.current = false; });
     },
-    [saveImmediate, thrallImpulse, thrallImpulseCustom, addToast],
+    [saveImmediate, setThrallImpulse, setThrallImpulseCustom, thrallImpulsePendingRef, thrallImpulseCustomPendingRef],
   );
 
   const handleFavorChange = useCallback((count: number) => {
-    setFavor((prev) => {
-      saveImmediate({ thrallFavor: count }).catch(() => { setFavor(prev); addToast('Failed to save.', 'error'); });
-      return count;
-    });
-  }, [saveImmediate, addToast]);
+    saveFavor(count);
+  }, [saveFavor]);
 
   const handleMarkGainedChange = useCallback((id: string, gained: boolean) => {
-    setMarksGained((prev) => {
-      const next = { ...prev, [id]: gained };
-      saveImmediate({ thrallMarksGained: next }).catch(() => { setMarksGained(prev); addToast('Failed to save.', 'error'); });
-      return next;
-    });
-  }, [saveImmediate, addToast]);
+    saveMarksGained({ ...marksGainedRef.current, [id]: gained });
+  }, [saveMarksGained]);
 
   const handleMarkCrossedOffChange = useCallback((id: string) => {
-    setMarksCrossedOff((prev) => {
-      const next = { ...prev, [id]: !prev[id] };
-      saveImmediate({ thrallMarksCrossedOff: next }).catch(() => { setMarksCrossedOff(prev); addToast('Failed to save.', 'error'); });
-      return next;
-    });
-  }, [saveImmediate, addToast]);
+    const prev = marksCrossedOffRef.current;
+    saveMarksCrossedOff({ ...prev, [id]: !prev[id] });
+  }, [saveMarksCrossedOff]);
 
   return (
     <div className={styles.root}>

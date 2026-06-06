@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useLatest } from '@/hooks/useLatest';
+import { useOptimisticField } from '@/hooks/useOptimisticField';
 import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
 import { useCrewSave } from './useCrewSave';
 import type { CharacterData, PlaybookFeatures } from '@/types';
@@ -16,43 +17,40 @@ export const useInsertSections = (
   keys: InsertSectionKeys,
 ) => {
   const { saveDebounced, saveImmediate, flushDebounce } = useCrewSave(data, onSave);
+  const features = resolvePlaybookFeatures(data);
+  const keysRef = useLatest(keys);
 
-  const [instinct, setInstinct] = useState<string>(() => (resolvePlaybookFeatures(data)[keys.instinct] as string | undefined) ?? '');
-  const [purpose, setPurpose] = useState<string>(() => (resolvePlaybookFeatures(data)[keys.purpose] as string | undefined) ?? '');
-  const [purposeNames, setPurposeNames] = useState<Record<string, string>>(
-    () => (resolvePlaybookFeatures(data)[keys.purposeName] as Record<string, string> | undefined) ?? {},
+  const { value: instinct, save: saveInstinct } = useOptimisticField(
+    (features[keys.instinct] as string | undefined) ?? '',
+    (next) => saveImmediate({ [keysRef.current.instinct]: next }),
+    'Failed to save.',
+  );
+  const { value: purpose, save: savePurpose } = useOptimisticField(
+    (features[keys.purpose] as string | undefined) ?? '',
+    (next) => saveImmediate({ [keysRef.current.purpose]: next }),
+    'Failed to save.',
+  );
+  const { value: purposeNames, ref: purposeNamesRef, setValue: setPurposeNames } = useOptimisticField(
+    (features[keys.purposeName] as Record<string, string> | undefined) ?? {},
+    (next) => saveImmediate({ [keysRef.current.purposeName]: next }),
+    'Failed to save.',
   );
 
-  const purposeNamesRef = useLatest(purposeNames);
-
-  useEffect(() => {
-    const f = resolvePlaybookFeatures(data);
-    const fi = f[keys.instinct] as string | undefined;
-    const fp = f[keys.purpose] as string | undefined;
-    const fpn = f[keys.purposeName] as Record<string, string> | undefined;
-    if (fi !== undefined) setInstinct(fi);
-    if (fp !== undefined) setPurpose(fp);
-    if (fpn !== undefined) setPurposeNames(fpn);
-  }, [data, keys.instinct, keys.purpose, keys.purposeName]);
-
   const handlePurposeNameChange = useCallback((purposeValue: string, e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setPurposeNames((prev) => {
-      const next = { ...prev, [purposeValue]: val };
-      saveDebounced({ [keys.purposeName]: next });
-      return next;
-    });
-  }, [saveDebounced, keys.purposeName]);
+    const next = { ...purposeNamesRef.current, [purposeValue]: e.target.value };
+    setPurposeNames(next);
+    saveDebounced({ [keysRef.current.purposeName]: next });
+  }, [saveDebounced, setPurposeNames]);
 
   const handlePurposeNameBlur = useCallback(() => {
-    flushDebounce({ [keys.purposeName]: purposeNamesRef.current });
-  }, [flushDebounce, keys.purposeName]);
+    flushDebounce({ [keysRef.current.purposeName]: purposeNamesRef.current });
+  }, [flushDebounce]);
 
   return {
     instinct,
-    setInstinct,
+    saveInstinct,
     purpose,
-    setPurpose,
+    savePurpose,
     purposeNames,
     handlePurposeNameChange,
     handlePurposeNameBlur,

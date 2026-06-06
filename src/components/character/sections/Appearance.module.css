@@ -57,31 +57,5 @@
 }
 
 .customInput {
-  font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  color: var(--text-primary);
-  background-color: var(--surface-raised);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-2) var(--spacing-3);
-  outline: none;
   flex: 1;
-  width: 100%;
-  transition:
-    border-color 0.15s ease,
-    background-color 0.15s ease;
-}
-
-.customInput::placeholder {
-  color: var(--color-stone-400);
-}
-
-.customInput:focus {
-  border-color: var(--color-gold-500);
-  background-color: var(--surface-overlay);
-}
-
-.customInput:focus-visible {
-  outline: 2px solid var(--color-gold-400);
-  outline-offset: 2px;
 }
