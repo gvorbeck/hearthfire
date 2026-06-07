@@ -1,8 +1,8 @@
-import { useCallback, memo } from 'react';
-import { useOptimisticField } from '@/hooks/useOptimisticField';
-import { useDebouncedSave } from '@/hooks/useDebouncedSave';
+import { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { useLatest } from '@/hooks/useLatest';
-import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
+import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
+import { useCrewSave } from '../shared/useCrewSave';
+import { useToast } from '@/components/app';
 import { Input, Radio, RadioGroup, Text, UseDots, CheckboxGroup } from '@/components/ui';
 import { PlaybookSection } from '../../PlaybookSection';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
@@ -122,6 +122,8 @@ const RITES_ITEMS: Record<string, { id: string; label: string }[]> = Object.from
   INITIATES.map((i) => [i.value, i.rites.map((r) => ({ id: r, label: r }))])
 );
 
+const EMPTY_PICKS: Record<string, string> = {};
+
 interface InitiateSectionProps {
   config: InitiateConfig;
   hp: string;
@@ -129,6 +131,7 @@ interface InitiateSectionProps {
   picks: Record<string, string>;
   rites: string;
   onHpChange: (value: string) => void;
+  onHpBlur: () => void;
   onLoyaltyChange: (n: number) => void;
   onPickChange: (lineKey: string, option: string) => void;
   onRitesChange: (value: string) => void;
@@ -136,7 +139,7 @@ interface InitiateSectionProps {
 
 const InitiateSection = memo(({
   config, hp, loyalty, picks, rites,
-  onHpChange, onLoyaltyChange, onPickChange, onRitesChange,
+  onHpChange, onHpBlur, onLoyaltyChange, onPickChange, onRitesChange,
 }: InitiateSectionProps) => {
   const ritesChecked = Object.fromEntries(config.rites.map((r) => [r, rites === r]));
 
@@ -167,6 +170,7 @@ const InitiateSection = memo(({
             max={config.hpMax}
             aria-label={`${config.name} current HP`}
             onChange={handleHpChange}
+            onBlur={onHpBlur}
             onWheel={handleHpWheel}
           />
           <span className={styles.hpLabel}>HP (max {config.hpMax})</span>
@@ -238,6 +242,7 @@ const InitiateSection = memo(({
 
 type ParentHandlers = {
   onHpChange: (initiateValue: string, value: string) => void;
+  onHpBlur: () => void;
   onLoyaltyChange: (initiateValue: string, n: number) => void;
   onPickChange: (initiateValue: string, lineKey: string, option: string) => void;
   onRitesChange: (initiateValue: string, value: string) => void;
@@ -253,7 +258,7 @@ interface InitiateAdapterProps extends ParentHandlers {
 
 const InitiateAdapter = ({
   config, hp, loyalty, picks, rites,
-  onHpChange, onLoyaltyChange, onPickChange, onRitesChange,
+  onHpChange, onHpBlur, onLoyaltyChange, onPickChange, onRitesChange,
 }: InitiateAdapterProps) => {
   const { value } = config;
   const handleHp = useCallback((v: string) => onHpChange(value, v), [value, onHpChange]);
@@ -269,6 +274,7 @@ const InitiateAdapter = ({
       picks={picks}
       rites={rites}
       onHpChange={handleHp}
+      onHpBlur={onHpBlur}
       onLoyaltyChange={handleLoyalty}
       onPickChange={handlePick}
       onRitesChange={handleRites}
@@ -279,53 +285,64 @@ const InitiateAdapter = ({
 type BlessedInitiatesOfDanuProps = PlaybookSectionProps;
 
 export const BlessedInitiatesOfDanu = ({ data, onSave }: BlessedInitiatesOfDanuProps) => {
-  const dataRef = useLatest(data);
   const features = resolvePlaybookFeatures(data);
+  const { addToast } = useToast();
 
-  const { value: hp, ref: hpRef, setValue: setHp } = useOptimisticField(
-    features.initiateHp ?? {},
-    (next) => onSave(featurePatch(data, { initiateHp: next })),
-    'Failed to save.',
-  );
-  const { value: loyalty, ref: loyaltyRef, save: saveLoyalty } = useOptimisticField(
-    features.initiateLoyalty ?? {},
-    (next) => onSave(featurePatch(data, { initiateLoyalty: next })),
-    'Failed to save.',
-  );
-  const { value: picks, ref: picksRef, save: savePicks } = useOptimisticField(
-    features.initiatePicks ?? {},
-    (next) => onSave(featurePatch(data, { initiatePicks: next })),
-    'Failed to save.',
-  );
-  const { value: rites, ref: ritesRef, save: saveRites } = useOptimisticField(
-    features.initiateRites ?? {},
-    (next) => onSave(featurePatch(data, { initiateRites: next })),
-    'Failed to save.',
-  );
+  const [hp, setHp] = useState<Record<string, string>>(() => features.initiateHp ?? {});
+  const [loyalty, setLoyalty] = useState<Record<string, number>>(() => features.initiateLoyalty ?? {});
+  const [picks, setPicks] = useState<Record<string, Record<string, string>>>(() => features.initiatePicks ?? {});
+  const [rites, setRites] = useState<Record<string, string>>(() => features.initiateRites ?? {});
 
-  const { onChange: hpDebounced } = useDebouncedSave<Record<string, string>>(
-    (next) => onSave(featurePatch(dataRef.current, { initiateHp: next })),
-    1000,
-  );
+  const hpRef = useLatest(hp);
+  const loyaltyRef = useLatest(loyalty);
+  const picksRef = useLatest(picks);
+  const ritesRef = useLatest(rites);
+
+  const lastFirestoreRef = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    const incoming = JSON.stringify(data?.playbookFeatures);
+    if (incoming === lastFirestoreRef.current) return;
+    lastFirestoreRef.current = incoming;
+    const f = resolvePlaybookFeatures(data);
+    if (f.initiateHp !== undefined) setHp(f.initiateHp);
+    if (f.initiateLoyalty !== undefined) setLoyalty(f.initiateLoyalty);
+    if (f.initiatePicks !== undefined) setPicks(f.initiatePicks);
+    if (f.initiateRites !== undefined) setRites(f.initiateRites);
+  }, [data?.playbookFeatures]);
+
+  const { saveDebounced, saveImmediate, flushDebounce } = useCrewSave(data, onSave);
 
   const handleHpChange = useCallback((initiateValue: string, value: string) => {
     const next = { ...hpRef.current, [initiateValue]: value };
     setHp(next);
-    hpDebounced(next);
-  }, [setHp, hpDebounced]);
+    saveDebounced({ initiateHp: next }, () => addToast('Failed to save.', 'error'));
+  }, [saveDebounced, addToast]);
+
+  const handleHpBlur = useCallback(() => {
+    flushDebounce({ initiateHp: hpRef.current }).catch(() => addToast('Failed to save.', 'error'));
+  }, [flushDebounce, addToast]);
 
   const handleLoyaltyChange = useCallback((initiateValue: string, n: number) => {
-    saveLoyalty({ ...loyaltyRef.current, [initiateValue]: n });
-  }, [saveLoyalty]);
+    const prev = loyaltyRef.current;
+    const next = { ...prev, [initiateValue]: n };
+    setLoyalty(next);
+    saveImmediate({ initiateLoyalty: next }).catch(() => { setLoyalty(prev); addToast('Failed to save.', 'error'); });
+  }, [saveImmediate, addToast]);
 
   const handlePickChange = useCallback((initiateValue: string, lineKey: string, option: string) => {
     const prev = picksRef.current;
-    savePicks({ ...prev, [initiateValue]: { ...(prev[initiateValue] ?? {}), [lineKey]: option } });
-  }, [savePicks]);
+    const next = { ...prev, [initiateValue]: { ...(prev[initiateValue] ?? {}), [lineKey]: option } };
+    setPicks(next);
+    saveImmediate({ initiatePicks: next }).catch(() => { setPicks(prev); addToast('Failed to save.', 'error'); });
+  }, [saveImmediate, addToast]);
 
   const handleRitesChange = useCallback((initiateValue: string, value: string) => {
-    saveRites({ ...ritesRef.current, [initiateValue]: value });
-  }, [saveRites]);
+    const prev = ritesRef.current;
+    const next = { ...prev, [initiateValue]: value };
+    setRites(next);
+    saveImmediate({ initiateRites: next }).catch(() => { setRites(prev); addToast('Failed to save.', 'error'); });
+  }, [saveImmediate, addToast]);
 
   const chosen = data?.backgroundChoices ?? [];
   const visibleInitiates = INITIATES.filter((i) => chosen.includes(i.value));
@@ -338,9 +355,10 @@ export const BlessedInitiatesOfDanu = ({ data, onSave }: BlessedInitiatesOfDanuP
           config={config}
           hp={hp[config.value] ?? String(config.hpMax)}
           loyalty={loyalty[config.value] ?? 0}
-          picks={picks[config.value] ?? {}}
+          picks={picks[config.value] ?? EMPTY_PICKS}
           rites={rites[config.value] ?? ''}
           onHpChange={handleHpChange}
+          onHpBlur={handleHpBlur}
           onLoyaltyChange={handleLoyaltyChange}
           onPickChange={handlePickChange}
           onRitesChange={handleRitesChange}
