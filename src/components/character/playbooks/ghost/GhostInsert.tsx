@@ -1,10 +1,9 @@
 import { useCallback } from 'react';
 import { useOptimisticField } from '@/hooks/useOptimisticField';
 import { Move } from '../../Move';
-import type { MoveDefinition } from '@/types';
+import type { MoveDefinition, PlaybookSectionProps } from '@/types';
 import { InsertLayout } from '../shared/InsertLayout';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
-import type { CharacterData } from '@/types';
 import styles from './GhostInsert.module.css';
 
 const POLTERGEIST_MOVE: MoveDefinition = {
@@ -102,10 +101,7 @@ const UNSTABLE_ID = 'unstable';
 const isConsequenceDisabled = (id: string, checked: Record<string, boolean>) =>
   id === UNSTABLE_ID && !checked[BREAKDOWN_ID];
 
-interface GhostInsertProps {
-  data: CharacterData | undefined;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
-}
+type GhostInsertProps = PlaybookSectionProps;
 
 export const GhostInsert = ({ data, onSave }: GhostInsertProps) => {
   const { value: furyChecked, save: saveFury } = useOptimisticField(

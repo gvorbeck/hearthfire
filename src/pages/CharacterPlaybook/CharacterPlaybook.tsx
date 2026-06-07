@@ -1,4 +1,5 @@
-import React, { useRef, useCallback, useMemo, useState } from 'react';
+import { useRef, useCallback, useMemo, useState } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
@@ -36,7 +37,7 @@ import charSheetStyles from '@/components/character/CharacterSheet.module.css';
 import type { Character, CharacterData, GameSession, PlaybookType, PlaybookFeatures } from '@/types';
 import styles from './CharacterPlaybook.module.css';
 
-type PlaybookSectionComponent = React.ComponentType<{ data: CharacterData | undefined; onSave: (data: Partial<CharacterData>) => Promise<void> }>;
+type PlaybookSectionComponent = ComponentType<{ data: CharacterData | undefined; onSave: (data: Partial<CharacterData>) => Promise<void> }>;
 type PlaybookSectionEntry = { key: string; Component: PlaybookSectionComponent };
 
 const PLAYBOOK_SECTIONS: Partial<Record<PlaybookType, PlaybookSectionEntry[]>> = {
@@ -133,7 +134,7 @@ interface SheetProps {
 type PlaybookTabConfig = {
   id: string;
   label: string;
-  render: (data: CharacterData | undefined, onSave: (data: Partial<CharacterData>) => Promise<void>, prosperity: number) => React.ReactNode;
+  render: (data: CharacterData | undefined, onSave: (data: Partial<CharacterData>) => Promise<void>, prosperity: number) => ReactNode;
   when?: (data: CharacterData | undefined) => boolean;
 };
 
@@ -153,7 +154,7 @@ const resolveStaticTabContent = (
   data: CharacterData | undefined,
   prosperity: number,
   onSave: (data: Partial<CharacterData>) => Promise<void>,
-): React.ReactNode => {
+): ReactNode => {
   if (id === 'inventory') return <Inventory data={data} prosperity={prosperity} onSave={onSave} />;
   if (id === 'arcana') return <ArcanaTab data={data} onSave={onSave} />;
   if (id === 'Revenant') return <RevenantInsert data={data} onSave={onSave} />;

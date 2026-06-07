@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { arrayUnion, doc, onSnapshot, runTransaction, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { GAMES_COLLECTION } from '@/lib/constants';
@@ -171,8 +171,10 @@ export const useGame = (gameId: string): UseGameResult => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const gameRef = useMemo(() => doc(db, GAMES_COLLECTION, gameId), [gameId]);
+
   useEffect(() => {
-    const ref = doc(db, GAMES_COLLECTION, gameId);
+    const ref = gameRef;
 
     const unsubscribe = onSnapshot(
       ref,
@@ -198,43 +200,43 @@ export const useGame = (gameId: string): UseGameResult => {
     );
 
     return unsubscribe;
-  }, [gameId]);
+  }, [gameRef]);
 
   const updateGameName = useCallback(async (name: string) => {
-    await updateDoc(doc(db, GAMES_COLLECTION, gameId), { name });
-  }, [gameId]);
+    await updateDoc(gameRef, { name });
+  }, [gameRef]);
 
   const updateContent = useCallback(async (field: keyof ContentLists, value: string) => {
-    await updateDoc(doc(db, GAMES_COLLECTION, gameId), { [`content.${field}`]: value });
-  }, [gameId]);
+    await updateDoc(gameRef, { [`content.${field}`]: value });
+  }, [gameRef]);
 
   const updateField = useCallback(async (field: keyof Pick<GameSession, 'threats' | 'iWonder'>, value: string) => {
-    await updateDoc(doc(db, GAMES_COLLECTION, gameId), { [field]: value });
-  }, [gameId]);
+    await updateDoc(gameRef, { [field]: value });
+  }, [gameRef]);
 
   const addCharacter = useCallback(async (character: Character) => {
-    await updateDoc(doc(db, GAMES_COLLECTION, gameId), { characters: arrayUnion(character) });
-  }, [gameId]);
+    await updateDoc(gameRef, { characters: arrayUnion(character) });
+  }, [gameRef]);
 
   const removeCharacter = useCallback(async (characterId: string) => {
-    await withCharacters(doc(db, GAMES_COLLECTION, gameId), (chars) => chars.filter((c) => c.id !== characterId));
-  }, [gameId]);
+    await withCharacters(gameRef, (chars) => chars.filter((c) => c.id !== characterId));
+  }, [gameRef]);
 
   const reorderCharacters = useCallback(async (characters: Character[]) => {
     const ids = characters.map((c) => c.id);
-    await withCharacters(doc(db, GAMES_COLLECTION, gameId), (current) => {
+    await withCharacters(gameRef, (current) => {
       const lookup = new Map(current.map((c) => [c.id, c]));
       return ids.map((id) => lookup.get(id)).filter(Boolean) as Character[];
     });
-  }, [gameId]);
+  }, [gameRef]);
 
   const updateCharacterName = useCallback(async (characterId: string, name: string) => {
-    await withCharacters(doc(db, GAMES_COLLECTION, gameId), (chars) => chars.map((c) => c.id === characterId ? { ...c, name } : c));
-  }, [gameId]);
+    await withCharacters(gameRef, (chars) => chars.map((c) => c.id === characterId ? { ...c, name } : c));
+  }, [gameRef]);
 
   const updateCharacterData = useCallback(async (characterId: string, data: Partial<CharacterData>) => {
-    await withCharacters(doc(db, GAMES_COLLECTION, gameId), (chars) => chars.map((c) => c.id === characterId ? { ...c, data: { ...c.data, ...data } } : c));
-  }, [gameId]);
+    await withCharacters(gameRef, (chars) => chars.map((c) => c.id === characterId ? { ...c, data: { ...c.data, ...data } } : c));
+  }, [gameRef]);
 
   const updateSteading = useCallback(async (patch: Partial<SteadingData>) => {
     const dotted: Record<string, unknown> = {};
@@ -251,8 +253,8 @@ export const useGame = (gameId: string): UseGameResult => {
           : v;
       }
     }
-    await updateDoc(doc(db, GAMES_COLLECTION, gameId), dotted);
-  }, [gameId]);
+    await updateDoc(gameRef, dotted);
+  }, [gameRef]);
 
   return { game, loading, error, updateGameName, updateCharacterName, updateCharacterData, updateContent, updateField, updateSteading, addCharacter, removeCharacter, reorderCharacters };
 };

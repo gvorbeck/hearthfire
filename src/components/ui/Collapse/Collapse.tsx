@@ -21,6 +21,7 @@ export const Collapse = ({ label, defaultOpen = false, children, className, acti
     <div className={cx}>
       <div className={styles.header}>
         <button
+          type="button"
           className={styles.trigger}
           onClick={handleToggle}
           aria-expanded={open}

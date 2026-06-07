@@ -2,7 +2,7 @@ import { CheckboxGroup, Divider, Text } from '@/components/ui';
 import { PlaybookSection } from '../../PlaybookSection';
 import { AnswerPrompts } from '../AnswerPrompts';
 import { usePlaybookCheckedWithAnswers } from '@/hooks/usePlaybookChecked';
-import type { CharacterData } from '@/types';
+import type { PlaybookSectionProps } from '@/types';
 
 const ACTION_ITEMS = [
   { id: 'action-crinwin', label: '…to repel a nighttime raid by crinwin from the Great Wood.' },
@@ -24,10 +24,7 @@ const ANSWER_PROMPTS = [
   { key: 'worried', label: "What's got you even more worried now?" },
 ];
 
-interface MarshalWarStoriesProps {
-  data: CharacterData | undefined;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
-}
+type MarshalWarStoriesProps = PlaybookSectionProps;
 
 export const MarshalWarStories = ({ data, onSave }: MarshalWarStoriesProps) => {
   const { checked, handleChange: handleCheck, answers, handleAnswer, flushAnswers } = usePlaybookCheckedWithAnswers(

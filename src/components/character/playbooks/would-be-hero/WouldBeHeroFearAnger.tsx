@@ -3,7 +3,7 @@ import { PlaybookSection } from '../../PlaybookSection';
 import { AnswerPrompts } from '../AnswerPrompts';
 import { usePlaybookCheckedWithAnswers } from '@/hooks/usePlaybookChecked';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
-import type { CharacterData } from '@/types';
+import type { PlaybookSectionProps } from '@/types';
 
 const FEAR_ITEMS = [
   { id: 'fear-fire', label: 'Fire, burning, the smell of charred flesh' },
@@ -34,10 +34,7 @@ const ANSWER_PROMPTS = [
   { key: 'outcome', label: 'How did it turn out?' },
 ];
 
-interface WouldBeHeroFearAngerProps {
-  data: CharacterData | undefined;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
-}
+type WouldBeHeroFearAngerProps = PlaybookSectionProps;
 
 export const WouldBeHeroFearAnger = ({ data, onSave }: WouldBeHeroFearAngerProps) => {
   const { checked, handleChange: handleCheck, answers, handleAnswer, flushAnswers } = usePlaybookCheckedWithAnswers(

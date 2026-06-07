@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import type { ReactNode, ChangeEvent } from 'react';
 import { Checkbox, CheckboxGroup, Icon, List, Text, UseDots } from '@/components/ui';
 import type { IconName } from '@/components/ui';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
@@ -30,7 +31,7 @@ interface MoveProps {
   uses?: CounterProps;
   usesAlt?: CounterProps;
   checkList?: CheckListProps;
-  headerAction?: React.ReactNode;
+  headerAction?: ReactNode;
 }
 
 // Flat props intentional: this sub-component is private to Move and maps 1:1 to what MoveSelectGroup
@@ -134,7 +135,7 @@ export const Move = ({
             name={`move-${move.id}`}
             value={move.id}
             checked={selected ?? false}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => selection.onChange(e.target.checked)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => selection.onChange(e.target.checked)}
             label={nameEl}
             className={styles.moveCheckbox}
             disabled={readOnly || locked}

@@ -1,6 +1,12 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, type Dispatch, type SetStateAction } from 'react';
 
-export const useCollapsibleSection = (isComplete: boolean) => {
+interface UseCollapsibleSectionReturn {
+  isCollapsed: boolean;
+  setIsCollapsed: Dispatch<SetStateAction<boolean>>;
+  handleToggleCollapse: () => void;
+}
+
+export const useCollapsibleSection = (isComplete: boolean): UseCollapsibleSectionReturn => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const hasInitializedCollapse = useRef(false);
 

@@ -14,7 +14,7 @@ import { HOMEFRONT_MOVES } from '@/lib/homefrontMoves';
 import { CUSTOM_MOVES } from '@/lib/customMoves';
 import { PLAYBOOK_MOVES, BACKGROUND_FORCED_MOVES, BACKGROUND_FORCED_CHECKLIST } from '@/lib/moves';
 import { PLAYBOOKS } from '@/lib/constants';
-import type { CharacterData, PlaybookType } from '@/types';
+import type { PlaybookType, PlaybookSectionProps } from '@/types';
 import styles from './Moves.module.css';
 
 const getLockReason = (
@@ -79,10 +79,8 @@ const MoveSection = ({ label, helperText, moves, emptyText }: MoveSectionProps) 
   </Collapse>
 );
 
-interface MovesProps {
+interface MovesProps extends PlaybookSectionProps {
   playbook: PlaybookType;
-  data: CharacterData | undefined;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
   level: number;
 }
 

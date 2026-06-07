@@ -8,11 +8,22 @@ import type { CharacterData, PlaybookFeatures } from '@/types';
 // A narrower mapped type resolves to `never` for optional keys in strict mode.
 type FeatureKey = keyof PlaybookFeatures;
 
+interface UsePlaybookCheckedReturn {
+  checked: Record<string, boolean>;
+  handleChange: (id: string, value: boolean) => void;
+}
+
+interface UsePlaybookCheckedWithAnswersReturn extends UsePlaybookCheckedReturn {
+  answers: Record<string, string>;
+  handleAnswer: (key: string, value: string) => void;
+  flushAnswers: () => void;
+}
+
 export const usePlaybookChecked = (
   data: CharacterData | undefined,
   onSave: (data: Partial<CharacterData>) => Promise<void>,
   checkedKey: FeatureKey,
-) => {
+): UsePlaybookCheckedReturn => {
   const { addToast } = useToast();
 
   const [checked, setChecked] = useState<Record<string, boolean>>(
@@ -39,7 +50,7 @@ export const usePlaybookCheckedWithAnswers = (
   onSave: (data: Partial<CharacterData>) => Promise<void>,
   checkedKey: FeatureKey,
   answersKey: FeatureKey,
-) => {
+): UsePlaybookCheckedWithAnswersReturn => {
   const { addToast } = useToast();
   const dataRef = useRef(data);
   dataRef.current = data;

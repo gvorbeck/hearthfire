@@ -9,7 +9,7 @@ import { RadioSelect } from '../../sections/RadioSelect';
 import type { RadioOption } from '@/types';
 import { useCrewSave } from '../shared/useCrewSave';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
-import type { CharacterData } from '@/types';
+import type { CharacterData, PlaybookSectionProps } from '@/types';
 import styles from './MarshalCrew.module.css';
 
 
@@ -204,10 +204,8 @@ const parseIndividuals = (raw: unknown): Individual[] => {
 };
 
 
-interface MarshalCrewProps {
-  data: CharacterData | undefined;
+interface MarshalCrewProps extends PlaybookSectionProps {
   prosperity: number;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
 }
 
 export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
@@ -385,6 +383,8 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
     });
   }, [addToast]);
 
+  const infoStaticCx = clsx(styles.infoInput, styles.infoStatic);
+
   return (
     <div className={styles.root}>
       <PlaybookSection title="Crew">
@@ -420,7 +420,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
             <span className={styles.infoLabel}>Armor <span className={styles.statNote}>(starts at 0)</span></span>
           </div>
           <div className={styles.infoBox}>
-            <span className={clsx(styles.infoInput, styles.infoStatic)}>{CREW_DAMAGE}</span>
+            <span className={infoStaticCx}>{CREW_DAMAGE}</span>
             <span className={styles.infoLabel}>Damage <span className={styles.statNote}>(starts at d6)</span></span>
           </div>
         </div>

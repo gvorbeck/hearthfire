@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { Checkbox, CheckboxGroup, Divider, Text } from '@/components/ui';
 import { PlaybookSection } from '../../PlaybookSection';
 import { usePlaybookChecked } from '@/hooks/usePlaybookChecked';
-import type { CharacterData } from '@/types';
+import type { PlaybookSectionProps } from '@/types';
 import localStyles from './FoxTallTales.module.css';
 
 const LOCATION_ITEMS = [
@@ -44,10 +44,7 @@ const LEFTOVER_ITEMS = [
   { id: 'left-key', label: '… this key that opens who-knows-what.' },
 ];
 
-interface FoxTallTalesProps {
-  data: CharacterData | undefined;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
-}
+type FoxTallTalesProps = PlaybookSectionProps;
 
 export const FoxTallTales = ({ data, onSave }: FoxTallTalesProps) => {
   const { checked, handleChange } = usePlaybookChecked(data, onSave, 'foxTallTales');

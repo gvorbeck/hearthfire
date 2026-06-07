@@ -10,8 +10,7 @@ import { RadioSelect } from '../../sections/RadioSelect';
 import { BeastOfLegend } from './BeastOfLegend';
 import { Text, UseDots } from '@/components/ui';
 import { useToast } from '@/components/app';
-import type { CharacterData } from '@/types';
-import type { RadioOption } from '@/types';
+import type { CharacterData, PlaybookSectionProps, RadioOption } from '@/types';
 import styles from './RangerAnimalCompanion.module.css';
 
 const ANIMAL_INSTINCT_OPTIONS: RadioOption[] = [
@@ -33,10 +32,7 @@ const ANIMAL_COST_OPTIONS: RadioOption[] = [
 // Old Firestore records stored 'custom'; RadioSelect requires '__custom__'.
 const toInstinctSentinel = (v: string | undefined) => v === 'custom' ? '__custom__' : (v ?? '');
 
-interface RangerAnimalCompanionProps {
-  data: CharacterData | undefined;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
-}
+type RangerAnimalCompanionProps = PlaybookSectionProps;
 
 export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionProps) => {
   const { addToast } = useToast();

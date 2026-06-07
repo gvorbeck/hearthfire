@@ -2,7 +2,7 @@ import { CheckboxGroup, Divider, Text } from '@/components/ui';
 import { PlaybookSection } from '../../PlaybookSection';
 import { AnswerPrompts } from '../AnswerPrompts';
 import { usePlaybookCheckedWithAnswers } from '@/hooks/usePlaybookChecked';
-import type { CharacterData } from '@/types';
+import type { PlaybookSectionProps } from '@/types';
 
 const THREAT_ITEMS = [
   { id: 'threat-great-wood', label: 'A dark, unwholesome presence lurking in the Great Wood' },
@@ -22,10 +22,7 @@ const ANSWER_PROMPTS = [
   { key: 'more', label: 'Who can tell you more, if you can only convince them?' },
 ];
 
-interface RangerSomethingWickedProps {
-  data: CharacterData | undefined;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
-}
+type RangerSomethingWickedProps = PlaybookSectionProps;
 
 export const RangerSomethingWicked = ({ data, onSave }: RangerSomethingWickedProps) => {
   const { checked, handleChange: handleCheck, answers, handleAnswer, flushAnswers } = usePlaybookCheckedWithAnswers(

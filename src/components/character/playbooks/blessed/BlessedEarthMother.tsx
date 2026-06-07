@@ -3,7 +3,7 @@ import { useOptimisticField } from '@/hooks/useOptimisticField';
 import { CheckboxGroup, Divider, Radio, RadioGroup, Text } from '@/components/ui';
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
-import type { CharacterData } from '@/types';
+import type { PlaybookSectionProps } from '@/types';
 import styles from './BlessedEarthMother.module.css';
 
 const SHRINE_OPTIONS = [
@@ -24,10 +24,7 @@ const OFFERING_ITEMS = [
   'incense/sage bark',
 ];
 
-interface BlessedEarthMotherProps {
-  data: CharacterData | undefined;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
-}
+type BlessedEarthMotherProps = PlaybookSectionProps;
 
 export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) => {
   const features = resolvePlaybookFeatures(data);

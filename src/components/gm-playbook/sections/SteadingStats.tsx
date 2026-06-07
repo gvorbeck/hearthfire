@@ -144,10 +144,6 @@ export const SteadingStats = ({ steading, onSave }: SteadingStatsProps) => {
       .finally(() => { pendingRef.current -= 1; });
   }, [onSave, addToast, debilities]);
 
-  const toggleDiminished = useCallback(() => toggleDebility('diminished'), [toggleDebility]);
-  const toggleLacking = useCallback(() => toggleDebility('lacking'), [toggleDebility]);
-  const toggleMalcontent = useCallback(() => toggleDebility('malcontent'), [toggleDebility]);
-
   return (
     <div className={styles.root}>
       <div className={styles.stat}>
@@ -230,7 +226,7 @@ export const SteadingStats = ({ steading, onSave }: SteadingStatsProps) => {
             <Checkbox
               label={parseInlineMarkdown('**Diminished**, by injury/sickness/doubt')}
               checked={!!debilities.diminished}
-              onChange={toggleDiminished}
+              onChange={() => toggleDebility('diminished')}
             />
             <Text size="xs" color="muted">Disadvantage to Deploy, Muster, or Pull Together.</Text>
           </div>
@@ -238,7 +234,7 @@ export const SteadingStats = ({ steading, onSave }: SteadingStatsProps) => {
             <Checkbox
               label={parseInlineMarkdown('**Lacking**, due to shortages/hoarding/distrust')}
               checked={!!debilities.lacking}
-              onChange={toggleLacking}
+              onChange={() => toggleDebility('lacking')}
             />
             <Text size="xs" color="muted">Treat Prosperity as if it's 1 lower than it is.</Text>
           </div>
@@ -246,7 +242,7 @@ export const SteadingStats = ({ steading, onSave }: SteadingStatsProps) => {
             <Checkbox
               label={parseInlineMarkdown('**Malcontent**, from fear/anger/despair')}
               checked={!!debilities.malcontent}
-              onChange={toggleMalcontent}
+              onChange={() => toggleDebility('malcontent')}
             />
             <Text size="xs" color="muted">Fortunes reset to +0 each season, not +1; folks need Persuading more often than usual.</Text>
           </div>

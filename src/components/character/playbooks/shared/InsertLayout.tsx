@@ -8,7 +8,7 @@ import { RadioSelect } from '../../sections/RadioSelect';
 import { INSERT_INSTINCT_OPTIONS, INSERT_PURPOSE_OPTIONS } from '@/lib/insertSharedData';
 import { useInsertSections } from './useInsertSections';
 import { useConsequenceCheckboxes } from './useConsequenceCheckboxes';
-import type { CharacterData, PlaybookFeatures } from '@/types';
+import type { CharacterData, PlaybookFeatures, PlaybookSectionProps } from '@/types';
 import type { RadioOption } from '@/types';
 import styles from './InsertLayout.module.css';
 
@@ -29,10 +29,8 @@ interface InsertSectionKeys {
   purposeName: keyof PlaybookFeatures;
 }
 
-interface InsertLayoutProps {
+interface InsertLayoutProps extends PlaybookSectionProps {
   playbookName: string;
-  data: CharacterData | undefined;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
   sectionKeys: InsertSectionKeys;
   moves: MoveDefinition[];
   consequenceKey: ConsequenceKey;

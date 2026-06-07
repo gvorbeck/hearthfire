@@ -3,7 +3,7 @@ import { parseInlineMarkdown } from "@/lib/parseMarkdown";
 import { PlaybookSection } from "../../PlaybookSection";
 import { AnswerPrompts } from "../AnswerPrompts";
 import { usePlaybookCheckedWithAnswers } from "@/hooks/usePlaybookChecked";
-import type { CharacterData } from "@/types";
+import type { PlaybookSectionProps } from "@/types";
 
 const MAJOR_ARCANA_ITEMS = [
   { id: "major-acquired", label: "Where did you acquire it?" },
@@ -32,10 +32,7 @@ const ANSWER_PROMPTS = [
   },
 ];
 
-interface SeekerCollectionProps {
-  data: CharacterData | undefined;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
-}
+type SeekerCollectionProps = PlaybookSectionProps;
 
 export const SeekerCollection = ({ data, onSave }: SeekerCollectionProps) => {
   const {

@@ -15,7 +15,7 @@ import { useToast } from "@/components/app";
 import { PlaybookSection } from "../../PlaybookSection";
 import { resolvePlaybookFeatures } from "@/lib/resolvePlaybookFeatures";
 import { useCrewSave } from "../shared/useCrewSave";
-import type { CharacterData, FollowerData, FollowerGearItem } from "@/types";
+import type { FollowerData, FollowerGearItem, PlaybookSectionProps } from "@/types";
 import styles from "./FollowersInsert.module.css";
 
 const GEAR_SINGLE_COUNT = 3;
@@ -252,6 +252,7 @@ const FollowerCard = memo(
     const doubleGear = follower.gear?.slice(GEAR_SINGLE_COUNT) ?? [];
 
     const followerLabel = follower.name || `Follower ${index + 1}`;
+    const loyaltyLabelCx = clsx(styles.fieldLabel, styles.loyaltyLabel);
 
     return (
       <section className={styles.card} aria-labelledby={headingId}>
@@ -479,7 +480,7 @@ const FollowerCard = memo(
               as="span"
               size="xs"
               color="muted"
-              className={clsx(styles.fieldLabel, styles.loyaltyLabel)}
+              className={loyaltyLabelCx}
             >
               Loyalty
             </Text>
@@ -548,10 +549,7 @@ const FollowerCard = memo(
   },
 );
 
-interface FollowersInsertProps {
-  data: CharacterData | undefined;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
-}
+type FollowersInsertProps = PlaybookSectionProps;
 
 export const FollowersInsert = ({ data, onSave }: FollowersInsertProps) => {
   const { addToast } = useToast();

@@ -1,7 +1,7 @@
 import { CheckboxGroup, Divider, Text } from '@/components/ui';
 import { PlaybookSection } from '../../PlaybookSection';
 import { usePlaybookChecked } from '@/hooks/usePlaybookChecked';
-import type { CharacterData } from '@/types';
+import type { PlaybookSectionProps } from '@/types';
 
 const PLUS_ITEMS = [
   { id: 'plus-vault', label: '… is a sturdy vault from the time of the Makers.' },
@@ -21,10 +21,7 @@ const ALAS_ITEMS = [
   { id: 'alas-artifacts', label: '… contains a few dangerous artifacts.' },
 ];
 
-interface JudgeChronicleProps {
-  data: CharacterData | undefined;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
-}
+type JudgeChronicleProps = PlaybookSectionProps;
 
 export const JudgeChronicle = ({ data, onSave }: JudgeChronicleProps) => {
   const { checked, handleChange } = usePlaybookChecked(data, onSave, 'judgeChronicle');

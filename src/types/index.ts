@@ -324,6 +324,11 @@ export interface CharacterData {
   arcanaMajor?: ArcanaMajorEntry[];
 }
 
+export interface PlaybookSectionProps {
+  data: CharacterData | undefined;
+  onSave: (data: Partial<CharacterData>) => Promise<void>;
+}
+
 export interface Character {
   id: string;
   name: string;
