@@ -1,7 +1,7 @@
 import { CheckboxGroup, Divider, Text } from '@/components/ui';
 import { PlaybookSection } from '../../PlaybookSection';
 import { usePlaybookChecked } from '@/hooks/usePlaybookChecked';
-import type { CharacterData } from '@/types';
+import type { PlaybookSectionProps } from '@/types';
 
 const SHRINE_ITEMS = [
   { id: 'shrine-hub', label: '… a hub of the community, a place of frequent rites, petitions, and celebrations' },
@@ -19,10 +19,7 @@ const DEMANDS_ITEMS = [
   { id: 'demands-authority', label: '… respect for authority, property, and rank' },
 ];
 
-interface JudgeLawkeeperProps {
-  data: CharacterData | undefined;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
-}
+type JudgeLawkeeperProps = PlaybookSectionProps;
 
 export const JudgeLawkeeper = ({ data, onSave }: JudgeLawkeeperProps) => {
   const { checked, handleChange } = usePlaybookChecked(data, onSave, 'judgeLawkeeper');

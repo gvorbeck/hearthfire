@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import { Button, Text, Tooltip } from '@/components/ui';
 import { MINOR_ARCANA } from '@/lib/arcanaMinor';
 import { MAJOR_ARCANA } from '@/lib/arcanaMajor';
-import type { MinorArcanum, MajorArcanum, ArcanaMinorEntry, ArcanaMajorEntry, CharacterData } from '@/types';
+import type { MinorArcanum, MajorArcanum, ArcanaMinorEntry, ArcanaMajorEntry, PlaybookSectionProps } from '@/types';
 import { MinorArcanaCard } from './MinorArcanaCard';
 import { MajorArcanaCard } from './MajorArcanaCard';
 import { AddArcanaModal } from './AddArcanaModal';
@@ -72,10 +72,7 @@ const MajorArcanaCardRow = memo(({ entry, arcanum, onMarksChange, onMysteryMoveT
   );
 });
 
-interface ArcanaTabProps {
-  data: CharacterData | undefined;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
-}
+type ArcanaTabProps = PlaybookSectionProps;
 
 export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
   const [subTab, setSubTab] = useState<ArcanaSubTab>('minor');

@@ -15,7 +15,7 @@ import { useToast } from "@/components/app";
 import { PlaybookSection } from "../../PlaybookSection";
 import { resolvePlaybookFeatures } from "@/lib/resolvePlaybookFeatures";
 import { useCrewSave } from "../shared/useCrewSave";
-import type { CharacterData, FollowerData, FollowerGearItem } from "@/types";
+import type { FollowerData, FollowerGearItem, PlaybookSectionProps } from "@/types";
 import styles from "./FollowersInsert.module.css";
 
 const GEAR_SINGLE_COUNT = 3;
@@ -549,10 +549,7 @@ const FollowerCard = memo(
   },
 );
 
-interface FollowersInsertProps {
-  data: CharacterData | undefined;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
-}
+type FollowersInsertProps = PlaybookSectionProps;
 
 export const FollowersInsert = ({ data, onSave }: FollowersInsertProps) => {
   const { addToast } = useToast();

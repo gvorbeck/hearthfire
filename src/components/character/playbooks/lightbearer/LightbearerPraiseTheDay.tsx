@@ -1,7 +1,7 @@
 import { CheckboxGroup, Divider, Text } from '@/components/ui';
 import { PlaybookSection } from '../../PlaybookSection';
 import { usePlaybookChecked } from '@/hooks/usePlaybookChecked';
-import type { CharacterData } from '@/types';
+import type { PlaybookSectionProps } from '@/types';
 
 const WORSHIP_ITEMS = [
   { id: 'worship-ancient', label: '… ancient, widespread, and well-known' },
@@ -48,10 +48,7 @@ const POWERS_ITEMS = [
   { id: 'powers-first-laid', label: '… when you first laid eyes upon the ___' },
 ];
 
-interface LightbearerPraiseTheDayProps {
-  data: CharacterData | undefined;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
-}
+type LightbearerPraiseTheDayProps = PlaybookSectionProps;
 
 export const LightbearerPraiseTheDay = ({ data, onSave }: LightbearerPraiseTheDayProps) => {
   const { checked, handleChange } = usePlaybookChecked(data, onSave, 'lightbearerPraiseTheDay');

@@ -4,7 +4,7 @@ import { Divider, Radio, RadioGroup, Text } from '@/components/ui';
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
-import type { CharacterData } from '@/types';
+import type { PlaybookSectionProps } from '@/types';
 import styles from './BlessedSacredPouch.module.css';
 
 interface IsLine {
@@ -26,10 +26,7 @@ const TRAITS: string[] = [
   'Unnatural and unclean creatures cannot bear to touch it.',
 ];
 
-interface BlessedSacredPouchProps {
-  data: CharacterData | undefined;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
-}
+type BlessedSacredPouchProps = PlaybookSectionProps;
 
 export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) => {
   const features = resolvePlaybookFeatures(data);

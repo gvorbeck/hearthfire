@@ -9,7 +9,7 @@ import { RadioSelect } from '../../sections/RadioSelect';
 import type { RadioOption } from '@/types';
 import { useCrewSave } from '../shared/useCrewSave';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
-import type { CharacterData } from '@/types';
+import type { CharacterData, PlaybookSectionProps } from '@/types';
 import styles from './MarshalCrew.module.css';
 
 
@@ -204,10 +204,8 @@ const parseIndividuals = (raw: unknown): Individual[] => {
 };
 
 
-interface MarshalCrewProps {
-  data: CharacterData | undefined;
+interface MarshalCrewProps extends PlaybookSectionProps {
   prosperity: number;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
 }
 
 export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {

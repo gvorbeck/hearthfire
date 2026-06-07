@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { InsertLayout } from '../shared/InsertLayout';
 import { RadioSelect } from '../../sections/RadioSelect';
-import type { MoveDefinition, CharacterData } from '@/types';
+import type { MoveDefinition, CharacterData, PlaybookSectionProps } from '@/types';
 
 const REVENANT_MOVES: MoveDefinition[] = [
   {
@@ -140,10 +140,7 @@ const StrangeAppetitesPicker = ({ consequences, updateChecked }: StrangeAppetite
   );
 };
 
-interface RevenantInsertProps {
-  data: CharacterData | undefined;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
-}
+type RevenantInsertProps = PlaybookSectionProps;
 
 export const RevenantInsert = ({ data, onSave }: RevenantInsertProps) => {
   const consequenceAddon = useCallback(({

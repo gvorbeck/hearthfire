@@ -6,7 +6,7 @@ import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeat
 import { Input, Radio, RadioGroup, Text, UseDots, CheckboxGroup } from '@/components/ui';
 import { PlaybookSection } from '../../PlaybookSection';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
-import type { CharacterData } from '@/types';
+import type { PlaybookSectionProps } from '@/types';
 import styles from './BlessedInitiatesOfDanu.module.css';
 
 interface PickLine {
@@ -276,10 +276,7 @@ const InitiateAdapter = ({
   );
 };
 
-interface BlessedInitiatesOfDanuProps {
-  data: CharacterData | undefined;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
-}
+type BlessedInitiatesOfDanuProps = PlaybookSectionProps;
 
 export const BlessedInitiatesOfDanu = ({ data, onSave }: BlessedInitiatesOfDanuProps) => {
   const dataRef = useLatest(data);

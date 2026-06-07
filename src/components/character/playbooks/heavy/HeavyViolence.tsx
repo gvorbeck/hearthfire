@@ -1,7 +1,7 @@
 import { CheckboxGroup, Divider, Text } from '@/components/ui';
 import { PlaybookSection } from '../../PlaybookSection';
 import { usePlaybookChecked } from '@/hooks/usePlaybookChecked';
-import type { CharacterData } from '@/types';
+import type { PlaybookSectionProps } from '@/types';
 
 const DEEDS_ITEMS = [
   { id: 'deeds-drake', label: '… drove off a thunder drake that got too close to town.' },
@@ -32,10 +32,7 @@ const NIGHT_ITEMS = [
   { id: 'night-truth', label: 'The worry that they\'ll all learn the truth about you, sooner or later.' },
 ];
 
-interface HeavyViolenceProps {
-  data: CharacterData | undefined;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
-}
+type HeavyViolenceProps = PlaybookSectionProps;
 
 export const HeavyViolence = ({ data, onSave }: HeavyViolenceProps) => {
   const { checked, handleChange } = usePlaybookChecked(data, onSave, 'heavyViolence');

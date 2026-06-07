@@ -10,7 +10,7 @@ import { PlaybookSection } from '../PlaybookSection';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { MINOR_ARCANA } from '@/lib/arcanaMinor';
 import { MAJOR_ARCANA } from '@/lib/arcanaMajor';
-import type { CharacterData } from '@/types';
+import type { CharacterData, PlaybookSectionProps } from '@/types';
 import styles from './Inventory.module.css';
 
 interface MainItem {
@@ -239,10 +239,8 @@ const ProsperityOptionRow = memo(({ val, selected }: ProsperityOptionRowProps) =
   );
 });
 
-interface InventoryProps {
-  data: CharacterData | undefined;
+interface InventoryProps extends PlaybookSectionProps {
   prosperity: number;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
 }
 
 export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {

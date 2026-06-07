@@ -11,7 +11,7 @@ import { usePlaybookField } from '@/hooks/usePlaybookField';
 import { useCrewSave } from '../shared/useCrewSave';
 import { useTrackedField } from '../shared/useTrackedField';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
-import type { CharacterData } from '@/types';
+import type { CharacterData, PlaybookSectionProps } from '@/types';
 import styles from './ThrallInsert.module.css';
 
 const THRALL_INSTINCT_OPTIONS = [
@@ -227,10 +227,7 @@ const MarkEntry = ({ mark, gained, crossedOff, onGainedChange, onCrossedOffChang
   );
 };
 
-interface ThrallInsertProps {
-  data: CharacterData | undefined;
-  onSave: (data: Partial<CharacterData>) => Promise<void>;
-}
+type ThrallInsertProps = PlaybookSectionProps;
 
 export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
   const { saveDebounced, saveImmediate, flushDebounce } = useCrewSave(data, onSave);
