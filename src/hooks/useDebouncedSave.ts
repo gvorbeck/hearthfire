@@ -1,6 +1,13 @@
-import { useRef, useCallback, useEffect, useState } from 'react';
+import { useRef, useCallback, useEffect, useState, type MutableRefObject } from 'react';
 
-export const useDebouncedSave = <T>(onSave: (value: T) => Promise<void>, delay = 1500) => {
+interface UseDebouncedSaveReturn<T> {
+  onChange: (value: T) => void;
+  flush: (value: T) => Promise<void>;
+  isPending: boolean;
+  isPendingRef: MutableRefObject<boolean>;
+}
+
+export const useDebouncedSave = <T>(onSave: (value: T) => Promise<void>, delay = 1500): UseDebouncedSaveReturn<T> => {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSavedRef = useRef<string | null>(null);
   const onSaveRef = useRef(onSave);
