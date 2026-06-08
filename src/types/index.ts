@@ -5,11 +5,8 @@ export interface MoveDefinition {
   name: string;
   trigger?: string;
   triggerOverride?: string;
-  body?: string | string[];
-  bodyIcons?: readonly string[];
-  bodyDividers?: boolean;
+  body?: string | Array<string | { text: string; icon?: string } | '---'>;
   list?: string[];
-  listIndent?: boolean;
   checkList?: string[];
   checkListIds?: string[];
   checkListLeveled?: boolean;

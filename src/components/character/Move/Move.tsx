@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React from 'react';
+import { Fragment } from 'react';
 import type { ReactNode, ChangeEvent } from 'react';
 import { Checkbox, CheckboxGroup, Divider, Icon, List, Text, UseDots } from '@/components/ui';
 import type { IconName } from '@/components/ui';
@@ -82,8 +82,9 @@ export const Move = ({
 
   const nameEl = <span className={nameCx}>{parseInlineMarkdown(move.name)}</span>;
 
-  const bodyParagraphs = move.body ? (Array.isArray(move.body) ? move.body : [move.body]) : [];
+  const bodyItems = move.body ? (Array.isArray(move.body) ? move.body : [move.body]) : [];
   const footerParagraphs = move.footer ? (Array.isArray(move.footer) ? move.footer : [move.footer]) : [];
+  const listIndent = bodyItems.includes('---');
 
   const leveledCheckList = checkList?.mode === 'leveled' ? checkList : null;
   const checkedLevel = leveledCheckList?.currentLevel ?? null;
@@ -180,35 +181,40 @@ export const Move = ({
           }
         </Text>
       )}
-      {bodyParagraphs.map((p, i) => {
-        const icon = move.bodyIcons?.[i];
-        const isLast = i === bodyParagraphs.length - 1;
+      {bodyItems.map((item, i) => {
+        if (item === '---') {
+          return <Divider key={`${move.id}-body-${i}`} className={styles.bodyDivider} />;
+        }
+        const icon = typeof item === 'object' ? item.icon : undefined;
+        const text = typeof item === 'object' ? item.text : item;
         return (
-          <React.Fragment key={`${move.id}-body-${i}`}>
-            {move.bodyDividers && i > 0 && <Divider className={styles.bodyDivider} />}
+          <Fragment key={`${move.id}-body-${i}`}>
             {icon ? (
               <div className={styles.moveBodyWithIcon}>
                 <Icon name={icon as IconName} size="small" className={styles.moveBodyIcon} aria-hidden="true" />
-                <Text font="serif" color="muted" leading="tight">{parseInlineMarkdown(p)}</Text>
+                <Text font="serif" color="muted" leading="tight">{parseInlineMarkdown(text)}</Text>
               </div>
             ) : (
-              <Text font="serif" color="muted" leading="tight">{parseInlineMarkdown(p)}</Text>
+              <Text font="serif" color="muted" leading="tight">{parseInlineMarkdown(text)}</Text>
             )}
-            {isLast && move.listIndent && (
-              <div className={styles.listIndent}>
-                {move.list && (
-                  <List variant="bullet" items={move.list.map((item) => parseInlineMarkdown(item))} />
-                )}
-                {footerParagraphs.map((fp, fi) => (
-                  <Text key={`${move.id}-footer-${fi}`} font="serif" color="muted" leading="tight">{parseInlineMarkdown(fp)}</Text>
-                ))}
-              </div>
-            )}
-          </React.Fragment>
+          </Fragment>
         );
       })}
-      {!move.listIndent && move.list && (
-        <List variant="bullet" items={move.list.map((item) => parseInlineMarkdown(item))} />
+      {listIndent ? (
+        <div className={styles.listIndent}>
+          {move.list && (
+            <List variant="bullet" items={move.list.map((li) => parseInlineMarkdown(li))} />
+          )}
+          {footerParagraphs.map((fp, fi) => (
+            <Text key={`${move.id}-footer-${fi}`} font="serif" color="muted" leading="tight">{parseInlineMarkdown(fp)}</Text>
+          ))}
+        </div>
+      ) : (
+        <>
+          {move.list && (
+            <List variant="bullet" items={move.list.map((li) => parseInlineMarkdown(li))} />
+          )}
+        </>
       )}
       {checkListItems && checkList && (
         <CheckboxGroup
@@ -222,7 +228,7 @@ export const Move = ({
           disabled={interactiveDisabled}
         />
       )}
-      {!move.listIndent && footerParagraphs.map((p, i) => (
+      {!listIndent && footerParagraphs.map((p, i) => (
         <Text key={`${move.id}-footer-${i}`} font="serif" color="muted" leading="tight">{parseInlineMarkdown(p)}</Text>
       ))}
       {move.list2 && (
