@@ -150,7 +150,7 @@ const MoveRow = memo(
 interface FollowerCardProps {
   follower: FollowerData;
   index: number;
-  onFieldChange: (fi: number, field: keyof FollowerData, val: unknown) => void;
+  onFieldChange: <K extends keyof FollowerData>(fi: number, field: K, val: FollowerData[K]) => void;
   onBlur: () => void;
   onGearCheckedChange: (fi: number, gi: number, checked: boolean) => void;
   onGearTextChange: (fi: number, gi: number, text: string) => void;
@@ -626,7 +626,7 @@ export const FollowersInsert = ({ data, onSave }: FollowersInsertProps) => {
   );
 
   const handleFieldChange = useCallback(
-    (fi: number, field: keyof FollowerData, val: unknown) => {
+    <K extends keyof FollowerData>(fi: number, field: K, val: FollowerData[K]) => {
       const prev = followersRef.current;
       const next = prev.map((f, i) => (i === fi ? { ...f, [field]: val } : f));
       setFollowers(next);

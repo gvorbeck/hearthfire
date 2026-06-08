@@ -164,8 +164,7 @@ interface CheckedWeightProps extends BaseProps {
 
 type RepeaterFieldProps = PlainProps | CheckedProps | CheckedWeightProps;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnySaveFn = (items: any[]) => Promise<void>;
+type SaveFn = PlainProps['onSave'] | CheckedProps['onSave'] | CheckedWeightProps['onSave'];
 
 const addBtnCx = clsx(styles.addBtn, styles.addBtnOffset);
 
@@ -173,8 +172,8 @@ export const RepeaterField = (props: RepeaterFieldProps) => {
   const { addLabel, itemLabel } = props;
 
   const nextId = useRef(props.items.length);
-  const onSaveRef = useRef<AnySaveFn>(props.onSave as AnySaveFn);
-  onSaveRef.current = props.onSave as AnySaveFn;
+  const onSaveRef = useRef<SaveFn>(props.onSave);
+  onSaveRef.current = props.onSave;
 
   const variantRef = useRef(props.variant);
 
@@ -214,8 +213,13 @@ export const RepeaterField = (props: RepeaterFieldProps) => {
     const values = toValues(rows);
     const key = JSON.stringify(values);
     lastSavedRef.current = key;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await onSaveRef.current(values as any[]);
+    if (variantRef.current === 'checked') {
+      await (onSaveRef.current as CheckedProps['onSave'])(values as { checked: boolean; text: string }[]);
+    } else if (variantRef.current === 'checked-weight') {
+      await (onSaveRef.current as CheckedWeightProps['onSave'])(values as { checked: boolean; text: string; weight: 1 | 2 }[]);
+    } else {
+      await (onSaveRef.current as PlainProps['onSave'])(values as string[]);
+    }
   }, [toValues]);
 
   const { onChange: debouncedChange, flush } = useDebouncedSave(wrappedSave, 1500);
