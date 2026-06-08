@@ -7,7 +7,7 @@ import {
   Text,
 } from '@/components/ui';
 import { useToast } from '@/components/app';
-import { PLAYBOOKS } from '@/lib/constants';
+import { PLAYBOOKS, getPlaybook } from '@/lib/constants';
 import type { Character, PlaybookType } from '@/types';
 import styles from './AddCharacterModal.module.css';
 
@@ -37,7 +37,7 @@ export const AddCharacterModal = ({
 
   const handleAdd = useCallback(() => {
     if (!playbook) return;
-    const selectedLabel = PLAYBOOKS.find((p) => p.value === playbook)?.label ?? playbook;
+    const selectedLabel = getPlaybook(playbook)?.label ?? playbook;
     const character = { id: crypto.randomUUID(), name: selectedLabel, playbook, level: 1, data: { statLevel: '1' } };
     handleClose();
     onAdd(character).catch(() => addToast('Failed to add character. Please try again.', 'error'));
@@ -48,7 +48,7 @@ export const AddCharacterModal = ({
     [existingPlaybooks]
   );
   const selectedPlaybook = useMemo(
-    () => PLAYBOOKS.find((p) => p.value === playbook),
+    () => playbook ? getPlaybook(playbook) : undefined,
     [playbook]
   );
 

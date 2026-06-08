@@ -98,3 +98,5 @@ export const PLAYBOOKS: PlaybookOption[] = [
   },
 ];
 
+export const getPlaybook = (value: PlaybookType): PlaybookOption | undefined =>
+  PLAYBOOKS.find((p) => p.value === value);

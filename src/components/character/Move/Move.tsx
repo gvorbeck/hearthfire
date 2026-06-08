@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import type { ReactNode, ChangeEvent } from 'react';
-import { Checkbox, CheckboxGroup, Icon, List, Text, UseDots } from '@/components/ui';
+import { Checkbox, CheckboxGroup, Divider, Icon, List, Text, UseDots } from '@/components/ui';
 import type { IconName } from '@/components/ui';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { MoveDefinition } from '@/types';

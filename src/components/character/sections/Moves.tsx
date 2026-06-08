@@ -13,7 +13,7 @@ import { EXPEDITION_MOVES } from '@/lib/expeditionMoves';
 import { HOMEFRONT_MOVES } from '@/lib/homefrontMoves';
 import { CUSTOM_MOVES } from '@/lib/customMoves';
 import { PLAYBOOK_MOVES, BACKGROUND_FORCED_MOVES, BACKGROUND_FORCED_CHECKLIST } from '@/lib/moves';
-import { PLAYBOOKS } from '@/lib/constants';
+import { getPlaybook } from '@/lib/constants';
 import type { PlaybookType, PlaybookSectionProps } from '@/types';
 import styles from './Moves.module.css';
 
@@ -145,7 +145,7 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
     saveCheckListLevels({ ...prev, [id]: nextItem });
   }, [saveCheckListLevels]);
 
-  const playbookEntry = PLAYBOOKS.find((p) => p.value === playbook);
+  const playbookEntry = getPlaybook(playbook);
   const playbookLabel = playbookEntry?.label ?? playbook;
   const playbookHelperText = playbookEntry?.helperText;
 

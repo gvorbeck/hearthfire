@@ -7,7 +7,9 @@ export interface MoveDefinition {
   triggerOverride?: string;
   body?: string | string[];
   bodyIcons?: readonly string[];
+  bodyDividers?: boolean;
   list?: string[];
+  listIndent?: boolean;
   checkList?: string[];
   checkListIds?: string[];
   checkListLeveled?: boolean;
