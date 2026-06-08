@@ -364,6 +364,7 @@ export interface SteadingNPC {
   traits?: string[];
   relationships?: NpcRelationship[];
   notes?: string;
+  dead?: boolean;
 }
 
 export type SteadingSize = 'hamlet' | 'village' | 'town' | 'city';

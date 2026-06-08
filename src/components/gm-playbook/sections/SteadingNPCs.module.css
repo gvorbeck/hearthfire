@@ -102,6 +102,28 @@
   flex-shrink: 0;
 }
 
+.npcRowDead {
+  opacity: 0.55;
+}
+
+.npcNameStrike {
+  text-decoration: line-through;
+  text-decoration-color: var(--text-secondary);
+}
+
+.npcDeadLabel {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-decoration: none;
+  margin-left: var(--spacing-2);
+  letter-spacing: 0.04em;
+}
+
+.tombstoneActive {
+  color: var(--text-secondary);
+}
+
 .relFieldset {
   border: none;
   margin: 0;

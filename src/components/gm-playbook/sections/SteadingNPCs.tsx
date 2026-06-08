@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useId, useMemo, useRef } from 'react';
-import { Heading, Text, Button, Modal, Input, Dropdown } from '@/components/ui';
+import clsx from 'clsx';
+import { Heading, Text, Button, Modal, Input, Dropdown, Tooltip } from '@/components/ui';
 import { TagInput } from '@/components/fields';
 import type { DropdownGroup } from '@/components/ui';
 import { useToast } from '@/components/app';
@@ -260,17 +261,20 @@ interface NpcRowProps {
   npc: SteadingNPC;
   onEdit: (npc: SteadingNPC) => void;
   onRemove: (id: string) => void;
+  onToggleDead: (id: string) => void;
   resolveTarget: (rel: NpcRelationship) => string;
 }
 
-const NpcRow = ({ npc, onEdit, onRemove, resolveTarget }: NpcRowProps) => {
+const NpcRow = ({ npc, onEdit, onRemove, onToggleDead, resolveTarget }: NpcRowProps) => {
   const handleEdit = useCallback(() => onEdit(npc), [onEdit, npc]);
   const handleRemove = useCallback(() => onRemove(npc.id), [onRemove, npc.id]);
+  const handleToggleDead = useCallback(() => onToggleDead(npc.id), [onToggleDead, npc.id]);
   return (
-    <div className={styles.npcRow} role="listitem">
+    <div className={clsx(styles.npcRow, npc.dead && styles.npcRowDead)} role="listitem">
       <div className={styles.npcInfo}>
         <span className={styles.npcName}>
-          {npc.name}
+          <span className={clsx(npc.dead && styles.npcNameStrike)}>{npc.name}</span>
+          {npc.dead && <span className={styles.npcDeadLabel}>(DEAD)</span>}
           {npc.pronouns && <span className={styles.npcPronouns}>{npc.pronouns}</span>}
         </span>
         {npc.occupation && <span className={styles.npcOccupation}>{npc.occupation}</span>}
@@ -293,7 +297,19 @@ const NpcRow = ({ npc, onEdit, onRemove, resolveTarget }: NpcRowProps) => {
       </div>
       <div className={styles.npcActions}>
         <Button variant="ghost" size="sm" onClick={handleEdit} aria-label={`Edit ${npc.name}`}>Edit</Button>
-        <Button variant="ghost" size="sm" icon="trash" onClick={handleRemove} aria-label={`Remove ${npc.name}`} />
+        <Tooltip text={npc.dead ? 'Mark as alive' : 'Mark as dead'} noTabStop>
+          <Button
+            variant="ghost"
+            size="sm"
+            icon="tombstone"
+            onClick={handleToggleDead}
+            aria-label={npc.dead ? `Mark ${npc.name} as alive` : `Mark ${npc.name} as dead`}
+            className={clsx(npc.dead && styles.tombstoneActive)}
+          />
+        </Tooltip>
+        <Tooltip text="Remove NPC" noTabStop>
+          <Button variant="ghost" size="sm" icon="trash" onClick={handleRemove} aria-label={`Remove ${npc.name}`} />
+        </Tooltip>
       </div>
     </div>
   );
@@ -306,6 +322,7 @@ interface NpcSectionProps {
   npcs: SteadingNPC[];
   allNpcs: SteadingNPC[];
   onUpdate: (npcs: SteadingNPC[]) => void;
+  onToggleDead: (id: string) => void;
   relationshipGroups: DropdownGroup<RelTarget>[];
   resolveTarget: (rel: NpcRelationship) => string;
 }
@@ -319,7 +336,7 @@ const npcToForm = (npc: SteadingNPC): NpcFormState => ({
   notes: npc.notes ?? '',
 });
 
-const NpcSection = ({ title, description, npcs, allNpcs, onUpdate, relationshipGroups, resolveTarget }: NpcSectionProps) => {
+const NpcSection = ({ title, description, npcs, allNpcs, onUpdate, onToggleDead, relationshipGroups, resolveTarget }: NpcSectionProps) => {
   const [addOpen, setAddOpen] = useState(false);
   const [editNpc, setEditNpc] = useState<SteadingNPC | null>(null);
 
@@ -354,7 +371,7 @@ const NpcSection = ({ title, description, npcs, allNpcs, onUpdate, relationshipG
       {npcs.length > 0 && (
         <div className={styles.npcList} role="list" aria-label={`${title} list`}>
           {npcs.map((npc) => (
-            <NpcRow key={npc.id} npc={npc} onEdit={handleEdit} onRemove={handleRemove} resolveTarget={resolveTarget} />
+            <NpcRow key={npc.id} npc={npc} onEdit={handleEdit} onRemove={handleRemove} onToggleDead={onToggleDead} resolveTarget={resolveTarget} />
           ))}
         </div>
       )}
@@ -447,6 +464,10 @@ export const SteadingNPCs = ({ section, npcs = [], onSave, game, filterTargetId 
       .catch(() => { setLocalNpcs(prev); addToast('Failed to save.', 'error'); })
       .finally(() => { pendingRef.current -= 1; });
   }, [onSave, addToast, section, localNpcs]);
+
+  const handleToggleDead = useCallback((id: string) => {
+    saveNpcs(localNpcs.map((n) => n.id === id ? { ...n, dead: !n.dead } : n));
+  }, [localNpcs, saveNpcs]);
   const visibleNpcs = useMemo(
     () => filterTargetId
       ? localNpcs.filter((n) => (n.relationships ?? []).some((r) => r.targetId === filterTargetId))
@@ -475,6 +496,7 @@ export const SteadingNPCs = ({ section, npcs = [], onSave, game, filterTargetId 
       npcs={visibleNpcs}
       allNpcs={localNpcs}
       onUpdate={saveNpcs}
+      onToggleDead={handleToggleDead}
       relationshipGroups={groups}
       resolveTarget={resolveTarget}
     />
