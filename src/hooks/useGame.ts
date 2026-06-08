@@ -175,6 +175,8 @@ export const useGame = (gameId: string): UseGameResult => {
 
   useEffect(() => {
     const ref = gameRef;
+    setLoading(true);
+    setGame(null);
 
     const unsubscribe = onSnapshot(
       ref,

@@ -11,6 +11,7 @@ export const useOptimisticField = <T>(
   const { addToast } = useToast();
   const addToastRef = useLatest(addToast);
   const saveFnRef = useLatest(saveFn);
+  const errorMsgRef = useLatest(errorMsg);
   const pendingRef = useRef(false);
   const [value, setValue] = useState<T>(firestoreValue);
   const ref = useLatest(value);
@@ -24,7 +25,7 @@ export const useOptimisticField = <T>(
     saveFnRef.current(next)
       .catch(() => {
         setValue(prev);
-        addToastRef.current(errorMsg, 'error');
+        addToastRef.current(errorMsgRef.current, 'error');
       })
       .finally(() => { pendingRef.current = false; });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
