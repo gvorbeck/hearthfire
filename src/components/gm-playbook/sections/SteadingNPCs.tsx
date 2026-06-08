@@ -484,12 +484,12 @@ export const SteadingNPCs = ({ section, npcs = [], onSave, game, filterTargetId 
   const handleToggleDead = useCallback((id: string) => {
     saveNpcs(localNpcs.map((n) => n.id === id ? { ...n, dead: !n.dead } : n));
   }, [localNpcs, saveNpcs]);
-  const visibleNpcs = useMemo(
-    () => filterTargetId
+  const visibleNpcs = useMemo(() => {
+    const list = filterTargetId
       ? localNpcs.filter((n) => (n.relationships ?? []).some((r) => r.targetId === filterTargetId))
-      : localNpcs,
-    [localNpcs, filterTargetId],
-  );
+      : localNpcs;
+    return [...list].sort((a, b) => a.name.localeCompare(b.name));
+  }, [localNpcs, filterTargetId]);
   const groups = useMemo(
     () => buildGroups(game),
     // eslint-disable-next-line react-hooks/exhaustive-deps
