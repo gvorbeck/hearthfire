@@ -1,6 +1,6 @@
 import { useState, useId, useCallback, useEffect } from 'react';
 import { Button, Heading, Modal, Text } from '@/components/ui';
-import { PLAYBOOKS } from '@/lib/constants';
+import { getPlaybook } from '@/lib/constants';
 import type { Character } from '@/types';
 import styles from './RemoveCharacterModal.module.css';
 
@@ -30,7 +30,7 @@ export const RemoveCharacterModal = ({ open, character, onClose, onConfirm }: Re
     }
   }, [onConfirm, onClose]);
 
-  const playbookOption = character ? PLAYBOOKS.find((p) => p.value === character.playbook) : null;
+  const playbookOption = character ? getPlaybook(character.playbook) : null;
   const playbookLabel = character ? `${playbookOption?.label ?? character.playbook} Playbook` : '';
   const characterName = character?.name?.trim();
   const displayName = characterName ? `${characterName} (${playbookLabel})` : playbookLabel;

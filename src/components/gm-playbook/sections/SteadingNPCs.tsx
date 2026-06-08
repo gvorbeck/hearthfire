@@ -5,7 +5,7 @@ import { TagInput } from '@/components/fields';
 import type { DropdownGroup } from '@/components/ui';
 import { useToast } from '@/components/app';
 import { randomNpcName } from '@/lib/npcNames';
-import { PLAYBOOKS } from '@/lib/constants';
+import { getPlaybook } from '@/lib/constants';
 import type { SteadingData, SteadingNPC, NpcRelationship, GameSession } from '@/types';
 import styles from './SteadingNPCs.module.css';
 
@@ -436,7 +436,7 @@ interface SteadingNPCsProps {
 const buildGroups = (game: GameSession): DropdownGroup<RelTarget>[] => {
   const pcs = game.characters.map((c) => ({
     value: `pc::${c.id}` as RelTarget,
-    label: `${c.name} (${PLAYBOOKS.find((p) => p.value === c.playbook)?.label ?? c.playbook})`,
+    label: `${c.name} (${getPlaybook(c.playbook)?.label ?? c.playbook})`,
   }));
   const residents = (game.steading?.residents ?? []).map((r) => ({
     value: `resident::${r.id}` as RelTarget,
@@ -484,12 +484,12 @@ export const SteadingNPCs = ({ section, npcs = [], onSave, game, filterTargetId 
   const handleToggleDead = useCallback((id: string) => {
     saveNpcs(localNpcs.map((n) => n.id === id ? { ...n, dead: !n.dead } : n));
   }, [localNpcs, saveNpcs]);
-  const visibleNpcs = useMemo(
-    () => filterTargetId
+  const visibleNpcs = useMemo(() => {
+    const list = filterTargetId
       ? localNpcs.filter((n) => (n.relationships ?? []).some((r) => r.targetId === filterTargetId))
-      : localNpcs,
-    [localNpcs, filterTargetId],
-  );
+      : localNpcs;
+    return [...list].sort((a, b) => a.name.localeCompare(b.name));
+  }, [localNpcs, filterTargetId]);
   const groups = useMemo(
     () => buildGroups(game),
     // eslint-disable-next-line react-hooks/exhaustive-deps

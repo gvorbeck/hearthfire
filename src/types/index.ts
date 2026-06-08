@@ -5,8 +5,7 @@ export interface MoveDefinition {
   name: string;
   trigger?: string;
   triggerOverride?: string;
-  body?: string | string[];
-  bodyIcons?: readonly string[];
+  body?: string | Array<string | { text: string; icon?: string } | '---'>;
   list?: string[];
   checkList?: string[];
   checkListIds?: string[];

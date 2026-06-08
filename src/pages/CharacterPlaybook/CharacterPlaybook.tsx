@@ -3,7 +3,7 @@ import type { ComponentType, ReactNode } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
-import { PLAYBOOKS, DEFAULT_GAME_NAME } from '@/lib/constants';
+import { PLAYBOOKS, DEFAULT_GAME_NAME, getPlaybook } from '@/lib/constants';
 import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Icon, Text, PlaybookColumns } from '@/components/ui';
 import { AddInsertModal } from './modals/AddInsertModal';
 import { RemoveInsertModal } from './modals/RemoveInsertModal';
@@ -302,7 +302,7 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
   updateCharacterData: (characterId: string, data: Partial<CharacterData>) => Promise<void>;
 }) => {
   const prosperity = g.steading?.prosperity ?? 0;
-  const playbookOption = PLAYBOOKS.find((p) => p.value === playbook);
+  const playbookOption = getPlaybook(playbook);
   const character = g.characters.find((c) => c.playbook === playbook);
 
   if (!playbookOption) {

@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
-import { DEFAULT_GAME_NAME, PLAYBOOKS } from '@/lib/constants';
+import { DEFAULT_GAME_NAME, getPlaybook, PLAYBOOKS } from '@/lib/constants';
 import { Button, Heading, Icon, Stack, Text } from '@/components/ui';
 import { GameIdModal } from './modals/GameIdModal';
 import { AddCharacterModal } from './modals/AddCharacterModal';
@@ -31,7 +31,7 @@ interface CharacterRowProps {
 }
 
 const CharacterRow = memo(({ character, gameId, showGrip, isDragging, onRemove, onDragStart, onDragOver, onDrop, onDragEnd }: CharacterRowProps) => {
-  const playbookOption = PLAYBOOKS.find((p) => p.value === character.playbook);
+  const playbookOption = getPlaybook(character.playbook);
   const playbookLabel = `${playbookOption?.label ?? character.playbook} Playbook`;
   const characterName = character.name?.trim();
   const buttonLabel = characterName ? `${characterName} — ${playbookLabel}` : playbookLabel;
@@ -129,6 +129,17 @@ const GameContent = ({
 
   const handleDragOver = useCallback((e: React.DragEvent, id: string) => {
     e.preventDefault();
+
+    // Auto-scroll when dragging within 80px of the viewport top or bottom edge.
+    const SCROLL_ZONE = 80;
+    const SCROLL_SPEED = 8;
+    const { clientY } = e;
+    if (clientY < SCROLL_ZONE) {
+      window.scrollBy(0, -SCROLL_SPEED);
+    } else if (clientY > window.innerHeight - SCROLL_ZONE) {
+      window.scrollBy(0, SCROLL_SPEED);
+    }
+
     if (draggingIdRef.current === id) return;
     setOrderedCharacters((prev) => {
       const from = prev.findIndex((c) => c.id === draggingIdRef.current);

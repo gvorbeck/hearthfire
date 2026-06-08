@@ -13,7 +13,7 @@ import { EXPEDITION_MOVES } from '@/lib/expeditionMoves';
 import { HOMEFRONT_MOVES } from '@/lib/homefrontMoves';
 import { CUSTOM_MOVES } from '@/lib/customMoves';
 import { PLAYBOOK_MOVES, BACKGROUND_FORCED_MOVES, BACKGROUND_FORCED_CHECKLIST } from '@/lib/moves';
-import { PLAYBOOKS } from '@/lib/constants';
+import { getPlaybook } from '@/lib/constants';
 import type { PlaybookType, PlaybookSectionProps } from '@/types';
 import styles from './Moves.module.css';
 
@@ -115,7 +115,7 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
     if (forcedMoveIdsRef.current.has(id)) return;
     const move = typeMovesRef.current.find((m) => m.id === id);
     if (!move) return;
-    const lockReason = getLockReason(move, typeMovesRef.current, levelRef.current, selectedRef.current);
+    const lockReason = getLockReason(move, typeMovesRef.current, levelRef.current, effectiveSelectedRef.current);
     if (lockReason) return;
     saveSelected({ ...selectedRef.current, [id]: value });
   }, [saveSelected]);
@@ -145,7 +145,7 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
     saveCheckListLevels({ ...prev, [id]: nextItem });
   }, [saveCheckListLevels]);
 
-  const playbookEntry = PLAYBOOKS.find((p) => p.value === playbook);
+  const playbookEntry = getPlaybook(playbook);
   const playbookLabel = playbookEntry?.label ?? playbook;
   const playbookHelperText = playbookEntry?.helperText;
 
@@ -188,10 +188,17 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
     [sortedTypeMoves, isHideUnselected]
   );
 
+  const effectiveSelected = useMemo(() => {
+    const forced: Record<string, boolean> = {};
+    for (const id of forcedMoveIds) forced[id] = true;
+    return { ...forced, ...selected };
+  }, [forcedMoveIds, selected]);
+  const effectiveSelectedRef = useLatest(effectiveSelected);
+
   const moveNodes = useMemo(() => visibleTypeMoves.map(({ move, isDisabled, isForced }) => {
     const lockReason = isForced
       ? 'Required by your background'
-      : (!isDisabled ? getLockReason(move, typeMoves, level, selected) : undefined);
+      : (!isDisabled ? getLockReason(move, typeMoves, level, effectiveSelected) : undefined);
     return (
       <Move
         key={move.id}
