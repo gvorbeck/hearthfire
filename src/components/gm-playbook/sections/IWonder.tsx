@@ -10,11 +10,12 @@ interface IWonderProps {
 
 export const IWonder = ({ value, onSave }: IWonderProps) => {
   const [local, setLocal] = useState(value);
-  const { onChange: debouncedChange, flush } = useDebouncedSave(onSave, 1500);
+  const { onChange: debouncedChange, flush, isPendingRef } = useDebouncedSave(onSave, 1500);
 
   useEffect(() => {
+    if (isPendingRef.current) return;
     setLocal(value);
-  }, [value]);
+  }, [value, isPendingRef]);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setLocal(e.target.value);
