@@ -65,6 +65,20 @@
 }
 
 
+/* ── Divider between body sections ──────────────────── */
+.bodyDivider {
+  margin: var(--spacing-2) 0;
+}
+
+/* ── Indented list + footer (e.g. winter block in Seasons Change) ── */
+.listIndent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  padding-left: var(--spacing-6);
+  margin-top: var(--spacing-1);
+}
+
 /* ── Citation ────────────────────────────────────────── */
 .moveCitation {
   margin-top: var(--spacing-1);
