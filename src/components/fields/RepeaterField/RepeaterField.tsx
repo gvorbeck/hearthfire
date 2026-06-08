@@ -77,10 +77,13 @@ const Row = memo(({
   );
   const handleRemove = useCallback(() => onRemove(item.id), [item.id, onRemove]);
 
+  const provisionWrapCx = clsx(styles.provisionWrap, weight === 2 && styles.provisionWrapDouble);
+  const provisionIconCx = clsx(styles.provisionIcon, checked && styles.provisionIconChecked);
+
   return (
     <li className={styles.item}>
       {hasCheckbox ? (
-        <span className={clsx(styles.provisionWrap, weight === 2 && styles.provisionWrapDouble)}>
+        <span className={provisionWrapCx}>
           <input
             type="checkbox"
             id={checkId}
@@ -91,7 +94,7 @@ const Row = memo(({
           />
           <label htmlFor={checkId} className={styles.provisionLabel} aria-hidden="true">
             {Array.from({ length: weight }, (_, i) => (
-              <span key={`provision-icon-${i}`} className={clsx(styles.provisionIcon, checked && styles.provisionIconChecked)}>
+              <span key={`provision-icon-${item.id}-${i}`} className={provisionIconCx}>
                 <Icon name={checked ? 'filled-provisions' : 'empty-provisions'} size="small" />
               </span>
             ))}
@@ -163,6 +166,8 @@ type RepeaterFieldProps = PlainProps | CheckedProps | CheckedWeightProps;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnySaveFn = (items: any[]) => Promise<void>;
+
+const addBtnCx = clsx(styles.addBtn, styles.addBtnOffset);
 
 export const RepeaterField = (props: RepeaterFieldProps) => {
   const { addLabel, itemLabel } = props;
@@ -297,7 +302,7 @@ export const RepeaterField = (props: RepeaterFieldProps) => {
         size="sm"
         icon="plus"
         onClick={handleAdd}
-        className={clsx(styles.addBtn, styles.addBtnOffset)}
+        className={addBtnCx}
       >
         {addLabel}
       </Button>
