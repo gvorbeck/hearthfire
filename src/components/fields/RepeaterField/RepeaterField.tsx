@@ -77,10 +77,13 @@ const Row = memo(({
   );
   const handleRemove = useCallback(() => onRemove(item.id), [item.id, onRemove]);
 
+  const provisionWrapCx = clsx(styles.provisionWrap, weight === 2 && styles.provisionWrapDouble);
+  const provisionIconCx = clsx(styles.provisionIcon, checked && styles.provisionIconChecked);
+
   return (
     <li className={styles.item}>
       {hasCheckbox ? (
-        <span className={clsx(styles.provisionWrap, weight === 2 && styles.provisionWrapDouble)}>
+        <span className={provisionWrapCx}>
           <input
             type="checkbox"
             id={checkId}
@@ -91,7 +94,7 @@ const Row = memo(({
           />
           <label htmlFor={checkId} className={styles.provisionLabel} aria-hidden="true">
             {Array.from({ length: weight }, (_, i) => (
-              <span key={`provision-icon-${i}`} className={clsx(styles.provisionIcon, checked && styles.provisionIconChecked)}>
+              <span key={`provision-icon-${item.id}-${i}`} className={provisionIconCx}>
                 <Icon name={checked ? 'filled-provisions' : 'empty-provisions'} size="small" />
               </span>
             ))}
@@ -161,15 +164,16 @@ interface CheckedWeightProps extends BaseProps {
 
 type RepeaterFieldProps = PlainProps | CheckedProps | CheckedWeightProps;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnySaveFn = (items: any[]) => Promise<void>;
+type SaveFn = PlainProps['onSave'] | CheckedProps['onSave'] | CheckedWeightProps['onSave'];
+
+const addBtnCx = clsx(styles.addBtn, styles.addBtnOffset);
 
 export const RepeaterField = (props: RepeaterFieldProps) => {
   const { addLabel, itemLabel } = props;
 
   const nextId = useRef(props.items.length);
-  const onSaveRef = useRef<AnySaveFn>(props.onSave as AnySaveFn);
-  onSaveRef.current = props.onSave as AnySaveFn;
+  const onSaveRef = useRef<SaveFn>(props.onSave);
+  onSaveRef.current = props.onSave;
 
   const variantRef = useRef(props.variant);
 
@@ -209,8 +213,13 @@ export const RepeaterField = (props: RepeaterFieldProps) => {
     const values = toValues(rows);
     const key = JSON.stringify(values);
     lastSavedRef.current = key;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await onSaveRef.current(values as any[]);
+    if (variantRef.current === 'checked') {
+      await (onSaveRef.current as CheckedProps['onSave'])(values as { checked: boolean; text: string }[]);
+    } else if (variantRef.current === 'checked-weight') {
+      await (onSaveRef.current as CheckedWeightProps['onSave'])(values as { checked: boolean; text: string; weight: 1 | 2 }[]);
+    } else {
+      await (onSaveRef.current as PlainProps['onSave'])(values as string[]);
+    }
   }, [toValues]);
 
   const { onChange: debouncedChange, flush } = useDebouncedSave(wrappedSave, 1500);
@@ -297,7 +306,7 @@ export const RepeaterField = (props: RepeaterFieldProps) => {
         size="sm"
         icon="plus"
         onClick={handleAdd}
-        className={clsx(styles.addBtn, styles.addBtnOffset)}
+        className={addBtnCx}
       >
         {addLabel}
       </Button>

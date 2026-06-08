@@ -29,7 +29,7 @@ export const Checkbox = ({ label, className, variant = 'default', weight = 1, ..
           <span className={styles.check} />
         </span>
       )}
-      {label}
+      <span>{label}</span>
     </label>
   );
 };

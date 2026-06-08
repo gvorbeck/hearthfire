@@ -49,14 +49,23 @@ export const RadioSelect = ({
   const [customText, setCustomText] = useState<string>('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const customTextRef = useLatest(customText);
+  const selectPendingRef = useRef(false);
+
+  const saveCustomText = useCallback(
+    (value: string) => onSave?.({ [dataKey]: CUSTOM_VALUE, [customKey]: value } as Partial<CharacterData>) ?? Promise.resolve(),
+    [onSave, dataKey, customKey]
+  );
+  const { onChange: debouncedChange, flush: flushOnBlur, isPendingRef: customPendingRef } = useDebouncedSave(saveCustomText, 1000);
 
   useEffect(() => {
+    if (selectPendingRef.current) return;
     if (data?.[dataKey] !== undefined) setSelected(data[dataKey] as string);
   }, [data, dataKey]);
 
   useEffect(() => {
+    if (customPendingRef.current) return;
     if (data?.[customKey] !== undefined) setCustomText(data[customKey] as string);
-  }, [data, customKey]);
+  }, [data, customKey, customPendingRef]);
 
   useEffect(() => {
     const el = textareaRef.current;
@@ -69,15 +78,12 @@ export const RadioSelect = ({
 
   const handleSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.currentTarget.value;
+    selectPendingRef.current = true;
     setSelected(value);
-    onSave?.({ [dataKey]: value, [customKey]: '' } as Partial<CharacterData>);
+    Promise.resolve()
+      .then(() => onSave?.({ [dataKey]: value, [customKey]: '' } as Partial<CharacterData>))
+      .finally(() => { selectPendingRef.current = false; });
   }, [onSave, dataKey, customKey]);
-
-  const saveCustomText = useCallback(
-    (value: string) => onSave?.({ [dataKey]: CUSTOM_VALUE, [customKey]: value } as Partial<CharacterData>) ?? Promise.resolve(),
-    [onSave, dataKey, customKey]
-  );
-  const { onChange: debouncedChange, flush: flushOnBlur } = useDebouncedSave(saveCustomText, 1000);
 
   const handleCustomChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;

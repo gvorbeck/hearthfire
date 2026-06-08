@@ -80,6 +80,7 @@ const parseNpc = (v: unknown): SteadingNPC | null => {
     traits: Array.isArray(r.traits) ? (r.traits as unknown[]).filter((t): t is string => typeof t === 'string') : undefined,
     relationships: Array.isArray(r.relationships) ? (r.relationships as unknown[]).filter(isNpcRelationship) : undefined,
     notes: typeof r.notes === 'string' ? r.notes : undefined,
+    dead: r.dead === true ? true : undefined,
   };
 };
 
@@ -175,6 +176,8 @@ export const useGame = (gameId: string): UseGameResult => {
 
   useEffect(() => {
     const ref = gameRef;
+    setLoading(true);
+    setGame(null);
 
     const unsubscribe = onSnapshot(
       ref,

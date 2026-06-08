@@ -155,6 +155,14 @@ const icons = {
   moon: (
     <path strokeLinecap="round" strokeLinejoin="round" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
   ),
+  tombstone: (
+    <>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M7 21V10a5 5 0 0 1 10 0v11H7Z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 21h16" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 13v5" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M10 15h4" />
+    </>
+  ),
 };
 
 export type IconName = keyof typeof icons;

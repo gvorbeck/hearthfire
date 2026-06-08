@@ -46,8 +46,7 @@ export const Button = <E extends ElementType = 'button'>({
   );
 
   return (
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    <Tag className={cx} {...(props as any)}>
+    <Tag className={cx} {...(props as ComponentPropsWithoutRef<typeof Tag>)}>
       {icon && <Icon name={icon} size={iconSizeMap[size]} />}
       {children}
     </Tag>

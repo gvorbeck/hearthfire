@@ -71,18 +71,15 @@ export const TagInput = ({ label, value, onChange, suggestions = [], placeholder
   const [activeIndex, setActiveIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const dismissedRef = useRef(false);
 
-  const filtered = useMemo(
-    () => suggestions.filter(
-      (s) => s.toLowerCase().includes(inputVal.toLowerCase()) && !value.includes(s),
-    ),
-    [suggestions, inputVal, value],
-  );
-
-  const unusedCount = useMemo(
-    () => suggestions.filter((s) => !value.includes(s)).length,
-    [suggestions, value],
-  );
+  const { filtered, unusedCount } = useMemo(() => {
+    const unused = suggestions.filter((s) => !value.includes(s));
+    return {
+      filtered: unused.filter((s) => s.toLowerCase().includes(inputVal.toLowerCase())),
+      unusedCount: unused.length,
+    };
+  }, [suggestions, inputVal, value]);
 
   const addTag = useCallback((tag: string) => {
     const trimmed = tag.trim();
@@ -106,6 +103,7 @@ export const TagInput = ({ label, value, onChange, suggestions = [], placeholder
   }, [suggestions, value, onChange]);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    dismissedRef.current = false;
     setInputVal(e.target.value);
     setOpen(true);
     setActiveIndex(-1);
@@ -127,6 +125,7 @@ export const TagInput = ({ label, value, onChange, suggestions = [], placeholder
       e.preventDefault();
       setActiveIndex((i) => Math.max(i - 1, -1));
     } else if (e.key === 'Escape') {
+      dismissedRef.current = true;
       setOpen(false);
       setActiveIndex(-1);
     } else if (e.key === 'Backspace' && !inputVal && value.length > 0) {
@@ -135,8 +134,8 @@ export const TagInput = ({ label, value, onChange, suggestions = [], placeholder
   }, [activeIndex, filtered, inputVal, addTag, removeTag, value]);
 
   const handleFocus = useCallback(() => {
-    if (inputVal) setOpen(true);
-  }, [inputVal]);
+    if (!dismissedRef.current) setOpen(true);
+  }, []);
 
   useEffect(() => {
     const handlePointerDown = (e: PointerEvent) => {
@@ -190,25 +189,25 @@ export const TagInput = ({ label, value, onChange, suggestions = [], placeholder
             aria-label="Assign random trait"
           />
         )}
+        <ul
+          id={listboxId}
+          role="listbox"
+          aria-label="Trait suggestions"
+          className={styles.dropdown}
+          hidden={!showDropdown}
+        >
+          {showDropdown && filtered.map((s, i) => (
+            <SuggestionItem
+              key={s}
+              suggestion={s}
+              index={i}
+              isActive={i === activeIndex}
+              listboxId={listboxId}
+              onAdd={addTag}
+            />
+          ))}
+        </ul>
       </div>
-      <ul
-        id={listboxId}
-        role="listbox"
-        aria-label="Trait suggestions"
-        className={styles.dropdown}
-        hidden={!showDropdown}
-      >
-        {showDropdown && filtered.map((s, i) => (
-          <SuggestionItem
-            key={s}
-            suggestion={s}
-            index={i}
-            isActive={i === activeIndex}
-            listboxId={listboxId}
-            onAdd={addTag}
-          />
-        ))}
-      </ul>
     </div>
   );
 };

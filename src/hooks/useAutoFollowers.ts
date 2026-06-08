@@ -18,6 +18,8 @@ export const useAutoFollowers = (
     const current = inserts ?? [];
     if (current.includes('Followers')) return;
     hasAutoAddedRef.current = true;
-    onSave({ inserts: [...current, 'Followers'] }).catch(() => {});
+    onSave({ inserts: [...current, 'Followers'] }).catch(() => {
+      hasAutoAddedRef.current = false;
+    });
   }, [specialPossessions, inserts, onSave]);
 };
