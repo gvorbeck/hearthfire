@@ -115,7 +115,7 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
     if (forcedMoveIdsRef.current.has(id)) return;
     const move = typeMovesRef.current.find((m) => m.id === id);
     if (!move) return;
-    const lockReason = getLockReason(move, typeMovesRef.current, levelRef.current, selectedRef.current);
+    const lockReason = getLockReason(move, typeMovesRef.current, levelRef.current, effectiveSelectedRef.current);
     if (lockReason) return;
     saveSelected({ ...selectedRef.current, [id]: value });
   }, [saveSelected]);
@@ -188,10 +188,17 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
     [sortedTypeMoves, isHideUnselected]
   );
 
+  const effectiveSelected = useMemo(() => {
+    const forced: Record<string, boolean> = {};
+    for (const id of forcedMoveIds) forced[id] = true;
+    return { ...forced, ...selected };
+  }, [forcedMoveIds, selected]);
+  const effectiveSelectedRef = useLatest(effectiveSelected);
+
   const moveNodes = useMemo(() => visibleTypeMoves.map(({ move, isDisabled, isForced }) => {
     const lockReason = isForced
       ? 'Required by your background'
-      : (!isDisabled ? getLockReason(move, typeMoves, level, selected) : undefined);
+      : (!isDisabled ? getLockReason(move, typeMoves, level, effectiveSelected) : undefined);
     return (
       <Move
         key={move.id}
