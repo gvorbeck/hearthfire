@@ -190,8 +190,21 @@ const NpcModal = ({ open, onClose, onSave, initial = EMPTY_FORM, title, relation
   const headingId = useId();
   const [form, setForm] = useState<NpcFormState>(initial);
 
-  const makeFieldHandler = (field: keyof NpcFormState): React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> =>
-    (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
+  const handleNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm((f) => ({ ...f, name: e.target.value }));
+  }, []);
+
+  const handlePronounsChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm((f) => ({ ...f, pronouns: e.target.value }));
+  }, []);
+
+  const handleOccupationChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm((f) => ({ ...f, occupation: e.target.value }));
+  }, []);
+
+  const handleNotesChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setForm((f) => ({ ...f, notes: e.target.value }));
+  }, []);
 
   const handleTraitsChange = useCallback((traits: string[]) => {
     setForm((f) => ({ ...f, traits }));
@@ -219,11 +232,11 @@ const NpcModal = ({ open, onClose, onSave, initial = EMPTY_FORM, title, relation
       <Heading as="h2" size="sm" id={headingId}>{title}</Heading>
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.nameRow}>
-          <Input label="Name *" value={form.name} onChange={makeFieldHandler('name')} autoFocus required />
+          <Input label="Name *" value={form.name} onChange={handleNameChange} autoFocus required />
           <Button variant="ghost" size="sm" type="button" icon="dice" onClick={handleRandomName} aria-label="Random name" className={styles.diceBtn} />
         </div>
-        <Input label="Pronouns" value={form.pronouns} onChange={makeFieldHandler('pronouns')} placeholder="e.g. she/her" />
-        <Input label="Occupation" value={form.occupation} onChange={makeFieldHandler('occupation')} placeholder="e.g. farmer, smith, midwife" />
+        <Input label="Pronouns" value={form.pronouns} onChange={handlePronounsChange} placeholder="e.g. she/her" />
+        <Input label="Occupation" value={form.occupation} onChange={handleOccupationChange} placeholder="e.g. farmer, smith, midwife" />
         <TagInput
           label="Traits"
           value={form.traits}
@@ -243,7 +256,7 @@ const NpcModal = ({ open, onClose, onSave, initial = EMPTY_FORM, title, relation
           multiline
           label="Notes"
           value={form.notes}
-          onChange={makeFieldHandler('notes')}
+          onChange={handleNotesChange}
           rows={3}
           placeholder="Other notes about this NPC"
         />
@@ -269,11 +282,14 @@ const NpcRow = ({ npc, onEdit, onRemove, onToggleDead, resolveTarget }: NpcRowPr
   const handleEdit = useCallback(() => onEdit(npc), [onEdit, npc]);
   const handleRemove = useCallback(() => onRemove(npc.id), [onRemove, npc.id]);
   const handleToggleDead = useCallback(() => onToggleDead(npc.id), [onToggleDead, npc.id]);
+  const rowCx = clsx(styles.npcRow, npc.dead && styles.npcRowDead);
+  const nameCx = clsx(npc.dead && styles.npcNameStrike);
+  const tombstoneCx = clsx(npc.dead && styles.tombstoneActive);
   return (
-    <div className={clsx(styles.npcRow, npc.dead && styles.npcRowDead)} role="listitem">
+    <div className={rowCx} role="listitem">
       <div className={styles.npcInfo}>
         <span className={styles.npcName}>
-          <span className={clsx(npc.dead && styles.npcNameStrike)}>{npc.name}</span>
+          <span className={nameCx}>{npc.name}</span>
           {npc.dead && <span className={styles.npcDeadLabel}>(DEAD)</span>}
           {npc.pronouns && <span className={styles.npcPronouns}>{npc.pronouns}</span>}
         </span>
@@ -304,7 +320,7 @@ const NpcRow = ({ npc, onEdit, onRemove, onToggleDead, resolveTarget }: NpcRowPr
             icon="tombstone"
             onClick={handleToggleDead}
             aria-label={npc.dead ? `Mark ${npc.name} as alive` : `Mark ${npc.name} as dead`}
-            className={clsx(npc.dead && styles.tombstoneActive)}
+            className={tombstoneCx}
           />
         </Tooltip>
         <Tooltip text="Remove NPC" noTabStop>

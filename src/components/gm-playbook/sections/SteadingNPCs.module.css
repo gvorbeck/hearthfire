@@ -115,7 +115,6 @@
   font-size: var(--text-xs);
   font-weight: 600;
   color: var(--text-secondary);
-  text-decoration: none;
   margin-left: var(--spacing-2);
   letter-spacing: 0.04em;
 }

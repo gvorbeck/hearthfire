@@ -157,11 +157,8 @@ const icons = {
   ),
   tombstone: (
     <>
-      {/* headstone body: flat bottom, rounded top */}
       <path strokeLinecap="round" strokeLinejoin="round" d="M7 21V10a5 5 0 0 1 10 0v11H7Z" />
-      {/* ground line */}
       <path strokeLinecap="round" strokeLinejoin="round" d="M4 21h16" />
-      {/* cross on stone */}
       <path strokeLinecap="round" strokeLinejoin="round" d="M12 13v5" />
       <path strokeLinecap="round" strokeLinejoin="round" d="M10 15h4" />
     </>
