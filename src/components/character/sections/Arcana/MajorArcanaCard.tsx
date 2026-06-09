@@ -1,10 +1,11 @@
 import { useCallback, memo } from 'react';
 import clsx from 'clsx';
-import { Button, Checkbox, List, Text } from '@/components/ui';
+import { Button, Checkbox, Text } from '@/components/ui';
 import { UseDots } from '@/components/ui/UseDots/UseDots';
 import { parseInlineMarkdown, parseMarkdown } from '@/lib/parseMarkdown';
 import type { MajorArcanum, MajorArcanaMysteryMove, ArcanaMove } from '@/types';
 import type { ArcanaMajorEntry } from '@/types';
+import { ArcanaFollowerBlock } from './ArcanaFollowerBlock';
 import styles from './MajorArcanaCard.module.css';
 
 interface MajorArcanaCardProps {
@@ -75,45 +76,6 @@ const TaskRow = memo(({ taskKey, task, checked, onToggle }: TaskRowProps) => {
   );
 });
 
-interface FollowerHpInputProps {
-  index: number;
-  moveId: string;
-  followerName: string;
-  isMultiHp: boolean;
-  value: number;
-  max: number;
-  onFollowerHpChange: (moveId: string, index: number, value: number) => void;
-}
-
-const FollowerHpInput = memo(({ index, moveId, followerName, isMultiHp, value, max, onFollowerHpChange }: FollowerHpInputProps) => {
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const val = parseInt(e.target.value, 10);
-      if (!isNaN(val)) onFollowerHpChange(moveId, index, val);
-    },
-    [moveId, index, onFollowerHpChange],
-  );
-  return (
-    <label className={styles.followerHpLabel}>
-      <Text as="span" font="serif" size="xs" color="muted">
-        {isMultiHp ? `HP ${index + 1}` : 'HP'}
-      </Text>
-      <input
-        type="number"
-        className={styles.followerHpInput}
-        value={value}
-        min={0}
-        max={max}
-        onChange={handleChange}
-        aria-label={isMultiHp ? `${followerName} ${index + 1} HP` : `${followerName} HP`}
-      />
-      <Text as="span" font="serif" size="xs" color="muted">
-        /{max}
-      </Text>
-    </label>
-  );
-});
-
 interface ConsequenceRowProps {
   id: string;
   text: string;
@@ -163,8 +125,11 @@ const MysteryMoveBlock = memo(({
     (value: number) => onTrackerChange(move.id, value),
     [move.id, onTrackerChange],
   );
+  const handleFollowerHp = useCallback(
+    (index: number, value: number) => onFollowerHpChange(move.id, index, value),
+    [move.id, onFollowerHpChange],
+  );
 
-  const isMultiHp = !!(move.follower?.hpCount && move.follower.hpCount > 1);
   const mysteryMoveCx = clsx(styles.mysteryMove, checked && styles.mysteryMoveChosen);
 
   return (
@@ -199,64 +164,12 @@ const MysteryMoveBlock = memo(({
       <div className={styles.moveText}>{parseMarkdown(move.text)}</div>
 
       {move.follower && (
-        <div className={styles.follower}>
-          <div className={styles.followerHeader}>
-            <Text as="p" font="serif" size="sm" weight="bold">
-              {move.follower.name}
-            </Text>
-            {move.follower.tags && (
-              <Text as="span" font="serif" size="xs" italic color="muted">
-                {move.follower.tags}
-              </Text>
-            )}
-          </div>
-          <div className={styles.followerStats}>
-            <div className={styles.followerHpRow}>
-              {Array.from({ length: move.follower.hpCount ?? 1 }).map((_, i) => (
-                <FollowerHpInput
-                  key={`hp-${move.id}-${i}`}
-                  index={i}
-                  moveId={move.id}
-                  followerName={move.follower!.name}
-                  isMultiHp={isMultiHp}
-                  value={followerHp?.[i] ?? move.follower!.hp}
-                  max={move.follower!.hp}
-                  onFollowerHpChange={onFollowerHpChange}
-                />
-              ))}
-              {move.follower.armor !== undefined && (
-                <span className={styles.followerStat}>
-                  <Text as="span" font="serif" size="xs" color="muted">Armor</Text>
-                  <Text as="span" font="serif" size="xs">{move.follower.armor}</Text>
-                </span>
-              )}
-              {move.follower.damage && (
-                <span className={styles.followerStat}>
-                  <Text as="span" font="serif" size="xs" color="muted">Damage</Text>
-                  <Text as="span" font="serif" size="xs">{move.follower.damage}</Text>
-                </span>
-              )}
-            </div>
-            <div className={styles.followerInstinct}>
-              <Text as="span" font="serif" size="xs" color="muted">Instinct: </Text>
-              <Text as="span" font="serif" size="xs" italic>{move.follower.instinct}</Text>
-            </div>
-            {move.follower.qualities && (
-              <List
-                variant="bullet"
-                items={move.follower.qualities.map((q, i) => (
-                  <Text key={`quality-${move.id}-${i}`} as="span" font="serif" size="xs">{q}</Text>
-                ))}
-              />
-            )}
-            {move.follower.cost && (
-              <div className={styles.followerCost}>
-                <Text as="span" font="serif" size="xs" color="muted">Cost: </Text>
-                <Text as="span" font="serif" size="xs">{move.follower.cost}</Text>
-              </div>
-            )}
-          </div>
-        </div>
+        <ArcanaFollowerBlock
+          arcanaId={move.id}
+          follower={move.follower}
+          followerHp={followerHp}
+          onFollowerHpChange={handleFollowerHp}
+        />
       )}
     </div>
   );

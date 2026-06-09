@@ -439,7 +439,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         tracker: { label: 'Casting Penalty', max: 5 },
       },
     ],
-    marks: { max: 4 },
+    marks: { max: 4, unlockAt: 1 },
     mystery: {
       sectionLabel: 'Spells of the Codex',
       moves: [

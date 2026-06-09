@@ -22,6 +22,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '2',
     name: 'A folktale',
     description: 'There\'s this old tale, about an old herb tender from Marshedge that tricks a fen-troll into eating an enchanted seedpod. She promises to go get the troll more food if he promises to then let her go. Of course, the troll breaks his word and tries to eat her, but the seedpod bursts into a mass of gwir-nettles when he does.\n\nYou can learn the secret of the enchanted seedpods, but need one of the following:',
+    requirementsUnlockAt: 1,
     requirements: [
       'A Marshedge herbalist, steeped in lore, to teach you the ritual',
       'The spirit of a gwir-nettle, friendly or bound, to reveal the secrets of its birth',
@@ -36,6 +37,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     name: 'A small, strange book',
     tags: 'fragile',
     description: 'A small manual written on what appears to be sheets of supple leaves. It is written in the common script but in a strangely poetic sequence of nonsense syllables.\n\nThe manual reveals the recipe for an elderberry wine that brims with Fae magic, but to learn the recipe, you either…',
+    requirementsUnlockAt: 1,
     requirements: [
       '…need help from a Fae poet, or perhaps one of the Forest Folk;',
       '…risk getting the recipe wrong, poisoning or cursing whoever drinks the wine you brew.',
@@ -237,6 +239,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     id: '14',
     name: 'A clear, natural pool',
     description: 'High in the hills, a stream of snowmelt fills a deep pool in the rocks before flowing on. At the bottom of the pool is a large deposit of lodestone. Rusted old blades (many sized for giants) can be seen clinging to the lodestone.\n\nThere is magic here; to unlock its secrets, either…',
+    requirementsUnlockAt: 1,
     requirements: [
       '…spend a week or so experimenting at the pool, then roll +INT: on a 10+, you figure it out; on a 7-9, no luck; on a 6-, you are interrupted by danger;',
       '…get a firsthand account of the pool\'s powers in use.',
@@ -776,6 +779,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     tags: 'fragile, magical',
     weight: 1,
     description: 'About 10 inches tall, tapered at the top, made of old warped glass that\'s shot through with silvery streaks, like the trails that slugs leave. The patterns in the glass seem different each time you look, almost shifting as you watch. It makes you eyes water, your head spin.\n\nYou can unlock the secrets of this old glass bottle, but you must either…',
+    requirementsUnlockAt: 1,
     requirements: [
       '…find one who knows its workings, and get them to teach you;',
       '…fill the bottle with spring-water and hallucinogenic mushrooms, and let it steep in the dark for a fortnight.',
