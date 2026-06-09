@@ -97,6 +97,8 @@ export interface MinorArcanum {
   weight?: 1 | 2;
   description: string;
   requirements: string[];
+  // How many requirements must be checked to unlock the move. Defaults to all.
+  requirementsUnlockAt?: number;
   move: ArcanaMove;
 }
 
