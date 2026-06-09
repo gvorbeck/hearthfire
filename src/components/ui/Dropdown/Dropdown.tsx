@@ -16,19 +16,27 @@ type DropdownBaseProps<T extends string> = Omit<
   SelectHTMLAttributes<HTMLSelectElement>,
   "value" | "onChange"
 > & {
-  label?: string;
   id: string;
   value: T | "";
   onChange: (value: T) => void;
   placeholder?: string;
 };
 
-type DropdownFlatProps<T extends string> = DropdownBaseProps<T> & {
+type DropdownWithLabel<T extends string> = DropdownBaseProps<T> & {
+  label: string;
+};
+
+type DropdownWithAriaLabel<T extends string> = DropdownBaseProps<T> & {
+  label?: never;
+  "aria-label": string;
+};
+
+type DropdownFlatProps<T extends string> = (DropdownWithLabel<T> | DropdownWithAriaLabel<T>) & {
   options: DropdownOption<T>[];
   groups?: never;
 };
 
-type DropdownGroupedProps<T extends string> = DropdownBaseProps<T> & {
+type DropdownGroupedProps<T extends string> = (DropdownWithLabel<T> | DropdownWithAriaLabel<T>) & {
   groups: DropdownGroup<T>[];
   options?: never;
 };

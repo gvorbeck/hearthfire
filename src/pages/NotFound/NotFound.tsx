@@ -17,7 +17,7 @@ export const NotFound = () => {
       <div className={styles.page}>
         <div className={styles.content}>
           <Text aria-label="404 error" className={styles.code}>404</Text>
-          <Heading as="h2" size="xl" className={styles.heading}>
+          <Heading as="h1" size="xl" className={styles.heading}>
             You've wandered off the path.
           </Heading>
           <Text color="muted">

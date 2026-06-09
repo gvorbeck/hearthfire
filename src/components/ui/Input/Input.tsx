@@ -20,6 +20,8 @@ export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, Props>(
     const generatedId = useId();
     const resolvedId = id ?? generatedId;
     const errorId = error ? `${generatedId}-error` : undefined;
+    const noteId = note ? `${generatedId}-note` : undefined;
+    const describedBy = [noteId, errorId].filter((x): x is string => Boolean(x)).join(' ') || undefined;
     const cx = clsx(styles.input, error && styles.hasError, className);
 
     const el = multiline
@@ -29,7 +31,7 @@ export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, Props>(
           id={resolvedId}
           className={cx}
           {...(props as TextareaHTMLAttributes<HTMLTextAreaElement>)}
-          aria-describedby={errorId}
+          aria-describedby={describedBy}
         />
       )
       : (
@@ -38,7 +40,7 @@ export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, Props>(
           id={resolvedId}
           className={cx}
           {...(props as InputHTMLAttributes<HTMLInputElement>)}
-          aria-describedby={errorId}
+          aria-describedby={describedBy}
         />
       );
 
@@ -46,6 +48,7 @@ export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, Props>(
       return (
         <>
           {el}
+          {note && <span id={noteId} className={styles.note}>{note}</span>}
           {error && <span id={errorId} className={styles.error}>{error}</span>}
         </>
       );
@@ -55,7 +58,7 @@ export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, Props>(
       <div className={styles.wrapper}>
         <div className={styles.labelRow}>
           <label htmlFor={resolvedId} className={styles.label}>{label}</label>
-          {note && <span className={styles.note}>{note}</span>}
+          {note && <span id={noteId} className={styles.note}>{note}</span>}
         </div>
         {el}
         {error && <span id={errorId} className={styles.error}>{error}</span>}

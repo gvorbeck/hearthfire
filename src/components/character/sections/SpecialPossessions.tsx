@@ -252,29 +252,30 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1, chooseOver
     saveUses({ ...usesRef.current, [id]: count });
   }, [saveUses]);
 
-  const handleStock = useCallback((stockKey: Extract<keyof CharacterData, 'sacredPouchStock'>, stock: number) => {
+  const handleStock = useCallback((stockKey: Extract<keyof CharacterData, 'sacredPouchStock' | 'herbGardenStock'>, stock: number) => {
     onSaveRef.current?.({ [stockKey]: stock })?.catch(() => addToast('Failed to save.', 'error'));
   }, [addToast]);
 
-  const stockExtra = useMemo(() => {
-    const stockItem = config?.items.find(p => p.stockKey);
-    if (!stockItem?.stockKey) return undefined;
-    const stock = data?.[stockItem.stockKey] ?? 0;
-    const capacity = stockItem.stockCapacity?.(level) ?? 0;
-    return {
-      possessionId: stockItem.id,
-      node: (
+  const stockExtras = useMemo(() => {
+    const map: Record<string, React.ReactNode> = {};
+    for (const stockItem of config?.items ?? []) {
+      if (!stockItem.stockKey) continue;
+      const stock = data?.[stockItem.stockKey] ?? 0;
+      const capacity = stockItem.stockCapacity?.(level) ?? 0;
+      const visibleLabel = stockItem.stockLabel ?? 'Stock:';
+      map[stockItem.id] = (
         <span className={styles.stockRow}>
-          <span className={styles.stockLabel}>Stock:</span>
+          <span className={styles.stockLabel}>{visibleLabel}</span>
           <UseDots
             total={capacity}
             checked={stock}
             onChange={(n) => handleStock(stockItem.stockKey!, n)}
-            label={`Stock: ${stock} of ${capacity}`}
+            label={stockItem.stockLabel ? undefined : `Stock: ${stock} of ${capacity}`}
           />
         </span>
-      ),
-    };
+      );
+    }
+    return map;
   }, [config?.items, data, level, handleStock]);
 
   const handleToggleCollapse = useCallback(() => setIsCollapsed((v) => !v), []);
@@ -336,7 +337,7 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1, chooseOver
                     onToggle={handleToggle}
                     onRadioSelect={handleRadioSelect}
                     onUses={handleUses}
-                    renderExtra={stockExtra?.possessionId === p.id ? stockExtra.node : undefined}
+                    renderExtra={stockExtras[p.id]}
                   />
                 }
               />

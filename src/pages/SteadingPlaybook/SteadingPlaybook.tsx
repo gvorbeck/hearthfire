@@ -41,6 +41,7 @@ const NpcFilterRow = ({ g, npcFilter, onFilterChange }: NpcFilterRowProps) => {
     <div className={styles.npcFilterRow}>
       <Dropdown
         id="npc-relationship-filter"
+        aria-label="Filter NPCs by relationship"
         groups={groups}
         value={npcFilter}
         onChange={onFilterChange}
