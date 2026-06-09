@@ -1,0 +1,36 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.input {
+  width: 100%;
+}
+
+.empty {
+  padding: var(--spacing-2) 0;
+}
+
+.results {
+  margin-top: var(--spacing-3);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.item {
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--spacing-3);
+}
+
+.item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
