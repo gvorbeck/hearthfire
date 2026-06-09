@@ -5,7 +5,7 @@ import { useGame } from '@/hooks/useGame';
 import { ScrollToTop, Tabs, PlaybookColumns } from '@/components/ui';
 import { PageLayout } from '@/components/app/PageLayout/PageLayout';
 import { PlaybookSection } from '@/components/character/PlaybookSection';
-import { CoreLoop, GmMoves, Principles, DamageAndDebilities, ContentSection, Threats, IWonder, Expeditions, Sites, Discoveries, Hazards, Monsters, NPCs, Followers, Homefront, FlowOfPlay } from '@/components/gm-playbook/sections';
+import { CoreLoop, GmMoves, Principles, DamageAndDebilities, ContentSection, Threats, IWonder, Expeditions, Sites, Discoveries, Hazards, Monsters, NPCs, Followers, Homefront, FlowOfPlay, MoveSearch } from '@/components/gm-playbook/sections';
 import { GameGuard } from '@/components/app/GameGuard/GameGuard';
 import { DEFAULT_GAME_NAME } from '@/lib/constants';
 import type { ContentLists, GameSession } from '@/types';
@@ -113,6 +113,10 @@ const GmPlaybookContent = ({ g, id, updateContent, updateField }: GmPlaybookCont
     {
       label: 'World',
       content: <WorldTabContent />,
+    },
+    {
+      label: 'Move Search',
+      content: <MoveSearch />,
     },
   ], [g.content, g.iWonder, updateContent, saveIWonder]);
 

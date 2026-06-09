@@ -14,3 +14,4 @@ export { NPCs } from './NPCs';
 export { Followers } from './Followers';
 export { Homefront } from './Homefront';
 export { FlowOfPlay } from './FlowOfPlay';
+export { MoveSearch } from './MoveSearch/MoveSearch';
