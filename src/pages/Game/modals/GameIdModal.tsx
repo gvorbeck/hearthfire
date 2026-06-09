@@ -55,7 +55,7 @@ export const GameIdModal = ({ gameId, open, onClose }: GameIdModalProps) => {
       </div>
 
       {copyError && (
-        <Text size="xs" color="muted">Could not copy — please copy the ID manually.</Text>
+        <Text size="xs" color="muted" role="alert">Could not copy — please copy the ID manually.</Text>
       )}
 
       <div className={styles.warning}>
