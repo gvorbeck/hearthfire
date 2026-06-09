@@ -316,6 +316,7 @@ export interface CharacterData {
   specialPossessionUses?: Record<string, number>;
   specialPossessionCustom?: string;
   sacredPouchStock?: number;
+  herbGardenStock?: number;
   introductionQuestions?: Record<string, boolean>;
   inserts?: string[];
   playbookFeatures?: PlaybookFeatures;

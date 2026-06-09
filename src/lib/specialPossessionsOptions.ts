@@ -12,7 +12,8 @@ export type Possession = {
   alwaysSelectedForBackground?: string;
   selectOneSubItem?: boolean;
   maxSubItems?: number;
-  stockKey?: Extract<keyof CharacterData, 'sacredPouchStock'>;
+  stockKey?: Extract<keyof CharacterData, 'sacredPouchStock' | 'herbGardenStock'>;
+  stockLabel?: string;
   stockCapacity?: (level: number) => number;
   label: string;
   subItems?: PossessionSubItem[];
@@ -138,6 +139,9 @@ export const SPECIAL_POSSESSIONS_OPTIONS: Partial<Record<PlaybookType, PlaybookS
       {
         id: 'herb-garden',
         name: 'Herb garden',
+        stockKey: 'herbGardenStock',
+        stockLabel: 'Bendis root:',
+        stockCapacity: () => 4,
         label: '**Herb garden**: shears, mortars & pestles, herbs, seeds, remedies, mild poisons, ◊ spades, etc. Each spring, d4 uses of bendis root (*reach*, *area*, burns ~1 hr, fumes repel perversions of nature).',
       },
       {
