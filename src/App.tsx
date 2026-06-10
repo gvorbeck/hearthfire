@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import { ToastProvider, ErrorBoundary } from "@/components/app";
+import styles from "./App.module.css";
 
 /*
  * Each page is lazy-loaded — its JS bundle is only fetched the first time
@@ -53,7 +54,7 @@ const NotFound = lazy(() =>
 export const App = () => (
   <ToastProvider>
     <ErrorBoundary>
-      <Suspense fallback={null}>
+      <Suspense fallback={<div className={styles.srOnly} aria-live="polite" aria-busy="true">Loading…</div>}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/game/:id" element={<Game />} />

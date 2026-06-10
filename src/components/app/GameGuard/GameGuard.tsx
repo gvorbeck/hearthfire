@@ -37,9 +37,7 @@ export const GameGuard = ({
       <main className={styles.centered}>
         <Heading as="h1" size="md">Something went wrong</Heading>
         <Text color="muted">{error}</Text>
-        <Link to={errorBackTo}>
-          <Button variant="secondary">{errorBackLabel}</Button>
-        </Link>
+        <Button as={Link} to={errorBackTo} variant="secondary">{errorBackLabel}</Button>
       </main>
     );
   }
@@ -49,9 +47,7 @@ export const GameGuard = ({
       <main className={styles.centered}>
         <Heading as="h1" size="md">Game not found</Heading>
         {notFoundMessage && <Text color="muted">{notFoundMessage}</Text>}
-        <Link to="/">
-          <Button variant="secondary">Back to Home</Button>
-        </Link>
+        <Button as={Link} to="/" variant="secondary">Back to Home</Button>
       </main>
     );
   }

@@ -29,7 +29,8 @@ export const Home = () => {
 
   const { slug, status } = useGameIdCheck(customIdRaw);
 
-  const handleCreate = useCallback(async () => {
+  const handleCreate = useCallback(async (e?: React.FormEvent) => {
+    e?.preventDefault();
     setCreating(true);
     setCreateError('');
     try {
@@ -103,7 +104,7 @@ export const Home = () => {
       <div className={styles.cards}>
         <div className={styles.card}>
           <Heading as="h2" size="label">New Game</Heading>
-          <div className={styles.cardBody}>
+          <form onSubmit={handleCreate} className={styles.cardBody}>
             <Text color="muted" size="xs">
               Start a new session. Leave the name blank for a generated ID, or choose one your group will remember.
             </Text>
@@ -133,7 +134,7 @@ export const Home = () => {
               </div>
             </Stack>
             <Button
-              onClick={handleCreate}
+              type="submit"
               disabled={isCreateDisabled}
               size="lg"
               fullWidth
@@ -143,7 +144,7 @@ export const Home = () => {
             {createError && (
               <Text color="muted" size="xs" role="alert">{createError}</Text>
             )}
-          </div>
+          </form>
         </div>
 
         <div className={styles.card}>
