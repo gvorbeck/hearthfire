@@ -452,9 +452,8 @@ const IMPROVEMENTS: Improvement[] = [
   },
 ];
 
-let _nextId = 0;
 const makeEmptyGmImprovement = (): GmImprovement => ({
-  id: `gm-imp-${_nextId++}`,
+  id: crypto.randomUUID(),
   title: '',
   summary: '',
   requirements: '',
