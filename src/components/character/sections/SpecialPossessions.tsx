@@ -3,9 +3,8 @@ import { useLatest } from '@/hooks/useLatest';
 import { useOptimisticField } from '@/hooks/useOptimisticField';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import clsx from 'clsx';
-import { Checkbox, Input, Radio, UseDots } from '@/components/ui';
+import { Checkbox, Input, Radio, Text, UseDots } from '@/components/ui';
 import { useToast } from '@/components/app';
-import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { PlaybookSection } from '../PlaybookSection';
 import type { Possession, PossessionSubItem, PlaybookSpecialPossessions } from '@/lib/specialPossessionsOptions';
 import type { CharacterData } from '@/types';
@@ -50,7 +49,7 @@ const SubItem = ({ item, possessionId, idx, parentChecked, selectOne, atSubMax, 
   if (typeof item === 'string') {
     return (
       <li className={styles.subItem}>
-        <span className={styles.labelText}>{parseInlineMarkdown(item)}</span>
+        <Text as="span" className={styles.labelText}>{item}</Text>
       </li>
     );
   }
@@ -69,7 +68,7 @@ const SubItem = ({ item, possessionId, idx, parentChecked, selectOne, atSubMax, 
             disabled={!parentChecked}
             onChange={() => onRadioSelect(possessionId, key)}
             className={styles.subItemCheckbox}
-            label={<span className={styles.labelText}>{parseInlineMarkdown(item.label)}</span>}
+            label={<Text as="span" className={styles.labelText}>{item.label}</Text>}
           />
         </li>
       );
@@ -86,14 +85,14 @@ const SubItem = ({ item, possessionId, idx, parentChecked, selectOne, atSubMax, 
           label={
             item.uses !== undefined ? (
               <span className={styles.subItemWithUses}>
-                <span className={styles.labelText}>{parseInlineMarkdown(item.label)}</span>
+                <Text as="span" className={styles.labelText}>{item.label}</Text>
                 <span className={styles.subItemDots}>
                   <UseDots total={item.uses} checked={uses[key] ?? 0} onChange={(n) => onUses(key, n)} disabled={!subChecked} />
                   {item.usesLabel && <span className={styles.usesLabel}>{item.usesLabel}</span>}
                 </span>
               </span>
             ) : (
-              <span className={styles.labelText}>{parseInlineMarkdown(item.label)}</span>
+              <Text as="span" className={styles.labelText}>{item.label}</Text>
             )
           }
         />
@@ -104,7 +103,7 @@ const SubItem = ({ item, possessionId, idx, parentChecked, selectOne, atSubMax, 
   return (
     <li className={styles.subItem}>
       <span className={styles.subItemWithUses}>
-        <span className={styles.labelText}>{parseInlineMarkdown(item.label)}</span>
+        <Text as="span" className={styles.labelText}>{item.label}</Text>
         {item.uses !== undefined && (
           <span className={styles.subItemDots}>
             <UseDots total={item.uses} checked={uses[key] ?? 0} onChange={(n) => onUses(key, n)} disabled={!parentChecked} />
@@ -129,8 +128,8 @@ interface PossessionLabelProps {
 
 const PossessionLabel = ({ p, checked, selected, uses, onToggle, onRadioSelect, onUses, renderExtra }: PossessionLabelProps) => {
   const heading = p.isCustom
-    ? <span className={styles.customPlaceholder}>{p.label}</span>
-    : <span className={styles.labelText}>{parseInlineMarkdown(p.label)}</span>;
+    ? <Text as="span" className={styles.customPlaceholder}>{p.label}</Text>
+    : <Text as="span" className={styles.labelText}>{p.label}</Text>;
 
   if (p.subItems) {
     const subSelectedCount = p.maxSubItems
@@ -168,7 +167,7 @@ const PossessionLabel = ({ p, checked, selected, uses, onToggle, onRadioSelect, 
   if (renderExtra) {
     return (
       <span className={styles.labelBody}>
-        <span className={styles.labelText}>{parseInlineMarkdown(p.label)}</span>
+        <Text as="span" className={styles.labelText}>{p.label}</Text>
         {renderExtra}
       </span>
     );
@@ -265,7 +264,7 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1, chooseOver
       const visibleLabel = stockItem.stockLabel ?? 'Stock:';
       map[stockItem.id] = (
         <span className={styles.stockRow}>
-          <span className={styles.stockLabel}>{visibleLabel}</span>
+          <Text as="span" className={styles.stockLabel}>{visibleLabel}</Text>
           <UseDots
             total={capacity}
             checked={stock}

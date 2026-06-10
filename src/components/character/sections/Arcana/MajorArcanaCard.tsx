@@ -2,7 +2,7 @@ import { useCallback, memo } from 'react';
 import clsx from 'clsx';
 import { Button, Checkbox, Text } from '@/components/ui';
 import { UseDots } from '@/components/ui/UseDots/UseDots';
-import { parseInlineMarkdown, parseMarkdown } from '@/lib/parseMarkdown';
+import { parseMarkdown } from '@/lib/parseMarkdown';
 import type { MajorArcanum, MajorArcanaMysteryMove, ArcanaMove } from '@/types';
 import type { ArcanaMajorEntry } from '@/types';
 import { ArcanaFollowerBlock } from './ArcanaFollowerBlock';
@@ -30,12 +30,12 @@ const FrontMoveRow = memo(({ move, trackerValue, onTrackerChange }: FrontMoveRow
   return (
     <div className={styles.frontMove}>
       <div className={styles.moveHeader}>
-        <Text as="p" font="serif" size="sm" weight="bold">
+        <Text font="serif" weight="bold">
           {move.name}
         </Text>
         {move.subtitle && (
-          <Text as="p" font="serif" size="sm" italic color="muted">
-            {parseInlineMarkdown(move.subtitle)}
+          <Text font="serif" italic color="muted">
+            {move.subtitle}
           </Text>
         )}
       </div>
@@ -71,7 +71,7 @@ const TaskRow = memo(({ taskKey, task, checked, onToggle }: TaskRowProps) => {
   return (
     <label className={styles.taskRow}>
       <Checkbox checked={checked} onChange={handleChange} />
-      <Text as="span" font="serif" size="sm">{task}</Text>
+      <Text as="span" font="serif">{task}</Text>
     </label>
   );
 });
@@ -91,8 +91,8 @@ const ConsequenceRow = memo(({ id, text, checked, onToggle }: ConsequenceRowProp
   return (
     <label className={styles.consequenceRow}>
       <Checkbox checked={checked} onChange={handleChange} />
-      <Text as="span" font="serif" size="sm">
-        {parseInlineMarkdown(text)}
+      <Text as="span" font="serif">
+        {text}
       </Text>
     </label>
   );
@@ -137,12 +137,12 @@ const MysteryMoveBlock = memo(({
       <label className={styles.mysteryMoveHeader}>
         <Checkbox checked={checked} onChange={handleToggle} />
         <div className={styles.mysteryMoveTitle}>
-          <Text as="span" font="serif" size="sm" weight="bold">
+          <Text as="span" font="serif" weight="bold">
             {move.name}
           </Text>
           {move.subtitle && (
-            <Text as="span" font="serif" size="sm" italic color="muted">
-              {parseInlineMarkdown(move.subtitle)}
+            <Text as="span" font="serif" italic color="muted">
+              {move.subtitle}
             </Text>
           )}
         </div>
@@ -194,18 +194,18 @@ export const MajorArcanaCard = ({
     <div className={cx}>
       <div className={styles.header}>
         <div className={styles.headerText}>
-          <Text as="p" font="serif" size="sm" weight="bold">
+          <Text font="serif" weight="bold">
             {arcanum.name}
           </Text>
           {arcanum.tags && (
-            <Text as="span" font="serif" size="sm" italic color="muted">
+            <Text as="span" font="serif" italic color="muted">
               {arcanum.tags}
             </Text>
           )}
         </div>
         <Button
           variant="ghost"
-          size="sm"
+         
           onClick={onRemove}
           aria-label={`Remove ${arcanum.name}`}
           className={styles.removeBtn}
@@ -265,7 +265,7 @@ export const MajorArcanaCard = ({
 
       {unlocked && (mystery.moves.length > 0 || mystery.consequences.length > 0) && (
         <div className={styles.mysteries}>
-          <Text as="p" font="serif" size="xs" weight="bold" className={styles.mysteriesLabel}>
+          <Text font="serif" size="xs" weight="bold" className={styles.mysteriesLabel}>
             {mystery.sectionLabel ?? 'Mysteries'}
           </Text>
 
@@ -288,7 +288,7 @@ export const MajorArcanaCard = ({
 
           {mystery.consequences.length > 0 && (
             <div className={styles.consequences}>
-              <Text as="p" font="serif" size="xs" weight="bold" className={styles.consequencesLabel}>
+              <Text font="serif" size="xs" weight="bold" className={styles.consequencesLabel}>
                 Consequences
               </Text>
               {mystery.consequences.map((c) => (

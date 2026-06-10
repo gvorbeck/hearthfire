@@ -111,7 +111,7 @@ export const InsertLayout = ({
       />
 
       <PlaybookSection title="Moves">
-        <Text as="p" size="xs" color="muted" leading="normal">
+        <Text size="xs" color="muted" leading="normal">
           You gain all of the following:
         </Text>
         <div className={styles.moveList}>

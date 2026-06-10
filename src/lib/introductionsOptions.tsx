@@ -1,7 +1,7 @@
 import type { IntroductionsConfig, PlaybookType } from '@/types';
 
 const BLESSED: IntroductionsConfig = {
-  step3: <>On your third turn, <strong>describe your sacred pouch</strong> and its remarkable trait. Then, <strong>tell us about Danu&apos;s shrine</strong> in Stonetop and how she is worshipped.</>,
+  step3: "On your third turn, **describe your sacred pouch** and its remarkable trait. Then, **tell us about Danu's shrine** in Stonetop and how she is worshipped.",
   step4Questions: [
     { id: 'q4-kin', text: 'Who is your closest kin?' },
     { id: 'q4-heart', text: 'Whose heart & soul is entwined with yours?' },
@@ -17,7 +17,7 @@ const BLESSED: IntroductionsConfig = {
 };
 
 const FOX: IntroductionsConfig = {
-  step3: <>On your third turn, <strong>tell us your tall tales</strong>. Feel free to embellish and exaggerate to the other players, but always answer the GM truthfully.</>,
+  step3: "On your third turn, **tell us your tall tales**. Feel free to embellish and exaggerate to the other players, but always answer the GM truthfully.",
   step4Questions: [
     { id: 'q4-kin', text: 'Who is your closest kin?' },
     { id: 'q4-heart', text: 'Who holds the reins to your heart?' },
@@ -33,7 +33,7 @@ const FOX: IntroductionsConfig = {
 };
 
 const HEAVY: IntroductionsConfig = {
-  step3: <>On your third turn, <strong>tell us about your history of violence</strong>, and what keeps you up at night.</>,
+  step3: "On your third turn, **tell us about your history of violence**, and what keeps you up at night.",
   step4Questions: [
     { id: 'q4-kin', text: 'Who is your closest kin?' },
     { id: 'q4-lover', text: 'Who is your lover/spouse/betrothed?' },
@@ -49,7 +49,7 @@ const HEAVY: IntroductionsConfig = {
 };
 
 const JUDGE: IntroductionsConfig = {
-  step3: <>On your third turn, <strong>describe the Chronicle</strong>. Then, <strong>tell us about Aratis and her shrine</strong>, and what she demands of her true disciples.</>,
+  step3: "On your third turn, **describe the Chronicle**. Then, **tell us about Aratis and her shrine**, and what she demands of her true disciples.",
   step4Questions: [
     { id: 'q4-kin', text: 'Who is your closest kin?' },
     { id: 'q4-lover', text: 'Who is your lover/spouse/betrothed?' },
@@ -65,7 +65,7 @@ const JUDGE: IntroductionsConfig = {
 };
 
 const LIGHTBEARER: IntroductionsConfig = {
-  step3: <>On your third turn, <strong>praise the day! Tell us of Helior</strong>, his worship and his shrine. Tell us, too, of the prior Lightbearer and how you gained your powers.</>,
+  step3: "On your third turn, **praise the day! Tell us of Helior**, his worship and his shrine. Tell us, too, of the prior Lightbearer and how you gained your powers.",
   step4Questions: [
     { id: 'q4-kin', text: 'Who is your closest kin?' },
     { id: 'q4-heart', text: 'Who fans the flames of your heart?' },
@@ -81,7 +81,7 @@ const LIGHTBEARER: IntroductionsConfig = {
 };
 
 const MARSHAL: IntroductionsConfig = {
-  step3: <>On your third turn, <strong>tell us the town's war stories</strong>, plus the answers to the questions you chose.</>,
+  step3: "On your third turn, **tell us the town's war stories**, plus the answers to the questions you chose.",
   step4Questions: [
     { id: 'q4-kin', text: 'Who is your closest kin?' },
     { id: 'q4-lover', text: 'Who is your lover/spouse/betrothed?' },
@@ -97,7 +97,7 @@ const MARSHAL: IntroductionsConfig = {
 };
 
 const RANGER: IntroductionsConfig = {
-  step3: <>On your third turn, <strong>tell us what you're worried about</strong> (see "Something wicked this way comes").</>,
+  step3: "On your third turn, **tell us what you're worried about** (see \"Something wicked this way comes\").",
   step4Questions: [
     { id: 'q4-kin', text: 'Who is your closest kin?' },
     { id: 'q4-return', text: 'To whom do you always return home?' },
@@ -113,7 +113,7 @@ const RANGER: IntroductionsConfig = {
 };
 
 const SEEKER: IntroductionsConfig = {
-  step3: <>On your third turn, <strong>describe your major arcana</strong>. Tell us your answers to the questions you chose. Then, <strong>tell us about your minor arcana</strong>, too.</>,
+  step3: "On your third turn, **describe your major arcana**. Tell us your answers to the questions you chose. Then, **tell us about your minor arcana**, too.",
   step4Questions: [
     { id: 'q4-kin', text: 'Who is your closest kin?' },
     { id: 'q4-spouse', text: 'Who is your spouse/lover/betrothed?' },
@@ -129,7 +129,7 @@ const SEEKER: IntroductionsConfig = {
 };
 
 const WOULD_BE_HERO: IntroductionsConfig = {
-  step3: <>On your third turn, <strong>tell us of your fear &amp; anger</strong>, and of the last time they caused you trouble.</>,
+  step3: "On your third turn, **tell us of your fear & anger**, and of the last time they caused you trouble.",
   step4Questions: [
     { id: 'q4-heart', text: 'Whose heart do you hope to win?' },
     { id: 'q4-counting', text: 'Who is counting on you?' },

@@ -10,7 +10,6 @@ import { useOptimisticField } from '@/hooks/useOptimisticField';
 import { usePlaybookField } from '@/hooks/usePlaybookField';
 import { useCrewSave } from '../shared/useCrewSave';
 import { useTrackedField } from '../shared/useTrackedField';
-import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { CharacterData, PlaybookSectionProps } from '@/types';
 import styles from './ThrallInsert.module.css';
 
@@ -292,8 +291,8 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
   return (
     <div className={styles.root}>
       <PlaybookSection title="Your Master">
-        <Text as="p" size="xs" color="muted" leading="normal">
-          {parseInlineMarkdown('The Thing Below that you called upon? The one that plucked your soul from the Last Door and hides you from the Pale Hunter? It owns you now.')}
+        <Text size="xs" color="muted" leading="normal">
+          The Thing Below that you called upon? The one that plucked your soul from the Last Door and hides you from the Pale Hunter? It owns you now.
         </Text>
         <Input
           className={styles.masterInput}
@@ -326,7 +325,7 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
       />
 
       <PlaybookSection title="Moves">
-        <Text as="p" size="xs" color="muted" leading="normal">
+        <Text size="xs" color="muted" leading="normal">
           You gain all of the following:
         </Text>
         <div className={styles.moveList}>
@@ -341,7 +340,7 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
       </PlaybookSection>
 
       <PlaybookSection title="Marks">
-        <Text as="p" size="xs" color="muted" leading="normal">
+        <Text size="xs" color="muted" leading="normal">
           When you first gain this insert, the GM will choose 1 Mark for you, based on your master's nature. Gain more when a move tells you.
         </Text>
         <div className={styles.markList}>

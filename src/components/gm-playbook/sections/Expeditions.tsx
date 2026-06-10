@@ -5,8 +5,8 @@ export const Expeditions = () => (
   <div>
 
     <Callout title="CHART A COURSE">
-      <Text>When you <strong>wish to travel to a distant place</strong>, name or describe your destination ("Gordin's Delve," "the hagr's lair," or "wherever these tracks lead"). If the route is unclear, tell the GM how you intend to reach it. The GM will then tell you what's required, the risks, and how long it will likely take.</Text>
-      <Text>When you <strong>set out on the journey</strong>, the GM will present each of the challenges one at a time—plus any surprises that you couldn't have seen coming—in whatever order makes the most sense. Address them all and reach your destination.</Text>
+      <Text>When you **wish to travel to a distant place**, name or describe your destination ("Gordin's Delve," "the hagr's lair," or "wherever these tracks lead"). If the route is unclear, tell the GM how you intend to reach it. The GM will then tell you what's required, the risks, and how long it will likely take.</Text>
+      <Text>When you **set out on the journey**, the GM will present each of the challenges one at a time—plus any surprises that you couldn't have seen coming—in whatever order makes the most sense. Address them all and reach your destination.</Text>
     </Callout>
 
     <div className={styles.subsection}>
@@ -36,7 +36,7 @@ export const Expeditions = () => (
 
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">When the way is perilous</Heading>
-      <Text>On each leg of travel, <strong>point to a looming danger</strong> or <strong>introduce a danger</strong>. Maybe roll a Die of Fate.</Text>
+      <Text>On each leg of travel, **point to a looming danger** or **introduce a danger**. Maybe roll a Die of Fate.</Text>
       <Table
         columnHeaders={['What happens', '1d6']}
         rows={[
@@ -105,9 +105,9 @@ export const Expeditions = () => (
 
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Legs of travel</Heading>
-      <Text><strong>If familiar, short, uneventful:</strong> gloss over it.</Text>
-      <Text><strong>If unfamiliar:</strong> describe it, give impressions.</Text>
-      <Text><strong>To create a sense of time passing:</strong> ask questions and/or have them Keep Company.</Text>
+      <Text>**If familiar, short, uneventful:** gloss over it.</Text>
+      <Text>**If unfamiliar:** describe it, give impressions.</Text>
+      <Text>**To create a sense of time passing:** ask questions and/or have them Keep Company.</Text>
       <List variant="dash" items={[
         'What\'s the most striking thing that you notice?',
         'What\'s the best/worst/most unexpected thing about this leg of the journey?',
@@ -136,8 +136,8 @@ export const Expeditions = () => (
         'Where you plan to frame scenes, make moves',
         'Their destination',
       ]} />
-      <Text><strong>If you want to build tension:</strong> frame the scene with the location in sight but at a distance. Otherwise, frame the scene with them already there.</Text>
-      <Text><strong>If unfamiliar:</strong> describe, give impressions. If the PCs know or picked this place, ask them instead.</Text>
+      <Text>**If you want to build tension:** frame the scene with the location in sight but at a distance. Otherwise, frame the scene with them already there.</Text>
+      <Text>**If unfamiliar:** describe, give impressions. If the PCs know or picked this place, ask them instead.</Text>
       <Text>On the first visit to a landmark, ask questions.</Text>
       <List variant="dash" items={[
         'What\'s the most striking thing that you notice?',
@@ -148,7 +148,7 @@ export const Expeditions = () => (
         'What are you thinking/worrying about?',
       ]} />
       <Text>Portray NPCs, add details, answer questions. Maybe draw/provide a map.</Text>
-      <Text><strong>If this is just a landmark, with no challenges or encounters:</strong> offer an opportunity to do something here or else move on to the next leg of travel.</Text>
+      <Text>**If this is just a landmark, with no challenges or encounters:** offer an opportunity to do something here or else move on to the next leg of travel.</Text>
       <Text>Otherwise, make a soft GM move. "What do you do?" Resolve actions. Repeat or move on.</Text>
     </div>
 

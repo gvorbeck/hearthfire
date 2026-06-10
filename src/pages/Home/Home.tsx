@@ -124,9 +124,7 @@ export const Home = () => {
                 {status !== 'idle' && (
                   <>
                     {showSlugPreview && (
-                      <span className={styles.idSlugPreview}>
-                        hearthfire.camp/game/<strong>{slug}</strong>
-                      </span>
+                      <Text as="span" className={styles.idSlugPreview}>{`hearthfire.camp/game/**${slug}**`}</Text>
                     )}
                     <span className={hintCx}>{STATUS_MESSAGES[status]}</span>
                   </>

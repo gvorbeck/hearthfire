@@ -3,7 +3,6 @@ import { useLatest } from '@/hooks/useLatest';
 import { useCharacterField } from '@/hooks/useCharacterField';
 import { PlaybookSection } from '../PlaybookSection';
 import { Collapse, Text, Toggle } from '@/components/ui';
-import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { Move } from '../Move';
 import type { MoveDefinition } from '@/types';
 import { BASIC_MOVES } from '@/lib/basicMoves';
@@ -66,7 +65,7 @@ const STATIC_SECTIONS: MoveSectionProps[] = [
 
 const MoveSection = ({ label, helperText, moves, emptyText }: MoveSectionProps) => (
   <Collapse label={label}>
-    <Text color="muted" className={styles.helperText}>{parseInlineMarkdown(helperText)}</Text>
+    <Text color="muted" className={styles.helperText}>{helperText}</Text>
     {moves.length > 0 ? (
       <div className={styles.moveGrid}>
         {moves.map((move) => (
@@ -110,6 +109,13 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
   const forcedMoveIdsRef = useLatest(forcedMoveIds);
   const typeMovesRef = useLatest(typeMoves);
   const levelRef = useLatest(level);
+
+  const effectiveSelected = useMemo(() => {
+    const forced: Record<string, boolean> = {};
+    for (const id of forcedMoveIds) forced[id] = true;
+    return { ...forced, ...selected };
+  }, [forcedMoveIds, selected]);
+  const effectiveSelectedRef = useLatest(effectiveSelected);
 
   const handleSelect = useCallback((id: string, value: boolean) => {
     if (forcedMoveIdsRef.current.has(id)) return;
@@ -188,13 +194,6 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
     [sortedTypeMoves, isHideUnselected]
   );
 
-  const effectiveSelected = useMemo(() => {
-    const forced: Record<string, boolean> = {};
-    for (const id of forcedMoveIds) forced[id] = true;
-    return { ...forced, ...selected };
-  }, [forcedMoveIds, selected]);
-  const effectiveSelectedRef = useLatest(effectiveSelected);
-
   const moveNodes = useMemo(() => visibleTypeMoves.map(({ move, isDisabled, isForced }) => {
     const lockReason = isForced
       ? 'Required by your background'
@@ -242,7 +241,7 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
           }
         >
           {playbookHelperText && (
-            <Text color="muted" className={styles.helperText}>{parseInlineMarkdown(playbookHelperText)}</Text>
+            <Text color="muted" className={styles.helperText}>{playbookHelperText}</Text>
           )}
           {visibleTypeMoves.length > 0 ? (
             <div className={styles.moveGrid}>{moveNodes}</div>

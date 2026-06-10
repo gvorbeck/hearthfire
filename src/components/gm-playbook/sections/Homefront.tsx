@@ -1,5 +1,4 @@
 import { Heading, Text, Icon, List, Callout } from "@/components/ui";
-import { parseInlineMarkdown } from "@/lib/parseMarkdown";
 import playbookStyles from "@/components/gm-playbook/Playbook.module.css";
 import styles from "@/pages/GmPlaybook/GmPlaybook.module.css";
 
@@ -26,9 +25,7 @@ export const Homefront = () => (
       </Heading>
       <div className={playbookStyles.paragraphs}>
         <div>
-          <Text>
-            <strong>People:</strong>
-          </Text>
+          <Text>**People:**</Text>
           <List
             variant="bullet"
             items={[
@@ -40,9 +37,7 @@ export const Homefront = () => (
           />
         </div>
         <div>
-          <Text>
-            <strong>Home &amp; hearth:</strong>
-          </Text>
+          <Text>**Home & hearth:**</Text>
           <List
             variant="bullet"
             items={[
@@ -56,9 +51,7 @@ export const Homefront = () => (
           />
         </div>
         <div>
-          <Text>
-            <strong>Trade &amp; commerce:</strong>
-          </Text>
+          <Text>**Trade & commerce:**</Text>
           <List
             variant="bullet"
             items={[
@@ -72,9 +65,7 @@ export const Homefront = () => (
           />
         </div>
         <div>
-          <Text>
-            <strong>Protection &amp; governance:</strong>
-          </Text>
+          <Text>**Protection & governance:**</Text>
           <List
             variant="bullet"
             items={[
@@ -236,23 +227,8 @@ export const Homefront = () => (
 
     <div className={styles.subsection}>
       <Callout title="MAKE A PLAN">
-        <Text>
-          When you{" "}
-          <strong>
-            <em>
-              wish to accomplish some project but aren&rsquo;t sure how to go
-              about it
-            </em>
-          </strong>
-          , tell the GM what you hope to achieve. They&rsquo;ll say what&rsquo;s
-          required. If you&rsquo;re stumped on how to accomplish one of the
-          requirements, tell the GM and Make a Plan for that.
-        </Text>
-        <Text>
-          Clarify exactly what they hope to achieve and how they plan to go
-          about it. Then tell them as many of the following as makes sense,
-          connected with &ldquo;and&rdquo; and &ldquo;or&rdquo; as you see fit.
-        </Text>
+        <Text>When you ***wish to accomplish some project but aren't sure how to go about it***, tell the GM what you hope to achieve. They'll say what's required. If you're stumped on how to accomplish one of the requirements, tell the GM and Make a Plan for that.</Text>
+        <Text>Clarify exactly what they hope to achieve and how they plan to go about it. Then tell them as many of the following as makes sense, connected with "and" and "or" as you see fit.</Text>
         <List
           variant="bullet"
           items={[
@@ -279,13 +255,11 @@ export const Homefront = () => (
       <Text>Exchange rates are not standard, but&hellip;</Text>
       <div className={playbookStyles.paragraphs}>
         <div>
-          <Text>
-            <strong>A Value 0 item</strong> is generally worth:
-          </Text>
+          <Text>**A Value 0 item** is generally worth:</Text>
           <List
             variant="bullet"
             items={[
-              parseInlineMarkdown("A ◊ purse of copper coins"),
+              "A ◊ purse of copper coins",
               "A single silver coin",
               "A favor",
               "A few days of unskilled labor",
@@ -294,32 +268,24 @@ export const Homefront = () => (
           />
         </div>
         <div>
-          <Text>
-            <strong>A Value 1 item</strong> is generally worth:
-          </Text>
+          <Text>**A Value 1 item** is generally worth:</Text>
           <List
             variant="bullet"
             items={[
               "A handful of silver coins",
               "A season (or so) of unskilled labor",
               "A few days of skilled labor",
-              parseInlineMarkdown(
-                "A unit of trade goods* (a sack of grain, a ◊ pouch of salt, a ◊◊ stack of pelts, etc.)",
-              ),
-              parseInlineMarkdown(
-                "A bit of finery (a ◊ richly embroidered cloak, a silk scarf, a silver comb, etc.)",
-              ),
+              "A unit of trade goods* (a sack of grain, a ◊ pouch of salt, a ◊◊ stack of pelts, etc.)",
+              "A bit of finery (a ◊ richly embroidered cloak, a silk scarf, a silver comb, etc.)",
             ]}
           />
         </div>
         <div>
-          <Text>
-            <strong>A Value 2 item</strong> is generally worth:
-          </Text>
+          <Text>**A Value 2 item** is generally worth:</Text>
           <List
             variant="bullet"
             items={[
-              parseInlineMarkdown("A ◊ purse of silver coins"),
+              "A ◊ purse of silver coins",
               "A single gold coin",
               "A Surplus",
               "A year (or so) of unskilled labor",
@@ -330,9 +296,7 @@ export const Homefront = () => (
           />
         </div>
         <div>
-          <Text>
-            <strong>A Value 3 item</strong> is generally worth:
-          </Text>
+          <Text>**A Value 3 item** is generally worth:</Text>
           <List
             variant="bullet"
             items={[
@@ -344,30 +308,19 @@ export const Homefront = () => (
           />
         </div>
         <div>
-          <Text>
-            <strong>A Value 4 item</strong> is generally worth:
-          </Text>
+          <Text>**A Value 4 item** is generally worth:</Text>
           <List
             variant="bullet"
             items={[
-              parseInlineMarkdown("A ◊ purse of gold coins"),
+              "A ◊ purse of gold coins",
               "A dozen or so horses",
-              parseInlineMarkdown(
-                'A "priceless" item (huge flawless gemstone, ◊ gold statuette, ◊ bejeweled scepter, etc.)',
-              ),
+              'A "priceless" item (huge flawless gemstone, ◊ gold statuette, ◊ bejeweled scepter, etc.)',
             ]}
           />
         </div>
         <Text>*Exotic trade goods are +1 Value.</Text>
-        <Text>
-          {parseInlineMarkdown(
-            "A ◊ **purse of coins** contains ~10 **handfuls of coins**. A handful is ~10 individual coins, and so a purse has ~100 coins in it.",
-          )}
-        </Text>
-        <Text>
-          Remember, trade is based more on barter, debts, and honor than
-          standard currency.
-        </Text>
+        <Text>A ◊ **purse of coins** contains ~10 **handfuls of coins**. A handful is ~10 individual coins, and so a purse has ~100 coins in it.</Text>
+        <Text>Remember, trade is based more on barter, debts, and honor than standard currency.</Text>
       </div>
     </div>
   </div>

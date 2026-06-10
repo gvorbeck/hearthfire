@@ -195,7 +195,7 @@ const GameContent = ({
             <Heading as="h2" size="label">Characters</Heading>
             {orderedCharacters.length === 0 ? (
               <div className={styles.placeholder}>
-                <Text size="sm" color="muted">Your party roster is empty. Add a character to get started.</Text>
+                <Text color="muted">Your party roster is empty. Add a character to get started.</Text>
               </div>
             ) : (
               <Stack gap={3} role="list">

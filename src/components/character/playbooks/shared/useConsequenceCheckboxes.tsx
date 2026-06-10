@@ -1,7 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { useOptimisticField } from '@/hooks/useOptimisticField';
 import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
-import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { CharacterData, PlaybookFeatures } from '@/types';
 
 type ConsequenceKey = Extract<{
@@ -38,7 +37,7 @@ export const useConsequenceCheckboxes = (
 
   const items = useMemo(() => labels.map((c) => ({
     id: c.id,
-    label: <span>{parseInlineMarkdown(c.label)}</span>,
+    label: c.label,
     disabled: isDisabled ? isDisabled(c.id, checked) : false,
   })), [labels, checked, isDisabled]);
 

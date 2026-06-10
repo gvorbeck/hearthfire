@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react';
 import clsx from 'clsx';
+import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import styles from './Heading.module.css';
 
 interface HeadingProps {
@@ -18,6 +19,7 @@ export const Heading = ({
   children,
 }: HeadingProps) => {
   const cx = clsx(styles.base, styles[size], className);
+  const content = typeof children === 'string' ? parseInlineMarkdown(children) : children;
 
-  return <Tag id={id} className={cx}>{children}</Tag>;
+  return <Tag id={id} className={cx}>{content}</Tag>;
 };

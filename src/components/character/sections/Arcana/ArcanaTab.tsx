@@ -326,7 +326,7 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
           </div>
 
           {arcanaMinor.length === 0 ? (
-            <Text as="p" size="sm" color="muted" className={styles.empty}>
+            <Text color="muted" className={styles.empty}>
               No minor arcana yet. Add one when your character discovers an arcanum.
             </Text>
           ) : (
@@ -365,7 +365,7 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
           </div>
 
           {arcanaMajor.length === 0 ? (
-            <Text as="p" size="sm" color="muted" className={styles.empty}>
+            <Text color="muted" className={styles.empty}>
               No major arcana yet. Add one when your character is assigned their arcanum.
             </Text>
           ) : (

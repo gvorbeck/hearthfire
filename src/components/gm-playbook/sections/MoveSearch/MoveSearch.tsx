@@ -52,7 +52,7 @@ export const MoveSearch = () => {
         className={styles.input}
       />
       {query.trim() && results.length === 0 && (
-        <Text font="serif" color="muted" size="sm" className={styles.empty}>No moves match "{query}".</Text>
+        <Text font="serif" color="muted" className={styles.empty}>No moves match "{query}".</Text>
       )}
       {results.length > 0 && (
         <section aria-label="Move search results" className={styles.results}>

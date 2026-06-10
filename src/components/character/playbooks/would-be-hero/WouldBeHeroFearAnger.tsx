@@ -2,7 +2,6 @@ import { CheckboxGroup, Divider, Text } from '@/components/ui';
 import { PlaybookSection } from '../../PlaybookSection';
 import { AnswerPrompts } from '../AnswerPrompts';
 import { usePlaybookCheckedWithAnswers } from '@/hooks/usePlaybookChecked';
-import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { PlaybookSectionProps } from '@/types';
 
 const FEAR_ITEMS = [
@@ -43,8 +42,8 @@ export const WouldBeHeroFearAnger = ({ data, onSave }: WouldBeHeroFearAngerProps
 
   return (
     <PlaybookSection title="Fear & Anger">
-      <Text as="p" size="xs" color="muted" leading="normal">
-        {parseInlineMarkdown('When you **burn with righteous anger** (triggered by what you chose below), hold 2 Resolve. Spend Resolve 1-for-1 to set aside fear and doubt, act with uncanny speed, inspire allies, strike hard (+1d4 damage, *forceful*), or keep your footing despite what befalls you.')}
+      <Text size="xs" color="muted" leading="normal">
+        When you **burn with righteous anger** (triggered by what you chose below), hold 2 Resolve. Spend Resolve 1-for-1 to set aside fear and doubt, act with uncanny speed, inspire allies, strike hard (+1d4 damage, *forceful*), or keep your footing despite what befalls you.
       </Text>
       <CheckboxGroup
         label="What do you fear most? (choose 1, maybe 2)"

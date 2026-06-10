@@ -54,7 +54,7 @@ export interface IntroductionQuestion {
 }
 
 export interface IntroductionsConfig {
-  step3: ReactNode;
+  step3: string;
   step4Questions: IntroductionQuestion[];
   step6Questions: IntroductionQuestion[];
 }

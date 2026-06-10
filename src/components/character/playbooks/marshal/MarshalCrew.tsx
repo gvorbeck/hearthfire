@@ -8,7 +8,6 @@ import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeat
 import { RadioSelect } from '../../sections/RadioSelect';
 import type { RadioOption } from '@/types';
 import { useCrewSave } from '../shared/useCrewSave';
-import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { CharacterData, PlaybookSectionProps } from '@/types';
 import styles from './MarshalCrew.module.css';
 
@@ -87,7 +86,7 @@ const InventoryRow = memo(({ item, checked, onCheckedChange }: InventoryRowProps
         weight={item.weight ?? 1}
         checked={checked}
         onChange={handleChecked}
-        label={<span className={styles.inventoryLabel}>{parseInlineMarkdown(item.label)}</span>}
+        label={<Text as="span" className={styles.inventoryLabel}>{item.label}</Text>}
       />
     </div>
   );
@@ -389,7 +388,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
     <div className={styles.root}>
       <PlaybookSection title="Crew">
         <Text font="serif" color="muted" leading="normal">
-          {parseInlineMarkdown('Your Crew is a half-dozen strong by default. Treat them as a follower with the *group* tag. All starting values here are subject to change in play.')}
+          Your Crew is a half-dozen strong by default. Treat them as a follower with the *group* tag. All starting values here are subject to change in play.
         </Text>
         <div className={styles.infoBoxes}>
           <div className={styles.infoBox}>
@@ -428,7 +427,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
 
       <PlaybookSection title="Tags">
         <Text font="serif" color="muted" leading="normal">
-          {parseInlineMarkdown('Your crew starts with *group*, a tag granted by your background, plus 2 more of your choice.')}
+          Your crew starts with *group*, a tag granted by your background, plus 2 more of your choice.
         </Text>
         <CheckboxGroup
           items={tagItemsWithDisable}
@@ -485,7 +484,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
 
       <PlaybookSection title="Inventory">
         <Text font="serif" color="muted" leading="normal">
-          {parseInlineMarkdown('3 ◈ or fewer is a light load; 4-6 ◈ is a normal load; 7-9 ◈ is a heavy load.')}
+          3 ◈ or fewer is a light load; 4-6 ◈ is a normal load; 7-9 ◈ is a heavy load.
         </Text>
         <Divider />
         <div className={styles.inventoryList}>
@@ -544,17 +543,17 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
       </PlaybookSection>
 
       <PlaybookSection title="Individuals">
-        <Text as="p" size="xs" font="serif" color="muted" leading="normal">
+        <Text size="xs" font="serif" color="muted" leading="normal">
           When one stands out, give them a name, a tag, and one or more traits.
         </Text>
         <Text font="serif" color="muted" leading="normal">
-          {parseInlineMarkdown('**Names:** Aled, Culhwich, Eira, Gerat, Glaw, Harri, Lowri, Mervyn, Nesta')}
+          **Names:** Aled, Culhwich, Eira, Gerat, Glaw, Harri, Lowri, Mervyn, Nesta
         </Text>
         <Text font="serif" color="muted" leading="normal">
-          {parseInlineMarkdown('**Tags:** *animal-lover, big, bully, cynical, drunkard, eager, gambler, greedy, grumpy, gullible, heartthrob, honest, kind, lewd, little, naive, old, popular, proud, rookie, reckless, shameless, sharp-eyed, short-tempered*')}
+          **Tags:** *animal-lover, big, bully, cynical, drunkard, eager, gambler, greedy, grumpy, gullible, heartthrob, honest, kind, lewd, little, naive, old, popular, proud, rookie, reckless, shameless, sharp-eyed, short-tempered*
         </Text>
         <Text font="serif" color="muted" leading="normal">
-          {parseInlineMarkdown("**Traits:** __'s kid/sibling/parent/cousin/__, bald, crush on __, grudge against __, hates __, idolizes __, jokes, messy, missing eye/finger/hand/__, misses their kids, nightmares, recently married, religious, scars, skinny, sharp-tongued, sings, snores, tells tall tales, too serious, troubles at home, whistles, whittler")}
+          **Traits:** __'s kid/sibling/parent/cousin/__, bald, crush on __, grudge against __, hates __, idolizes __, jokes, messy, missing eye/finger/hand/__, misses their kids, nightmares, recently married, religious, scars, skinny, sharp-tongued, sings, snores, tells tall tales, too serious, troubles at home, whistles, whittler
         </Text>
         <div className={styles.individualsGrid}>
           {individuals.map((ind, i) => (

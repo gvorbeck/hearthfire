@@ -1,5 +1,6 @@
 import { useId, type InputHTMLAttributes } from 'react';
 import clsx from 'clsx';
+import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { Icon } from '../Icon/Icon';
 import styles from './Checkbox.module.css';
 
@@ -29,7 +30,7 @@ export const Checkbox = ({ label, className, variant = 'default', weight = 1, ..
           <span className={styles.check} />
         </span>
       )}
-      <span>{label}</span>
+      <span>{typeof label === 'string' ? parseInlineMarkdown(label) : label}</span>
     </label>
   );
 };

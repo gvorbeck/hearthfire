@@ -19,9 +19,7 @@ export const Monsters = () => (
       <Heading as="h3" size="sm">
         2. Name
       </Heading>
-      <Text>
-        <strong>If the monster…</strong>
-      </Text>
+      <Text>**If the monster…**</Text>
       <List
         variant="ellipses"
         items={[
@@ -43,9 +41,7 @@ export const Monsters = () => (
       <Heading as="h3" size="sm">
         3. Tags
       </Heading>
-      <Text>
-        <strong>How does it usually hunt or fight?</strong> (pick 1)
-      </Text>
+      <Text>**How does it usually hunt or fight?** (pick 1)</Text>
       <Table
         rows={[
           { label: "In large groups (6 or more)", value: "horde" },
@@ -53,9 +49,7 @@ export const Monsters = () => (
           { label: "By itself", value: "solitary" },
         ]}
       />
-      <Text>
-        <strong>How big is it?</strong> (pick 1)
-      </Text>
+      <Text>**How big is it?** (pick 1)</Text>
       <Table
         rows={[
           { label: "Cat-sized or smaller", value: "tiny" },
@@ -65,9 +59,7 @@ export const Monsters = () => (
           { label: "Like an elephant, or bigger", value: "huge" },
         ]}
       />
-      <Text>
-        <strong>What is its nature?</strong> (add all that apply)
-      </Text>
+      <Text>**What is its nature?** (add all that apply)</Text>
       <Table
         rows={[
           { label: "Lacks physical form", value: "spirit" },
@@ -78,9 +70,7 @@ export const Monsters = () => (
           { label: "Dead, but in denial", value: "undead" },
         ]}
       />
-      <Text>
-        <strong>What is it notable for?</strong> (add all that apply)
-      </Text>
+      <Text>**What is it notable for?** (add all that apply)</Text>
       <Table
         rows={[
           { label: "Amassing trinkets and treasure", value: "hoarder" },
@@ -99,9 +89,7 @@ export const Monsters = () => (
       <Heading as="h3" size="sm">
         4. Hit points
       </Heading>
-      <Text>
-        <strong>How does it hunt or fight?</strong> (pick 1)
-      </Text>
+      <Text>**How does it hunt or fight?** (pick 1)</Text>
       <Table
         rows={[
           { label: "In large groups (horde)", value: "3 HP" },
@@ -109,9 +97,7 @@ export const Monsters = () => (
           { label: "By itself (solitary)", value: "12 HP" },
         ]}
       />
-      <Text>
-        <strong>How big is it?</strong> (pick 1)
-      </Text>
+      <Text>**How big is it?** (pick 1)</Text>
       <Table
         rows={[
           { label: "Cat-sized or smaller (tiny)", value: "−2 HP" },
@@ -120,9 +106,7 @@ export const Monsters = () => (
           { label: "Like an elephant, or bigger (huge)", value: "+8 HP" },
         ]}
       />
-      <Text>
-        <strong>It…</strong> (choose all that apply)
-      </Text>
+      <Text>**It…** (choose all that apply)</Text>
       <Table
         rows={[
           { label: "… is particularly tough or durable", value: "+4 HP" },
@@ -137,9 +121,7 @@ export const Monsters = () => (
       <Heading as="h3" size="sm">
         5. Armor
       </Heading>
-      <Text>
-        <strong>What protects it?</strong> (pick 1)
-      </Text>
+      <Text>**What protects it?** (pick 1)</Text>
       <Table
         rows={[
           { label: "Naught but cloth and flesh", value: "0 armor" },
@@ -149,9 +131,7 @@ export const Monsters = () => (
           { label: "Potent wards/supernatural resilience", value: "4 armor" },
         ]}
       />
-      <Text>
-        <strong>It…</strong> (choose all that apply)
-      </Text>
+      <Text>**It…** (choose all that apply)</Text>
       <Table
         rows={[
           { label: "… is cat-sized or smaller (tiny)", value: "+1 armor" },
@@ -166,9 +146,7 @@ export const Monsters = () => (
       <Heading as="h3" size="sm">
         6. Damage
       </Heading>
-      <Text>
-        <strong>How does it hunt or fight?</strong> (pick 1)
-      </Text>
+      <Text>**How does it hunt or fight?** (pick 1)</Text>
       <Table
         rows={[
           { label: "In large groups (6 or more, horde)", value: "d6" },
@@ -176,9 +154,7 @@ export const Monsters = () => (
           { label: "By itself (solitary)", value: "d10" },
         ]}
       />
-      <Text>
-        <strong>What's the nature of its attack?</strong> (pick all that apply)
-      </Text>
+      <Text>**What's the nature of its attack?** (pick all that apply)</Text>
       <Table
         rows={[
           { label: "Useful up close and personal", value: "hand" },
@@ -196,9 +172,7 @@ export const Monsters = () => (
           { label: "Prone to breakage", value: "crude" },
         ]}
       />
-      <Text>
-        <strong>How big is it?</strong> (pick 1)
-      </Text>
+      <Text>**How big is it?** (pick 1)</Text>
       <Table
         rows={[
           {
@@ -217,9 +191,7 @@ export const Monsters = () => (
           },
         ]}
       />
-      <Text>
-        <strong>What else applies?</strong> (pick all that do)
-      </Text>
+      <Text>**What else applies?** (pick all that do)</Text>
       <Table
         rows={[
           { label: "It's impressively strong", value: "+2 damage, forceful" },
@@ -315,9 +287,7 @@ export const Monsters = () => (
         play.
       </Text>
       <div className={playbookStyles.paragraphs}>
-        <Text>
-          <strong>Tactics:</strong> if/then or when/then statements, like…
-        </Text>
+        <Text>**Tactics:** if/then or when/then statements, like…</Text>
         <List
           variant="dash"
           items={[
@@ -326,26 +296,14 @@ export const Monsters = () => (
             '"When night falls: lure someone away with a mimicked voice, kill them, take their stuff."',
           ]}
         />
-        <Text>
-          <strong>Something interesting/something useful:</strong> pre-plan
-          things to reveal if PCs Know Things.
-        </Text>
-        <Text>
-          <strong>Custom player moves:</strong> particularly good for resolving
-          nasty attacks (mind control, poison, etc.).
-        </Text>
+        <Text>**Something interesting/something useful:** pre-plan things to reveal if PCs Know Things.</Text>
+        <Text>**Custom player moves:** particularly good for resolving nasty attacks (mind control, poison, etc.).</Text>
       </div>
     </div>
 
     <div className={styles.subsection}>
       <Callout title="Monsters & followers">
-        <Text>
-          When you{" "}
-          <strong>
-            <em>convert a monster into a follower</em>
-          </strong>
-          :
-        </Text>
+        <Text>When you ***convert a monster into a follower***:</Text>
         <List
           variant="dash"
           items={[
@@ -354,14 +312,7 @@ export const Monsters = () => (
             "Otherwise use it as-is.",
           ]}
         />
-        <Text>
-          When you{" "}
-          <strong>
-            <em>convert a follower into a monster</em>
-          </strong>
-          , use their stats as-is. If you haven't already done so, write some GM
-          moves for them.
-        </Text>
+        <Text>When you ***convert a follower into a monster***, use their stats as-is. If you haven't already done so, write some GM moves for them.</Text>
       </Callout>
     </div>
   </div>

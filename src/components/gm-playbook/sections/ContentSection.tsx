@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { Text, Input } from '@/components/ui';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import type { ContentLists } from '@/types';
@@ -15,15 +15,22 @@ const useContentField = (
 ) => {
   const [local, setLocal] = useState(initial);
   const { onChange: debouncedChange, flush } = useDebouncedSave(save, 1500);
+  const pendingRef = useRef(false);
 
-  useEffect(() => { setLocal(initial); }, [initial]);
+  useEffect(() => {
+    if (!pendingRef.current) setLocal(initial);
+  }, [initial]);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    pendingRef.current = true;
     setLocal(e.target.value);
     debouncedChange(e.target.value);
   }, [debouncedChange]);
 
-  const handleBlur = useCallback(() => { flush(local); }, [flush, local]);
+  const handleBlur = useCallback(() => {
+    flush(local);
+    pendingRef.current = false;
+  }, [flush, local]);
 
   return { value: local, onChange: handleChange, onBlur: handleBlur };
 };
@@ -41,9 +48,9 @@ export const ContentSection = ({ content, onSave }: ContentSectionProps) => {
     <div>
       <div className={styles.contentRules}>
         <Text size="xs">Keep this in sync with the steading playbook. Review it at the start of each session.</Text>
-        <Text size="xs">When <strong>anyone calls "time out,"</strong> play stops. Step out of character, check in with each other, maybe take a break. Discuss what's wrong, player-to-player.</Text>
-        <Text size="xs">If <strong>content was included that shouldn't have been</strong>, acknowledge the mistake, fix the fiction, and move on.</Text>
-        <Text size="xs">If <strong>someone realizes they need content to be excluded, veiled, or handled in a particular way</strong>, then update the lists. Clarify specifics, now or later, but don't ask for reasons. Fix the fiction. Check in with the player(s). When everyone is ready, move on.</Text>
+        <Text size="xs">When **anyone calls "time out,"** play stops. Step out of character, check in with each other, maybe take a break. Discuss what's wrong, player-to-player.</Text>
+        <Text size="xs">If **content was included that shouldn't have been**, acknowledge the mistake, fix the fiction, and move on.</Text>
+        <Text size="xs">If **someone realizes they need content to be excluded, veiled, or handled in a particular way**, then update the lists. Clarify specifics, now or later, but don't ask for reasons. Fix the fiction. Check in with the player(s). When everyone is ready, move on.</Text>
       </div>
       <Input multiline label="Excluded content" note="(Not part of the game, on-camera or off)" {...excluded} />
       <Input multiline label="Veiled content" note="(Part of the fiction, but only off-camera)" {...veiled} />

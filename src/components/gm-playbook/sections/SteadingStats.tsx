@@ -2,7 +2,6 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { Heading, Text, Checkbox, Button, Radio } from '@/components/ui';
 import { useToast } from '@/components/app';
-import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { SteadingData, SteadingSize } from '@/types';
 import styles from './SteadingStats.module.css';
 
@@ -224,7 +223,7 @@ export const SteadingStats = ({ steading, onSave }: SteadingStatsProps) => {
         <div className={styles.debilityList}>
           <div className={styles.debility}>
             <Checkbox
-              label={parseInlineMarkdown('**Diminished**, by injury/sickness/doubt')}
+              label="**Diminished**, by injury/sickness/doubt"
               checked={!!debilities.diminished}
               onChange={() => toggleDebility('diminished')}
             />
@@ -232,7 +231,7 @@ export const SteadingStats = ({ steading, onSave }: SteadingStatsProps) => {
           </div>
           <div className={styles.debility}>
             <Checkbox
-              label={parseInlineMarkdown('**Lacking**, due to shortages/hoarding/distrust')}
+              label="**Lacking**, due to shortages/hoarding/distrust"
               checked={!!debilities.lacking}
               onChange={() => toggleDebility('lacking')}
             />
@@ -240,7 +239,7 @@ export const SteadingStats = ({ steading, onSave }: SteadingStatsProps) => {
           </div>
           <div className={styles.debility}>
             <Checkbox
-              label={parseInlineMarkdown('**Malcontent**, from fear/anger/despair')}
+              label="**Malcontent**, from fear/anger/despair"
               checked={!!debilities.malcontent}
               onChange={() => toggleDebility('malcontent')}
             />

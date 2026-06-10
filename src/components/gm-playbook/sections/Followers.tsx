@@ -1,5 +1,4 @@
 import { Heading, Text, List, Table } from "@/components/ui";
-import { parseInlineMarkdown } from "@/lib/parseMarkdown";
 import playbookStyles from "@/components/gm-playbook/Playbook.module.css";
 import styles from "@/pages/GmPlaybook/GmPlaybook.module.css";
 
@@ -72,12 +71,7 @@ const stepsItems = [
       Tags
     </Heading>
     <div className={playbookStyles.paragraphs}>
-      <Text>
-        Give them 2&ndash;4 tags, sometimes more. Tags are adjectives or
-        nouns that finish the sentence, &ldquo;This follower is/is a
-        ___.&rdquo; Avoid overly broad tags like{" "}
-        <em>experienced, invincible, skilled</em>, etc.
-      </Text>
+      <Text>Give them 2–4 tags, sometimes more. Tags are adjectives or nouns that finish the sentence, "This follower is/is a ___." Avoid overly broad tags like *experienced, invincible, skilled*, etc.</Text>
       <Text>
         When a follower makes a move at a PC&rsquo;s behest, the player
         rolls but instead of a +STAT, they&hellip;
@@ -89,18 +83,18 @@ const stepsItems = [
       won&rsquo;t do without convincing.
     </Text>
     <div className={playbookStyles.paragraphs}>
-      <Text>{parseInlineMarkdown("**Useful tags:** ___-wise, agile, archer, athletic, beautiful, brave, cunning, fast, fierce, hardy, healer, intimidating, magical, observant, organized, patient, respected, self-sufficient, sharp-eyed, stealthy, tireless, tracker, warrior")}</Text>
-      <Text>{parseInlineMarkdown("**Problematic tags:** bigoted, drunkard, greedy, gullible, lecherous, naive, proud, rookie, reckless, short-fused, stubborn, frail")}</Text>
-      <Text>{parseInlineMarkdown("**Mixed blessing tags:** animal-lover, annoying, big, bully, callous, cautious, devious, eager, thieving, gossipy, honest, kind, little, shameless, terrifying")}</Text>
-      <Text>{parseInlineMarkdown("*Exceptional*: reserve this tag for truly outstanding followers. If they have at least one other relevant tag, they get +2 on rolls instead of +1.")}</Text>
-      <Text>{parseInlineMarkdown("*Group*: multiple followers who share tags, moves, instinct, cost, and other stats. They share a pool of Loyalty, but each member has their own HP and can act individually.")}</Text>
+      <Text>**Useful tags:** ___-wise, agile, archer, athletic, beautiful, brave, cunning, fast, fierce, hardy, healer, intimidating, magical, observant, organized, patient, respected, self-sufficient, sharp-eyed, stealthy, tireless, tracker, warrior</Text>
+      <Text>**Problematic tags:** bigoted, drunkard, greedy, gullible, lecherous, naive, proud, rookie, reckless, short-fused, stubborn, frail</Text>
+      <Text>**Mixed blessing tags:** animal-lover, annoying, big, bully, callous, cautious, devious, eager, thieving, gossipy, honest, kind, little, shameless, terrifying</Text>
+      <Text><><em>Exceptional</em>: reserve this tag for truly outstanding followers. If they have at least one other relevant tag, they get +2 on rolls instead of +1.</></Text>
+      <Text><><em>Group</em>: multiple followers who share tags, moves, instinct, cost, and other stats. They share a pool of Loyalty, but each member has their own HP and can act individually.</></Text>
     </div>
   </>,
   <>
     <Heading as="h3" size="sm">
       Hit points
     </Heading>
-    <Text>{parseInlineMarkdown("**How resilient are they?** (pick all that apply)")}</Text>
+    <Text>**How resilient are they?** (pick all that apply)</Text>
     <Table
       rows={[
         { label: "Weak/frail/soft", value: "3 HP" },
@@ -116,7 +110,7 @@ const stepsItems = [
     <Heading as="h3" size="sm">
       Armor
     </Heading>
-    <Text>{parseInlineMarkdown("**What protects them?** (pick all that apply)")}</Text>
+    <Text>**What protects them?** (pick all that apply)</Text>
     <Table
       rows={[
         { label: "Naught but cloth and flesh", value: "0 armor" },
@@ -135,7 +129,7 @@ const stepsItems = [
     <Heading as="h3" size="sm">
       Damage
     </Heading>
-    <Text>{parseInlineMarkdown("**How dangerous are they?** (pick 1)")}</Text>
+    <Text>**How dangerous are they?** (pick 1)</Text>
     <Table
       rows={[
         { label: "Not very", value: "d4 damage" },
@@ -197,61 +191,28 @@ export const Followers = () => (
         Followers in play
       </Heading>
       <div className={playbookStyles.paragraphs}>
-        <Text>
-          Followers are NPCs. They&rsquo;ll usually follow orders or look to
-          their PC for direction. You might ask questions about how they&rsquo;d
-          likely act. But{" "}
-          {parseInlineMarkdown("**you portray them, not the player.**")}
-        </Text>
-        <Text>
-          {parseInlineMarkdown("**Followers trigger player moves only if a PC directs them to do so**")}{" "}
-          (via Order Followers). If they act on their own, you say what happens.
-        </Text>
-        <Text>
-          When a follower gets scared, tell the player. They can spend 1 Loyalty
-          to have them overcome their fear and do as they&rsquo;re told.
-          Otherwise, consider:{" "}
-          {parseInlineMarkdown("**would the follower do this willingly if they weren't scared?**")}
-        </Text>
+        <Text>Followers are NPCs. They'll usually follow orders or look to their PC for direction. You might ask questions about how they'd likely act. But **you portray them, not the player.**</Text>
+        <Text>**Followers trigger player moves only if a PC directs them to do so** (via Order Followers). If they act on their own, you say what happens.</Text>
+        <Text>When a follower gets scared, tell the player. They can spend 1 Loyalty to have them overcome their fear and do as they're told. Otherwise, consider: **would the follower do this willingly if they weren't scared?**</Text>
       </div>
       <List variant="dash" items={followersInPlayFearItems} />
-      <Text>{parseInlineMarkdown("**Followers might also resist orders if…**")}</Text>
+      <Text>**Followers might also resist orders if…**</Text>
       <List variant="ellipses" items={followersInPlayResistItems} />
       <div className={playbookStyles.paragraphs}>
         <Text>
           When a follower resists an order, make that clear to the player. They
           can spend the follower&rsquo;s Loyalty, Persuade them, let it go, etc.
         </Text>
-        <Text>
-          {parseInlineMarkdown("**Play up a follower's instinct, tags, and traits as sources of trouble.**")}{" "}
-          The player can spend Loyalty to keep them in line, or Persuade them,
-          or deal with the consequences.
-        </Text>
-        <Text>
-          {parseInlineMarkdown("**When a PC has a follower do something off-screen**")},
-          resolve it with a single move at most (Defy Danger if it&rsquo;s not
-          otherwise clear). Have the player roll when they&rsquo;d learn the
-          outcome, or when it becomes important for you the GM to know how
-          things went.
-        </Text>
-        <Text>
-          {parseInlineMarkdown("**When a follower Defends**")} and gets a 7+, the follower
-          holds Readiness but the player decides when/how to spend it. Consider:
-          would the follower actually do that, though? If not, the player must
-          spend 1 Loyalty, too.
-        </Text>
-        <Text>
-          {parseInlineMarkdown("**At 0 HP**")}, a follower is out of action and their fate
-          is in your hands. For lethal damage, pick 1:
-        </Text>
+        <Text>**Play up a follower's instinct, tags, and traits as sources of trouble.** The player can spend Loyalty to keep them in line, or Persuade them, or deal with the consequences.</Text>
+        <Text>**When a PC has a follower do something off-screen**, resolve it with a single move at most (Defy Danger if it's not otherwise clear). Have the player roll when they'd learn the outcome, or when it becomes important for you the GM to know how things went.</Text>
+        <Text>**When a follower Defends** and gets a 7+, the follower holds Readiness but the player decides when/how to spend it. Consider: would the follower actually do that, though? If not, the player must spend 1 Loyalty, too.</Text>
+        <Text>**At 0 HP**, a follower is out of action and their fate is in your hands. For lethal damage, pick 1:</Text>
       </div>
       <List variant="dash" items={followersAtZeroHPItems} />
     </div>
 
     <div className={styles.subsection}>
-      <Heading as="h3" size="sm">
-        <em>Group</em> followers
-      </Heading>
+      <Heading as="h3" size="sm">*Group* followers</Heading>
       <div className={playbookStyles.paragraphs}>
         <Text>
           Multiple individuals who share stats (tags, HP, armor, damage,
@@ -267,11 +228,7 @@ export const Followers = () => (
           Each member of the group has their own HP; they take damage and regain
           HP individually.
         </Text>
-        <Text>
-          If a PC Orders Followers to have a group act as one, the player rolls
-          for the move once (modified by the group&rsquo;s shared tags/moves).
-          When a <em>group</em> follower&hellip;
-        </Text>
+        <Text>If a PC Orders Followers to have a group act as one, the player rolls for the move once (modified by the group's shared tags/moves). When a *group* follower…</Text>
       </div>
       <List variant="ellipses" items={groupFollowerItems} />
       <Text>
