@@ -1,6 +1,5 @@
 import { useCallback, useMemo } from 'react';
 import { Checkbox, CheckboxGroup, Input, Text } from '@/components/ui';
-import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { AnimalTypeConfig } from '@/types';
 import styles from './RangerAnimalCompanion.module.css';
 
@@ -169,7 +168,7 @@ export const TypePicksSection = ({
     const isDefault = !!p.defaultChecked;
     return {
       id: key,
-      label: <span>{parseInlineMarkdown(p.label)}</span>,
+      label: p.label,
       disabled: !isSelected || isDefault || (!picks[key] && atMax),
     };
   }), [typeConfig, isSelected, picks, atMax]);
@@ -196,7 +195,7 @@ export const TypePicksSection = ({
   return (
     <div className={styles.typePicksSection}>
       <Text as="span" size="xs" color="muted" leading="normal">
-        {parseInlineMarkdown(`**HP** ${typeConfig.hp} **Armor** ${typeConfig.armor} (size) **Damage** ${typeConfig.damage} *(hand)*`)}
+        {`**HP** ${typeConfig.hp} **Armor** ${typeConfig.armor} (size) **Damage** ${typeConfig.damage} *(hand)*`}
       </Text>
       <Text as="span" size="xs" color="muted" leading="normal">Pick {typeConfig.pickCount} more:</Text>
       <CheckboxGroup

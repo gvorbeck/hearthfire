@@ -5,7 +5,6 @@ import { useCrewSave } from '../shared/useCrewSave';
 import { useToast } from '@/components/app';
 import { Input, Radio, RadioGroup, Text, UseDots, CheckboxGroup } from '@/components/ui';
 import { PlaybookSection } from '../../PlaybookSection';
-import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { PlaybookSectionProps } from '@/types';
 import styles from './BlessedInitiatesOfDanu.module.css';
 
@@ -176,21 +175,17 @@ const InitiateSection = memo(({
           <span className={styles.hpLabel}>HP (max {config.hpMax})</span>
         </div>
         <Text font="serif" color="muted" italic className={styles.tags}>{config.tags}</Text>
-        <Text font="serif" color="muted" className={styles.stat}><strong>HP</strong> {config.hpMax} <strong>Armor</strong> {config.armor}</Text>
-        <Text font="serif" color="muted" className={styles.stat}>
-          <strong>Damage</strong> {config.damage}
-        </Text>
-        <Text font="serif" color="muted" className={styles.stat}>
-          <strong>Instinct</strong> {config.instinct}
-        </Text>
+        <Text font="serif" color="muted" className={styles.stat}>{`**HP** ${config.hpMax} **Armor** ${config.armor}`}</Text>
+        <Text font="serif" color="muted" className={styles.stat}>{`**Damage** ${config.damage}`}</Text>
+        <Text font="serif" color="muted" className={styles.stat}>{`**Instinct** ${config.instinct}`}</Text>
         <ul className={styles.moves}>
           {config.moves.map((m) => (
-            <li key={m}>{parseInlineMarkdown(m)}</li>
+            <Text as="li" key={m}>{m}</Text>
           ))}
         </ul>
-        <Text font="serif" color="muted" className={styles.stat}><strong>Cost</strong> {config.cost}</Text>
+        <Text font="serif" color="muted" className={styles.stat}>{`**Cost** ${config.cost}`}</Text>
         <div className={styles.loyaltyRow}>
-          <Text font="serif" color="muted" className={styles.stat}><strong>Loyalty</strong></Text>
+          <Text font="serif" color="muted" className={styles.stat}>**Loyalty**</Text>
           <UseDots total={3} checked={loyalty} onChange={onLoyaltyChange} />
         </div>
       </div>
@@ -226,7 +221,7 @@ const InitiateSection = memo(({
         ))}
         <div className={styles.row}>
           <div className={styles.options}>
-            <span className={styles.stat}><strong>rites of…</strong></span>
+            <Text as="span" className={styles.stat}>**rites of…**</Text>
             <CheckboxGroup
               items={RITES_ITEMS[config.value]}
               checked={ritesChecked}

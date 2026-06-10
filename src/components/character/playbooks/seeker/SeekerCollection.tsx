@@ -1,5 +1,4 @@
 import { CheckboxGroup, Divider, Text } from "@/components/ui";
-import { parseInlineMarkdown } from "@/lib/parseMarkdown";
 import { PlaybookSection } from "../../PlaybookSection";
 import { AnswerPrompts } from "../AnswerPrompts";
 import { usePlaybookCheckedWithAnswers } from "@/hooks/usePlaybookChecked";
@@ -50,15 +49,15 @@ export const SeekerCollection = ({ data, onSave }: SeekerCollectionProps) => {
 
   return (
     <PlaybookSection title="Collection">
-      <Text as="p" size="xs" color="muted">
+      <Text size="xs" color="muted">
         In your travels and investigations you have acquired arcana—artifacts of
         power and mystery.
       </Text>
       <Divider />
-      <Text as="p" size="xs" color="muted">
-        {parseInlineMarkdown("**MAJOR ARCANA**")}
+      <Text size="xs" color="muted">
+        **MAJOR ARCANA**
       </Text>
-      <Text as="p" size="xs" color="muted">
+      <Text size="xs" color="muted">
         Your Background grants you 1 major arcanum. Answer at least 2 questions
         about it:
       </Text>
@@ -74,10 +73,10 @@ export const SeekerCollection = ({ data, onSave }: SeekerCollectionProps) => {
         onFlush={flushAnswers}
       />
       <Divider />
-      <Text as="p" size="xs" color="muted">
-        {parseInlineMarkdown("**MINOR ARCANA**")}
+      <Text size="xs" color="muted">
+        **MINOR ARCANA**
       </Text>
-      <Text as="p" size="xs" color="muted">
+      <Text size="xs" color="muted">
         Go to your Arcana tab and add 3 random minor arcana. Choose one whose
         secrets you have unlocked, one you have not yet mastered, and one you
         have not yet found.

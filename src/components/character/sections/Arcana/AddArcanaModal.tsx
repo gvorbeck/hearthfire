@@ -150,7 +150,7 @@ export const AddArcanaModal = <T extends ArcanaItem>({
         onKeyDown={handleListKeyDown}
       >
         {results.length === 0 ? (
-          <Text as="p" size="sm" color="muted" className={styles.empty}>
+          <Text color="muted" className={styles.empty}>
             {allAdded ? `All ${noun} have been added.` : 'No matches found.'}
           </Text>
         ) : (

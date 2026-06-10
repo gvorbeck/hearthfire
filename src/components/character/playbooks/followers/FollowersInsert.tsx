@@ -231,7 +231,6 @@ const FollowerCard = memo(
         onFieldChange(index, "notes", e.target.value),
       [index, onFieldChange],
     );
-    const handleBlur = onBlur;
     const handleLoyalty = useCallback(
       (n: number) => onLoyaltyChange(index, n),
       [index, onLoyaltyChange],
@@ -268,7 +267,7 @@ const FollowerCard = memo(
               placeholder="Name"
               aria-label={`Follower ${index + 1} name`}
               onChange={handleName}
-              onBlur={handleBlur}
+              onBlur={onBlur}
             />
             <Input
               className={styles.tagInput}
@@ -277,7 +276,7 @@ const FollowerCard = memo(
               placeholder="Tags"
               aria-label={`Follower ${index + 1} tags`}
               onChange={handleTags}
-              onBlur={handleBlur}
+              onBlur={onBlur}
             />
           </div>
           <Tooltip
@@ -288,7 +287,7 @@ const FollowerCard = memo(
           >
             <Button
               variant="ghost"
-              size="sm"
+             
               icon="close"
               onClick={handleRequestRemove}
               aria-label={`Remove ${followerLabel}`}
@@ -302,13 +301,10 @@ const FollowerCard = memo(
           onClose={handleCancelRemove}
           aria-labelledby={confirmHeadingId}
         >
-          <Heading as="h2" size="sm" id={confirmHeadingId}>
+          <Heading as="h2" id={confirmHeadingId}>
             Remove follower?
           </Heading>
-          <Text size="xs" color="muted">
-            <strong>{followerLabel}</strong> will be permanently removed. All
-            follower data will be lost and cannot be recovered.
-          </Text>
+          <Text size="xs" color="muted">{`**${followerLabel}** will be permanently removed. All follower data will be lost and cannot be recovered.`}</Text>
           <div className={styles.confirmActions}>
             <Button variant="ghost" size="md" onClick={handleCancelRemove}>
               Cancel
@@ -329,7 +325,7 @@ const FollowerCard = memo(
             checked={follower.exceptional ?? false}
             onChange={handleExceptional}
             label={
-              <Text as="span" size="sm" color="muted" font="serif" italic>
+              <Text as="span" color="muted" font="serif" italic>
                 exceptional
               </Text>
             }
@@ -338,7 +334,7 @@ const FollowerCard = memo(
             checked={follower.group ?? false}
             onChange={handleGroup}
             label={
-              <Text as="span" size="sm" color="muted" font="serif" italic>
+              <Text as="span" color="muted" font="serif" italic>
                 group
               </Text>
             }
@@ -354,7 +350,7 @@ const FollowerCard = memo(
               min={0}
               aria-label={`Follower ${index + 1} current HP`}
               onChange={handleHp}
-              onBlur={handleBlur}
+              onBlur={onBlur}
               onWheel={handleWheel}
             />
             <span className={styles.statLabel}>
@@ -378,7 +374,7 @@ const FollowerCard = memo(
                   min={0}
                   aria-label={`Follower ${index + 1} max HP`}
                   onChange={handleMaxHp}
-                  onBlur={handleBlur}
+                  onBlur={onBlur}
                   onWheel={handleWheel}
                 />
               </span>
@@ -391,7 +387,7 @@ const FollowerCard = memo(
               value={follower.armor ?? ""}
               aria-label={`Follower ${index + 1} armor`}
               onChange={handleArmor}
-              onBlur={handleBlur}
+              onBlur={onBlur}
             />
             <Text
               as="span"
@@ -409,7 +405,7 @@ const FollowerCard = memo(
               value={follower.damage ?? ""}
               aria-label={`Follower ${index + 1} damage`}
               onChange={handleDamage}
-              onBlur={handleBlur}
+              onBlur={onBlur}
             />
             <Text
               as="span"
@@ -433,7 +429,7 @@ const FollowerCard = memo(
             placeholder="What trouble do they cause…"
             aria-label={`Follower ${index + 1} instinct`}
             onChange={handleInstinct}
-            onBlur={handleBlur}
+            onBlur={onBlur}
           />
         </div>
 
@@ -472,7 +468,7 @@ const FollowerCard = memo(
               placeholder="What keeps them following…"
               aria-label={`Follower ${index + 1} cost`}
               onChange={handleCost}
-              onBlur={handleBlur}
+              onBlur={onBlur}
             />
           </div>
           <div className={styles.loyaltyRow}>
@@ -541,7 +537,7 @@ const FollowerCard = memo(
             placeholder="Notes…"
             aria-label={`Follower ${index + 1} notes`}
             onChange={handleNotes}
-            onBlur={handleBlur}
+            onBlur={onBlur}
           />
         </div>
       </section>
@@ -699,7 +695,6 @@ export const FollowersInsert = ({ data, onSave }: FollowersInsertProps) => {
       <PlaybookSection title="Followers">
         {followers.length === 0 && (
           <Text
-            as="p"
             size="xs"
             font="serif"
             color="muted"

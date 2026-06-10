@@ -7,7 +7,6 @@ import clsx from 'clsx';
 import { Checkbox, Divider, Heading, Input, List, PlaybookColumns, Stack, Text, UseDots } from '@/components/ui';
 import { RepeaterField } from '@/components/fields';
 import { PlaybookSection } from '../PlaybookSection';
-import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { MINOR_ARCANA } from '@/lib/arcanaMinor';
 import { MAJOR_ARCANA } from '@/lib/arcanaMajor';
 import type { CharacterData, PlaybookSectionProps } from '@/types';
@@ -128,14 +127,14 @@ const MainItemRow = memo(({ item, checked, uses, prosperity, onCheckedChange, on
         checked={checked}
         onChange={handleChecked}
         label={
-          <span className={styles.itemLabel}>
-            {parseInlineMarkdown(item.label)}
+          <div className={styles.itemLabel}>
+            <Text as="span">{item.label}</Text>
             {hasUses && checked && (
-              <span className={styles.itemDots}>
+              <div className={styles.itemDots}>
                 <UseDots total={effectiveTotal} checked={uses} onChange={handleUses} />
-              </span>
+              </div>
             )}
-          </span>
+          </div>
         }
       />
     </div>
@@ -155,7 +154,7 @@ const SmallItemRow = memo(({ item, checked, onCheckedChange }: SmallItemRowProps
       <Checkbox
         checked={checked}
         onChange={handleChecked}
-        label={<span className={styles.itemLabel}>{parseInlineMarkdown(item.label)}</span>}
+        label={<Text as="span" className={styles.itemLabel}>{item.label}</Text>}
       />
     </div>
   );
@@ -178,7 +177,7 @@ const ArcanaItemRow = memo(({ id, name, weight, carried, onCarriedChange }: Arca
         weight={weight}
         checked={carried}
         onChange={handleChange}
-        label={<span className={styles.itemLabel}>{parseInlineMarkdown(`**${name}** *(arcanum)*`)}</span>}
+        label={<Text as="span" className={styles.itemLabel}>{`**${name}** *(arcanum)*`}</Text>}
       />
     </div>
   );
@@ -294,13 +293,13 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
       .finally(() => { otherThingsPendingRef.current = false; });
   }, [otherThingsFlush]);
 
-  const handleSavePossessions = async (items: { checked: boolean; text: string; weight: 1 | 2 }[]) => {
+  const handleSavePossessions = useCallback(async (items: { checked: boolean; text: string; weight: 1 | 2 }[]) => {
     await onSaveRef.current({ inventoryPossessions: items });
-  };
+  }, [onSaveRef]);
 
-  const handleSaveSmallCustom = async (items: { checked: boolean; text: string }[]) => {
+  const handleSaveSmallCustom = useCallback(async (items: { checked: boolean; text: string }[]) => {
     await onSaveRef.current({ inventorySmallCustom: items });
-  };
+  }, [onSaveRef]);
 
   const handleArcanaCarried = useCallback((id: string, carried: boolean) => {
     saveArcanaMinor(arcanaMinorRef.current.map((e) => e.id === id ? { ...e, carried } : e));
@@ -328,21 +327,19 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
       left={
         <PlaybookSection title="Inventory">
           <Text font="serif" color="muted" leading="normal">
-            {parseInlineMarkdown('When you **Outfit**, mark a number of ◊ below, on specific items or Undefined.')}
+            When you **Outfit**, mark a number of ◊ below, on specific items or Undefined.
           </Text>
           <List
             variant="bullet"
             items={[
-              parseInlineMarkdown('For a **light load** *(quick & quiet)*, mark up to 3 ◈'),
-              parseInlineMarkdown('For a **normal load**, mark 4–6 ◈'),
-              parseInlineMarkdown('For a **heavy load** *(noisy, slow, hot, quick to tire)*, mark 7–9 ◈'),
+              'For a **light load** *(quick & quiet)*, mark up to 3 ◈',
+              'For a **normal load**, mark 4–6 ◈',
+              'For a **heavy load** *(noisy, slow, hot, quick to tire)*, mark 7–9 ◈',
             ]}
           />
 
           <div className={styles.loadRow}>
-            <span className={loadCx}>
-              {parseInlineMarkdown(`${totalLoad} ◈ — ${loadLabel}`)}
-            </span>
+            <Text as="span" className={loadCx}>{`${totalLoad} ◈ — ${loadLabel}`}</Text>
           </div>
 
           <Divider />
@@ -353,7 +350,7 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
               <UndefinedProvisions total={UNDEFINED_MAIN_COUNT} checked={undefinedMain} onChange={handleUndefinedMain} />
             </Stack>
             <Text font="serif" color="muted" leading="normal">
-              {parseInlineMarkdown('When you **Have What You Need**, move ◈ from here to ◊ below.')}
+              When you **Have What You Need**, move ◈ from here to ◊ below.
             </Text>
           </Stack>
 
@@ -417,7 +414,7 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
           <Divider />
 
           <Stack gap={2}>
-            <Heading as="h4" size="sm">{parseInlineMarkdown('Other things *(animals, kits, stashed items, etc.)*')}</Heading>
+            <Heading as="h4" size="sm">Other things *(animals, kits, stashed items, etc.)*</Heading>
             <Input
               multiline
               value={otherThings}
@@ -434,7 +431,7 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
         <PlaybookSection title="Small items">
           <Text font="serif" color="muted" leading="normal">Fit in a pocket, pouch, or boot.</Text>
           <Text font="serif" color="muted" leading="normal">
-            {parseInlineMarkdown('When you **Outfit**, mark □ below equal to 4+Prosperity.')}
+            When you **Outfit**, mark □ below equal to 4+Prosperity.
           </Text>
 
           <Divider />
@@ -445,7 +442,7 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
               <UndefinedProvisions total={UNDEFINED_SMALL_COUNT} checked={undefinedSmall} onChange={handleUndefinedSmall} />
             </Stack>
             <Text font="serif" color="muted" leading="normal">
-              {parseInlineMarkdown("When you **Have What You Need**, move ◈ from here to items below, or expend supplies to mark an additional □.")}
+              When you **Have What You Need**, move ◈ from here to items below, or expend supplies to mark an additional □.
             </Text>
           </Stack>
 

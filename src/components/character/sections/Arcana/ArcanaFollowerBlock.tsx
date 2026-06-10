@@ -21,7 +21,7 @@ export const ArcanaFollowerBlock = memo(({
   return (
     <div className={styles.follower}>
       <div className={styles.followerHeader}>
-        <Text as="p" font="serif" size="sm" weight="bold">
+        <Text font="serif" weight="bold">
           {follower.name}
         </Text>
         {follower.tags && (

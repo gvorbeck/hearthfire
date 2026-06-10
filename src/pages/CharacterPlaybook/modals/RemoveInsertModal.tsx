@@ -22,10 +22,7 @@ export const RemoveInsertModal = ({ open, insert, onClose, onConfirm: handleConf
     <Modal open={open} onClose={onClose} aria-labelledby={headingId}>
       <Heading as="h2" size="md" id={headingId}>Remove {insert ?? ''}?</Heading>
       {insert && (
-        <Text font="serif" color="muted" className={styles.warning}>
-          This will remove the <strong>{insert}</strong> tab from this character sheet.
-          {warning && ` ${warning}`}
-        </Text>
+        <Text font="serif" color="muted" className={styles.warning}>{`This will remove the **${insert}** tab from this character sheet.${warning ? ` ${warning}` : ''}`}</Text>
       )}
       <div className={styles.actions}>
         <Button variant="secondary" onClick={onClose}>Cancel</Button>

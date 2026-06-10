@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import clsx from 'clsx';
 import { Button, Checkbox, Icon, Text } from '@/components/ui';
 import { UseDots } from '@/components/ui/UseDots/UseDots';
-import { parseInlineMarkdown, parseMarkdown } from '@/lib/parseMarkdown';
+import { parseMarkdown } from '@/lib/parseMarkdown';
 import type { MinorArcanum } from '@/types';
 import { ArcanaFollowerBlock } from './ArcanaFollowerBlock';
 import styles from './MinorArcanaCard.module.css';
@@ -47,7 +47,7 @@ export const MinorArcanaCard = ({
     <div className={cx}>
       <div className={styles.header}>
         <div className={styles.headerText}>
-          <Text as="p" font="serif" size="sm" weight="bold">
+          <Text font="serif" weight="bold">
             {arcanum.name}
           </Text>
           <div className={styles.meta}>
@@ -64,7 +64,7 @@ export const MinorArcanaCard = ({
               </span>
             )}
             {arcanum.tags && (
-              <Text as="span" font="serif" size="sm" italic color="muted">
+              <Text as="span" font="serif" italic color="muted">
                 {arcanum.tags}
               </Text>
             )}
@@ -72,7 +72,7 @@ export const MinorArcanaCard = ({
         </div>
         <Button
           variant="ghost"
-          size="sm"
+         
           icon="close"
           onClick={onRemove}
           aria-label={`Remove ${arcanum.name}`}
@@ -91,8 +91,8 @@ export const MinorArcanaCard = ({
               checked={!!requirementsChecked[key]}
               onChange={makeToggle(key)}
             />
-            <Text as="span" font="serif" size="sm">
-              {parseInlineMarkdown(arcanum.requirements[i])}
+            <Text as="span" font="serif">
+              {arcanum.requirements[i]}
             </Text>
           </label>
         ))}
@@ -101,12 +101,12 @@ export const MinorArcanaCard = ({
       {allChecked && (
         <div className={styles.moveReveal}>
           <div className={styles.moveHeader}>
-            <Text as="p" font="serif" size="sm" weight="bold">
+            <Text font="serif" weight="bold">
               {move.name}
             </Text>
             {move.subtitle && (
-              <Text as="p" font="serif" size="sm" italic color="muted">
-                {parseInlineMarkdown(move.subtitle)}
+              <Text font="serif" italic color="muted">
+                {move.subtitle}
               </Text>
             )}
           </div>

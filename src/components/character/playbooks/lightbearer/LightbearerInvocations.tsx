@@ -4,7 +4,6 @@ import { PlaybookSection } from '../../PlaybookSection';
 import { Move } from '../../Move';
 import { usePlaybookChecked } from '@/hooks/usePlaybookChecked';
 import { LIGHTBEARER_INVOCATIONS } from '@/lib/lightbearerInvocations';
-import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { MoveDefinition, PlaybookSectionProps } from '@/types';
 import styles from './LightbearerInvocations.module.css';
 
@@ -50,7 +49,7 @@ export const LightbearerInvocations = ({
     <PlaybookSection title="Invocations">
       <div className={styles.intro}>
         {INTRO_LINES.map((line) => (
-          <Text key={line} font="serif" color="muted">{parseInlineMarkdown(line)}</Text>
+          <Text key={line} font="serif" color="muted">{line}</Text>
         ))}
       </div>
       <div className={styles.grid}>

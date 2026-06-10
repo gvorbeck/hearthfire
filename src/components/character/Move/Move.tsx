@@ -3,7 +3,6 @@ import { Fragment } from 'react';
 import type { ReactNode, ChangeEvent } from 'react';
 import { Checkbox, CheckboxGroup, Divider, Icon, List, Text, UseDots } from '@/components/ui';
 import type { IconName } from '@/components/ui';
-import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { MoveDefinition } from '@/types';
 import styles from './Move.module.css';
 
@@ -80,7 +79,7 @@ export const Move = ({
   const moveCx = clsx(styles.move, selected && styles.moveSelected);
   const nameCx = clsx(styles.moveName, selected && styles.moveNameSelected);
 
-  const nameEl = <span className={nameCx}>{parseInlineMarkdown(move.name)}</span>;
+  const nameEl = <Text as="span" className={nameCx}>{move.name}</Text>;
 
   const bodyItems = move.body ? (Array.isArray(move.body) ? move.body : [move.body]) : [];
   const footerParagraphs = move.footer ? (Array.isArray(move.footer) ? move.footer : [move.footer]) : [];
@@ -105,7 +104,7 @@ export const Move = ({
     const isForced = forcedIdSet.has(id);
     const isChecked = effectiveCheckedWithForced[id] ?? false;
     const recordedLevel = checkedLevel !== null ? (levels[id] ?? null) : null;
-    const displayLabel = <span>{parseInlineMarkdown(label.replace('___', recordedLevel !== null ? String(recordedLevel) : '___'))}</span>;
+    const displayLabel = label.replace('___', recordedLevel !== null ? String(recordedLevel) : '___');
     const itemDisabled = isForced || (checkedLevel !== null && !isChecked && marksUsed >= checkedLevel);
     return { id, label: displayLabel, disabled: itemDisabled };
   });
@@ -175,10 +174,7 @@ export const Move = ({
       {selection?.lockReason && <Text font="serif" size="xs" color="tertiary" italic>{selection.lockReason}</Text>}
       {(move.triggerOverride || move.trigger) && (
         <Text font="serif" color="muted" leading="tight">
-          {move.triggerOverride
-            ? parseInlineMarkdown(move.triggerOverride)
-            : parseInlineMarkdown(`When you **${move.trigger}**,`)
-          }
+          {move.triggerOverride ?? `When you **${move.trigger}**,`}
         </Text>
       )}
       {bodyItems.map((item, i) => {
@@ -192,10 +188,10 @@ export const Move = ({
             {icon ? (
               <div className={styles.moveBodyWithIcon}>
                 <Icon name={icon as IconName} size="small" className={styles.moveBodyIcon} aria-hidden="true" />
-                <Text font="serif" color="muted" leading="tight">{parseInlineMarkdown(text)}</Text>
+                <Text font="serif" color="muted" leading="tight">{text}</Text>
               </div>
             ) : (
-              <Text font="serif" color="muted" leading="tight">{parseInlineMarkdown(text)}</Text>
+              <Text font="serif" color="muted" leading="tight">{text}</Text>
             )}
           </Fragment>
         );
@@ -203,16 +199,16 @@ export const Move = ({
       {listIndent ? (
         <div className={styles.listIndent}>
           {move.list && (
-            <List variant="bullet" items={move.list.map((li) => parseInlineMarkdown(li))} />
+            <List variant="bullet" items={move.list} />
           )}
           {footerParagraphs.map((fp, fi) => (
-            <Text key={`${move.id}-footer-${fi}`} font="serif" color="muted" leading="tight">{parseInlineMarkdown(fp)}</Text>
+            <Text key={`${move.id}-footer-${fi}`} font="serif" color="muted" leading="tight">{fp}</Text>
           ))}
         </div>
       ) : (
         <>
           {move.list && (
-            <List variant="bullet" items={move.list.map((li) => parseInlineMarkdown(li))} />
+            <List variant="bullet" items={move.list} />
           )}
         </>
       )}
@@ -229,12 +225,12 @@ export const Move = ({
         />
       )}
       {!listIndent && footerParagraphs.map((p, i) => (
-        <Text key={`${move.id}-footer-${i}`} font="serif" color="muted" leading="tight">{parseInlineMarkdown(p)}</Text>
+        <Text key={`${move.id}-footer-${i}`} font="serif" color="muted" leading="tight">{p}</Text>
       ))}
       {move.list2 && (
-        <List variant="bullet" items={move.list2.map((item) => parseInlineMarkdown(item))} />
+        <List variant="bullet" items={move.list2} />
       )}
-      {move.citation && <Text font="serif" size="xs" color="tertiary" italic className={styles.moveCitation}>{move.citation}</Text>}
+      {move.citation && <Text as="span" font="serif" size="xs" color="tertiary" italic className={styles.moveCitation}>{move.citation}</Text>}
     </div>
   );
 };

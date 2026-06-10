@@ -39,9 +39,7 @@ export const RemoveCharacterModal = ({ open, character, onClose, onConfirm }: Re
     <Modal open={open} onClose={onClose} aria-labelledby={headingId}>
       <Heading as="h2" size="sm" id={headingId}>Remove character?</Heading>
       {character && (
-        <Text size="xs" color="muted">
-          <strong>{displayName}</strong> will be permanently removed from this game. All character data will be lost and cannot be recovered.
-        </Text>
+        <Text size="xs" color="muted">{`**${displayName}** will be permanently removed from this game. All character data will be lost and cannot be recovered.`}</Text>
       )}
       <div className={styles.actions}>
         <Button variant="ghost" size="md" onClick={onClose} disabled={removing}>Cancel</Button>

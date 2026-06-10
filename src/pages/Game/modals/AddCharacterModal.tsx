@@ -70,7 +70,7 @@ export const AddCharacterModal = ({
         placeholder="Choose a playbook…"
       />
       {selectedPlaybook && (
-        <Text size="sm" color="muted" className={styles.description}>
+        <Text color="muted" className={styles.description}>
           {selectedPlaybook.description}
         </Text>
       )}

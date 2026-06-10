@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import { Input, Text } from '@/components/ui';
 import { PlaybookSection } from '../../PlaybookSection';
-import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import styles from './RangerAnimalCompanion.module.css';
 
 interface AnimalStatsProps {
@@ -45,8 +44,8 @@ export const AnimalStats = ({
 
   return (
     <PlaybookSection title="Stats">
-      <Text as="p" size="xs" color="muted" leading="normal">
-        {parseInlineMarkdown('You are accompanied by a beast, with whom you have bonded deeply and communicate without words. Treat it as a follower.')}
+      <Text size="xs" color="muted" leading="normal">
+        You are accompanied by a beast, with whom you have bonded deeply and communicate without words. Treat it as a follower.
       </Text>
       <div className={styles.headerRow}>
         <div className={styles.statsRow}>

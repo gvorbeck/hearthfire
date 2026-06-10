@@ -23,8 +23,8 @@ export const DamageAndDebilities = memo(() => (
       ]} />
     </div>
     <Callout title="RECOVER">
-      <Text>When you <strong>take time to catch your breath and tend to what ails you</strong>, expend 1 use of supplies and recover HP equal to 4+Prosperity. You can't gain this benefit again until you take more damage.</Text>
-      <Text>When you <strong>tend to a debility or a problematic wound</strong>, say how. The GM will either say that it's taken care of or tell you what's required to do so (Defying Danger, expending supplies or some other resource, finding ___, Making Camp, etc.).</Text>
+      <Text>When you **take time to catch your breath and tend to what ails you**, expend 1 use of supplies and recover HP equal to 4+Prosperity. You can't gain this benefit again until you take more damage.</Text>
+      <Text>When you **tend to a debility or a problematic wound**, say how. The GM will either say that it's taken care of or tell you what's required to do so (Defying Danger, expending supplies or some other resource, finding ___, Making Camp, etc.).</Text>
     </Callout>
     <div className={styles.subsection}>
       <Text>When they tend to a debility or problematic wound, additional requirements might include:</Text>

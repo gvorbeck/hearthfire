@@ -1,6 +1,5 @@
 import { CheckboxGroup, Text } from '@/components/ui';
 import { PlaybookSection } from '../../PlaybookSection';
-import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 
 const BEAST_OF_LEGEND_ITEMS = [
   { id: 'bol-exceptional', label: 'They are *exceptional* (see Order Followers below)' },
@@ -8,7 +7,7 @@ const BEAST_OF_LEGEND_ITEMS = [
   { id: 'bol-unique', label: 'They develop a unique ability or trait' },
 ].map((opt) => ({
   id: opt.id,
-  label: <span>{parseInlineMarkdown(opt.label)}</span>,
+  label: opt.label,
 }));
 
 interface BeastOfLegendProps {
@@ -18,7 +17,7 @@ interface BeastOfLegendProps {
 
 export const BeastOfLegend = ({ beastOfLegend, onBeastOfLegendChange }: BeastOfLegendProps) => (
   <PlaybookSection title="Beast of Legend">
-    <Text as="p" size="xs" color="muted" leading="normal">
+    <Text size="xs" color="muted" leading="normal">
       Each time you take Beast of Legend, pick 1:
     </Text>
     <CheckboxGroup

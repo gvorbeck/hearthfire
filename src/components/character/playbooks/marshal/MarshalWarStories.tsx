@@ -33,7 +33,7 @@ export const MarshalWarStories = ({ data, onSave }: MarshalWarStoriesProps) => {
 
   return (
     <PlaybookSection title="War Stories">
-      <Text as="p" size="xs" color="muted">
+      <Text size="xs" color="muted">
         The last time the militia saw serious action, it was… (pick 1)
       </Text>
       <CheckboxGroup
@@ -43,7 +43,7 @@ export const MarshalWarStories = ({ data, onSave }: MarshalWarStoriesProps) => {
         max={1}
       />
       <Divider />
-      <Text as="p" size="xs" color="muted">
+      <Text size="xs" color="muted">
         Answer at least 3 of the following questions about that action:
       </Text>
       <AnswerPrompts prompts={ANSWER_PROMPTS} answers={answers} onAnswer={handleAnswer} onFlush={flushAnswers} />

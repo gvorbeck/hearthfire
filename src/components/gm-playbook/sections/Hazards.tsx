@@ -18,7 +18,7 @@ export const Hazards = () => (
         'How it escalates or gets worse',
         'How it thwarts attempts to overcome it',
       ]} />
-      <Text>If dynamic, changing: give it an <strong>instinct</strong>, written as "to ___" (e.g. "to bury everything").</Text>
+      <Text>If dynamic, changing: give it an **instinct**, written as "to ___" (e.g. "to bury everything").</Text>
     </div>
 
     <div className={styles.subsection}>
@@ -32,7 +32,7 @@ export const Hazards = () => (
 
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">As player moves</Heading>
-      <Text>Write a fictional trigger ("When you <strong><em>trigger the hazard</em></strong>, …") and resolution, using any combo of the following that makes sense:</Text>
+      <Text>Write a fictional trigger ("When you ***trigger the hazard***, …") and resolution, using any combo of the following that makes sense:</Text>
       <List variant="dash" items={[
         '___ happens (and ___ is bad)',
         'Pick X from a list',
@@ -45,7 +45,7 @@ export const Hazards = () => (
 
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">If it deals damage</Heading>
-      <Text><strong>What would it do to a typical person?</strong> (pick 1)</Text>
+      <Text>**What would it do to a typical person?** (pick 1)</Text>
       <Table
         rows={[
           { label: 'Bruises & scrapes; pain; light burns', value: 'd4' },
@@ -54,7 +54,7 @@ export const Hazards = () => (
           { label: 'Death or dismemberment', value: 'd10' },
         ]}
       />
-      <Text><strong>If…</strong> (choose all that apply)</Text>
+      <Text>**If…** (choose all that apply)</Text>
       <Table
         rows={[
           { label: '… armor can\'t protect them', value: 'ignores armor' },

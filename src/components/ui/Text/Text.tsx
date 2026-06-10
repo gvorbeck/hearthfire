@@ -1,5 +1,6 @@
 import { type ComponentPropsWithoutRef } from 'react';
 import clsx from 'clsx';
+import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import styles from './Text.module.css';
 
 interface TextProps extends ComponentPropsWithoutRef<'span'> {
@@ -38,5 +39,6 @@ export const Text = ({
     className,
   );
 
-  return <Tag className={cx} {...props}>{children}</Tag>;
+  const content = typeof children === 'string' ? parseInlineMarkdown(children) : children;
+  return <Tag className={cx} {...props}>{content}</Tag>;
 };

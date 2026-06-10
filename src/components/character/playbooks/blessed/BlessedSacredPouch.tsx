@@ -3,7 +3,6 @@ import { useOptimisticField } from '@/hooks/useOptimisticField';
 import { Divider, Radio, RadioGroup, Text } from '@/components/ui';
 import { PlaybookSection } from '../../PlaybookSection';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
-import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { PlaybookSectionProps } from '@/types';
 import styles from './BlessedSacredPouch.module.css';
 
@@ -54,19 +53,19 @@ export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) =>
   return (
     <PlaybookSection title="Sacred Pouch">
       <div className={styles.body}>
-        <Text as="p" size="xs" color="muted" leading="normal">
-          {parseInlineMarkdown("Your sacred pouch (*magical*) doesn't take up space in your inventory. It can hold up to 3 Stock (sacred herbs, powders, stones, pigments, chalks, clay, and so forth). Each time you gain an even-numbered level, your pouch can hold +1 Stock. When ***anyone but you looks inside your sacred pouch and touches the materials therein***, the Stock is ruined.")}
+        <Text size="xs" color="muted" leading="normal">
+          Your sacred pouch (*magical*) doesn't take up space in your inventory. It can hold up to 3 Stock (sacred herbs, powders, stones, pigments, chalks, clay, and so forth). Each time you gain an even-numbered level, your pouch can hold +1 Stock. When ***anyone but you looks inside your sacred pouch and touches the materials therein***, the Stock is ruined.
         </Text>
-        <Text as="p" size="xs" color="muted" leading="normal">
-          {parseInlineMarkdown('When you **have a few days of downtime in familiar terrain**, you may replenish your Stock.')}
+        <Text size="xs" color="muted" leading="normal">
+          When you **have a few days of downtime in familiar terrain**, you may replenish your Stock.
         </Text>
-        <Text as="p" size="xs" color="muted" leading="normal">
-          {parseInlineMarkdown('When you **Forage**, you can produce Stock instead of provisions.')}
+        <Text size="xs" color="muted" leading="normal">
+          When you **Forage**, you can produce Stock instead of provisions.
         </Text>
 
         <Divider />
 
-        <Text as="p" size="xs" color="muted" className={styles.instruction}>Your sacred pouch is… (choose 1 on each line)</Text>
+        <Text size="xs" color="muted" className={styles.instruction}>Your sacred pouch is… (choose 1 on each line)</Text>
         <div className={styles.isLines}>
           {IS_LINES.map((line) => (
             <div key={line.key} className={styles.isRow}>
@@ -89,7 +88,7 @@ export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) =>
 
         <Divider />
 
-        <Text as="p" size="xs" color="muted" className={styles.instruction}>What remarkable trait does it possess? (choose 1)</Text>
+        <Text size="xs" color="muted" className={styles.instruction}>What remarkable trait does it possess? (choose 1)</Text>
         <RadioGroup legend="Remarkable trait" legendHidden className={styles.traits}>
           {TRAITS.map((t) => (
             <Radio

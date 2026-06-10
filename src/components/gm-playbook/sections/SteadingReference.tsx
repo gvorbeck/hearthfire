@@ -76,13 +76,13 @@ export const SteadingReference = ({ placesOfInterest, onSave }: SteadingReferenc
         <Heading as="h3" size="sm">Names</Heading>
         <Text size="xs" color="muted">Pick one, make one up, or ask a player to.</Text>
         <div className={playbookStyles.paragraphs}>
-          <Text size="xs"><strong>Stonetop</strong> (Welsh): {STONETOP_NAMES_STR}</Text>
-          <Text size="xs"><strong>Marshedge</strong> (Irish): {MARSHEDGE_NAMES_STR}</Text>
-          <Text size="xs"><strong>Hillfolk</strong> (Breton, clipped): {HILLFOLK_NAMES_STR}</Text>
-          <Text size="xs"><strong>Southern</strong> (Greek, Hebrew, Persian, Arabic): {SOUTHERN_NAMES_STR}</Text>
-          <Text size="xs"><strong>Manmarch</strong> (Germanic): {MANMARCH_NAMES_STR}</Text>
-          <Text size="xs"><strong>Barrier Pass</strong> (Tibetan, Nepali): {BARRIER_PASS_NAMES_STR}</Text>
-          <Text size="xs" color="muted"><em>Gordin's Delve: choose from other lists; everyone there comes from somewhere else.</em></Text>
+          <Text size="xs">{`**Stonetop** (Welsh): ${STONETOP_NAMES_STR}`}</Text>
+          <Text size="xs">{`**Marshedge** (Irish): ${MARSHEDGE_NAMES_STR}`}</Text>
+          <Text size="xs">{`**Hillfolk** (Breton, clipped): ${HILLFOLK_NAMES_STR}`}</Text>
+          <Text size="xs">{`**Southern** (Greek, Hebrew, Persian, Arabic): ${SOUTHERN_NAMES_STR}`}</Text>
+          <Text size="xs">{`**Manmarch** (Germanic): ${MANMARCH_NAMES_STR}`}</Text>
+          <Text size="xs">{`**Barrier Pass** (Tibetan, Nepali): ${BARRIER_PASS_NAMES_STR}`}</Text>
+          <Text size="xs" color="muted">*Gordin's Delve: choose from other lists; everyone there comes from somewhere else.*</Text>
         </div>
       </div>
 

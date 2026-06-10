@@ -1,6 +1,5 @@
 import { List, Icon, Tooltip } from '@/components/ui';
 import { RepeaterField } from '@/components/fields';
-import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import styles from './ImprovementList.module.css';
 
 interface ImprovementItem {
@@ -37,7 +36,7 @@ export const ImprovementList = ({
 
   const listItems = allFixed.map(({ id, label, fromImprovement }) => (
     <span key={id} className={styles.fixedItem}>
-      <span>{parseInlineMarkdown(label)}</span>
+      {label}
       {fromImprovement && (
         <Tooltip text="Added by a completed improvement" side="top">
           <Icon name="info" size="small" className={styles.infoIcon} />

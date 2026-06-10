@@ -151,7 +151,7 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
 
   const loyaltyHeader = (
     <div className={styles.loyaltyRow}>
-      <Text as="span" size="sm" color="muted" className={styles.loyaltyLabel}>Loyalty</Text>
+      <Text as="span" color="muted" className={styles.loyaltyLabel}>Loyalty</Text>
       <UseDots total={3} checked={loyalty} onChange={handleLoyaltyChange} />
     </div>
   );

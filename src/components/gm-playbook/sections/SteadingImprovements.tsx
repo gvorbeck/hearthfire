@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { Button, Heading, List, Text, Checkbox, Input, Radio, RadioGroup } from '@/components/ui';
 import { useToast } from '@/components/app';
-import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { SteadingData, GmImprovement } from '@/types';
 import styles from './SteadingImprovements.module.css';
 
@@ -604,7 +603,7 @@ const ReqCheckItem = ({
         <Checkbox
           checked={checkedValues[0]}
           onChange={() => onToggle(keys[0])}
-          label={<span>{parseInlineMarkdown(item.label)}</span>}
+          label={item.label}
         />
       </div>
     );
@@ -622,7 +621,7 @@ const ReqCheckItem = ({
           />
         ))}
       </div>
-      <span className={styles.checkRowLabel}>{parseInlineMarkdown(item.label)}</span>
+      <Text as="span" className={styles.checkRowLabel}>{item.label}</Text>
     </div>
   );
 };
@@ -730,14 +729,14 @@ export const SteadingImprovements = ({ improvements = {}, gmImprovements, onSave
                   className={styles.itemCheckbox}
                 />
               </div>
-              <Text font="serif" color="muted" italic leading="tight">{parseInlineMarkdown(imp.summary)}</Text>
+              <Text font="serif" color="muted" italic leading="tight">{imp.summary}</Text>
 
               <div className={styles.section}>
                 <Heading as="h4" size="label">Requirements</Heading>
                 <div className={styles.requirementBlocks}>
                   {imp.requirements.map((block, blockIdx) => {
                     if (block.type === 'text') {
-                      return <Text key={`${imp.id}-req-${blockIdx}`} size="xs" color="muted">{parseInlineMarkdown(block.content)}</Text>;
+                      return <Text key={`${imp.id}-req-${blockIdx}`} size="xs" color="muted">{block.content}</Text>;
                     }
                     return (
                       <div key={`${imp.id}-cb-${blockIdx}`} className={styles.checkList}>
@@ -763,10 +762,10 @@ export const SteadingImprovements = ({ improvements = {}, gmImprovements, onSave
               <div className={styles.section}>
                 <Heading as="h4" size="label">When you meet the requirements</Heading>
                 {imp.benefits.map((line, i) => (
-                  <Text key={`${imp.id}-benefit-${i}`} font="serif" color="muted" leading="tight">{parseInlineMarkdown(line)}</Text>
+                  <Text key={`${imp.id}-benefit-${i}`} font="serif" color="muted" leading="tight">{line}</Text>
                 ))}
                 {imp.list && (
-                  <List variant="bullet" items={imp.list.map((item) => <span>{parseInlineMarkdown(item)}</span>)} />
+                  <List variant="bullet" items={imp.list} />
                 )}
               </div>
             </div>
