@@ -765,7 +765,7 @@ export const SteadingImprovements = ({ improvements = {}, gmImprovements, onSave
                   <Text key={`${imp.id}-benefit-${i}`} font="serif" color="muted" leading="tight">{line}</Text>
                 ))}
                 {imp.list && (
-                  <List variant="bullet" items={imp.list} />
+                  <List variant="bullet" items={imp.list} keyPrefix={`${imp.id}-list`} />
                 )}
               </div>
             </div>

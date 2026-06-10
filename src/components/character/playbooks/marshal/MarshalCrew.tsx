@@ -500,7 +500,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
             <div className={styles.suppliesGrid}>
               {Array.from({ length: CREW_SIZE }, (_, i) => (
                 <SuppliesMemberDots
-                  key={`member-${i}`}
+                  key={`supplies-member-slot-${i}`}
                   memberIndex={i}
                   total={4 + prosperity}
                   checked={suppliesUses[i] ?? 0}
@@ -558,7 +558,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
         <div className={styles.individualsGrid}>
           {individuals.map((ind, i) => (
             <IndividualSlot
-              key={`individual-${i}`}
+              key={`crew-individual-slot-${i}`}
               index={i}
               name={ind.name}
               tag={ind.tag}
