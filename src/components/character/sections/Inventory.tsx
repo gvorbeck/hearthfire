@@ -87,9 +87,16 @@ const SMALL_ITEMS: SmallItem[] = [
 const UNDEFINED_MAIN_COUNT = 9;
 const UNDEFINED_SMALL_COUNT = 6;
 
+const getShieldWeight = (data: CharacterData | undefined): 1 | 2 =>
+  data?.typeMoves?.['heavy-armored'] ? 1 : 2;
+
 export const computeTotalLoad = (data: CharacterData | undefined): number => {
   const checked = data?.inventoryChecked ?? {};
-  const namedLoad = MAIN_ITEMS.reduce((sum, item) => checked[item.id] ? sum + item.weight : sum, 0);
+  const namedLoad = MAIN_ITEMS.reduce((sum, item) => {
+    if (!checked[item.id]) return sum;
+    const weight = item.id === 'shield' ? getShieldWeight(data) : item.weight;
+    return sum + weight;
+  }, 0);
   const possessionLoad = (data?.inventoryPossessions ?? []).reduce((sum, item) => item.checked ? sum + item.weight : sum, 0);
   const arcanaMinorLoad = (data?.arcanaMinor ?? []).reduce((sum, entry) => {
     if (!entry.carried) return sum;
@@ -109,11 +116,12 @@ interface MainItemRowProps {
   checked: boolean;
   uses: number;
   prosperity: number;
+  weightOverride?: 1 | 2;
   onCheckedChange: (id: string, checked: boolean) => void;
   onUsesChange: (id: string, n: number) => void;
 }
 
-const MainItemRow = memo(({ item, checked, uses, prosperity, onCheckedChange, onUsesChange }: MainItemRowProps) => {
+const MainItemRow = memo(({ item, checked, uses, prosperity, weightOverride, onCheckedChange, onUsesChange }: MainItemRowProps) => {
   const isSupplies = item.id.startsWith('supplies-');
   const hasUses = isSupplies || item.uses !== undefined;
   const effectiveTotal = isSupplies ? 4 + prosperity : (item.uses ?? 0);
@@ -123,7 +131,7 @@ const MainItemRow = memo(({ item, checked, uses, prosperity, onCheckedChange, on
     <div className={styles.mainItemRow}>
       <Checkbox
         variant="provision"
-        weight={item.weight}
+        weight={weightOverride ?? item.weight}
         checked={checked}
         onChange={handleChecked}
         label={
@@ -364,6 +372,7 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
                 checked={inventoryChecked[item.id] ?? false}
                 uses={inventoryUses[item.id] ?? 0}
                 prosperity={prosperity}
+                weightOverride={item.id === 'shield' ? getShieldWeight(data) : undefined}
                 onCheckedChange={handleMainChecked}
                 onUsesChange={handleMainUses}
               />

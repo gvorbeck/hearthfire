@@ -1,5 +1,6 @@
 import { useState, useId, useCallback, useEffect } from 'react';
 import { Button, Heading, Modal, Text } from '@/components/ui';
+import { useToast } from '@/components/app';
 import { getPlaybook } from '@/lib/constants';
 import type { Character } from '@/types';
 import styles from './RemoveCharacterModal.module.css';
@@ -13,6 +14,7 @@ interface RemoveCharacterModalProps {
 
 export const RemoveCharacterModal = ({ open, character, onClose, onConfirm }: RemoveCharacterModalProps) => {
   const headingId = useId();
+  const { addToast } = useToast();
   const [removing, setRemoving] = useState(false);
 
   useEffect(() => {
@@ -27,8 +29,9 @@ export const RemoveCharacterModal = ({ open, character, onClose, onConfirm }: Re
       onClose();
     } catch {
       setRemoving(false);
+      addToast('Failed to remove character. Please try again.', 'error');
     }
-  }, [onConfirm, onClose]);
+  }, [onConfirm, onClose, addToast]);
 
   const playbookOption = character ? getPlaybook(character.playbook) : null;
   const playbookLabel = character ? `${playbookOption?.label ?? character.playbook} Playbook` : '';

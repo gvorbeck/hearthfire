@@ -198,6 +198,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
     setActiveIndex,
   );
 
+  const canAddInsert = (characterData?.inserts ?? []).length < INSERT_OPTIONS.length;
   const characterName = character.name?.trim();
   const playbookLabel = `${playbookOption.label} Playbook`;
 
@@ -286,7 +287,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
         tabs={tabs}
         activeIndex={activeIndex}
         onActiveChange={handleActiveChange}
-        onAdd={handleOpenAddTab}
+        onAdd={canAddInsert ? handleOpenAddTab : undefined}
       />
       <AddInsertModal open={addTabOpen} onClose={handleCloseAddTab} onAdd={handleAddInsert} existingInserts={characterData?.inserts ?? []} />
       <RemoveInsertModal open={removeInsert !== null} insert={removeInsert} onClose={handleCloseRemoveInsert} onConfirm={handleConfirmRemoveInsert} />
