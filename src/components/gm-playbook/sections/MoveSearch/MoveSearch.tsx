@@ -1,12 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Input, Text, PlaybookColumns } from '@/components/ui';
 import { Move } from '@/components/character/Move/Move';
-import { BASIC_MOVES } from '@/lib/basicMoves';
-import { SPECIAL_MOVES } from '@/lib/specialMoves';
-import { FOLLOWER_MOVES } from '@/lib/followerMoves';
-import { HOMEFRONT_MOVES } from '@/lib/homefrontMoves';
-import { EXPEDITION_MOVES } from '@/lib/expeditionMoves';
-import { PLAYBOOK_MOVES } from '@/lib/moves';
+import { BASIC_MOVES, SPECIAL_MOVES, FOLLOWER_MOVES, HOMEFRONT_MOVES, EXPEDITION_MOVES, PLAYBOOK_MOVES } from '@/lib/moves';
 import type { MoveDefinition } from '@/types';
 import styles from './MoveSearch.module.css';
 

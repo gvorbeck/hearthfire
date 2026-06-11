@@ -51,3 +51,10 @@ export const BACKGROUND_FORCED_CHECKLIST: Partial<Record<PlaybookType, Record<st
     antiquarian: { 'seeker-well-versed': ['sk-wv-makers'] },
   },
 };
+
+export { BASIC_MOVES } from './basic';
+export { SPECIAL_MOVES } from './special';
+export { FOLLOWER_MOVES } from './follower';
+export { EXPEDITION_MOVES } from './expedition';
+export { HOMEFRONT_MOVES } from './homefront';
+export { CUSTOM_MOVES } from './custom';

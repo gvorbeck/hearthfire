@@ -16,49 +16,6 @@
   position: absolute;
   top: 0;
   right: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-1);
-}
-
-.hpInput {
-  width: 64px;
-  height: 52px;
-  padding: var(--spacing-1);
-  background-color: var(--surface-raised);
-  border: 2px solid var(--border-strong);
-  border-radius: var(--radius-md);
-  color: var(--text-primary);
-  font-family: var(--font-sans);
-  font-size: var(--text-xl);
-  font-weight: 700;
-  text-align: center;
-  outline: none;
-  transition: border-color 0.15s ease;
-  box-sizing: border-box;
-}
-
-.hpInput::-webkit-outer-spin-button,
-.hpInput::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-}
-
-.hpInput[type='number'] {
-  -moz-appearance: textfield;
-}
-
-.hpInput:focus-visible {
-  border-color: var(--border-accent);
-  background-color: var(--surface-overlay);
-  outline: 2px solid var(--color-gold-400);
-  outline-offset: 2px;
-}
-
-.hpLabel {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
 }
 
 .stat {
@@ -81,12 +38,6 @@
   font-family: var(--font-serif);
   font-size: var(--text-sm);
   color: var(--text-secondary);
-}
-
-.loyaltyRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-3);
 }
 
 .pickInstruction {

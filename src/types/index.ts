@@ -174,22 +174,45 @@ export type PlaybookType =
   | 'seeker'
   | 'would-be-hero';
 
-// Intentionally flat: Firestore shallow-merge (updateDoc with dot-notation) requires top-level keys.
-// Per-playbook namespacing would require a data migration of all existing documents.
-export interface PlaybookFeatures {
+/** The Blessed's sacred pouch and earth mother shrine (BlessedSacredPouch.tsx, BlessedEarthMother.tsx) */
+export interface BlessedFeatures {
   sacredPouchIs?: Record<string, string>;
   sacredPouchTrait?: string;
   earthMotherShrine?: string;
   earthMotherOfferings?: Record<string, boolean>;
+}
+
+/** The Fox's tall tales (fox playbook) */
+export interface FoxFeatures {
   foxTallTales?: Record<string, boolean>;
+}
+
+/** The Heavy's violence (heavy playbook) */
+export interface HeavyFeatures {
   heavyViolence?: Record<string, boolean>;
+}
+
+/** The Judge's chronicle and lawkeeper (judge playbook) */
+export interface JudgeFeatures {
   judgeChronicle?: Record<string, boolean>;
   judgeLawkeeper?: Record<string, boolean>;
+}
+
+/** The Lightbearer's praise and invocations (lightbearer playbook, useInvocationBadge.ts) */
+export interface LightbearerFeatures {
   lightbearerPraiseTheDay?: Record<string, boolean>;
   lightbearerInvocations?: Record<string, boolean>;
   lightbearerInvocationsBadgeDismissedAt?: number;
+}
+
+/** The Marshal's war stories (marshal playbook) */
+export interface MarshalFeatures {
   marshalWarStories?: Record<string, boolean>;
   marshalWarStoriesAnswers?: Record<string, string>;
+}
+
+/** The Marshal's crew (MarshalCrew.tsx, useCrewSave.ts) */
+export interface CrewFeatures {
   crewHp?: string;
   crewArmor?: string;
   crewTags?: Record<string, boolean>;
@@ -203,8 +226,16 @@ export interface PlaybookFeatures {
   crewCustomItems?: { checked: boolean; text: string }[];
   crewSuppliesUses?: number[];
   crewIndividuals?: { name: string; tag: string; traits: string }[];
+}
+
+/** The Ranger's something wicked (ranger playbook) */
+export interface RangerFeatures {
   rangerSomethingWicked?: Record<string, boolean>;
   rangerSomethingWickedAnswers?: Record<string, string>;
+}
+
+/** The Ranger's animal companion (RangerAnimalCompanion.tsx) */
+export interface AnimalCompanionFeatures {
   animalHp?: string;
   animalArmor?: string;
   animalDamage?: string;
@@ -220,23 +251,47 @@ export interface PlaybookFeatures {
   animalCostCustom?: string;
   animalLoyalty?: number;
   animalBeastOfLegend?: Record<string, boolean>;
+}
+
+/** The Seeker's collection (seeker playbook) */
+export interface SeekerFeatures {
   seekerCollection?: Record<string, boolean>;
   seekerCollectionAnswers?: Record<string, string>;
+}
+
+/** The Would-Be Hero's fear and anger (would-be-hero playbook) */
+export interface WouldBeHeroFeatures {
   wouldBeHeroFearAnger?: Record<string, boolean>;
   wouldBeHeroFearAngerAnswers?: Record<string, string>;
+}
+
+/** The Blessed's initiates of Danu (BlessedInitiatesOfDanu.tsx) */
+export interface InitiateFeatures {
   initiateHp?: Record<string, string>;
   initiateLoyalty?: Record<string, number>;
   initiatePicks?: Record<string, Record<string, string>>;
   initiateRites?: Record<string, string>;
+}
+
+/** The Revenant insert (revenant playbook, useConsequenceCheckboxes.tsx) */
+export interface RevenantFeatures {
   revenantInstinct?: string;
   revenantPurpose?: string;
   revenantPurposeName?: Record<string, string>;
   revenantConsequences?: Record<string, boolean>;
+}
+
+/** The Ghost insert (GhostInsert.tsx, useConsequenceCheckboxes.tsx) */
+export interface GhostFeatures {
   ghostInstinct?: string;
   ghostPurpose?: string;
   ghostPurposeName?: Record<string, string>;
   ghostConsequences?: Record<string, boolean>;
   ghostPoltergeistFury?: number;
+}
+
+/** The Thrall insert (ThrallInsert.tsx) */
+export interface ThrallFeatures {
   thrallMaster?: string;
   thrallInstinct?: string;
   thrallImpulse?: string;
@@ -244,8 +299,21 @@ export interface PlaybookFeatures {
   thrallFavor?: number;
   thrallMarksGained?: Record<string, boolean>;
   thrallMarksCrossedOff?: Record<string, boolean>;
+}
+
+/** Follower list shared across playbooks (FollowersInsert.tsx) */
+export interface FollowerFeatures {
   followers?: FollowerData[];
 }
+
+// Intentionally flat: Firestore shallow-merge (updateDoc with dot-notation) requires top-level keys.
+// Per-playbook namespacing would require a data migration of all existing documents.
+export interface PlaybookFeatures
+  extends BlessedFeatures, FoxFeatures, HeavyFeatures, JudgeFeatures,
+    LightbearerFeatures, MarshalFeatures, CrewFeatures, RangerFeatures,
+    AnimalCompanionFeatures, SeekerFeatures, WouldBeHeroFeatures,
+    InitiateFeatures, RevenantFeatures, GhostFeatures, ThrallFeatures,
+    FollowerFeatures {}
 
 export interface FollowerGearItem {
   checked: boolean;

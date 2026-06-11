@@ -3,77 +3,20 @@ import clsx from 'clsx';
 import { Button, Input, Text } from '@/components/ui';
 import { PlaybookSection } from '../../PlaybookSection';
 import { Move } from '../../Move';
-import type { MoveDefinition } from '@/types';
 import { RadioSelect } from '../../sections/RadioSelect';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import { useOptimisticField } from '@/hooks/useOptimisticField';
 import { usePlaybookField } from '@/hooks/usePlaybookField';
 import { useCrewSave } from '../shared/useCrewSave';
 import { useTrackedField } from '../shared/useTrackedField';
-import type { CharacterData, PlaybookSectionProps } from '@/types';
+import type { CharacterData, MoveDefinition, PlaybookSectionProps } from '@/types';
+import { THRALL_MOVES, THRALL_MARK_DEFINITIONS } from '@/lib/moves/inserts';
 import styles from './ThrallInsert.module.css';
 
 const THRALL_INSTINCT_OPTIONS = [
   { value: 'fascination', label: 'FASCINATION', description: 'To explore your powers, your master, your new existence.' },
   { value: 'resistance', label: 'RESISTANCE', description: 'To struggle against your master and cling to your humanity.' },
   { value: 'shame', label: 'SHAME', description: 'To hide and deny your true nature.' },
-];
-
-const FAVOR_MOVE: MoveDefinition = {
-  id: 'thrall-favor',
-  name: 'Favor',
-  rightControl: [{ type: 'dot', number: 3, label: 'Favor' }],
-  body: [
-    { kind: 'para', text: 'Your Favor starts at 0 and can go no higher than 3. When you ***have 3 Favor and would gain another***, reduce your Favor to 0 and choose 1:' },
-    { kind: 'list', items: [
-      'Ask a question of your master and gain advantage on your next roll to act on the answer.',
-      "Gain a new Mark of your choice. Then ask the GM to choose a Mark that you don't have, and cross it off—you can never gain it.",
-    ] },
-  ],
-};
-
-const URGES_MOVE: MoveDefinition = {
-  id: 'thrall-urges',
-  name: 'Urges',
-  body: [
-    { kind: 'para', text: 'When ***the GM compels you to act on your impulse***, gain 1 Favor if you act as bidden. If you resist, roll +WIS: **on a 10+**, your actions are your own; **on a 7-9**, choose 1:' },
-    { kind: 'list', items: [
-      'Struggle for control until someone or something snaps you out of it',
-      'Start acting as compelled, putting yourself or an ally in a spot before you regain control',
-      'Harm yourself (d6 damage, ignores armor) to regain control',
-    ] },
-    { kind: 'para', text: 'On a 6-, you come to your senses later, having done gods-know-what.' },
-    { kind: 'para', text: 'When you ***act on your impulse without being compelled to do so***, and your actions cause you or your allies trouble, gain 1 Favor.' },
-  ],
-};
-
-const DARK_SUCCOR_MOVE: MoveDefinition = {
-  id: 'thrall-dark-succor',
-  name: 'Dark Succor',
-  body: [
-    { kind: 'para', text: "When you ***are dying or killed outright***, your master intercedes on your behalf. You will recover, here and now or at a time and place of the GM's choosing. Then, roll +Favor: **on a 10+**, choose 1; **on a 7-9**, choose 2; **on a 6-**, all 3 apply." },
-    { kind: 'list', items: [
-      "Gain a new Mark of the GM's choice",
-      "Cross off a Mark that you don't have—you can never gain it",
-      'Your master gives you a task; until you complete it, your Favor stays at 0.',
-    ] },
-    { kind: 'para', text: 'Regardless, reset your Favor to 0.' },
-  ],
-};
-
-const UNHOLY_VESSEL_MOVE: MoveDefinition = {
-  id: 'thrall-unholy-vessel',
-  name: 'Unholy Vessel',
-  body: [
-    { kind: 'para', text: "When you ***would gain a Mark but there are none left to gain***, your humanity is utterly lost. You become a threat in the GM's control. Make a new character." },
-  ],
-};
-
-const THRALL_MOVES: MoveDefinition[] = [
-  FAVOR_MOVE,
-  URGES_MOVE,
-  DARK_SUCCOR_MOVE,
-  UNHOLY_VESSEL_MOVE,
 ];
 
 const IMPULSE_OPTIONS = [
@@ -84,111 +27,6 @@ const IMPULSE_OPTIONS = [
   { value: 'impulse-harm', label: 'Inflict harm, cruelly and unnecessarily' },
   { value: 'impulse-desecrate', label: 'Desecrate/mutilate/ruin things of value' },
   { value: 'impulse-shock', label: 'Shock/terrify/horrify others' },
-];
-
-const MARK_DEFINITIONS: MoveDefinition[] = [
-  {
-    id: 'festering-rot',
-    name: 'A Festering Rot',
-    leftControl: 1,
-    body: [
-      { kind: 'para', text: 'You are unharmed by poison, disease, caustic substances, and vermin bites. Things in your presence rot, crack, corrode, and spoil.' },
-      { kind: 'para', text: 'When you *roll doubles*, something on your person is ruined. The GM will tell you what, and how.' },
-    ],
-  },
-  {
-    id: 'child-of-the-deeps',
-    name: 'Child of the Deeps',
-    leftControl: 1,
-    body: [
-      { kind: 'para', text: 'Reduce your max HP by 2.' },
-      { kind: 'para', text: 'You can breathe water and suffer no harm from cold or pressure. Your skin becomes squamous. When you *go a day without bathing*, mark a debility.' },
-      { kind: 'para', text: 'While near a body of water, you can spend 1 Favor to call forth a slimy tentacle to do your bidding. Treat it as a follower: *stealthy, relentless*; HP 6; Damage d10 (*reach, forceful, grabby*); Instinct: to squeeze the life from things; Cost: lives drowned.' },
-    ],
-  },
-  {
-    id: 'death-mask',
-    name: 'Death Mask',
-    leftControl: 1,
-    body: [
-      { kind: 'para', text: 'You find or craft a horrid mask. When you *do not wear your mask*, you have disadvantage on all rolls.' },
-      { kind: 'para', text: 'When you *wear your mask*, undead treat as one of their own.' },
-      { kind: 'para', text: 'When you *wear your mask*, you can spend 1 Favor to fill any living thing that sees you with dread. They must choose: flee, cower, or stand fast. If they stand fast, you have advantage on your first roll against them.' },
-    ],
-  },
-  {
-    id: 'quicksilver-dreams',
-    name: 'Quicksilver Dreams',
-    leftControl: 1,
-    body: [
-      { kind: 'para', text: 'Reduce your max HP by 2.' },
-      { kind: 'para', text: 'When you *Make Camp*, everyone with you suffers nightmares and has disadvantage on their next roll.' },
-      { kind: 'para', text: 'You can spend 1 Favor to inflict false sensations upon someone, as long as you can see them.' },
-    ],
-  },
-  {
-    id: 'ravenous',
-    name: 'Ravenous',
-    leftControl: 1,
-    body: [
-      { kind: 'para', text: 'You are filled with unending hunger. Gain an extra impulse: "Wantonly devour flesh."' },
-      { kind: 'para', text: 'When you *Make Camp*, consume an extra 1d4 provisions or uses of supplies.' },
-      { kind: 'para', text: 'You can spend 1 Favor to:' },
-      { kind: 'list', items: [
-        'Touch something. For as long as you hold it, everyone who sees it desires it.',
-        'Gain a horrid, iron-rending maw (*hand*, 3 piercing, *messy*) for as long as you wish, and with it the ability to eat and digest anything.',
-      ] },
-    ],
-  },
-  {
-    id: 'red-wrath',
-    name: 'Red Wrath',
-    leftControl: 1,
-    body: [
-      { kind: 'para', text: 'Reduce your max HP by 2. When *the GM compels you to violence*, you have disadvantage to resist.' },
-      { kind: 'para', text: 'When you *let your fury fly and lash out at someone* (*hand, close*), spend 1-3 Favor and roll +Favor spent: **on a 10+**, deal 2d8 damage (*messy, forceful*) and shock, terrify, or impress any onlookers; **on a 7-9**, as a 10+ but you keep attacking your victim (or their corpse) in an unthinking rage, heedless of other danger.' },
-    ],
-  },
-  {
-    id: 'shadows-cold-embrace',
-    name: "Shadow's Cold Embrace",
-    leftControl: 1,
-    body: [
-      { kind: 'para', text: 'Reduce your max HP by 2. You cast no shadow and no reflection.' },
-      { kind: 'para', text: 'When you *are exposed to sunlight or holy light*, you cannot spend Favor (for any reason).' },
-      { kind: 'para', text: 'Otherwise you can spend 1 Favor to:' },
-      { kind: 'list', items: [
-        'Remain unnoticed, even when under scrutiny or after doing something to draw attention.',
-        'Leave no trace of your comings or goings',
-        'Pass off a lie as an obvious, evident truth',
-      ] },
-    ],
-  },
-  {
-    id: 'speak-truth-whisper-secrets',
-    name: 'Speak Truth, Whisper Secrets',
-    leftControl: 1,
-    body: [
-      { kind: 'para', text: 'Reduce your max HP by 2. Your tongue grows unusually long and your teeth become stained and jagged.' },
-      { kind: 'para', text: 'You can spend 1 Favor to look someone in the eye and learn (pick 1):' },
-      { kind: 'list', items: [
-        'What do they desire above all else?',
-        'What secret shame do they bear?',
-        'What is their greatest fear?',
-        'What is their worst memory?',
-      ] },
-      { kind: 'para', text: 'When you *use the answer against them*, you have advantage.' },
-    ],
-  },
-  {
-    id: 'torments-blessing',
-    name: "Torment's Blessing",
-    leftControl: 1,
-    body: [
-      { kind: 'para', text: 'Your wounds are slow to heal. When you *recover HP*, recover only half the amount that you should. But, you never need to Defy Danger due to pain, blood loss, and weakness due to wounds.' },
-      { kind: 'para', text: 'When you *speak a word of torment*, name someone nearby, spend 1-3 Favor, and roll +Favor spent: **on a 10+**, they take 2d4 damage and are wracked with pain—lesser victims are incapacitated, and mighty foes are momentarily stunned; **on a 7-9**, they take 1d6 damage (ignores armor) and lesser victims are momentarily stunned.' },
-    ],
-  },
 ];
 
 interface MarkEntryProps {
@@ -338,7 +176,7 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
               title={move.name}
               move={move}
               defaultChecked
-              rightControlState={move.id === FAVOR_MOVE.id ? [{ checked: favor, onChange: handleFavorChange }] : undefined}
+              rightControlState={move.id === 'thrall-favor' ? [{ checked: favor, onChange: handleFavorChange }] : undefined}
             />
           ))}
         </div>
@@ -349,7 +187,7 @@ export const ThrallInsert = ({ data, onSave }: ThrallInsertProps) => {
           When you first gain this insert, the GM will choose 1 Mark for you, based on your master's nature. Gain more when a move tells you.
         </Text>
         <div className={styles.markList}>
-          {MARK_DEFINITIONS.map((mark) => (
+          {THRALL_MARK_DEFINITIONS.map((mark) => (
             <MarkEntry
               key={mark.id}
               mark={mark}

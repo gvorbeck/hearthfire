@@ -8,7 +8,8 @@ import { ANIMAL_TYPES, TypePicksSection } from './AnimalType';
 import { AnimalStats } from './AnimalStats';
 import { RadioSelect } from '../../sections/RadioSelect';
 import { BeastOfLegend } from './BeastOfLegend';
-import { Text, UseDots } from '@/components/ui';
+import { Text } from '@/components/ui';
+import { LoyaltyRow } from '../shared/CrewWidgets';
 import { useToast } from '@/components/app';
 import type { CharacterData, PlaybookSectionProps, RadioOption } from '@/types';
 import styles from './RangerAnimalCompanion.module.css';
@@ -150,10 +151,11 @@ export const RangerAnimalCompanion = ({ data, onSave }: RangerAnimalCompanionPro
   const animalTypeData = { instinct: animalType, instinctCustom: '' } as CharacterData;
 
   const loyaltyHeader = (
-    <div className={styles.loyaltyRow}>
-      <Text as="span" color="muted" className={styles.loyaltyLabel}>Loyalty</Text>
-      <UseDots total={3} checked={loyalty} onChange={handleLoyaltyChange} />
-    </div>
+    <LoyaltyRow
+      value={loyalty}
+      onChange={handleLoyaltyChange}
+      label={<Text as="span" color="muted" className={styles.loyaltyLabel}>Loyalty</Text>}
+    />
   );
 
   return (

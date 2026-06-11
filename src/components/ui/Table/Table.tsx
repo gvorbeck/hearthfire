@@ -25,13 +25,13 @@ export const Table = ({ rows, title, columnHeaders, bordered }: Props) => {
         </thead>
       )}
       <tbody>
-        {rows.map((row) =>
+        {rows.map((row, i) =>
           isGroup(row) ? (
-            <tr key={row.group} className={styles.tableGroupRow}>
+            <tr key={`group-${i}-${row.group}`} className={styles.tableGroupRow}>
               <td colSpan={2} className={styles.tableGroupCell}>{row.group}</td>
             </tr>
           ) : (
-            <tr key={`row-${row.label}`}>
+            <tr key={`row-${i}-${row.label}`}>
               <td className={row.indent ? styles.tableCellIndent : styles.tableCell}>{row.label}</td>
               <td className={styles.tableValue}>{row.value}</td>
             </tr>

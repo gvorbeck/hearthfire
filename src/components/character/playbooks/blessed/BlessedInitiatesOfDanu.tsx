@@ -3,8 +3,9 @@ import { useLatest } from '@/hooks/useLatest';
 import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
 import { useCrewSave } from '../shared/useCrewSave';
 import { useToast } from '@/components/app';
-import { Input, Radio, RadioGroup, Text, UseDots, CheckboxGroup } from '@/components/ui';
+import { Input, Radio, RadioGroup, Text, CheckboxGroup } from '@/components/ui';
 import { PlaybookSection } from '../../PlaybookSection';
+import { StatBox, LoyaltyRow } from '../shared/CrewWidgets';
 import type { PlaybookSectionProps } from '@/types';
 import styles from './BlessedInitiatesOfDanu.module.css';
 
@@ -160,20 +161,16 @@ const InitiateSection = memo(({
   return (
     <PlaybookSection title={config.name}>
       <div className={styles.bodyTop}>
-        <div className={styles.hpBox}>
-          <Input
-            className={styles.hpInput}
-            type="number"
-            value={hp}
-            min={0}
-            max={config.hpMax}
-            aria-label={`${config.name} current HP`}
-            onChange={handleHpChange}
-            onBlur={onHpBlur}
-            onWheel={handleHpWheel}
-          />
-          <span className={styles.hpLabel}>HP (max {config.hpMax})</span>
-        </div>
+        <StatBox
+          className={styles.hpBox}
+          ariaLabel={`${config.name} current HP`}
+          value={hp}
+          inputProps={{ min: 0, max: config.hpMax }}
+          onChange={handleHpChange}
+          onBlur={onHpBlur}
+          onWheel={handleHpWheel}
+          label={`HP (max ${config.hpMax})`}
+        />
         <Text font="serif" color="muted" italic className={styles.tags}>{config.tags}</Text>
         <Text font="serif" color="muted" className={styles.stat}>{`**HP** ${config.hpMax} **Armor** ${config.armor}`}</Text>
         <Text font="serif" color="muted" className={styles.stat}>{`**Damage** ${config.damage}`}</Text>
@@ -184,10 +181,11 @@ const InitiateSection = memo(({
           ))}
         </ul>
         <Text font="serif" color="muted" className={styles.stat}>{`**Cost** ${config.cost}`}</Text>
-        <div className={styles.loyaltyRow}>
-          <Text font="serif" color="muted" className={styles.stat}>**Loyalty**</Text>
-          <UseDots total={3} checked={loyalty} onChange={onLoyaltyChange} />
-        </div>
+        <LoyaltyRow
+          value={loyalty}
+          onChange={onLoyaltyChange}
+          label={<Text font="serif" color="muted" className={styles.stat}>**Loyalty**</Text>}
+        />
       </div>
       <div className={styles.rows}>
         <Text font="serif" color="muted" italic className={styles.pickInstruction}>Pick 1 on each line:</Text>
