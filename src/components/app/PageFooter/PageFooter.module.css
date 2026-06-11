@@ -10,14 +10,14 @@
   line-height: 1.8;
 }
 
-/* Make links inside the footer gold-colored. */
+/* Make links inside the footer gold-colored and always underlined for WCAG 1.4.1 (non-color affordance). */
 .footer a {
   color: var(--color-gold-300);
+  text-decoration: underline;
 }
 
-/* Underline footer links when you hover over them. */
 .footer a:hover {
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 .footer a:focus-visible {
