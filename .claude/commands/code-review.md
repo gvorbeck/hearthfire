@@ -14,7 +14,7 @@ Perform an in-depth code review of all currently modified files (staged + unstag
 
 Stack: Vite + React 18 + TypeScript (strict), React Router v6, Firebase v10 (Firestore), CSS Modules, clsx.  
 Architecture: flat `games/{id}` Firestore doc, `characters[]` nested array, full real-time sync via `onSnapshot`, no auth.  
-Design system: primitives in `src/components/primitives/` (Button, Text, Heading, Input, Stack, Icon, Modal).
+Design system: atoms in `src/components/ui/` (Button, Checkbox, Heading, Icon, Input, List, Modal, Stack, Tabs, Text, Toggle, UseDots, etc.) — always check there before flagging a missing component.
 
 ## Review Categories
 
@@ -37,6 +37,7 @@ Design system: primitives in `src/components/primitives/` (Button, Text, Heading
 - Stale closure bugs in hooks — missing or incorrect dependency arrays
 - State mutations (modifying arrays/objects directly instead of spreading/replacing)
 - Optimistic UI updates not rolled back on Firestore write failure
+- Interactive controls that write to Firestore reading their value directly from props instead of local optimistic state with a pending ref (the project pattern — see `useCharacterField`); prop-driven controls flicker when the snapshot echoes back
 
 ### Firestore Efficiency & Cost
 
@@ -51,14 +52,14 @@ Design system: primitives in `src/components/primitives/` (Button, Text, Heading
 
 ### React Performance & Fine-Tuning
 
-- Anonymous functions or object literals created inline in JSX props on components that re-render frequently (causes unnecessary re-renders of children)
+- Object literals, arrays, arrow functions, or JSX elements created inline in props passed to a `React.memo` component — a new reference every render defeats the memo. Inline expressions that produce primitives (e.g. a ternary yielding a string, number, or boolean) do NOT defeat memo and must not be flagged.
 - `useMemo` / `useCallback` added without a measurable need — premature optimization counts as a finding
 - `useMemo` / `useCallback` missing where they are clearly warranted (expensive computation or stable reference required for `React.memo` child)
 - Components doing too much — rendering, data-fetching, and business logic all in one place
-- `key` props using array indexes on reorderable or mutable lists
+- `key` props using a bare array index — never allowed, even on static lists; the key must encode a stable identifier (a real ID, or index combined with distinguishing data)
 - `useEffect` with side effects that should be event handlers instead
 - State that could be derived from props or other state (unnecessary `useState`)
-- Missing `React.memo` on pure presentational components that receive stable props
+- Missing `React.memo` on components rendered in long lists, where one item's change re-renders every sibling — do not flag memo as "missing" on components that render once or rarely
 
 ### Architecture & Separation of Responsibilities
 
@@ -77,6 +78,8 @@ Design system: primitives in `src/components/primitives/` (Button, Text, Heading
 
 ### Naming & Readability
 
+- Nested or chained ternaries inline in a JSX prop — hoist to a named `const`. A single, simple ternary inline in a prop is fine and must not be flagged; do not enforce a "variables only in props" style.
+- Hoisted variables that merely restate a trivial expression (`const isSelected = selected`) — inline it instead; a name must add meaning the expression lacks
 - Variables, functions, components, or files that don't clearly describe their intent
 - Unnecessary abbreviations that reduce clarity
 - Boolean variables or props not prefixed with `is`, `has`, `can`, `should`
@@ -105,19 +108,13 @@ Design system: primitives in `src/components/primitives/` (Button, Text, Heading
 
 ### SEO & Web Performance
 
-- `<title>` and `<meta name="description">` not updated per route — every page shares the same static head
-- Open Graph tags (`og:title`, `og:description`, `og:image`, `og:url`) missing or incomplete
-- `<meta name="twitter:card">` and related tags absent
-- No canonical `<link rel="canonical">` on routes that could be reached via multiple URLs
-- Images missing `alt` text, `width`, and `height` attributes — causes layout shift and skips crawler context
-- Images not lazy-loaded (`loading="lazy"`) when below the fold
-- No `robots.txt` in `public/` — crawlers have no explicit crawl directives
-- No `sitemap.xml` — discoverable routes not registered for indexing
-- Web fonts loaded without `font-display: swap` — invisible text during font load hurts Core Web Vitals
-- No `<link rel="preconnect">` or `<link rel="dns-prefetch">` for third-party origins (Firebase, Google Fonts)
-- Route-level code splitting absent — entire bundle shipped on first load instead of splitting by page
-- Large JS chunks not deferred or dynamically imported where the feature is not needed on initial paint
-- Structured data (JSON-LD) absent where page content is well-defined enough to warrant it (e.g., application landing page)
+**Only check this category when the diff touches relevant code** (head/meta tags, images, fonts, routes, bundle entry points). Never report repo-wide gaps (missing robots.txt, sitemap, code splitting) in a diff review — those are not introduced by this change.
+
+- `<title>` / `<meta name="description">` / Open Graph tags broken or omitted by a change to routes or page head
+- Images added without `width` and `height` attributes — causes layout shift
+- Images added below the fold without `loading="lazy"`
+- New web fonts loaded without `font-display: swap`
+- New routes added eagerly when sibling routes are lazy-loaded
 
 ### Code Quality & Leanness
 
@@ -128,31 +125,44 @@ Design system: primitives in `src/components/primitives/` (Button, Text, Heading
 - Backwards-compatibility shims, re-exports, or renamed `_unused` variables for removed code — delete cleanly
 - Features, fallbacks, or flags not required by the current task
 
+## Confidence Bar
+
+Only report findings you would defend in person. If you are not sure a finding is real, read the surrounding code to confirm — if still unsure, drop it. A short review of real problems beats a long review padded with maybes.
+
 ## Output Format
 
-No emojis. Very simple and concise language throughout — write as if explaining to a five year old, not a senior engineer who needs technical depth.
+No emojis. The reader wants to scan this in under a minute.
 
-Group findings by file, then by severity:
+Write dead simple, not technical. Every finding must pass this test: someone who has never programmed could read it and know what goes wrong for the person using the app. Use everyday words ("the page freezes", "the user's typing gets erased", "screen-reader users can't find this button"). Technical terms are allowed only in the Fix, and only the minimum needed to act (a hook name, a prop name). Simple never means longer — if plain words push past one line, cut detail, not clarity.
 
-**[Bug / Security]** — must fix before merge  
-**[Standards Violation]** — should fix  
-**[Suggestion]** — worth considering
+Example of the level wanted:
+- Bad: "Unstable lambda reference in onChange prop invalidates memoization of child component."
+- Good: "This list redraws every item on every keystroke, so typing feels slow. Fix: wrap `handleChange` in `useCallback`."
 
-Number each finding sequentially across all files (1, 2, 3, ...) so findings can be referenced by number.
-
-For each finding:
+Start with the verdict — one line:
 
 ```
-N. [SEVERITY] file-path:line — what the problem is, in very simple language (one sentence, no jargon)
-   Fix: what to do instead (one sentence, concrete and specific)
+Verdict: Ready | Needs Work | Major Issues — N must-fix, N should-fix, N suggestions
 ```
 
-Rules for writing findings:
+Then findings grouped by severity (worst first), numbered sequentially. **One line each:**
 
-- Lead with what the problem _does wrong_, not what pattern it violates
-- No acronyms or framework jargon unless unavoidable — if you must use a term like `useEffect`, briefly say what it does
-- No passive voice ("this could cause" → "this will cause")
-- No academic phrasing ("it is worth noting", "one may observe")
-- Keep each finding to two sentences total
+```
+### Must fix
+1. `file-path:line` — what breaks, in plain words. Fix: the concrete change.
 
-End with a summary: total findings by severity, and an overall assessment (Ready / Needs Work / Major Issues).
+### Should fix
+2. ...
+
+### Suggestions
+3. ...
+```
+
+Hard rules:
+
+- One line per finding: what's wrong + the fix. No elaboration, no second paragraph.
+- At most 5 suggestions — pick the most valuable, silently drop the rest.
+- Skip empty severity groups entirely.
+- Never list categories checked, never write "no issues found in X", no preamble, no closing commentary after the last finding.
+- Lead with what the problem does ("this loses the user's edit"), not what rule it breaks ("violates the optimistic-state pattern").
+- Active voice only ("this will cause", not "this could potentially cause").
