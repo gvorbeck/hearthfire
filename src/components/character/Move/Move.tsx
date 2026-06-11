@@ -91,7 +91,9 @@ const MoveSelectGroup = ({
       aria-label={`Select ${moveName}`}
       checked={selected}
       onChange={(e) => onSelectChange(e.target.checked)}
-      disabled={readOnly || locked}
+      // A locked move that is already selected stays clickable so the player can deselect it; only
+      // locked *unselected* moves are blocked. readOnly (forced/granted) is always locked.
+      disabled={readOnly || (locked && !selected)}
     />
     {Array.from({ length: takeCount }, (_, i) => (
       <Checkbox
@@ -300,7 +302,8 @@ export const Move = ({
               onChange={(e) => selection.onSelectChange(e.target.checked)}
               label={nameEl}
               className={styles.moveCheckbox}
-              disabled={readOnly || locked}
+              // Same as MoveSelectGroup: keep an already-selected locked move deselectable.
+              disabled={readOnly || (locked && !selected)}
             />
           )
         ) : (

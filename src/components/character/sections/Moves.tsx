@@ -123,8 +123,12 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
     if (forcedMoveIdsRef.current.has(id)) return;
     const move = typeMovesRef.current.find((m) => m.id === id);
     if (!move) return;
-    const lockReasons = getLockReason(move, typeMovesRef.current, levelRef.current, effectiveSelectedRef.current);
-    if (lockReasons.length > 0) return;
+    // Block only *selecting* a locked move; always allow deselecting so a player can back out of a
+    // move that became locked after the fact (e.g. a prerequisite was later unchecked).
+    if (value) {
+      const lockReasons = getLockReason(move, typeMovesRef.current, levelRef.current, effectiveSelectedRef.current);
+      if (lockReasons.length > 0) return;
+    }
     saveSelected({ ...selectedRef.current, [id]: value });
   }, [saveSelected]);
 
