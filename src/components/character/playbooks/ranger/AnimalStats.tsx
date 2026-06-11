@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { Input, Text } from '@/components/ui';
 import { PlaybookSection } from '../../PlaybookSection';
+import { StatBox } from '../shared/CrewWidgets';
 import styles from './RangerAnimalCompanion.module.css';
 
 interface AnimalStatsProps {
@@ -49,44 +50,33 @@ export const AnimalStats = ({
       </Text>
       <div className={styles.headerRow}>
         <div className={styles.statsRow}>
-          <div className={styles.infoBox}>
-            <Input
-              className={styles.infoInput}
-              type="number"
-              value={hp}
-              min={0}
-              aria-label="Animal Companion HP"
-              onChange={onHpChange}
-              onBlur={onHpBlur}
-              onWheel={handleWheel}
-            />
-            <Text as="span" size="xs" color="muted" className={styles.infoLabel}>HP <span className={styles.statNote}>Max [{selectedTypeHp ?? ' '}]</span></Text>
-          </div>
-          <div className={styles.infoBox}>
-            <Input
-              className={styles.infoInput}
-              type="number"
-              value={armor}
-              min={0}
-              aria-label="Animal Companion armor"
-              onChange={onArmorChange}
-              onBlur={onArmorBlur}
-              onWheel={handleWheel}
-            />
-            <Text as="span" size="xs" color="muted" className={styles.infoLabel}>Armor <span className={styles.statNote}>See Type</span></Text>
-          </div>
-          <div className={styles.infoBox}>
-            <Input
-              className={styles.infoInput}
-              type="text"
-              value={damage}
-              placeholder="—"
-              aria-label="Animal Companion damage"
-              onChange={onDamageChange}
-              onBlur={onDamageBlur}
-            />
-            <Text as="span" size="xs" color="muted" className={styles.infoLabel}>Damage <span className={styles.statNote}>See Type</span></Text>
-          </div>
+          <StatBox
+            ariaLabel="Animal Companion HP"
+            value={hp}
+            inputProps={{ min: 0 }}
+            onChange={onHpChange}
+            onBlur={onHpBlur}
+            onWheel={handleWheel}
+            label={<>HP <Text as="span" size="xs" color="muted" italic>Max [{selectedTypeHp ?? ' '}]</Text></>}
+          />
+          <StatBox
+            ariaLabel="Animal Companion armor"
+            value={armor}
+            inputProps={{ min: 0 }}
+            onChange={onArmorChange}
+            onBlur={onArmorBlur}
+            onWheel={handleWheel}
+            label={<>Armor <Text as="span" size="xs" color="muted" italic>See Type</Text></>}
+          />
+          <StatBox
+            ariaLabel="Animal Companion damage"
+            value={damage}
+            inputType="text"
+            inputProps={{ placeholder: '—' }}
+            onChange={onDamageChange}
+            onBlur={onDamageBlur}
+            label={<>Damage <Text as="span" size="xs" color="muted" italic>See Type</Text></>}
+          />
         </div>
         <div className={styles.nameBlock}>
           <Input

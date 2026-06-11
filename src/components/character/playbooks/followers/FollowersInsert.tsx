@@ -9,19 +9,19 @@ import {
   Modal,
   Text,
   Tooltip,
-  UseDots,
 } from "@/components/ui";
+
 import { useToast } from "@/components/app";
 import { PlaybookSection } from "../../PlaybookSection";
 import { resolvePlaybookFeatures } from "@/lib/resolvePlaybookFeatures";
 import { useCrewSave } from "../shared/useCrewSave";
+import { StatBox, LoyaltyRow, CustomItemsGrid } from "../shared/CrewWidgets";
 import type { FollowerData, FollowerGearItem, PlaybookSectionProps } from "@/types";
 import styles from "./FollowersInsert.module.css";
 
 const GEAR_SINGLE_COUNT = 3;
 const GEAR_DOUBLE_COUNT = 3;
 const MOVES_COUNT = 3;
-const LOYALTY_MAX = 3;
 
 const emptyGear = (): FollowerGearItem[] => [
   ...Array.from({ length: GEAR_SINGLE_COUNT }, () => ({
@@ -62,61 +62,6 @@ const normalizeFollower = (
 
 const generateId = () => crypto.randomUUID();
 
-interface GearRowProps {
-  followerIndex: number;
-  gearIndex: number;
-  weight: 1 | 2;
-  checked: boolean;
-  text: string;
-  onCheckedChange: (fi: number, gi: number, checked: boolean) => void;
-  onTextChange: (fi: number, gi: number, text: string) => void;
-  onBlur: () => void;
-}
-
-const GearRow = memo(
-  ({
-    followerIndex,
-    gearIndex,
-    weight,
-    checked,
-    text,
-    onCheckedChange,
-    onTextChange,
-    onBlur,
-  }: GearRowProps) => {
-    const handleChecked = useCallback(
-      (e: React.ChangeEvent<HTMLInputElement>) =>
-        onCheckedChange(followerIndex, gearIndex, e.target.checked),
-      [followerIndex, gearIndex, onCheckedChange],
-    );
-    const handleText = useCallback(
-      (e: React.ChangeEvent<HTMLInputElement>) =>
-        onTextChange(followerIndex, gearIndex, e.target.value),
-      [followerIndex, gearIndex, onTextChange],
-    );
-    const label = weight === 2 ? "double-weight gear item" : "gear item";
-    return (
-      <div className={styles.gearRow}>
-        <Checkbox
-          variant="provision"
-          weight={weight}
-          checked={checked}
-          onChange={handleChecked}
-          aria-label={`Follower ${followerIndex + 1} ${label} ${gearIndex + 1} equipped`}
-        />
-        <Input
-          className={styles.gearInput}
-          type="text"
-          value={text}
-          placeholder="Item…"
-          aria-label={`Follower ${followerIndex + 1} ${label} ${gearIndex + 1} name`}
-          onChange={handleText}
-          onBlur={onBlur}
-        />
-      </div>
-    );
-  },
-);
 
 interface MoveRowProps {
   followerIndex: number;
@@ -235,6 +180,14 @@ const FollowerCard = memo(
       (n: number) => onLoyaltyChange(index, n),
       [index, onLoyaltyChange],
     );
+    const handleGearChecked = useCallback(
+      (flatIndex: number, checked: boolean) => onGearCheckedChange(index, flatIndex, checked),
+      [index, onGearCheckedChange],
+    );
+    const handleGearText = useCallback(
+      (flatIndex: number, text: string) => onGearTextChange(index, flatIndex, text),
+      [index, onGearTextChange],
+    );
     const handleWheel = useCallback(
       (e: React.WheelEvent<HTMLInputElement>) => e.currentTarget.blur(),
       [],
@@ -342,80 +295,55 @@ const FollowerCard = memo(
         </div>
 
         <div className={styles.statsRow}>
-          <div className={styles.statBox}>
-            <Input
-              className={styles.statInput}
-              type="number"
-              value={follower.hp ?? ""}
-              min={0}
-              aria-label={`Follower ${index + 1} current HP`}
-              onChange={handleHp}
-              onBlur={onBlur}
-              onWheel={handleWheel}
-            />
-            <span className={styles.statLabel}>
+          <StatBox
+            compact
+            ariaLabel={`Follower ${index + 1} current HP`}
+            value={follower.hp ?? ""}
+            inputType="number"
+            inputProps={{ min: 0 }}
+            onChange={handleHp}
+            onBlur={onBlur}
+            onWheel={handleWheel}
+            label={
               <Text as="span" size="xs" color="muted">
                 HP
               </Text>
-              <span className={styles.statMaxRow}>
-                <Text
-                  as="span"
-                  size="xs"
-                  color="muted"
-                  italic
-                  className={styles.statNote}
-                >
-                  Max
-                </Text>
-                <Input
-                  className={styles.maxHpInput}
-                  type="number"
-                  value={follower.maxHp ?? ""}
-                  min={0}
-                  aria-label={`Follower ${index + 1} max HP`}
-                  onChange={handleMaxHp}
-                  onBlur={onBlur}
-                  onWheel={handleWheel}
-                />
-              </span>
-            </span>
-          </div>
-          <div className={styles.statBox}>
-            <Input
-              className={styles.statInput}
-              type="text"
-              value={follower.armor ?? ""}
-              aria-label={`Follower ${index + 1} armor`}
-              onChange={handleArmor}
-              onBlur={onBlur}
-            />
-            <Text
-              as="span"
-              size="xs"
-              color="muted"
-              className={styles.statLabel}
-            >
-              Armor
+            }
+          >
+            <Text as="span" className={styles.statMaxRow}>
+              <Text as="span" size="xs" color="muted" italic className={styles.statNote}>
+                Max
+              </Text>
+              <Input
+                className={styles.maxHpInput}
+                type="number"
+                value={follower.maxHp ?? ""}
+                min={0}
+                aria-label={`Follower ${index + 1} max HP`}
+                onChange={handleMaxHp}
+                onBlur={onBlur}
+                onWheel={handleWheel}
+              />
             </Text>
-          </div>
-          <div className={styles.statBox}>
-            <Input
-              className={styles.statInput}
-              type="text"
-              value={follower.damage ?? ""}
-              aria-label={`Follower ${index + 1} damage`}
-              onChange={handleDamage}
-              onBlur={onBlur}
-            />
-            <Text
-              as="span"
-              size="xs"
-              color="muted"
-              className={styles.statLabel}
-            >
-              Damage
-            </Text>
-          </div>
+          </StatBox>
+          <StatBox
+            compact
+            ariaLabel={`Follower ${index + 1} armor`}
+            value={follower.armor ?? ""}
+            inputType="text"
+            onChange={handleArmor}
+            onBlur={onBlur}
+            label={<Text as="span" size="xs" color="muted">Armor</Text>}
+          />
+          <StatBox
+            compact
+            ariaLabel={`Follower ${index + 1} damage`}
+            value={follower.damage ?? ""}
+            inputType="text"
+            onChange={handleDamage}
+            onBlur={onBlur}
+            label={<Text as="span" size="xs" color="muted">Damage</Text>}
+          />
         </div>
 
         <div className={styles.fieldRow}>
@@ -471,59 +399,26 @@ const FollowerCard = memo(
               onBlur={onBlur}
             />
           </div>
-          <div className={styles.loyaltyRow}>
-            <Text
-              as="span"
-              size="xs"
-              color="muted"
-              className={loyaltyLabelCx}
-            >
-              Loyalty
-            </Text>
-            <UseDots
-              total={LOYALTY_MAX}
-              checked={follower.loyalty ?? 0}
-              onChange={handleLoyalty}
-            />
-          </div>
+          <LoyaltyRow
+            value={follower.loyalty ?? 0}
+            onChange={handleLoyalty}
+            label={<Text as="span" size="xs" color="muted" className={loyaltyLabelCx}>Loyalty</Text>}
+          />
         </div>
 
         <div className={styles.gearSection}>
           <Text as="span" size="xs" color="muted" className={styles.fieldLabel}>
             Gear
           </Text>
-          <div className={styles.gearColumns}>
-            <div className={styles.gearCol}>
-              {singleGear.map((item, gi) => (
-                <GearRow
-                  key={`gear-single-${follower.id}-${gi}`}
-                  followerIndex={index}
-                  gearIndex={gi}
-                  weight={1}
-                  checked={item.checked}
-                  text={item.text}
-                  onCheckedChange={onGearCheckedChange}
-                  onTextChange={onGearTextChange}
-                  onBlur={onBlur}
-                />
-              ))}
-            </div>
-            <div className={styles.gearCol}>
-              {doubleGear.map((item, gi) => (
-                <GearRow
-                  key={`gear-double-${follower.id}-${gi}`}
-                  followerIndex={index}
-                  gearIndex={GEAR_SINGLE_COUNT + gi}
-                  weight={2}
-                  checked={item.checked}
-                  text={item.text}
-                  onCheckedChange={onGearCheckedChange}
-                  onTextChange={onGearTextChange}
-                  onBlur={onBlur}
-                />
-              ))}
-            </div>
-          </div>
+          <CustomItemsGrid
+            singleItems={singleGear}
+            doubleItems={doubleGear}
+            doubleOffset={GEAR_SINGLE_COUNT}
+            onCheckedChange={handleGearChecked}
+            onTextChange={handleGearText}
+            onBlur={onBlur}
+            ariaPrefix={`Follower ${index + 1}`}
+          />
         </div>
 
         <div className={styles.fieldRow}>

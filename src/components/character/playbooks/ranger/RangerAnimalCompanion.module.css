@@ -4,12 +4,6 @@
   gap: var(--spacing-6);
 }
 
-.statNote {
-  font-size: var(--text-xs);
-  color: var(--text-secondary);
-  font-style: italic;
-}
-
 .headerRow {
   display: flex;
   flex-wrap: wrap;
@@ -24,58 +18,6 @@
   flex-shrink: 0;
 }
 
-.infoBox {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-1);
-  flex-shrink: 0;
-  width: 72px;
-}
-
-.infoInput {
-  width: 72px;
-  min-width: 72px;
-  max-width: 72px;
-  height: 56px;
-  padding: var(--spacing-2);
-  background-color: var(--surface-raised);
-  border: 2px solid var(--border-strong);
-  border-radius: var(--radius-md);
-  color: var(--text-primary);
-  font-family: var(--font-sans);
-  font-size: var(--text-xl);
-  font-weight: 700;
-  text-align: center;
-  outline: none;
-  transition: border-color 0.15s ease;
-  box-sizing: border-box;
-}
-
-.infoInput::-webkit-outer-spin-button,
-.infoInput::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-}
-
-.infoInput[type="number"] {
-  -moz-appearance: textfield;
-}
-
-.infoInput:focus-visible {
-  border-color: var(--border-accent);
-  background-color: var(--surface-overlay);
-  outline: 2px solid var(--color-gold-400);
-  outline-offset: 2px;
-}
-
-.infoLabel {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  text-align: center;
-  word-break: break-word;
-  text-wrap: balance;
-}
 
 .nameBlock {
   display: flex;
@@ -133,13 +75,6 @@
   .columns {
     grid-template-columns: 1fr 1fr;
   }
-}
-
-.loyaltyRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-3);
-  margin-bottom: var(--spacing-2);
 }
 
 .loyaltyLabel {
