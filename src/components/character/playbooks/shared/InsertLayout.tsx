@@ -116,7 +116,7 @@ export const InsertLayout = ({
         </Text>
         <div className={styles.moveList}>
           {moves.map((move) => (
-            <Move key={move.id} move={move} />
+            <Move key={move.id} title={move.name} move={move} />
           ))}
         </div>
       </PlaybookSection>

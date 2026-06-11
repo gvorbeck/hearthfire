@@ -9,13 +9,14 @@ import styles from './GhostInsert.module.css';
 const POLTERGEIST_MOVE: MoveDefinition = {
   id: 'ghost-poltergeist-fury',
   name: 'Poltergeist — Fury',
-  uses: 4,
-  usesLabel: 'Fury',
-  body: 'Spend Fury, 1-for-1, to:',
-  list: [
-    'Shatter, break, or destroy a number of small mundane objects, or one big object.',
-    'Hurl an object at someone and roll +DEX: **on a 10+**, deal your damage (*forceful*); **on a 7-9**, deal your damage (*forceful*) but lose 1d4 HP.',
-    'Attack someone with telekinetic force and roll +INT: **on a 10+**, fling them to a place you can see and pin them there, spending 1 HP each time they make a committed effort to break free; **on a 7-9**, as 10+, but you also lose 1d4 HP.',
+  rightControl: [{ type: 'dot', number: 4, label: 'Fury' }],
+  body: [
+    { kind: 'para', text: 'Spend Fury, 1-for-1, to:' },
+    { kind: 'list', items: [
+      'Shatter, break, or destroy a number of small mundane objects, or one big object.',
+      'Hurl an object at someone and roll +DEX: **on a 10+**, deal your damage (*forceful*); **on a 7-9**, deal your damage (*forceful*) but lose 1d4 HP.',
+      'Attack someone with telekinetic force and roll +INT: **on a 10+**, fling them to a place you can see and pin them there, spending 1 HP each time they make a committed effort to break free; **on a 7-9**, as 10+, but you also lose 1d4 HP.',
+    ] },
   ],
 };
 
@@ -23,28 +24,30 @@ const GHOST_MOVES: MoveDefinition[] = [
   {
     id: 'ghost-unliving',
     name: 'Unliving',
-    body: 'You do not breathe. You need not eat nor drink nor sleep. You do not heal normally. You gain no benefit from magical healing, Make Camp, Recover or Convalesce.',
+    body: [
+      { kind: 'para', text: 'You do not breathe. You need not eat nor drink nor sleep. You do not heal normally. You gain no benefit from magical healing, Make Camp, Recover or Convalesce.' },
+    ],
   },
   {
     id: 'ghost-disembodied',
     name: 'Disembodied',
     body: [
-      'Your body is dead and gone, but you persist as a spirit. You can be harmed only by silver, salt, or that which harms spirits or ghosts.',
-      'You normally go unseen, with the barest influence on the material world and a dim, distorted sense of reality. When you *manifest a ghostly presence in shadows or darkness*, the world becomes clear and pick 1. For each additional option you pick, lose 1d4 HP:',
-      'You remain manifest for as long as you concentrate; pain or shock or direct sunlight threaten your concentration, for sure.',
-    ],
-    list: [
-      'You appear solid and whole, much as you did in life',
-      'You can speak clearly and intelligibly',
-      'Your touch (or ghostly weapons) can harm the living (ignores armor)',
+      { kind: 'para', text: 'Your body is dead and gone, but you persist as a spirit. You can be harmed only by silver, salt, or that which harms spirits or ghosts.' },
+      { kind: 'para', text: 'You normally go unseen, with the barest influence on the material world and a dim, distorted sense of reality. When you *manifest a ghostly presence in shadows or darkness*, the world becomes clear and pick 1. For each additional option you pick, lose 1d4 HP:' },
+      { kind: 'para', text: 'You remain manifest for as long as you concentrate; pain or shock or direct sunlight threaten your concentration, for sure.' },
+      { kind: 'list', items: [
+        'You appear solid and whole, much as you did in life',
+        'You can speak clearly and intelligibly',
+        'Your touch (or ghostly weapons) can harm the living (ignores armor)',
+      ] },
     ],
   },
   {
     id: 'ghost-tethered',
     name: 'Tethered',
     body: [
-      'Choose something to which you are bound: your mortal remains, the place where you died, an object of personal significance, etc.',
-      'When you *are reduced to 0 HP*, mark a consequence and your essence disperses until the next sunset. You reform near your tether with half your max HP. If your tether has been destroyed, mark the Final Consequence.',
+      { kind: 'para', text: 'Choose something to which you are bound: your mortal remains, the place where you died, an object of personal significance, etc.' },
+      { kind: 'para', text: 'When you *are reduced to 0 HP*, mark a consequence and your essence disperses until the next sunset. You reform near your tether with half your max HP. If your tether has been destroyed, mark the Final Consequence.' },
     ],
   },
 ];
@@ -117,8 +120,10 @@ export const GhostInsert = ({ data, onSave }: GhostInsertProps) => {
     return (
       <div className={styles.furySection}>
         <Move
+          title={POLTERGEIST_MOVE.name}
           move={POLTERGEIST_MOVE}
-          uses={{ checked: furyChecked, onChange: saveFury }}
+          defaultChecked
+          rightControlState={[{ checked: furyChecked, onChange: saveFury }]}
         />
       </div>
     );

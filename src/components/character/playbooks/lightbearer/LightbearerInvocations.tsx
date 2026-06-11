@@ -18,12 +18,16 @@ interface InvocationMoveProps {
   onChange: (id: string, val: boolean) => void;
 }
 
+// Invocations have a single select box (leftControl 1, no take boxes), so onTakesChange is never invoked.
+const noop = () => {};
+
 const InvocationMove = memo(({ inv, isChecked, onChange }: InvocationMoveProps) => {
   const handleChange = useCallback((val: boolean) => onChange(inv.id, val), [inv.id, onChange]);
   return (
     <Move
+      title={inv.name}
       move={inv}
-      selection={{ selected: isChecked, onChange: handleChange }}
+      selection={{ selected: isChecked, onSelectChange: handleChange, takesChecked: 0, onTakesChange: noop }}
     />
   );
 });

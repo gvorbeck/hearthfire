@@ -16,17 +16,19 @@ import { getPlaybook } from '@/lib/constants';
 import type { PlaybookType, PlaybookSectionProps } from '@/types';
 import styles from './Moves.module.css';
 
+// Returns the fully-formed, still-unmet lock reasons for a move (empty array = unlocked). Either a
+// single "Conflicts with …" reason, or a single "Requires …" reason listing the unmet prerequisites.
 const getLockReason = (
   move: MoveDefinition,
   typeMoves: MoveDefinition[],
   level: number,
   selected: Record<string, boolean>,
-): string | undefined => {
+): string[] => {
   if (level <= 1 && move.excludes !== undefined) {
     for (const exId of move.excludes) {
       const exMove = typeMoves.find((m) => m.id === exId);
       if (exMove && selected[exId]) {
-        return `Conflicts with ${exMove.name}`;
+        return [`Conflicts with ${exMove.name}`];
       }
     }
   }
@@ -42,8 +44,8 @@ const getLockReason = (
       }
     }
   }
-  if (parts.length === 0) return undefined;
-  return `Requires ${parts.join(' and ')}`;
+  if (parts.length === 0) return [];
+  return [`Requires ${parts.join(' and ')}`];
 };
 
 
@@ -69,7 +71,7 @@ const MoveSection = ({ label, helperText, moves, emptyText }: MoveSectionProps) 
     {moves.length > 0 ? (
       <div className={styles.moveGrid}>
         {moves.map((move) => (
-          <Move key={move.id} move={move} />
+          <Move key={move.id} title={move.name} move={move} />
         ))}
       </div>
     ) : (
@@ -121,8 +123,8 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
     if (forcedMoveIdsRef.current.has(id)) return;
     const move = typeMovesRef.current.find((m) => m.id === id);
     if (!move) return;
-    const lockReason = getLockReason(move, typeMovesRef.current, levelRef.current, effectiveSelectedRef.current);
-    if (lockReason) return;
+    const lockReasons = getLockReason(move, typeMovesRef.current, levelRef.current, effectiveSelectedRef.current);
+    if (lockReasons.length > 0) return;
     saveSelected({ ...selectedRef.current, [id]: value });
   }, [saveSelected]);
 
@@ -195,32 +197,45 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
   );
 
   const moveNodes = useMemo(() => visibleTypeMoves.map(({ move, isDisabled, isForced }) => {
-    const lockReason = isForced
-      ? 'Required by your background'
+    const requirement = isForced
+      ? ['Required by your background']
       : (!isDisabled ? getLockReason(move, typeMoves, level, effectiveSelected) : undefined);
+    // One pass over the body to find whichever interactive block this move carries (at most one).
+    let hasCheckbox = false;
+    let hasTracked = false;
+    for (const block of move.body ?? []) {
+      if (block.kind === 'checkbox') hasCheckbox = true;
+      else if (block.kind === 'tracked') hasTracked = true;
+    }
+    // Index 0 → typeMoveUses, index 1 → typeMoveUses2; sliced to the controls this move declares.
+    const rightControlState = move.rightControl?.map((_, i) =>
+      i === 0
+        ? { checked: uses[move.id] ?? 0, onChange: boundHandlers.usesMap[move.id] }
+        : { checked: uses2[move.id] ?? 0, onChange: boundHandlers.uses2Map[move.id] }
+    );
     return (
       <Move
         key={move.id}
+        title={move.name}
         move={move}
+        requirement={requirement}
         selection={{
           selected: isDisabled ? true : (selected[move.id] ?? false),
-          onChange: boundHandlers.select[move.id],
+          onSelectChange: boundHandlers.select[move.id],
           readOnly: isDisabled,
-          lockReason,
-          takes: move.takes !== undefined ? { checked: takes[move.id] ?? 0, onChange: boundHandlers.takesMap[move.id] } : undefined,
+          takesChecked: takes[move.id] ?? 0,
+          onTakesChange: boundHandlers.takesMap[move.id],
         }}
-        uses={move.uses !== undefined ? { checked: uses[move.id] ?? 0, onChange: boundHandlers.usesMap[move.id] } : undefined}
-        usesAlt={move.usesAlt !== undefined ? { checked: uses2[move.id] ?? 0, onChange: boundHandlers.uses2Map[move.id] } : undefined}
-        checkList={
-          move.checkList !== undefined
-            ? move.checkListLeveled
-              ? { mode: 'leveled', levels: checkListLevels[move.id] ?? {}, forcedIds: forcedCheckList[move.id], onChange: boundHandlers.checkListLevelMap[move.id], currentLevel: level }
-              : { mode: 'boolean', checked: checkLists[move.id] ?? {}, forcedIds: forcedCheckList[move.id], onChange: boundHandlers.checkListMap[move.id] }
-            : undefined
-        }
+        rightControlState={rightControlState}
+        bodyCheck={hasCheckbox
+          ? { checked: checkLists[move.id] ?? {}, forcedIds: forcedCheckList[move.id], onChange: boundHandlers.checkListMap[move.id] }
+          : undefined}
+        bodyLevel={hasTracked
+          ? { levels: checkListLevels[move.id] ?? {}, forcedIds: forcedCheckList[move.id], onChange: boundHandlers.checkListLevelMap[move.id], currentLevel: level }
+          : undefined}
       />
     );
-  }), [visibleTypeMoves, typeMoves, level, selected, takes, uses, uses2, checkListLevels, checkLists, forcedCheckList, boundHandlers]);
+  }), [visibleTypeMoves, typeMoves, level, selected, takes, uses, uses2, checkListLevels, checkLists, forcedCheckList, boundHandlers, effectiveSelected]);
 
   return (
     <PlaybookSection title="Moves">

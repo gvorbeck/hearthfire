@@ -1,236 +1,370 @@
 import clsx from 'clsx';
-import { Fragment } from 'react';
-import type { ReactNode, ChangeEvent } from 'react';
-import { Checkbox, CheckboxGroup, Divider, Icon, List, Text, UseDots } from '@/components/ui';
-import type { IconName } from '@/components/ui';
-import type { MoveDefinition } from '@/types';
+import type { ReactNode } from 'react';
+import {
+  Checkbox,
+  CheckboxGroup,
+  Divider,
+  Icon,
+  List,
+  Text,
+  UseDots,
+} from '@/components/ui';
+import type { MoveBlock, MoveDefinition, RightControlSpec } from '@/types';
 import styles from './Move.module.css';
 
-interface SelectionProps {
+// Persistent left-control state: box 0 selects/gates the move, boxes 1..n track times taken.
+interface LeftControlState {
   selected: boolean;
-  onChange: (checked: boolean) => void;
-  // readOnly: selection is pre-determined (starting move / background grant) — checkbox is visible but
-  // unclickable. Distinct from lockReason, which blocks selection due to a constraint the user could resolve.
+  onSelectChange: (checked: boolean) => void;
+  // Bitmask, mirroring the legacy typeMoveTakes store: bit i = take box i+1.
+  takesChecked: number;
+  onTakesChange: (next: number) => void;
+  // readOnly: box 0 is pre-checked and unclickable (starting / background-granted move).
   readOnly?: boolean;
-  lockReason?: string;
-  takes?: CounterProps;
 }
 
-interface CounterProps {
+// One persistent right-control slot. `checked` is a dot count, or 1/0 for a single checkbox.
+interface RightControlState {
   checked: number;
-  onChange: (count: number) => void;
+  onChange: (next: number) => void;
 }
 
-type CheckListProps =
-  | { mode: 'boolean'; checked: Record<string, boolean>; forcedIds?: string[]; onChange: (id: string, checked: boolean) => void; }
-  | { mode: 'leveled'; levels: Record<string, number>; forcedIds?: string[]; onChange: (id: string, level: number | null) => void; currentLevel: number; };
+// Persistent state for a `checkbox` body block (boolean checklist).
+interface BodyCheckState {
+  checked: Record<string, boolean>;
+  onChange: (itemId: string, checked: boolean) => void;
+  forcedIds?: string[];
+}
+
+// Persistent state for a `tracked` body block (per-level checklist).
+interface BodyLevelState {
+  levels: Record<string, number>;
+  onChange: (itemId: string, level: number | null) => void;
+  currentLevel: number;
+  forcedIds?: string[];
+}
 
 interface MoveProps {
+  title: string;
   move: MoveDefinition;
-  selection?: SelectionProps;
-  uses?: CounterProps;
-  usesAlt?: CounterProps;
-  checkList?: CheckListProps;
+  // Number of left boxes incl. the select box. Defaults to move.leftControl, then 1 when selection
+  // is supplied. When neither selection nor leftControl is present the move is display-only.
+  leftControl?: number;
+  // First box pre-checked + readOnly (granted starting move).
+  defaultChecked?: boolean;
+  selection?: LeftControlState;
+  rightControl?: RightControlSpec[];
+  // Index-aligned with rightControl. At most two slots persist (typeMoveUses / typeMoveUses2).
+  rightControlState?: RightControlState[];
+  bodyCheck?: BodyCheckState;
+  bodyLevel?: BodyLevelState;
+  // Fully-formed lock reasons (e.g. "Requires Level 6+, Veteran Crew" or "Conflicts with Ambush"),
+  // rendered italic and comma-joined. The parent drops met requirements before passing them.
+  requirement?: string[];
+  citation?: string;
   headerAction?: ReactNode;
 }
 
-// Flat props intentional: this sub-component is private to Move and maps 1:1 to what MoveSelectGroup
-// renders — grouping would just add indirection for no callsite benefit.
+// Private to Move; maps 1:1 to the left-box group. Flat props are intentional — grouping would only
+// add indirection for the single callsite.
 const MoveSelectGroup = ({
-  moveName, selected, onSelectChange, takes, takesChecked, onTakesChange, disabled, locked,
+  moveName,
+  selected,
+  onSelectChange,
+  takeCount,
+  takesChecked,
+  onTakesChange,
+  readOnly,
+  locked,
 }: {
-  moveName: string; selected: boolean; onSelectChange: (checked: boolean) => void;
-  takes: number; takesChecked: number; onTakesChange: (n: number) => void; disabled?: boolean; locked?: boolean;
+  moveName: string;
+  selected: boolean;
+  onSelectChange: (checked: boolean) => void;
+  takeCount: number;
+  takesChecked: number;
+  onTakesChange: (n: number) => void;
+  readOnly?: boolean;
+  locked?: boolean;
 }) => (
   <div className={styles.takeBoxes}>
     <Checkbox
       aria-label={`Select ${moveName}`}
       checked={selected}
       onChange={(e) => onSelectChange(e.target.checked)}
-      disabled={disabled}
+      disabled={readOnly || locked}
     />
-    {Array.from({ length: takes }, (_, i) => (
+    {Array.from({ length: takeCount }, (_, i) => (
       <Checkbox
         key={`${moveName}-take-${i}`}
         aria-label={`Take ${i + 1}`}
         checked={!!(takesChecked & (1 << i))}
         onChange={() => onTakesChange(takesChecked ^ (1 << i))}
-        disabled={locked || (!disabled && !selected)}
+        disabled={locked || (!readOnly && !selected)}
       />
     ))}
   </div>
 );
 
 export const Move = ({
-  move, selection, uses, usesAlt, checkList, headerAction,
+  title,
+  move,
+  leftControl,
+  defaultChecked,
+  selection,
+  rightControl,
+  rightControlState,
+  bodyCheck,
+  bodyLevel,
+  requirement,
+  citation,
+  headerAction,
 }: MoveProps) => {
-  const locked = !!selection?.lockReason;
-  const readOnly = selection?.readOnly ?? false;
-  const selected = selection?.selected;
-  const selectionTakes = selection?.takes;
+  const readOnly = (selection?.readOnly ?? false) || (defaultChecked ?? false);
+  const selected = readOnly ? true : (selection?.selected ?? false);
+  // A move with unmet requirements is locked: its select/take boxes are disabled (but still shown),
+  // and the requirement text below explains why. readOnly grants are never "locked".
+  const locked = !readOnly && (requirement?.length ?? 0) > 0;
 
-  const usesTotal = move.uses;
-  const hasUses = usesTotal !== undefined && uses !== undefined;
-  const usesAltTotal = move.usesAlt;
-  const hasUsesAlt = usesAltTotal !== undefined && usesAlt !== undefined;
-  const takesTotal = move.takes;
-  const hasTakes = takesTotal !== undefined && selectionTakes !== undefined;
+  // Left boxes incl. the select box; clamp to a minimum of 1.
+  const leftBoxes = Math.max(1, leftControl ?? move.leftControl ?? 1);
+  const takeCount = leftBoxes - 1;
+
+  const rightSpecs = rightControl ?? move.rightControl ?? [];
+  // Only typeMoveUses / typeMoveUses2 exist; a third persistent slot would write nowhere. Fail loud
+  // rather than silently dropping a control's saved value.
+  if (rightControlState !== undefined && rightControlState.length > 2) {
+    console.error(
+      `Move "${move.id}": rightControl persists at most 2 slots, got ${rightControlState.length}.`,
+    );
+  }
 
   const moveCx = clsx(styles.move, selected && styles.moveSelected);
   const nameCx = clsx(styles.moveName, selected && styles.moveNameSelected);
+  const nameEl = (
+    <Text as="span" className={nameCx}>
+      {title}
+    </Text>
+  );
 
-  const nameEl = <Text as="span" className={nameCx}>{move.name}</Text>;
-
-  const bodyItems = move.body ? (Array.isArray(move.body) ? move.body : [move.body]) : [];
-  const footerParagraphs = move.footer ? (Array.isArray(move.footer) ? move.footer : [move.footer]) : [];
-  const listIndent = bodyItems.includes('---');
-
-  const leveledCheckList = checkList?.mode === 'leveled' ? checkList : null;
-  const checkedLevel = leveledCheckList?.currentLevel ?? null;
-  const levels = leveledCheckList?.levels ?? {};
-  const marksUsed = checkedLevel !== null ? Object.keys(levels).length : 0;
-  // Derived from leveled/boolean branch of checkList; not state.
-  const effectiveChecked: Record<string, boolean> = checkedLevel !== null
-    ? Object.fromEntries(Object.keys(levels).map((k) => [k, true]))
-    : (checkList?.mode === 'boolean' ? checkList.checked : {});
-
-  const forcedIdSet = new Set(checkList?.forcedIds ?? []);
-  const effectiveCheckedWithForced: Record<string, boolean> = forcedIdSet.size > 0
-    ? { ...effectiveChecked, ...Object.fromEntries(Array.from(forcedIdSet, (id) => [id, true])) }
-    : effectiveChecked;
-
-  const checkListItems = move.checkList?.map((label, i) => {
-    const id = move.checkListIds?.[i] ?? `${move.id}-cl-${i}`;
-    const isForced = forcedIdSet.has(id);
-    const isChecked = effectiveCheckedWithForced[id] ?? false;
-    const recordedLevel = checkedLevel !== null ? (levels[id] ?? null) : null;
-    const displayLabel = label.replace('___', recordedLevel !== null ? String(recordedLevel) : '___');
-    const itemDisabled = isForced || (checkedLevel !== null && !isChecked && marksUsed >= checkedLevel);
-    return { id, label: displayLabel, disabled: itemDisabled };
-  });
-
-  // Dots and checklist are inactive only when a selectable move hasn't been chosen yet.
-  // readOnly moves (starting/background-granted) count as always-on. When selection is absent
-  // entirely (display-only moves), uses/checkList props won't be passed so this value is moot.
+  // Dots and body controls are inactive only when a selectable move hasn't been chosen. readOnly
+  // (starting/granted) counts as always-on. Display-only moves omit the controls entirely.
   const interactiveDisabled = !readOnly && !selected;
+
+  const citationText = citation ?? move.citation;
+  const blocks = move.body ?? [];
+
+  // ── Block renderer ──────────────────────────────────────────────────────────
+  // Pass raw strings to Text / List / CheckboxGroup: those atoms call parseInlineMarkdown internally.
+  // Pre-parsing here would double-render bold / provision icons.
+  // Blocks are static and never reorder, so a move-scoped positional key is stable.
+  const renderBlock = (block: MoveBlock, index: number) => {
+    const key = `${move.id}-block-${index}`;
+    switch (block.kind) {
+      case 'divider':
+        return <Divider key={key} className={styles.bodyDivider} />;
+      case 'para': {
+        if (block.icon) {
+          const iconParaCx = clsx(
+            styles.moveBodyWithIcon,
+            block.indent && styles.indent,
+          );
+          return (
+            <div key={key} className={iconParaCx}>
+              <Icon
+                name={block.icon}
+                size="small"
+                className={styles.moveBodyIcon}
+                aria-hidden="true"
+              />
+              <Text font="serif" color="muted" leading="tight">
+                {block.text}
+              </Text>
+            </div>
+          );
+        }
+        const paraCx = clsx(block.indent && styles.indent);
+        return (
+          <Text
+            key={key}
+            font="serif"
+            color="muted"
+            leading="tight"
+            className={paraCx}
+          >
+            {block.text}
+          </Text>
+        );
+      }
+      case 'list': {
+        const listCx = clsx(block.indent && styles.indent);
+        return (
+          <List
+            key={key}
+            variant="bullet"
+            items={block.items}
+            keyPrefix={key}
+            className={listCx}
+          />
+        );
+      }
+      case 'checkbox': {
+        const checked = bodyCheck?.checked ?? {};
+        const forced = new Set(bodyCheck?.forcedIds ?? []);
+        const items = block.items.map(({ id, label }) => ({
+          id,
+          label,
+          disabled: interactiveDisabled || forced.has(id),
+        }));
+        const effectiveChecked =
+          forced.size > 0
+            ? {
+                ...checked,
+                ...Object.fromEntries(Array.from(forced, (id) => [id, true])),
+              }
+            : checked;
+        return (
+          <CheckboxGroup
+            key={key}
+            items={items}
+            checked={effectiveChecked}
+            onChange={(id, value) => bodyCheck?.onChange(id, value)}
+            disabled={interactiveDisabled}
+          />
+        );
+      }
+      case 'tracked': {
+        const levels = bodyLevel?.levels ?? {};
+        const currentLevel = bodyLevel?.currentLevel ?? 0;
+        const forced = new Set(bodyLevel?.forcedIds ?? []);
+        // Cumulative "once per level" budget: total marks made may not exceed the current level, so
+        // an unchecked item is disabled once that many marks have been made (you can mark out of order).
+        const marksUsed = Object.keys(levels).length;
+        const budgetSpent = marksUsed >= currentLevel;
+        const effectiveChecked: Record<string, boolean> = Object.fromEntries(
+          Object.keys(levels).map((id) => [id, true]),
+        );
+        for (const id of forced) effectiveChecked[id] = true;
+        const items = block.items.map(({ id, label }) => {
+          const isForced = forced.has(id);
+          const isChecked = effectiveChecked[id] ?? false;
+          const recordedLevel = levels[id] ?? null;
+          // Substitute the '___' token with the level at which this item was marked.
+          const displayLabel = label.replace(
+            '___',
+            recordedLevel !== null ? String(recordedLevel) : '___',
+          );
+          const disabled =
+            interactiveDisabled || isForced || (!isChecked && budgetSpent);
+          return { id, label: displayLabel, disabled };
+        });
+        return (
+          <CheckboxGroup
+            key={key}
+            items={items}
+            checked={effectiveChecked}
+            onChange={(id, value) =>
+              bodyLevel?.onChange(id, value ? currentLevel : null)
+            }
+            disabled={interactiveDisabled}
+          />
+        );
+      }
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className={moveCx}>
       <div className={styles.moveHeader}>
-        {move.selectable && selection !== undefined && hasTakes ? (
-          <div className={styles.moveHeaderLeft}>
-            <MoveSelectGroup
-              moveName={move.name}
-              selected={selected ?? false}
-              onSelectChange={selection.onChange}
-              takes={takesTotal!}
-              takesChecked={selectionTakes!.checked}
-              onTakesChange={selectionTakes!.onChange}
+        {selection !== undefined ? (
+          takeCount > 0 ? (
+            <div className={styles.moveHeaderLeft}>
+              <MoveSelectGroup
+                moveName={title}
+                selected={selected}
+                onSelectChange={selection.onSelectChange}
+                takeCount={takeCount}
+                takesChecked={selection.takesChecked}
+                onTakesChange={selection.onTakesChange}
+                readOnly={readOnly}
+                locked={locked}
+              />
+              {nameEl}
+            </div>
+          ) : (
+            <Checkbox
+              name={`move-${move.id}`}
+              value={move.id}
+              checked={selected}
+              onChange={(e) => selection.onSelectChange(e.target.checked)}
+              label={nameEl}
+              className={styles.moveCheckbox}
               disabled={readOnly || locked}
-              locked={locked}
             />
-            {nameEl}
-          </div>
-        ) : move.selectable && selection !== undefined ? (
-          <Checkbox
-            name={`move-${move.id}`}
-            value={move.id}
-            checked={selected ?? false}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => selection.onChange(e.target.checked)}
-            label={nameEl}
-            className={styles.moveCheckbox}
-            disabled={readOnly || locked}
-          />
+          )
         ) : (
           nameEl
         )}
-        {(hasUses || hasUsesAlt) && (
+        {rightSpecs.length > 0 && (
           <div className={styles.usesGroup}>
-            {hasUses && (
-              <UseDots
-                total={usesTotal!}
-                checked={uses!.checked}
-                onChange={uses!.onChange}
-                disabled={interactiveDisabled}
-                label={move.usesLabel}
-              />
-            )}
-            {hasUses && hasUsesAlt && <span className={styles.usesSeparator} aria-hidden="true">|</span>}
-            {hasUsesAlt && (
-              <UseDots
-                total={usesAltTotal!}
-                checked={usesAlt!.checked}
-                onChange={usesAlt!.onChange}
-                disabled={interactiveDisabled}
-                label={move.usesAltLabel}
-              />
-            )}
+            {rightSpecs.map((spec, i) => {
+              const state = rightControlState?.[i];
+              const count = Math.max(1, spec.number ?? 1);
+              // The preceding control's `divider` flag draws a separator before this one, rendered as a
+              // left border on this slot rather than a separate element.
+              const dividedCx = clsx(
+                styles.usesSlot,
+                rightSpecs.length > 1 && rightSpecs[i - 1]?.divider && styles.usesSlotDivided,
+              );
+              return (
+                <span key={`${move.id}-rc-${i}`} className={dividedCx}>
+                  {spec.type === 'dot' ? (
+                    <UseDots
+                      total={count}
+                      checked={state?.checked ?? 0}
+                      onChange={(n) => state?.onChange(n)}
+                      disabled={interactiveDisabled || state === undefined}
+                      label={spec.label}
+                    />
+                  ) : (
+                    <Checkbox
+                      aria-label={spec.label ?? `${title} toggle`}
+                      label={spec.label}
+                      checked={(state?.checked ?? 0) === 1}
+                      onChange={(e) =>
+                        state?.onChange(e.target.checked ? 1 : 0)
+                      }
+                      disabled={interactiveDisabled || state === undefined}
+                    />
+                  )}
+                </span>
+              );
+            })}
           </div>
         )}
         {headerAction && (
           <div className={styles.headerAction}>{headerAction}</div>
         )}
       </div>
-      {selection?.lockReason && <Text font="serif" size="xs" color="tertiary" italic>{selection.lockReason}</Text>}
-      {(move.triggerOverride || move.trigger) && (
-        <Text font="serif" color="muted" leading="tight">
-          {move.triggerOverride ?? `When you **${move.trigger}**,`}
+      {requirement !== undefined && requirement.length > 0 && (
+        <Text font="serif" size="xs" color="tertiary" italic>
+          {requirement.join(', ')}
         </Text>
       )}
-      {bodyItems.map((item, i) => {
-        if (item === '---') {
-          return <Divider key={`${move.id}-body-${i}`} className={styles.bodyDivider} />;
-        }
-        const icon = typeof item === 'object' ? item.icon : undefined;
-        const text = typeof item === 'object' ? item.text : item;
-        return (
-          <Fragment key={`${move.id}-body-${i}`}>
-            {icon ? (
-              <div className={styles.moveBodyWithIcon}>
-                <Icon name={icon as IconName} size="small" className={styles.moveBodyIcon} aria-hidden="true" />
-                <Text font="serif" color="muted" leading="tight">{text}</Text>
-              </div>
-            ) : (
-              <Text font="serif" color="muted" leading="tight">{text}</Text>
-            )}
-          </Fragment>
-        );
-      })}
-      {listIndent ? (
-        <div className={styles.listIndent}>
-          {move.list && (
-            <List variant="bullet" items={move.list} />
-          )}
-          {footerParagraphs.map((fp, fi) => (
-            <Text key={`${move.id}-footer-${fi}`} font="serif" color="muted" leading="tight">{fp}</Text>
-          ))}
-        </div>
-      ) : (
-        <>
-          {move.list && (
-            <List variant="bullet" items={move.list} />
-          )}
-        </>
+      {blocks.map(renderBlock)}
+      {citationText && (
+        <Text
+          as="span"
+          font="serif"
+          size="xs"
+          color="tertiary"
+          italic
+          className={styles.moveCitation}
+        >
+          {citationText}
+        </Text>
       )}
-      {checkListItems && checkList && (
-        <CheckboxGroup
-          items={checkListItems}
-          checked={effectiveCheckedWithForced}
-          onChange={leveledCheckList
-            ? (id, checked) => leveledCheckList.onChange(id, checked ? leveledCheckList.currentLevel : null)
-            // TS cannot narrow checkList in a callback; leveledCheckList handles the leveled branch above.
-            : (id, checked) => (checkList as Extract<CheckListProps, { mode: 'boolean' }>).onChange(id, checked)
-          }
-          disabled={interactiveDisabled}
-        />
-      )}
-      {!listIndent && footerParagraphs.map((p, i) => (
-        <Text key={`${move.id}-footer-${i}`} font="serif" color="muted" leading="tight">{p}</Text>
-      ))}
-      {move.list2 && (
-        <List variant="bullet" items={move.list2} />
-      )}
-      {move.citation && <Text as="span" font="serif" size="xs" color="tertiary" italic className={styles.moveCitation}>{move.citation}</Text>}
     </div>
   );
 };
