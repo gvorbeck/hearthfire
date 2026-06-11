@@ -227,6 +227,20 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
   const warn = REQUIRED_STAT_KEYS.some((k) => stats[k] === '');
   const hpLabel = `HP (max ${hpMax})`;
 
+  const currentXp = parseInt(stats.statXp, 10);
+  const currentLevel = parseInt(stats.statLevel, 10);
+  const xpToLevel = !isNaN(currentLevel) ? 6 + 2 * currentLevel : null;
+  const canLevelUp = xpToLevel !== null && !isNaN(currentXp) && currentXp >= xpToLevel;
+  let levelUpHint: string | null = null;
+  if (xpToLevel !== null) {
+    const xpDisplay = isNaN(currentXp) ? 0 : currentXp;
+    if (canLevelUp) {
+      levelUpHint = `Ready to level up! Spend ${xpToLevel} XP during downtime at home to reach level ${currentLevel + 1}.`;
+    } else {
+      levelUpHint = `Need ${xpToLevel} XP to reach level ${currentLevel + 1} (${xpDisplay}/${xpToLevel}).`;
+    }
+  }
+
   return (
     <PlaybookSection title="Stats" warn={warn} warnText="All stat fields must be filled in before play.">
       <Text color="muted" className={styles.statsInstruction}>{scoreInstruction}</Text>
@@ -263,6 +277,14 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
           <InfoBox label="XP" statKey="statXp" value={stats.statXp} onChange={handleStatChange} onBlur={handleFlush} />
           <InfoBox label="Level" statKey="statLevel" value={stats.statLevel} min={1} onChange={handleStatChange} onBlur={handleFlush} />
         </div>
+        {levelUpHint && (
+          <Text
+            color={canLevelUp ? 'accent' : 'muted'}
+            className={clsx(styles.levelUpHint, canLevelUp && styles.levelUpReady)}
+          >
+            {levelUpHint}
+          </Text>
+        )}
       </div>
     </PlaybookSection>
   );

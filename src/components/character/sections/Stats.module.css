@@ -179,3 +179,15 @@
   color: var(--text-secondary);
   white-space: nowrap;
 }
+
+.levelUpHint {
+  text-align: center;
+  font-size: var(--text-sm);
+  font-family: var(--font-serif);
+  font-style: italic;
+}
+
+.levelUpReady {
+  font-style: normal;
+  font-weight: 600;
+}
