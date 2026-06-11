@@ -1,12 +1,11 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import clsx from 'clsx';
 import { Button } from '@/components/ui';
 import { Icon } from '@/components/ui';
 import { Text } from '@/components/ui';
+import { ToastContext, type ToastVariant } from './ToastContext';
 import styles from './Toast.module.css';
-
-type ToastVariant = 'error' | 'info' | 'success';
 
 interface ToastItem {
   id: string;
@@ -14,12 +13,6 @@ interface ToastItem {
   variant: ToastVariant;
   exiting: boolean;
 }
-
-interface ToastContextValue {
-  addToast: (message: string, variant?: ToastVariant) => void;
-}
-
-const ToastContext = createContext<ToastContextValue | null>(null);
 
 const AUTO_DISMISS_MS = 5000;
 const EXIT_DURATION_MS = 200;
@@ -59,8 +52,12 @@ const ToastEntry = ({
 export const ToastProvider = ({ children }: { children: ReactNode }) => {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const timers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+  // Dedupe key (`variant:message`) per visible toast id, so repeated identical
+  // notifications (e.g. one failed save per field while offline) don't stack.
+  const visibleKeys = useRef<Map<string, string>>(new Map());
 
   const startExit = useCallback((id: string) => {
+    visibleKeys.current.delete(id);
     setToasts((prev) => prev.map((t) => t.id === id ? { ...t, exiting: true } : t));
     const removeTimer = setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
@@ -70,7 +67,19 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const addToast = useCallback((message: string, variant: ToastVariant = 'info') => {
+    const dedupeKey = `${variant}:${message}`;
+    for (const [existingId, key] of visibleKeys.current) {
+      if (key === dedupeKey) {
+        // Same message already showing — restart its dismiss timer so the
+        // warning stays up while the condition persists, without stacking.
+        const existingTimer = timers.current.get(existingId);
+        if (existingTimer) clearTimeout(existingTimer);
+        timers.current.set(existingId, setTimeout(() => startExit(existingId), AUTO_DISMISS_MS));
+        return;
+      }
+    }
     const id = crypto.randomUUID();
+    visibleKeys.current.set(id, dedupeKey);
     setToasts((prev) => [...prev, { id, message, variant, exiting: false }]);
     const timer = setTimeout(() => startExit(id), AUTO_DISMISS_MS);
     timers.current.set(id, timer);
@@ -86,8 +95,12 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
     return () => { timers.current.forEach(clearTimeout); };
   }, []);
 
+  // Stable context value — every saving component subscribes to this context,
+  // so a fresh object here would redraw them all whenever a toast comes or goes.
+  const contextValue = useMemo(() => ({ addToast }), [addToast]);
+
   return (
-    <ToastContext.Provider value={{ addToast }}>
+    <ToastContext.Provider value={contextValue}>
       {children}
       {createPortal(
         <div role="region" className={styles.region} aria-label="Notifications">
@@ -101,8 +114,3 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const useToast = (): ToastContextValue => {
-  const ctx = useContext(ToastContext);
-  if (!ctx) throw new Error('useToast must be used inside ToastProvider');
-  return ctx;
-};
