@@ -4,6 +4,7 @@ import { Move } from '../../Move';
 import type { MoveDefinition, PlaybookSectionProps } from '@/types';
 import { InsertLayout } from '../shared/InsertLayout';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
+import { GHOST_MOVES, GHOST_CONSEQUENCE_LABELS } from '@/lib/moves/inserts';
 import styles from './GhostInsert.module.css';
 
 const POLTERGEIST_MOVE: MoveDefinition = {
@@ -19,77 +20,6 @@ const POLTERGEIST_MOVE: MoveDefinition = {
     ] },
   ],
 };
-
-const GHOST_MOVES: MoveDefinition[] = [
-  {
-    id: 'ghost-unliving',
-    name: 'Unliving',
-    body: [
-      { kind: 'para', text: 'You do not breathe. You need not eat nor drink nor sleep. You do not heal normally. You gain no benefit from magical healing, Make Camp, Recover or Convalesce.' },
-    ],
-  },
-  {
-    id: 'ghost-disembodied',
-    name: 'Disembodied',
-    body: [
-      { kind: 'para', text: 'Your body is dead and gone, but you persist as a spirit. You can be harmed only by silver, salt, or that which harms spirits or ghosts.' },
-      { kind: 'para', text: 'You normally go unseen, with the barest influence on the material world and a dim, distorted sense of reality. When you *manifest a ghostly presence in shadows or darkness*, the world becomes clear and pick 1. For each additional option you pick, lose 1d4 HP:' },
-      { kind: 'para', text: 'You remain manifest for as long as you concentrate; pain or shock or direct sunlight threaten your concentration, for sure.' },
-      { kind: 'list', items: [
-        'You appear solid and whole, much as you did in life',
-        'You can speak clearly and intelligibly',
-        'Your touch (or ghostly weapons) can harm the living (ignores armor)',
-      ] },
-    ],
-  },
-  {
-    id: 'ghost-tethered',
-    name: 'Tethered',
-    body: [
-      { kind: 'para', text: 'Choose something to which you are bound: your mortal remains, the place where you died, an object of personal significance, etc.' },
-      { kind: 'para', text: 'When you *are reduced to 0 HP*, mark a consequence and your essence disperses until the next sunset. You reform near your tether with half your max HP. If your tether has been destroyed, mark the Final Consequence.' },
-    ],
-  },
-];
-
-const CONSEQUENCE_LABELS: { id: string; label: string }[] = [
-  {
-    id: 'bodysnatcher',
-    label: '**BODYSNATCHER** — When you *possess an unconscious or willing person*, lose 1d4 HP and control their actions.',
-  },
-  {
-    id: 'breakdown',
-    label: '**BREAKDOWN** — You lash out in an unthinking, unfeeling rage that lasts until the next sunrise. Ask the GM what snippets you remember.',
-  },
-  {
-    id: 'disturbing',
-    label: '**DISTURBING** — Your presence (even unseen) disturbs beasts and children. The air around you is notably cooler, especially when you manifest. When you *use intimidation and your disturbing presence to Persuade*, you have advantage.',
-  },
-  {
-    id: 'otherworldly',
-    label: '**OTHERWORLDLY** — When you *manifest a ghostly form*, strange things happen: statues weep, rocks bleed, plants wither, water pools on ceilings, etc.',
-  },
-  {
-    id: 'poltergeist',
-    label: '**POLTERGEIST** — When you *get angry*, lose 1d4 HP and hold that much Fury. Spend Fury, 1-for-1, to shatter objects, hurl things, or attack with telekinetic force.',
-  },
-  {
-    id: 'quarry',
-    label: '**QUARRY** — The Pale Hunter has caught your scent. Expect a visit, soon.',
-  },
-  {
-    id: 'specter',
-    label: '**SPECTER** — When you *terrify a living person, someone who is unconnected to your Terrible Purpose*, regain 1d8 HP or clear a debility of your choice.',
-  },
-  {
-    id: 'unstable',
-    label: '**UNSTABLE** *(Requires Breakdown)* — You are prone to episodes of unthinking, unfeeling rage (as per Breakdown). When you *roll a 6-*, the GM can choose to have you enter such a rage.',
-  },
-  {
-    id: 'final-consequence',
-    label: "**THE FINAL CONSEQUENCE** — Your tenuous connection to humanity is lost and you become a monster under the GM's control.",
-  },
-];
 
 const GHOST_KEYS = {
   instinct: 'ghostInstinct',
@@ -137,7 +67,7 @@ export const GhostInsert = ({ data, onSave }: GhostInsertProps) => {
       sectionKeys={GHOST_KEYS}
       moves={GHOST_MOVES}
       consequenceKey="ghostConsequences"
-      consequenceLabels={CONSEQUENCE_LABELS}
+      consequenceLabels={GHOST_CONSEQUENCE_LABELS}
       isConsequenceDisabled={isConsequenceDisabled}
       consequenceAddon={consequenceAddon}
       checkboxGroupItemGap="md"
