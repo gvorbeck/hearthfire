@@ -4,6 +4,7 @@ import {
   useRef,
   useCallback,
   useEffect,
+  useMemo,
   type ReactNode,
   type KeyboardEvent,
   type MouseEvent,
@@ -299,6 +300,11 @@ export const Tabs = ({
   const baseId = useId();
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
+  const resolvedTabs = useMemo(
+    () => tabs.map((tab, i) => ({ ...tab, id: tab.id ?? `${baseId}-slot-${i}` })),
+    [tabs, baseId],
+  );
+
   const cx = clsx(styles.root, className);
 
   const handleKeyDown = useCallback(
@@ -329,12 +335,12 @@ export const Tabs = ({
     <div className={cx}>
       <div className={styles.tablistRow}>
         <div className={styles.tablist} role="tablist" aria-label={ariaLabel}>
-          {tabs.map((tab, i) => (
+          {resolvedTabs.map((tab, i) => (
             <TabButton
-              key={tab.id ?? tab.label}
+              key={tab.id}
               tab={tab}
               index={i}
-              slotId={tab.id ?? tab.label}
+              slotId={tab.id}
               baseId={baseId}
               isActive={active === i}
               onActivate={setActive}
@@ -346,21 +352,18 @@ export const Tabs = ({
         </div>
         {onAdd && <AddTabButton baseId={baseId} onAdd={onAdd} />}
       </div>
-      {tabs.map((tab, i) => {
-        const slotId = tab.id ?? tab.label;
-        return (
-          <div
-            key={slotId}
-            role="tabpanel"
-            id={`${baseId}-panel-${slotId}`}
-            aria-labelledby={`${baseId}-tab-${slotId}`}
-            hidden={active !== i}
-            className={styles.panel}
-          >
-            {everActive.has(i) ? tab.content : null}
-          </div>
-        );
-      })}
+      {resolvedTabs.map((tab, i) => (
+        <div
+          key={tab.id}
+          role="tabpanel"
+          id={`${baseId}-panel-${tab.id}`}
+          aria-labelledby={`${baseId}-tab-${tab.id}`}
+          hidden={active !== i}
+          className={styles.panel}
+        >
+          {everActive.has(i) ? tab.content : null}
+        </div>
+      ))}
     </div>
   );
 };
