@@ -23,7 +23,7 @@ const MoveList = ({ moves }: { moves: MoveDefinition[] }) => (
   <ul className={styles.list}>
     {moves.map((move) => (
       <li key={move.id} className={styles.item}>
-        <Move move={move} />
+        <Move title={move.name} move={move} />
       </li>
     ))}
   </ul>

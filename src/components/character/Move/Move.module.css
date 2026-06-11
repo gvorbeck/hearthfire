@@ -70,13 +70,9 @@
   margin: var(--spacing-2) 0;
 }
 
-/* ── Indented list + footer (e.g. winter block in Seasons Change) ── */
-.listIndent {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-1);
+/* ── Indented block (e.g. winter list + footer in Seasons Change) ── */
+.indent {
   padding-left: var(--spacing-6);
-  margin-top: var(--spacing-1);
 }
 
 /* ── Citation ────────────────────────────────────────── */
@@ -92,7 +88,7 @@
   flex-shrink: 0;
 }
 
-/* ── Uses group (single or dual with pipe separator) ─── */
+/* ── Uses group (one or more control slots, optionally separated) ─── */
 .usesGroup {
   display: flex;
   align-items: center;
@@ -100,9 +96,14 @@
   flex-shrink: 0;
 }
 
-.usesSeparator {
-  font-size: var(--text-xs);
-  color: var(--text-tertiary, var(--text-secondary));
-  user-select: none;
+.usesSlot {
+  display: flex;
+  align-items: center;
+}
+
+/* A slot whose preceding control set `divider` gets a vertical rule on its left edge. */
+.usesSlotDivided {
+  padding-left: var(--spacing-1);
+  border-left: 1px solid var(--border-subtle);
 }
 

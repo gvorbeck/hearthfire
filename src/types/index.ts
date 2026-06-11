@@ -1,27 +1,39 @@
 import type { ReactNode } from 'react';
+import type { IconName } from '@/components/ui/Icon/Icon';
+
+// ---- New Move model (typed-block body + generalized controls) ----
+// A move body is an ordered array of typed blocks. Order is explicit; blocks never reorder, so the
+// renderer keys them by position. Interactive blocks attach persistence per item id (not block id).
+export type MoveBlock =
+  // Paragraph of inline-markdown text, optionally preceded by a leading icon (e.g. seasons).
+  | { kind: 'para'; text: string; icon?: IconName; indent?: boolean }
+  // Always-bullet list of inline-markdown strings.
+  | { kind: 'list'; items: string[]; indent?: boolean }
+  | { kind: 'divider' }
+  // Persistent boolean checklist (e.g. Heroes to the Last). State stored in typeMoveCheckList.
+  | { kind: 'checkbox'; items: { id: string; label: string }[] }
+  // Per-level tracked checklist (e.g. Potential for Greatness): each mark records the level it was
+  // made at and the label's '___' token is substituted with that level. State in typeMoveCheckListLevels.
+  | { kind: 'tracked'; items: { id: string; label: string }[] };
+
+// One slot in the right-control row. Generalizes the former uses/usesAlt pair.
+export interface RightControlSpec {
+  type: 'checkbox' | 'dot';
+  number?: number; // dot count; default 1, min 1 (checkbox always renders one box)
+  label?: string; // rendered to the right of the control
+  divider?: boolean; // '|' after this control; only honored when rightControl has more than one slot
+}
 
 export interface MoveDefinition {
   id: string;
-  name: string;
-  trigger?: string;
-  triggerOverride?: string;
-  body?: string | Array<string | { text: string; icon?: string } | '---'>;
-  list?: string[];
-  checkList?: string[];
-  checkListIds?: string[];
-  checkListLeveled?: boolean;
-  footer?: string | string[];
-  list2?: string[];
+  name: string; // fallback title + sort/search
+  body?: MoveBlock[];
   citation?: string;
-  uses?: number;
-  usesLabel?: string;
-  // usesAlt tracks a second independent hold on the same move (e.g. Up With People: the current
-  // player's Rapport dots vs. the other player's dot). Both groups are stored on this character's
-  // document as a convenience; the other player is expected to track their own copy independently.
-  usesAlt?: number;
-  usesAltLabel?: string;
-  takes?: number;
-  selectable?: boolean;
+  // Number of left-hand boxes including the select box (box 0 selects/gates; boxes 1..n track times
+  // taken). Omit entirely for display-only moves. Replaces the former selectable + takes pair.
+  leftControl?: number;
+  rightControl?: RightControlSpec[];
+  // Constraint engine — consumed by getLockReason in the parent, unchanged.
   startingMove?: boolean;
   requires?: string[];
   requiresLevel?: number;
