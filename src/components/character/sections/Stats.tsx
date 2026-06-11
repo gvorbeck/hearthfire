@@ -175,6 +175,10 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
   const statsRef = useLatest(stats);
   const debilitiesRef = useLatest(debilities);
   const hasAutoInitialized = useRef(false);
+  // Fields the user has edited this session. Saves send only these, so a
+  // stale value in our local state can't overwrite another device's edit to a
+  // field we never touched.
+  const dirtyRef = useRef(new Set<keyof StatsState | keyof DebilitiesState>());
 
   const syncedStats = useMemo(() => statsFromData(data, hpMax), [
     data?.statStr, data?.statDex, data?.statInt, data?.statWis, data?.statCon, data?.statCha,
@@ -206,21 +210,33 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
   useFirestoreSync(syncedStats, setStats, isPendingRef);
   useFirestoreSync(syncedDebilities, setDebilities, isPendingRef);
 
+  const pickDirty = useCallback((statsState: StatsState, debilitiesState: DebilitiesState): Partial<CharacterData> => {
+    const all = { ...statsState, ...debilitiesState };
+    const payload: Partial<CharacterData> = {};
+    dirtyRef.current.forEach((key) => {
+      (payload as Record<string, string | boolean>)[key] = all[key];
+    });
+    return payload;
+  }, []);
+
   const handleStatChange = useCallback((key: keyof StatsState, val: string) => {
     const next = { ...statsRef.current, [key]: val };
     setStats(next);
-    debouncedSave({ ...next, ...debilitiesRef.current });
-  }, [debouncedSave]);
+    dirtyRef.current.add(key);
+    debouncedSave(pickDirty(next, debilitiesRef.current));
+  }, [debouncedSave, pickDirty]);
 
   const handleFlush = useCallback(() => {
-    flush({ ...statsRef.current, ...debilitiesRef.current });
-  }, [flush]);
+    if (dirtyRef.current.size === 0) return;
+    flush(pickDirty(statsRef.current, debilitiesRef.current));
+  }, [flush, pickDirty]);
 
   const handleDebilityChange = useCallback((key: keyof DebilitiesState, checked: boolean) => {
     const next = { ...debilitiesRef.current, [key]: checked };
     setDebilities(next);
-    flush({ ...statsRef.current, ...next });
-  }, [flush]);
+    dirtyRef.current.add(key);
+    flush(pickDirty(statsRef.current, next));
+  }, [flush, pickDirty]);
 
   if (!data || hpMax === undefined) return <PlaybookSection title="Stats" />;
 

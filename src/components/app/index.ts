@@ -1,5 +1,6 @@
 export { ErrorBoundary } from './ErrorBoundary/ErrorBoundary';
-export { ToastProvider, useToast } from './Toast/Toast';
+export { ToastProvider } from './Toast/Toast';
+export { useToast } from './Toast/ToastContext';
 export { PageHeader } from './PageHeader/PageHeader';
 export { PageFooter } from './PageFooter/PageFooter';
 export { PageLayout } from './PageLayout/PageLayout';
