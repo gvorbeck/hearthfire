@@ -301,7 +301,11 @@ export const Tabs = ({
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const resolvedTabs = useMemo(
-    () => tabs.map((tab, i) => ({ ...tab, id: tab.id ?? `${baseId}-slot-${i}` })),
+    () =>
+      tabs.map((tab, i) => ({
+        ...tab,
+        id: (tab.id ?? `${baseId}-slot-${i}`).replace(/[^\w-]/g, "-"),
+      })),
     [tabs, baseId],
   );
 
