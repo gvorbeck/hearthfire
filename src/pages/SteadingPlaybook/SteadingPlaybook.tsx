@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
+import { useHashTabs } from '@/hooks/useHashTabs';
 import { useParams } from 'react-router-dom';
 import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
@@ -169,22 +170,28 @@ const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
 
   const tabs = useMemo(() => [
     {
+      id: 'steading',
       label: 'Steading',
       content: <SteadingTab steading={steading} updateSteading={updateSteading} />,
     },
     {
+      id: 'improvements',
       label: 'Improvements',
       content: <ImprovementsTab steading={steading} updateSteading={updateSteading} />,
     },
     {
+      id: 'npcs',
       label: 'NPCs',
       content: <NpcsTab g={g} steading={steading} updateSteading={updateSteading} npcFilter={npcFilter} onFilterChange={setNpcFilter} />,
     },
     {
+      id: 'reference',
       label: 'Reference',
       content: <ReferenceTab steading={steading} updateSteading={updateSteading} />,
     },
   ], [g.characters, steading, updateSteading, npcFilter]);
+
+  const { activeIndex, handleActiveChange } = useHashTabs(tabs);
 
   return (
     <PageLayout crumbs={crumbs} title="Steading Playbook" gameId={id}>
@@ -198,6 +205,8 @@ const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
         aria-label="Steading sections"
         className={styles.tabs}
         tabs={tabs}
+        activeIndex={activeIndex}
+        onActiveChange={handleActiveChange}
       />
     </PageLayout>
   );

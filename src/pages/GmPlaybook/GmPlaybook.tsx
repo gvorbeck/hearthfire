@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useRef } from 'react';
+import { useHashTabs } from '@/hooks/useHashTabs';
 import { useParams } from 'react-router-dom';
 import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
@@ -84,10 +85,12 @@ const GmPlaybookContent = ({ g, id, updateContent, updateField }: GmPlaybookCont
 
   const tabs = useMemo(() => [
     {
+      id: 'reference',
       label: 'Reference',
       content: <ReferenceTabContent />,
     },
     {
+      id: 'session',
       label: 'Session',
       content: (
         <PlaybookColumns
@@ -111,14 +114,18 @@ const GmPlaybookContent = ({ g, id, updateContent, updateField }: GmPlaybookCont
       ),
     },
     {
+      id: 'world',
       label: 'World',
       content: <WorldTabContent />,
     },
     {
+      id: 'move-search',
       label: 'Move Search',
       content: <MoveSearch />,
     },
   ], [g.content, g.iWonder, updateContent, saveIWonder]);
+
+  const { activeIndex, handleActiveChange } = useHashTabs(tabs);
 
   return (
     <PageLayout crumbs={crumbs} title="GM Playbook" gameId={id}>
@@ -132,6 +139,8 @@ const GmPlaybookContent = ({ g, id, updateContent, updateField }: GmPlaybookCont
         aria-label="GM Playbook sections"
         className={styles.tabs}
         tabs={tabs}
+        activeIndex={activeIndex}
+        onActiveChange={handleActiveChange}
       />
     </PageLayout>
   );
