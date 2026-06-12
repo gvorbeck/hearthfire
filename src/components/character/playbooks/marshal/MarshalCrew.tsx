@@ -16,6 +16,10 @@ import {
 } from "@/lib/resolvePlaybookFeatures";
 import { RadioSelect } from "../../sections/RadioSelect";
 import type { RadioOption } from "@/types";
+import {
+  BACKGROUND_FORCED_MOVES,
+  BACKGROUND_GRANTED_CREW_TAGS,
+} from "@/lib/moves";
 import { useCrewSave } from "../shared/useCrewSave";
 import { StatBox, LoyaltyRow, CustomItemsGrid } from "../shared/CrewWidgets";
 import type { CharacterData, PlaybookSectionProps } from "@/types";
@@ -548,14 +552,43 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
     data?.typeMoveCheckList?.["marshal-heroes-to-the-last"]?.[
       "marshal-httl-exceptional"
     ] === true;
+  const grantedTag = data?.background
+    ? BACKGROUND_GRANTED_CREW_TAGS.marshal?.[data.background]
+    : undefined;
+  // Veteran Crew can be background-forced without ever being written to
+  // typeMoves, so check both. The checklist gate matters because deselecting a
+  // move leaves its checklist state behind in Firestore.
+  const backgroundForcedMoves = data?.background
+    ? (BACKGROUND_FORCED_MOVES.marshal?.[data.background] ?? [])
+    : [];
+  const hasVeteranCrew =
+    data?.typeMoves?.["marshal-veteran-crew"] === true ||
+    backgroundForcedMoves.includes("marshal-veteran-crew");
+  const hasVeteranTags =
+    hasVeteranCrew &&
+    data?.typeMoveCheckList?.["marshal-veteran-crew"]?.["marshal-vc-tags"] ===
+      true;
+  const maxTags = hasVeteranTags ? 4 : 2;
   const selectedTagCount = Object.entries(tags).filter(
-    ([id, v]) => id !== "group" && id !== "exceptional" && v,
+    ([id, v]) =>
+      id !== "group" && id !== "exceptional" && id !== grantedTag && v,
   ).length;
-  const tagAtMax = selectedTagCount >= 2;
+  const tagAtMax = selectedTagCount >= maxTags;
+  // Possible when the limit shrinks under existing picks (e.g. the Veteran
+  // Crew tags option is unchecked after 4 tags were already selected).
+  const overLimitTagCount = selectedTagCount - maxTags;
   const tagItemsWithDisable = TAG_ITEMS.map((item) => ({
     ...item,
-    disabled: item.id === "group" || (!tags[item.id] && tagAtMax),
+    disabled:
+      item.id === "group" ||
+      item.id === grantedTag ||
+      (!tags[item.id] && tagAtMax),
   }));
+  const tagsChecked = {
+    ...tags,
+    group: true,
+    ...(grantedTag ? { [grantedTag]: true } : {}),
+  };
 
   const handleWheel = useCallback(
     (e: React.WheelEvent<HTMLInputElement>) => e.currentTarget.blur(),
@@ -626,12 +659,16 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
 
       <PlaybookSection title="Tags">
         <Text font="serif" color="muted" leading="normal">
-          Your crew starts with *group*, a tag granted by your background, plus
-          2 more of your choice.
+          {`Your crew starts with *group*, a tag granted by your background, plus ${maxTags} more of your choice.`}
         </Text>
+        {overLimitTagCount > 0 && (
+          <Text role="status" size="xs" color="accent" italic leading="normal">
+            {`${overLimitTagCount} too many selected — uncheck ${overLimitTagCount === 1 ? "one" : String(overLimitTagCount)}.`}
+          </Text>
+        )}
         <CheckboxGroup
           items={tagItemsWithDisable}
-          checked={{ ...tags, group: true }}
+          checked={tagsChecked}
           onChange={handleTagChange}
           columns="responsive-2-4-6"
         />
