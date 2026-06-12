@@ -2,6 +2,8 @@ import { useState, useMemo } from 'react';
 import { Input, Text, PlaybookColumns } from '@/components/ui';
 import { Move } from '@/components/character/Move/Move';
 import { BASIC_MOVES, SPECIAL_MOVES, FOLLOWER_MOVES, HOMEFRONT_MOVES, EXPEDITION_MOVES, PLAYBOOK_MOVES } from '@/lib/moves';
+import { LIGHTBEARER_INVOCATIONS } from '@/lib/lightbearerInvocations';
+import { REVENANT_MOVES, GHOST_MOVES, THRALL_MOVES, THRALL_MARK_DEFINITIONS } from '@/lib/moves/inserts';
 import type { MoveDefinition } from '@/types';
 import styles from './MoveSearch.module.css';
 
@@ -12,6 +14,11 @@ const ALL_MOVES = [
   ...HOMEFRONT_MOVES,
   ...EXPEDITION_MOVES,
   ...Object.values(PLAYBOOK_MOVES).flat(),
+  ...LIGHTBEARER_INVOCATIONS,
+  ...REVENANT_MOVES,
+  ...GHOST_MOVES,
+  ...THRALL_MOVES,
+  ...THRALL_MARK_DEFINITIONS,
 ].sort((a, b) => a.name.localeCompare(b.name));
 
 const MoveList = ({ moves }: { moves: MoveDefinition[] }) => (
