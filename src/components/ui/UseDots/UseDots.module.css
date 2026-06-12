@@ -1,17 +1,18 @@
 .useDots {
   display: flex;
-  gap: var(--spacing-1);
+  gap: var(--spacing-2);
   flex-shrink: 0;
 }
 
 .useDot {
-  /* Button is sized to its painted circle by default; the visible dot lives in ::before
-     so the hit area can grow on touch devices without resizing the dot. */
+  /* WCAG 2.5.8 (Target Size, Minimum): the hit area is ≥24px for all pointer
+     inputs. The visible dot lives in ::before and stays 14px, so the button can
+     grow without resizing the dot. */
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 14px;
-  height: 14px;
+  width: 24px;
+  height: 24px;
   border: none;
   background: transparent;
   cursor: pointer;
@@ -52,19 +53,6 @@
 .useDot:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-}
-
-/* WCAG 2.5.8: grow the tap target to ≥24px on touch / coarse-pointer devices.
-   The painted dot stays 14px via ::before; only the button hit area enlarges. */
-@media (pointer: coarse) {
-  .useDots {
-    gap: var(--spacing-2);
-  }
-
-  .useDot {
-    width: 24px;
-    height: 24px;
-  }
 }
 
 .useDotsLabel {
