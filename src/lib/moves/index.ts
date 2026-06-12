@@ -44,6 +44,16 @@ export const BACKGROUND_FORCED_MOVES: Partial<Record<PlaybookType, Record<string
   },
 };
 
+// Crew tags granted "in addition to your usual picks": forced on and excluded
+// from the tag pick limit, computed at render time like the other grants here.
+export const BACKGROUND_GRANTED_CREW_TAGS: Partial<Record<PlaybookType, Record<string, string>>> = {
+  marshal: {
+    scion: 'respected',
+    penitent: 'warriors',
+    luminary: 'devoted',
+  },
+};
+
 // Background grants are computed at render time so they survive background changes without writing to Firestore.
 export const BACKGROUND_FORCED_CHECKLIST: Partial<Record<PlaybookType, Record<string, Record<string, string[]>>>> = {
   seeker: {

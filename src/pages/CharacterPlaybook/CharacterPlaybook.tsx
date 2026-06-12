@@ -1,4 +1,5 @@
-import { useRef, useCallback, useMemo, useState } from 'react';
+import { useRef, useCallback, useMemo } from 'react';
+import { useHashTabs } from '@/hooks/useHashTabs';
 import type { ComponentType, ReactNode } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PageMeta } from '@/components/app/PageMeta/PageMeta';
@@ -164,9 +165,9 @@ const resolveStaticTabContent = (
   return null;
 };
 
+
 const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, updateCharacterName, updateCharacterData }: SheetProps) => {
   const headerRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
 
   const handleSaveCharacterData = useCallback(
     (data: Partial<CharacterData>) => updateCharacterData(character.id, data),
@@ -181,22 +182,6 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
   const { data: characterData, playbook } = character;
 
   useAutoFollowers(characterData?.specialPossessions, characterData?.inserts, handleSaveCharacterData);
-
-  const {
-    addTabOpen,
-    removeInsert,
-    removeInsertHandlers,
-    handleOpenAddTab,
-    handleCloseAddTab,
-    handleCloseRemoveInsert,
-    handleConfirmRemoveInsert,
-    handleAddInsert,
-  } = useInsertTabs(
-    character,
-    handleSaveCharacterData,
-    (playbookArg, data) => getPlaybookTabs(playbookArg, data).length,
-    setActiveIndex,
-  );
 
   const canAddInsert = (characterData?.inserts ?? []).length < INSERT_OPTIONS.length;
   const characterName = character.name?.trim();
@@ -221,28 +206,43 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
   const showInvocationsBadge = computeInvocationBadge(playbook, level, features);
   const invocationsTabIndex = playbookTabs.findIndex(({ id }) => id === 'invocations');
 
-  const handleActiveChange = useCallback((i: number) => {
-    setActiveIndex(i);
-    if (showInvocationsBadge && invocationsTabIndex !== -1 && i === 3 + invocationsTabIndex) {
-      // Fire-and-forget: badge dismissal is best-effort, losing it on failure is acceptable UX
-      handleSaveCharacterData(featurePatch(characterData, { lightbearerInvocationsBadgeDismissedAt: level })).catch(() => {});
-    }
-  }, [showInvocationsBadge, invocationsTabIndex, handleSaveCharacterData, characterData, level]);
+  // Stable ref so useInsertTabs can call setActiveIndex without being a dep of tabs
+  const setActiveIndexRef = useRef<(i: number) => void>(() => {});
+
+  const {
+    addTabOpen,
+    removeInsert,
+    removeInsertHandlers,
+    handleOpenAddTab,
+    handleCloseAddTab,
+    handleCloseRemoveInsert,
+    handleConfirmRemoveInsert,
+    handleAddInsert,
+  } = useInsertTabs(
+    character,
+    handleSaveCharacterData,
+    (playbookArg, data) => getPlaybookTabs(playbookArg, data).length,
+    useCallback((i: number) => setActiveIndexRef.current(i), []),
+  );
 
   const tabs = useMemo(() => [
     {
+      id: 'pc-playbook',
       label: 'PC Playbook',
       content: <PCPlaybookTab playbook={playbook} data={characterData} level={level} playbookOption={playbookOption} onSave={handleSaveCharacterData} insertInstinctNote={insertInstinctNote} />,
     },
     {
+      id: 'inventory',
       label: 'Inventory',
       content: resolveStaticTabContent('inventory', characterData, prosperity, handleSaveCharacterData),
     },
     {
+      id: 'arcana',
       label: 'Arcana',
       content: resolveStaticTabContent('arcana', characterData, prosperity, handleSaveCharacterData),
     },
     ...playbookTabs.map(({ id: tabId, label, render }) => ({
+      id: tabId,
       label,
       badge: tabId === 'invocations' && showInvocationsBadge
         ? <span className={tabBadgeClass} aria-label="New Invocation available" />
@@ -253,6 +253,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
       content: render(characterData, handleSaveCharacterData, prosperity),
     })),
     ...(characterData?.inserts ?? []).map((label) => ({
+      id: label,
       label,
       content: resolveStaticTabContent(label, characterData, prosperity, handleSaveCharacterData),
       onRemove: INSERT_OPTIONS.includes(label as InsertOption)
@@ -261,6 +262,17 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
       removeTooltip: `Remove ${label}`,
     })),
   ], [characterData, playbook, level, playbookOption, handleSaveCharacterData, insertInstinctNote, playbookTabs, showInvocationsBadge, prosperity, removeInsertHandlers]);
+
+  const { activeIndex, setActiveIndex: setActiveIndexFn, handleActiveChange: hashHandleActiveChange } = useHashTabs(tabs);
+  setActiveIndexRef.current = setActiveIndexFn;
+
+  const handleActiveChange = useCallback((i: number) => {
+    hashHandleActiveChange(i);
+    if (showInvocationsBadge && invocationsTabIndex !== -1 && i === 3 + invocationsTabIndex) {
+      // Fire-and-forget: badge dismissal is best-effort, losing it on failure is acceptable UX
+      handleSaveCharacterData(featurePatch(characterData, { lightbearerInvocationsBadgeDismissedAt: level })).catch(() => {});
+    }
+  }, [hashHandleActiveChange, showInvocationsBadge, invocationsTabIndex, handleSaveCharacterData, characterData, level]);
 
   return (
     <PageLayout
