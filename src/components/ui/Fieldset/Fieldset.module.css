@@ -6,9 +6,15 @@
 }
 
 .legend {
-  padding: 0;
   display: block;
   width: 100%;
+  padding: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-stone-400);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .legendVisuallyHidden {

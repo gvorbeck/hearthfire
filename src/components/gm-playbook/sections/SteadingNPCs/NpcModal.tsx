@@ -1,5 +1,5 @@
 import { useState, useCallback, useId } from 'react';
-import { Heading, Button, Modal, Input } from '@/components/ui';
+import { Heading, Button, Modal, Input, Fieldset } from '@/components/ui';
 import { TagInput } from '@/components/fields';
 import type { DropdownGroup } from '@/components/ui';
 import { randomNpcName } from '@/lib/npcNames';
@@ -76,14 +76,13 @@ export const NpcModal = ({ open, onClose, onSave, initial = EMPTY_FORM, title, r
           suggestions={NPC_TRAITS}
           placeholder="Type or pick a trait…"
         />
-        <fieldset className={styles.relFieldset}>
-          <legend className={styles.relLabel}>Relationships</legend>
+        <Fieldset legend="Relationships" className={styles.relFieldset}>
           <RelationshipRepeater
             relationships={form.relationships}
             groups={relationshipGroups}
             onChange={handleRelationshipsChange}
           />
-        </fieldset>
+        </Fieldset>
         <Input
           multiline
           label="Notes"

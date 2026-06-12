@@ -1,19 +1,7 @@
 .relFieldset {
-  border: none;
-  margin: 0;
-  padding: 0;
-}
-
-.relLabel {
-  display: block;
-  font-family: var(--font-sans);
-  font-size: var(--text-xs);
-  font-weight: 600;
-  color: var(--color-stone-400);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: var(--spacing-2);
-  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
 }
 
 .nameRow {
