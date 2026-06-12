@@ -1,0 +1,26 @@
+.relRepeater {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+/* label-free cells keep equal heights — do not add labels inside .relRow */
+.relRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+
+.relDropdown {
+  width: 100%;
+}
+
+.relRemoveBtn {
+  flex-shrink: 0;
+}
+
+.relAddBtn {
+  align-self: flex-start;
+}

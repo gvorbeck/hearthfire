@@ -14,7 +14,7 @@ import { DEFAULT_GAME_NAME, getPlaybook } from '@/lib/constants';
 import { SteadingStats } from '@/components/gm-playbook/sections/SteadingStats';
 import { SteadingImprovements } from '@/components/gm-playbook/sections/SteadingImprovements';
 import { SteadingAssets } from '@/components/gm-playbook/sections/SteadingAssets';
-import { SteadingNPCs } from '@/components/gm-playbook/sections/SteadingNPCs';
+import { SteadingNPCs } from '@/components/gm-playbook/sections/SteadingNPCs/SteadingNPCs';
 import { SteadingReference } from '@/components/gm-playbook/sections/SteadingReference';
 import type { GameSession, SteadingData, SteadingNPC } from '@/types';
 import styles from './SteadingPlaybook.module.css';

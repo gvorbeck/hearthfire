@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import clsx from 'clsx';
 import { Checkbox } from '../Checkbox/Checkbox';
+import { Fieldset } from '../Fieldset/Fieldset';
 import { Text } from '../Text/Text';
 import type { CheckboxGroupItem } from '@/types';
 import styles from './CheckboxGroup.module.css';
@@ -46,10 +47,7 @@ export const CheckboxGroup = ({
   );
 
   return (
-    <fieldset className={styles.root}>
-      <legend className={!label ? styles.visuallyHidden : undefined}>
-        {label ? <Text font="serif" color="muted" leading="normal">{label}</Text> : 'Options'}
-      </legend>
+    <Fieldset legend={label ?? 'Options'} legendHidden={!label} className={styles.root}>
       {pickNote && <Text size="xs" color="tertiary" italic>{pickNote}</Text>}
       <div className={gridClass}>
         {items.map(({ id, label: itemLabel, disabled: itemDisabled }) => {
@@ -66,6 +64,6 @@ export const CheckboxGroup = ({
           );
         })}
       </div>
-    </fieldset>
+    </Fieldset>
   );
 };

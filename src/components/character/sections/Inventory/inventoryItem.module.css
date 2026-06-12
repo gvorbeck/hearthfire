@@ -1,0 +1,13 @@
+.itemLabel {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.itemLabel strong {
+  color: var(--text-primary);
+}

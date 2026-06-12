@@ -1,0 +1,31 @@
+.relFieldset {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.nameRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: var(--spacing-2);
+}
+
+.diceBtn {
+  flex-shrink: 0;
+  color: var(--text-secondary);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-4);
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-2);
+}

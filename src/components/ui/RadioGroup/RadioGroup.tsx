@@ -1,5 +1,4 @@
-import clsx from 'clsx';
-import styles from './RadioGroup.module.css';
+import { Fieldset } from '../Fieldset/Fieldset';
 
 interface RadioGroupProps {
   legend: string;
@@ -8,13 +7,8 @@ interface RadioGroupProps {
   className?: string;
 }
 
-export const RadioGroup = ({ legend, legendHidden = false, children, className }: RadioGroupProps) => {
-  const rootCx = clsx(styles.root, className);
-  const legendCx = clsx(styles.legend, legendHidden && styles.legendVisuallyHidden);
-  return (
-    <fieldset className={rootCx}>
-      <legend className={legendCx}>{legend}</legend>
-      {children}
-    </fieldset>
-  );
-};
+export const RadioGroup = ({ legend, legendHidden = false, children, className }: RadioGroupProps) => (
+  <Fieldset legend={legend} legendHidden={legendHidden} className={className}>
+    {children}
+  </Fieldset>
+);

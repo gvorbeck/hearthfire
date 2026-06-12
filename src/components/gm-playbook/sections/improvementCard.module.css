@@ -1,0 +1,40 @@
+@media (min-width: 768px) {
+  .item {
+    break-inside: avoid;
+    margin-bottom: var(--spacing-4);
+  }
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  padding: var(--spacing-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  transition: border-color 0.15s ease;
+}
+
+.itemCompleted {
+  border-color: var(--border-accent);
+}
+
+/* ── Header row ───────────────────────────────────────── */
+.itemHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+}
+
+.itemCheckbox {
+  gap: var(--spacing-2);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-2);
+}

@@ -1,0 +1,43 @@
+/* Load indicator */
+.loadRow {
+  margin-top: var(--spacing-3);
+}
+
+.loadBadge {
+  display: inline-block;
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-serif);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.loadLight {
+  background-color: color-mix(in srgb, var(--color-success) 15%, transparent);
+  color: var(--color-success);
+}
+
+.loadNormal {
+  background-color: color-mix(in srgb, var(--color-warning) 15%, transparent);
+  color: var(--color-warning);
+}
+
+.loadHeavy {
+  background-color: color-mix(in srgb, var(--color-danger) 15%, transparent);
+  color: var(--color-danger);
+}
+
+/* ── Shared label rules → inventoryItem.module.css ──── */
+
+/* Main item list */
+.mainItemRow {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.itemDots {
+  display: inline-flex;
+  align-items: center;
+}
