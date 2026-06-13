@@ -33,3 +33,6 @@ service-account.json
 
 # Local Firestore backups
 firestore-backup-*.json
+
+# Firebase deploy cache
+.firebase/

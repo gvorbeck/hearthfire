@@ -1,0 +1,12 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // No auth: games are gated by a hard-to-guess shared ID in the URL.
+    // Anyone with the ID can read/write that game. No expiry — the previous
+    // test-mode rules expired on 2026-06-13 and denied all access.
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}

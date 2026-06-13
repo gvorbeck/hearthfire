@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import clsx from 'clsx';
-import { Button, Heading, Icon, Tooltip } from '@/components/ui';
+import { Button, Heading, Icon, Text, Tooltip } from '@/components/ui';
 import styles from './CharacterSheet.module.css';
 
 const DEFAULT_WARN_TEXT = 'This section has unresolved choices — select an option to complete it.';
@@ -55,16 +55,16 @@ export const PlaybookSection = ({
         <Heading as="h3" size="label" className={styles.sectionTitle}>
           {title}
           {(choose !== undefined || chooseNote) && (
-            <span className={chooseCx}>
+            <Text as="span" className={chooseCx}>
               {choose !== undefined ? `(Choose ${choose}${chooseNote ? `, ${chooseNote}` : ''})` : `(${chooseNote})`}
-            </span>
+            </Text>
           )}
           <Tooltip text={warnText} side="top" noTabStop={!warn || !!overrideNote} className={warnCx}>
             <Icon name="warning" size="small" aria-hidden={true} />
           </Tooltip>
         </Heading>
         {overrideNote && (
-          <span className={styles.sectionOverrideNote}>{overrideNote}</span>
+          <Text as="span" className={styles.sectionOverrideNote}>{overrideNote}</Text>
         )}
         {showCollapse && (
           <Button
