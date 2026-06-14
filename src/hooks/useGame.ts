@@ -143,10 +143,11 @@ export const parseSteading = (raw: unknown): SteadingData | undefined => {
 };
 
 const parseGameSession = (raw: Record<string, unknown>, id: string): GameSession => {
-  if (typeof raw.name !== 'string') throw new Error('Game document missing required field: name');
   return {
     id,
-    name: raw.name,
+    // Defaults to '' like every other field so a legacy/corrupt doc missing
+    // name stays readable rather than failing the whole parse.
+    name: typeof raw.name === 'string' ? raw.name : '',
     createdAt: typeof raw.createdAt === 'number' ? raw.createdAt : 0,
     characters: parseCharacters(raw),
     content: parseContent(raw.content),
@@ -238,7 +239,17 @@ export const useGame = (gameId: string): UseGameResult => {
   }, [gameRef]);
 
   const updateCharacterData = useCallback(async (characterId: string, data: Partial<CharacterData>) => {
-    await withCharacters(gameRef, (chars) => chars.map((c) => c.id === characterId ? { ...c, data: { ...c.data, ...data } } : c));
+    await withCharacters(gameRef, (chars) => chars.map((c) => {
+      if (c.id !== characterId) return c;
+      // Deep-merge playbookFeatures against the freshly-read doc so concurrent
+      // saves to different feature keys don't clobber each other — the incoming
+      // patch is built from a (possibly stale) prop snapshot of the whole object.
+      const next = { ...c.data, ...data };
+      if (data.playbookFeatures) {
+        next.playbookFeatures = { ...c.data?.playbookFeatures, ...data.playbookFeatures };
+      }
+      return { ...c, data: next };
+    }));
   }, [gameRef]);
 
   const updateSteading = useCallback(async (patch: Partial<SteadingData>) => {

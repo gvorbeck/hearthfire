@@ -196,8 +196,13 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
     if (hpMax !== undefined && !data.statHp) patch.statHp = String(hpMax);
     if (!data.statXp) patch.statXp = '0';
     if (Object.keys(patch).length > 0) {
+      // Guard against re-entrancy this render cycle, but only commit it on a
+      // successful write — a failed init must be retried, or statHp/statXp
+      // defaults silently never persist (masked by the display fallback).
       hasAutoInitialized.current = true;
-      onSaveRef.current?.(patch);
+      Promise.resolve(onSaveRef.current?.(patch)).catch(() => {
+        hasAutoInitialized.current = false;
+      });
     }
   }, [data, hpMax]);
 

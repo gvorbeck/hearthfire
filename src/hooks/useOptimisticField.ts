@@ -15,6 +15,9 @@ export const useOptimisticField = <T>(
   const pendingRef = useRef(false);
   const [value, setValue] = useState<T>(firestoreValue);
   const ref = useLatest(value);
+  // Bumped when a save resolves so the component re-renders and useFirestoreSync
+  // can flush a remote value that arrived (and was deferred) mid-save.
+  const [, setSaveTick] = useState(0);
 
   useFirestoreSync(firestoreValue, setValue, pendingRef);
 
@@ -27,7 +30,10 @@ export const useOptimisticField = <T>(
         setValue(prev);
         addToastRef.current(errorMsgRef.current, 'error');
       })
-      .finally(() => { pendingRef.current = false; });
+      .finally(() => {
+        pendingRef.current = false;
+        setSaveTick((t) => t + 1);
+      });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return { value, ref, setValue, save, pendingRef };

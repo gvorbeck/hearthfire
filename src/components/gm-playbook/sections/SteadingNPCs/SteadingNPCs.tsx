@@ -18,8 +18,7 @@ interface NpcSectionProps {
   title: string;
   description: string;
   npcs: SteadingNPC[];
-  allNpcs: SteadingNPC[];
-  onUpdate: (npcs: SteadingNPC[]) => void;
+  onUpdate: (transform: (current: SteadingNPC[]) => SteadingNPC[]) => void;
   onToggleDead: (id: string) => void;
   relationshipGroups: DropdownGroup<RelTarget>[];
   resolveTarget: (rel: NpcRelationship) => string;
@@ -34,7 +33,7 @@ const npcToForm = (npc: SteadingNPC): NpcFormState => ({
   notes: npc.notes ?? '',
 });
 
-const NpcSection = ({ title, description, npcs, allNpcs, onUpdate, onToggleDead, relationshipGroups, resolveTarget }: NpcSectionProps) => {
+const NpcSection = ({ title, description, npcs, onUpdate, onToggleDead, relationshipGroups, resolveTarget }: NpcSectionProps) => {
   const [addOpen, setAddOpen] = useState(false);
   const [editNpc, setEditNpc] = useState<SteadingNPC | null>(null);
 
@@ -43,8 +42,9 @@ const NpcSection = ({ title, description, npcs, allNpcs, onUpdate, onToggleDead,
   const closeEdit = useCallback(() => setEditNpc(null), []);
 
   const handleAdd = useCallback((form: NpcFormState) => {
-    onUpdate([...allNpcs, { id: generateId(), ...form }]);
-  }, [allNpcs, onUpdate]);
+    const npc = { id: generateId(), ...form };
+    onUpdate((current) => [...current, npc]);
+  }, [onUpdate]);
 
   const handleEdit = useCallback((npc: SteadingNPC) => {
     setEditNpc(npc);
@@ -52,12 +52,12 @@ const NpcSection = ({ title, description, npcs, allNpcs, onUpdate, onToggleDead,
 
   const handleSaveEdit = useCallback((form: NpcFormState) => {
     if (!editNpc) return;
-    onUpdate(allNpcs.map((n) => n.id === editNpc.id ? { ...editNpc, ...form } : n));
-  }, [allNpcs, onUpdate, editNpc]);
+    onUpdate((current) => current.map((n) => n.id === editNpc.id ? { ...editNpc, ...form } : n));
+  }, [onUpdate, editNpc]);
 
   const handleRemove = useCallback((id: string) => {
-    onUpdate(allNpcs.filter((n) => n.id !== id));
-  }, [allNpcs, onUpdate]);
+    onUpdate((current) => current.filter((n) => n.id !== id));
+  }, [onUpdate]);
 
   return (
     <div className={styles.section}>
@@ -113,18 +113,23 @@ export const SteadingNPCs = ({ section, npcs = [], onSave, game, filterTargetId 
     if (pendingRef.current === 0) setLocalNpcs(npcs);
   }, [npcs]);
 
-  const saveNpcs = useCallback((updated: SteadingNPC[]) => {
-    const prev = localNpcs;
-    setLocalNpcs(updated);
+  const saveNpcs = useCallback((transform: (current: SteadingNPC[]) => SteadingNPC[]) => {
+    // Compute the new list inside the functional updater so it builds on the
+    // freshest state, and capture the pre-save snapshot from the same callback
+    // so a rollback restores it — neither relies on a stale closed-over value
+    // that a concurrent edit could clobber.
+    let prev: SteadingNPC[] = [];
+    let updated: SteadingNPC[] = [];
+    setLocalNpcs((current) => { prev = current; updated = transform(current); return updated; });
     pendingRef.current += 1;
     onSave({ [section]: updated })
       .catch(() => { setLocalNpcs(prev); addToast('Failed to save.', 'error'); })
       .finally(() => { pendingRef.current -= 1; });
-  }, [onSave, addToast, section, localNpcs]);
+  }, [onSave, addToast, section]);
 
   const handleToggleDead = useCallback((id: string) => {
-    saveNpcs(localNpcs.map((n) => n.id === id ? { ...n, dead: !n.dead } : n));
-  }, [localNpcs, saveNpcs]);
+    saveNpcs((current) => current.map((n) => n.id === id ? { ...n, dead: !n.dead } : n));
+  }, [saveNpcs]);
   const visibleNpcs = useMemo(() => {
     const list = filterTargetId
       ? localNpcs.filter((n) => (n.relationships ?? []).some((r) => r.targetId === filterTargetId))
@@ -151,7 +156,6 @@ export const SteadingNPCs = ({ section, npcs = [], onSave, game, filterTargetId 
       title={title}
       description={description}
       npcs={visibleNpcs}
-      allNpcs={localNpcs}
       onUpdate={saveNpcs}
       onToggleDead={handleToggleDead}
       relationshipGroups={groups}
