@@ -1,4 +1,4 @@
-import { List, Icon, Tooltip } from '@/components/ui';
+import { List, Icon, Tooltip, Text } from '@/components/ui';
 import { RepeaterField } from '@/components/fields';
 import styles from './ImprovementList.module.css';
 
@@ -36,7 +36,7 @@ export const ImprovementList = ({
 
   const listItems = allFixed.map(({ id, label, fromImprovement }) => (
     <span key={id} className={styles.fixedItem}>
-      {label}
+      <Text as="span">{label}</Text>
       {fromImprovement && (
         <Tooltip text="Added by a completed improvement" side="top">
           <Icon name="info" size="small" className={styles.infoIcon} />
@@ -53,6 +53,7 @@ export const ImprovementList = ({
         onSave={onSave}
         addLabel={addLabel}
         itemLabel={itemLabel}
+        className={styles.customList}
       />
     </div>
   );

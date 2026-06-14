@@ -1,7 +1,7 @@
-import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Text, Button } from '@/components/ui';
 import type { DropdownGroup } from '@/components/ui';
-import { useToast } from '@/components/app';
+import { useOptimisticSteadingField } from '@/hooks/useOptimisticSteadingField';
 import type { SteadingData, SteadingNPC, NpcRelationship, GameSession } from '@/types';
 import { generateId, NPC_CONFIG, buildGroups, buildNameMap } from './npcData';
 import type { NpcFormState, RelTarget } from './npcData';
@@ -104,28 +104,11 @@ interface SteadingNPCsProps {
 }
 
 export const SteadingNPCs = ({ section, npcs = [], onSave, game, filterTargetId }: SteadingNPCsProps) => {
-  const { addToast } = useToast();
   const { title, description } = NPC_CONFIG[section];
-  const pendingRef = useRef(0);
-  const [localNpcs, setLocalNpcs] = useState<SteadingNPC[]>(() => npcs);
-
-  useEffect(() => {
-    if (pendingRef.current === 0) setLocalNpcs(npcs);
-  }, [npcs]);
-
-  const saveNpcs = useCallback((transform: (current: SteadingNPC[]) => SteadingNPC[]) => {
-    // Compute the new list inside the functional updater so it builds on the
-    // freshest state, and capture the pre-save snapshot from the same callback
-    // so a rollback restores it — neither relies on a stale closed-over value
-    // that a concurrent edit could clobber.
-    let prev: SteadingNPC[] = [];
-    let updated: SteadingNPC[] = [];
-    setLocalNpcs((current) => { prev = current; updated = transform(current); return updated; });
-    pendingRef.current += 1;
-    onSave({ [section]: updated })
-      .catch(() => { setLocalNpcs(prev); addToast('Failed to save.', 'error'); })
-      .finally(() => { pendingRef.current -= 1; });
-  }, [onSave, addToast, section]);
+  const { value: localNpcs, save: saveNpcs } = useOptimisticSteadingField(
+    npcs,
+    (next: SteadingNPC[]) => onSave({ [section]: next }),
+  );
 
   const handleToggleDead = useCallback((id: string) => {
     saveNpcs((current) => current.map((n) => n.id === id ? { ...n, dead: !n.dead } : n));

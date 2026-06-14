@@ -6,8 +6,7 @@ import { useGame } from '@/hooks/useGame';
 import { ScrollToTop, Tabs, Dropdown, Button, PlaybookColumns } from '@/components/ui';
 import type { DropdownGroup } from '@/components/ui';
 import { PageLayout } from '@/components/app/PageLayout/PageLayout';
-import { SteadingResources } from '@/components/gm-playbook/sections/SteadingResources';
-import { SteadingFortifications } from '@/components/gm-playbook/sections/SteadingFortifications';
+import { SteadingImprovementList, RESOURCES_CONFIG, FORTIFICATIONS_CONFIG } from '@/components/gm-playbook/sections/SteadingImprovementList';
 import { PlaybookSection } from '@/components/character/PlaybookSection';
 import { GameGuard } from '@/components/app/GameGuard/GameGuard';
 import { DEFAULT_GAME_NAME, getPlaybook } from '@/lib/constants';
@@ -97,16 +96,18 @@ const SteadingTab = ({ steading, updateSteading }: SteadingTabProps) => (
     }
     right={<>
       <PlaybookSection title="Resources">
-        <SteadingResources
-          resources={steading.resources}
+        <SteadingImprovementList
+          config={RESOURCES_CONFIG}
+          items={steading.resources}
           improvements={steading.improvements}
           gmImprovements={steading.gmImprovements}
           onSave={updateSteading}
         />
       </PlaybookSection>
       <PlaybookSection title="Fortifications">
-        <SteadingFortifications
-          fortifications={steading.fortifications}
+        <SteadingImprovementList
+          config={FORTIFICATIONS_CONFIG}
+          items={steading.fortifications}
           improvements={steading.improvements}
           gmImprovements={steading.gmImprovements}
           onSave={updateSteading}

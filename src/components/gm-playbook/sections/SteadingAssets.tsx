@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Heading, Text, Input } from '@/components/ui';
-import { useToast } from '@/components/app';
+import { useOptimisticSteadingField } from '@/hooks/useOptimisticSteadingField';
 import { ImprovementList } from './ImprovementList';
 import type { SteadingData } from '@/types';
 import styles from './SteadingAssets.module.css';
@@ -80,7 +80,6 @@ interface SteadingAssetsProps {
 }
 
 export const SteadingAssets = ({ steading, onSave }: SteadingAssetsProps) => {
-  const { addToast } = useToast();
   const {
     assetsList = [],
     improvements = {},
@@ -92,18 +91,22 @@ export const SteadingAssets = ({ steading, onSave }: SteadingAssetsProps) => {
     goldHandfuls = 0,
     goldCoins = 0,
   } = steading;
-  const pendingRef = useRef(0);
-  const [localAssetsList, setLocalAssetsList] = useState<string[]>(() => assetsList);
-  const [localCurrency, setLocalCurrency] = useState<Record<CurrencyKey, number>>(() => ({
-    silverPurses, silverHandfuls, silverCoins, goldPurses, goldHandfuls, goldCoins,
-  }));
 
-  useEffect(() => {
-    if (pendingRef.current === 0) {
-      setLocalAssetsList(assetsList);
-      setLocalCurrency({ silverPurses, silverHandfuls, silverCoins, goldPurses, goldHandfuls, goldCoins });
-    }
-  }, [assetsList, silverPurses, silverHandfuls, silverCoins, goldPurses, goldHandfuls, goldCoins]);
+  const { value: localAssetsList, save: saveAssetsList } = useOptimisticSteadingField(
+    assetsList,
+    (next: string[]) => onSave({ assetsList: next }),
+  );
+
+  const firestoreCurrency = useMemo<Record<CurrencyKey, number>>(
+    () => ({ silverPurses, silverHandfuls, silverCoins, goldPurses, goldHandfuls, goldCoins }),
+    [silverPurses, silverHandfuls, silverCoins, goldPurses, goldHandfuls, goldCoins],
+  );
+  const { value: localCurrency, save: saveCurrency } = useOptimisticSteadingField<Record<CurrencyKey, number>, [key: CurrencyKey]>(
+    firestoreCurrency,
+    // Persist only the changed denomination so a concurrent edit to another isn't clobbered.
+    (next, key) => onSave({ [key]: next[key] }),
+  );
+
   const hasHerdOfHorses = !!improvements['herd-of-horses'];
 
   const fixedItems = useMemo(() => [
@@ -125,22 +128,10 @@ export const SteadingAssets = ({ steading, onSave }: SteadingAssetsProps) => {
     return record;
   }, [improvementItems]);
 
-  const handleSaveList = useCallback((items: string[]) => {
-    const prev = localAssetsList;
-    setLocalAssetsList(items);
-    pendingRef.current += 1;
-    return onSave({ assetsList: items })
-      .catch(() => { setLocalAssetsList(prev); addToast('Failed to save.', 'error'); })
-      .finally(() => { pendingRef.current -= 1; });
-  }, [onSave, addToast, localAssetsList]);
+  const handleSaveList = useCallback((items: string[]) => saveAssetsList(() => items), [saveAssetsList]);
   const handleCurrencySave = useCallback((key: CurrencyKey, v: number) => {
-    const prev = localCurrency[key];
-    setLocalCurrency((c) => ({ ...c, [key]: v }));
-    pendingRef.current += 1;
-    onSave({ [key]: v })
-      .catch(() => { setLocalCurrency((c) => ({ ...c, [key]: prev })); addToast('Failed to save.', 'error'); })
-      .finally(() => { pendingRef.current -= 1; });
-  }, [onSave, addToast, localCurrency]);
+    saveCurrency((c) => ({ ...c, [key]: v }), key);
+  }, [saveCurrency]);
 
   return (
     <div className={styles.root}>

@@ -142,6 +142,9 @@ const Row = memo(({
 interface BaseProps {
   addLabel: string;
   itemLabel: string;
+  // Optional class on the row list, so a host can align the editable rows with
+  // an adjacent static list (e.g. Steading fixed items use the sans body font).
+  className?: string;
 }
 
 interface PlainProps extends BaseProps {
@@ -169,7 +172,8 @@ type SaveFn = PlainProps['onSave'] | CheckedProps['onSave'] | CheckedWeightProps
 const addBtnCx = clsx(styles.addBtn, styles.addBtnOffset);
 
 export const RepeaterField = (props: RepeaterFieldProps) => {
-  const { addLabel, itemLabel } = props;
+  const { addLabel, itemLabel, className } = props;
+  const listCx = clsx(styles.list, className);
 
   const nextId = useRef(props.items.length);
   const onSaveRef = useRef<SaveFn>(props.onSave);
@@ -283,7 +287,7 @@ export const RepeaterField = (props: RepeaterFieldProps) => {
   return (
     <>
       {local.length > 0 && (
-        <ul className={styles.list} aria-label={addLabel}>
+        <ul className={listCx} aria-label={addLabel}>
           {local.map((item, i) => (
             <Row
               key={item.id}
