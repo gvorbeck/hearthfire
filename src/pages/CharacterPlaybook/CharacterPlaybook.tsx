@@ -204,7 +204,6 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
   const insertInstinctNote = insertInstinctMatch ? `Replaced by your ${insertInstinctMatch.label} instinct` : undefined;
 
   const showInvocationsBadge = computeInvocationBadge(playbook, level, features);
-  const invocationsTabIndex = playbookTabs.findIndex(({ id }) => id === 'invocations');
 
   // Stable ref so useInsertTabs can call setActiveIndex without being a dep of tabs
   const setActiveIndexRef = useRef<(i: number) => void>(() => {});
@@ -268,11 +267,14 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
 
   const handleActiveChange = useCallback((i: number) => {
     hashHandleActiveChange(i);
-    if (showInvocationsBadge && invocationsTabIndex !== -1 && i === 3 + invocationsTabIndex) {
+    // Derive the absolute index from the built tabs array so adding/removing a
+    // leading static tab can't silently break badge dismissal.
+    const invocationsTabAbsoluteIndex = tabs.findIndex((t) => t.id === 'invocations');
+    if (showInvocationsBadge && invocationsTabAbsoluteIndex !== -1 && i === invocationsTabAbsoluteIndex) {
       // Fire-and-forget: badge dismissal is best-effort, losing it on failure is acceptable UX
       handleSaveCharacterData(featurePatch(characterData, { lightbearerInvocationsBadgeDismissedAt: level })).catch(() => {});
     }
-  }, [hashHandleActiveChange, showInvocationsBadge, invocationsTabIndex, handleSaveCharacterData, characterData, level]);
+  }, [hashHandleActiveChange, showInvocationsBadge, tabs, handleSaveCharacterData, characterData, level]);
 
   return (
     <PageLayout

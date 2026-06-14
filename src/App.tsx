@@ -54,7 +54,13 @@ const NotFound = lazy(() =>
 export const App = () => (
   <ToastProvider>
     <ErrorBoundary>
-      <Suspense fallback={<div className={styles.srOnly} aria-live="polite" aria-busy="true">Loading…</div>}>
+      <Suspense
+        fallback={
+          <div className={styles.loading} aria-live="polite" aria-busy="true">
+            <span className={styles.spinner} role="status" aria-label="Loading…" />
+          </div>
+        }
+      >
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/game/:id" element={<Game />} />
