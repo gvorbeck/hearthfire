@@ -200,7 +200,7 @@ const InitiateSection = memo(({
                   data-line-key={line.key}
                   checked={picks[line.key] === opt}
                   onChange={handlePickChange}
-                  label={<span className={styles.pickLabel}>{opt}</span>}
+                  label={<Text as="span" font="serif">{opt}</Text>}
                 />
               ))}
             </RadioGroup>

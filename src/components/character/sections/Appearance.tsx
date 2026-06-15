@@ -110,7 +110,7 @@ export const Appearance = ({ rows, data, onSave }: AppearanceProps = {}) => {
                     checked={selected[String(rowIndex)] === opt}
                     disabled={isCustom}
                     onChange={handleSelect}
-                    label={<span className={styles.optionLabel}>{opt}</span>}
+                    label={opt}
                   />
                 ))}
               </RadioGroup>

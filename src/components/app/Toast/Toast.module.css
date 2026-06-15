@@ -71,7 +71,6 @@
 .body {
   flex: 1;
   min-width: 0;
-  line-height: 1.4;
 }
 
 /* !important overrides Button ghost variant border/padding — CSS Modules can't target internal component classes across module boundaries */

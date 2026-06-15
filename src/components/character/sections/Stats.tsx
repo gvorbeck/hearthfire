@@ -40,7 +40,7 @@ const StatBox = ({ label, abbr, statKey, value, onChange, onBlur }: StatBoxProps
         onBlur={onBlur}
         onWheel={handleStatWheel}
       />
-      <span className={styles.statAbbr}>({abbr})</span>
+      <Text as="span" font="serif" size="sm" color="muted">({abbr})</Text>
     </div>
   );
 };
@@ -71,7 +71,7 @@ const InfoBox = ({ label, statKey, value, isStatic, min, onChange, onBlur }: Inf
         onWheel={(e) => e.currentTarget.blur()}
       />
     )}
-    <span className={styles.infoLabel}>{label}</span>
+    <Text as="span" font="serif" size="sm" color="muted" className={styles.infoLabel}>{label}</Text>
   </div>
 );
 
@@ -93,7 +93,7 @@ const DebilityRow = ({ label, debilityKey, checked, onChange }: DebilityRowProps
         value={label}
         checked={checked}
         onChange={handleChange}
-        label={<span className={styles.debilityLabel}>{label}</span>}
+        label={<Text as="span" font="serif" size="sm" color="muted" italic>{label}</Text>}
       />
     </div>
   );

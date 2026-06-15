@@ -39,11 +39,6 @@
   color: var(--text-primary);
 }
 
-.optionDesc {
-  font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-}
 
 .customLabel {
   font-family: var(--font-sans);

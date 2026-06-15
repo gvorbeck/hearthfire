@@ -141,19 +141,17 @@
 
 .idHint {
   display: block;
-  font-family: var(--font-sans);
-  font-size: var(--text-xs);
   margin-top: var(--spacing-1);
 }
 
-.idHintAvailable {
+.idHint.idHintAvailable {
   color: var(--color-gold-300);
 }
 
-.idHintTaken {
+.idHint.idHintTaken {
   color: var(--color-ember-400);
 }
 
-.idHintChecking {
+.idHint.idHintChecking {
   color: var(--text-secondary);
 }

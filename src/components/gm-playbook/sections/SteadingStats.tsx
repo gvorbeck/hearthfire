@@ -54,7 +54,7 @@ const StatStepper = ({ label, description, value, min = -1, max = 3, onChange }:
           />
         </div>
       </div>
-      <span className={styles.statDesc} id={descId}>{description}</span>
+      <Text as="span" size="xs" color="muted" leading="normal" id={descId}>{description}</Text>
     </div>
   );
 };
@@ -149,7 +149,7 @@ export const SteadingStats = ({ steading, onSave }: SteadingStatsProps) => {
         <div className={styles.statTop}>
           <div className={styles.statMeta}>
             <span className={styles.statLabel}>Size</span>
-            <span className={styles.statDesc}>Starts at village</span>
+            <Text as="span" size="xs" color="muted" leading="normal">Starts at village</Text>
           </div>
           <div className={styles.sizeOptions} role="group" aria-label="Size">
             {SIZES.map((s) => (
@@ -157,7 +157,7 @@ export const SteadingStats = ({ steading, onSave }: SteadingStatsProps) => {
                 key={s.value}
                 name="steading-size"
                 value={s.value}
-                label={<span className={styles.sizeLabel}>{s.label} <span className={styles.sizeDesc}>({s.description})</span></span>}
+                label={<span className={styles.sizeLabel}>{s.label} <Text as="span" color="muted">({s.description})</Text></span>}
                 checked={size === s.value}
                 onChange={saveSize}
               />
@@ -215,7 +215,7 @@ export const SteadingStats = ({ steading, onSave }: SteadingStatsProps) => {
             />
           </div>
         </div>
-        <span className={styles.statDesc}>Food in the granary, livestock ready to slaughter, whisky to drink or trade. Starts at 1; no upper limit.</span>
+        <Text as="span" size="xs" color="muted" leading="normal">Food in the granary, livestock ready to slaughter, whisky to drink or trade. Starts at 1; no upper limit.</Text>
       </div>
 
       <div className={styles.debilities}>

@@ -41,12 +41,6 @@
   align-items: center;
 }
 
-.optionLabel {
-  font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  color: var(--text-primary);
-}
-
 .traits {
   display: flex;
   flex-direction: column;

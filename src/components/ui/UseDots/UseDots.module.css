@@ -56,9 +56,5 @@
 }
 
 .useDotsLabel {
-  font-family: var(--font-serif);
-  font-size: var(--text-xs);
-  font-style: italic;
-  color: var(--text-secondary);
   white-space: nowrap;
 }

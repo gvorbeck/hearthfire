@@ -27,7 +27,7 @@ export const NpcRow = ({ npc, onEdit, onRemove, onToggleDead, resolveTarget }: N
           {npc.dead && <Text as="span" className={styles.npcDeadLabel}>(DEAD)</Text>}
           {npc.pronouns && <span className={styles.npcPronouns}>{npc.pronouns}</span>}
         </Text>
-        {npc.occupation && <span className={styles.npcOccupation}>{npc.occupation}</span>}
+        {npc.occupation && <Text as="span" size="xs" color="muted" italic>{npc.occupation}</Text>}
         {npc.traits && npc.traits.length > 0 && (
           <div className={styles.npcTraits}>
             {npc.traits.map((t) => (

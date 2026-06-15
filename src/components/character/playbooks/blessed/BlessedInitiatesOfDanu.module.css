@@ -97,12 +97,6 @@
   font-style: italic;
 }
 
-.pickLabel {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  color: var(--text-primary);
-}
-
 .grid {
   columns: 1;
   column-gap: var(--spacing-6);

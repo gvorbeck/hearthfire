@@ -89,17 +89,6 @@
   background: var(--surface-overlay);
 }
 
-.itemName {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-}
-
-.itemTags {
-  font-family: var(--font-serif);
-  font-size: var(--text-xs);
-  font-style: italic;
-  color: var(--text-secondary);
-}
 
 .empty {
   padding: var(--spacing-4);

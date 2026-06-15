@@ -59,7 +59,7 @@ export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) =>
               value={opt}
               checked={shrine === opt}
               onChange={() => saveShrine(opt)}
-              label={<span className={styles.optionLabel}>{opt}</span>}
+              label={opt}
             />
           ))}
         </RadioGroup>

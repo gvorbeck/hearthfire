@@ -126,7 +126,7 @@ export const Home = () => {
                     {showSlugPreview && (
                       <Text as="span" className={styles.idSlugPreview}>{`hearthfire.camp/game/**${slug}**`}</Text>
                     )}
-                    <span className={hintCx}>{STATUS_MESSAGES[status]}</span>
+                    <Text as="span" size="xs" className={hintCx}>{STATUS_MESSAGES[status]}</Text>
                   </>
                 )}
               </div>

@@ -132,8 +132,8 @@ export const RadioSelect = ({
               label={
                 <span className={styles.optionLabel}>
                   <span className={styles.optionTitle}>{opt.label}</span>
-                  {opt.description && <span className={styles.optionDesc}>{opt.description}</span>}
-                  {opt.subtitle && <span className={styles.optionDesc}>{opt.subtitle}</span>}
+                  {opt.description && <Text as="span" size="sm" color="muted">{opt.description}</Text>}
+                  {opt.subtitle && <Text as="span" size="sm" color="muted">{opt.subtitle}</Text>}
                 </span>
               }
             />

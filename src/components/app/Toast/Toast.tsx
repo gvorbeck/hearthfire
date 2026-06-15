@@ -47,12 +47,8 @@ const ToastEntry = ({
       onFocus={handlePause}
       onBlur={handleResume}
     >
-      <span className={iconCx}>
-        <Icon name={iconName} size="small" />
-      </span>
-      <span className={styles.body}>
-        <Text as="span" size="xs">{item.message}</Text>
-      </span>
+      <Icon name={iconName} size="small" className={iconCx} />
+      <Text as="span" size="xs" className={styles.body}>{item.message}</Text>
       <Button
         variant="ghost"
         size="sm"

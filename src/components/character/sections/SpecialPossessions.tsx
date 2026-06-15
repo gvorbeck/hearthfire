@@ -88,7 +88,7 @@ const SubItem = ({ item, possessionId, idx, parentChecked, selectOne, atSubMax, 
                 <Text as="span" className={styles.labelText}>{item.label}</Text>
                 <span className={styles.subItemDots}>
                   <UseDots total={item.uses} checked={uses[key] ?? 0} onChange={(n) => onUses(key, n)} disabled={!subChecked} />
-                  {item.usesLabel && <span className={styles.usesLabel}>{item.usesLabel}</span>}
+                  {item.usesLabel && <Text as="span" font="serif" size="xs" color="muted">{item.usesLabel}</Text>}
                 </span>
               </span>
             ) : (
@@ -107,7 +107,7 @@ const SubItem = ({ item, possessionId, idx, parentChecked, selectOne, atSubMax, 
         {item.uses !== undefined && (
           <span className={styles.subItemDots}>
             <UseDots total={item.uses} checked={uses[key] ?? 0} onChange={(n) => onUses(key, n)} disabled={!parentChecked} />
-            {item.usesLabel && <span className={styles.usesLabel}>{item.usesLabel}</span>}
+            {item.usesLabel && <Text as="span" font="serif" size="xs" color="muted">{item.usesLabel}</Text>}
           </span>
         )}
       </span>
@@ -179,7 +179,7 @@ const PossessionLabel = ({ p, checked, selected, uses, onToggle, onRadioSelect, 
         {heading}
         <span className={styles.subItemDots}>
           <UseDots total={p.uses} checked={uses[p.id] ?? 0} onChange={(n) => onUses(p.id, n)} disabled={!checked} />
-          {p.usesLabel && <span className={styles.usesLabel}>{p.usesLabel}</span>}
+          {p.usesLabel && <Text as="span" font="serif" size="xs" color="muted">{p.usesLabel}</Text>}
         </span>
       </span>
     );

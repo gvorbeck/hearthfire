@@ -64,12 +64,6 @@
   outline-offset: 2px;
 }
 
-.statAbbr {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-}
-
 .statGroup {
   display: flex;
   flex-direction: column;
@@ -101,13 +95,6 @@
 
 .debilityBraceActive {
   border-color: var(--border-accent);
-}
-
-.debilityLabel {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  font-style: italic;
-  color: var(--text-secondary);
 }
 
 .infoRow {
@@ -174,9 +161,6 @@
 }
 
 .infoLabel {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
   white-space: nowrap;
 }
 
