@@ -8,6 +8,24 @@ describe('parseCharacters', () => {
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe('1');
   });
+
+  it('rejects entries with an unknown playbook or wrong-typed fields', () => {
+    const raw = {
+      characters: [
+        { id: '1', name: 'Ok', playbook: 'heavy', level: 1 },
+        { id: '2', name: 'Bad PB', playbook: 'wizard', level: 1 },
+        { id: '3', name: 'No level', playbook: 'fox' },
+        { id: 4, name: 'Numeric id', playbook: 'fox', level: 1 },
+      ],
+    };
+    const result = parseCharacters(raw as never);
+    expect(result.map((c) => c.id)).toEqual(['1']);
+  });
+
+  it('returns an empty array when characters is missing or not an array', () => {
+    expect(parseCharacters({} as never)).toEqual([]);
+    expect(parseCharacters({ characters: 'nope' } as never)).toEqual([]);
+  });
 });
 
 describe('parseContent', () => {
@@ -38,5 +56,67 @@ describe('parseSteading', () => {
     expect(parseSteading({ size: 'village' })?.size).toBe('village');
     expect(parseSteading({ size: 'town' })?.size).toBe('town');
     expect(parseSteading({ size: 'city' })?.size).toBe('city');
+  });
+
+  // parseDebilities (module-private) is exercised through parseSteading.
+  it('keeps only boolean debility flags and drops the rest', () => {
+    const result = parseSteading({
+      debilities: { diminished: true, lacking: 'yes', malcontent: false },
+    });
+    expect(result?.debilities).toEqual({ diminished: true, lacking: undefined, malcontent: false });
+  });
+
+  // parseNpc / parseNpcs / parseNpcRelationship (module-private) via parseSteading.
+  it('parses residents, dropping NPCs missing an id or name', () => {
+    const result = parseSteading({
+      residents: [
+        { id: 'n1', name: 'Mara', occupation: 'smith' },
+        { id: 'n2' }, // missing name -> dropped
+        { name: 'No id' }, // missing id -> dropped
+      ],
+    });
+    expect(result?.residents).toHaveLength(1);
+    expect(result?.residents?.[0]).toMatchObject({ id: 'n1', name: 'Mara', occupation: 'smith' });
+  });
+
+  it('keeps only well-formed NPC relationships', () => {
+    const result = parseSteading({
+      residents: [{
+        id: 'n1', name: 'Mara',
+        relationships: [
+          { id: 'r1', type: 'ally', targetId: 'p1', targetKind: 'pc' },
+          { id: 'r2', type: 'rival', targetId: 'p2', targetKind: 'galaxy' }, // bad targetKind
+        ],
+      }],
+    });
+    expect(result?.residents?.[0].relationships).toHaveLength(1);
+    expect(result?.residents?.[0].relationships?.[0].id).toBe('r1');
+  });
+
+  // parseGmImprovement (module-private) via parseSteading.
+  it('falls back to a legacy id for gm improvements missing an id', () => {
+    const result = parseSteading({
+      gmImprovements: [
+        { title: 'A', summary: 's', requirements: 'r', effects: 'e', completed: false },
+        { id: 'real', title: 'B', summary: 's', requirements: 'r', effects: 'e', completed: true, category: 'asset' },
+        { title: 'incomplete' }, // missing required fields -> dropped
+      ],
+    });
+    expect(result?.gmImprovements).toHaveLength(2);
+    expect(result?.gmImprovements?.[0].id).toBe('gm-imp-legacy-0');
+    expect(result?.gmImprovements?.[1].id).toBe('real');
+    expect(result?.gmImprovements?.[1].category).toBe('asset');
+  });
+
+  it('nulls out an unrecognized gm-improvement category', () => {
+    const result = parseSteading({
+      gmImprovements: [{ id: 'x', title: 'A', summary: 's', requirements: 'r', effects: 'e', completed: false, category: 'bogus' }],
+    });
+    expect(result?.gmImprovements?.[0].category).toBeNull();
+  });
+
+  it('keeps only boolean improvement-map values', () => {
+    const result = parseSteading({ improvements: { wall: true, gate: 'open', moat: false } });
+    expect(result?.improvements).toEqual({ wall: true, moat: false });
   });
 });

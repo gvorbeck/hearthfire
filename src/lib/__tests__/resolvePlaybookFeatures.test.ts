@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { resolvePlaybookFeatures } from '../resolvePlaybookFeatures';
+import { resolvePlaybookFeatures, featurePatch } from '../resolvePlaybookFeatures';
+import type { CharacterData } from '@/types';
 
 describe('resolvePlaybookFeatures', () => {
   it('returns {} when data is undefined', () => {
@@ -27,5 +28,27 @@ describe('resolvePlaybookFeatures', () => {
     expect(result.crewIndividuals).toHaveLength(1);
     expect(result.revenantInstinct).toBeUndefined();
     expect(result.ghostInstinct).toBeUndefined();
+  });
+});
+
+describe('featurePatch', () => {
+  it('merges the patch over the resolved existing features', () => {
+    const data = { playbookFeatures: { sacredPouchTrait: 'iron', foxTallTales: { a: true } } } as CharacterData;
+    expect(featurePatch(data, { foxTallTales: { a: true, b: true } })).toEqual({
+      playbookFeatures: { sacredPouchTrait: 'iron', foxTallTales: { a: true, b: true } },
+    });
+  });
+
+  it('produces a patch from a single key when there are no existing features', () => {
+    expect(featurePatch(undefined, { sacredPouchTrait: 'silver' })).toEqual({
+      playbookFeatures: { sacredPouchTrait: 'silver' },
+    });
+  });
+
+  it('drops malformed existing features before merging (corrupt doc safety)', () => {
+    const data = { playbookFeatures: { good: 'keep', bad: null } } as never;
+    expect(featurePatch(data, { sacredPouchTrait: 'x' })).toEqual({
+      playbookFeatures: { good: 'keep', sacredPouchTrait: 'x' },
+    });
   });
 });

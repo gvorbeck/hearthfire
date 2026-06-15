@@ -19,4 +19,44 @@ describe('parseInlineMarkdown', () => {
     render(<Wrapper text="on a 10+" />);
     expect(screen.getByText('on a 10+').tagName).toBe('STRONG');
   });
+
+  it('renders ***bolditalic*** as nested <strong><em>', () => {
+    render(<Wrapper text="***big***" />);
+    const em = screen.getByText('big');
+    expect(em.tagName).toBe('EM');
+    expect(em.parentElement?.tagName).toBe('STRONG');
+  });
+
+  it('renders the ◊ empty-provisions icon with an accessible label', () => {
+    render(<Wrapper text="Spend ◊ to eat" />);
+    expect(screen.getByLabelText('provisions')).toBeInTheDocument();
+    // Surrounding text is preserved as separate chunks.
+    expect(screen.getByText(/Spend/)).toBeInTheDocument();
+    expect(screen.getByText(/to eat/)).toBeInTheDocument();
+  });
+
+  it('renders the ◈ filled-provisions icon', () => {
+    const { container } = render(<Wrapper text="◈" />);
+    expect(container.querySelector('[aria-label="provisions"]')).toBeInTheDocument();
+  });
+
+  it('renders the ◻ checkbox marker', () => {
+    render(<Wrapper text="◻" />);
+    expect(screen.getByLabelText('checkbox')).toBeInTheDocument();
+  });
+
+  it('handles adjacent emphasis spans within one string', () => {
+    render(<Wrapper text="**a** and *b*" />);
+    expect(screen.getByText('a').tagName).toBe('STRONG');
+    expect(screen.getByText('b').tagName).toBe('EM');
+    expect(screen.getByText(/and/)).toBeInTheDocument();
+  });
+
+  it('returns no nodes for an empty string', () => {
+    expect(parseInlineMarkdown('')).toEqual([]);
+  });
+
+  it('leaves plain text without markers untouched', () => {
+    expect(parseInlineMarkdown('just words')).toEqual(['just words']);
+  });
 });
