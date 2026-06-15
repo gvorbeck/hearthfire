@@ -1,18 +1,21 @@
-import { CheckboxGroup, Divider, Text } from '@/components/ui';
-import { PlaybookSection } from '../../PlaybookSection';
-import { AnswerPrompts } from '../AnswerPrompts';
-import { usePlaybookCheckedWithAnswers } from '@/hooks/usePlaybookChecked';
+import { PlaybookChecklistSection } from '../shared/PlaybookChecklistSection';
+import type { AnswerPromptConfig, ChecklistGroup } from '../shared/PlaybookChecklistSection';
 import type { PlaybookSectionProps } from '@/types';
 
-const THREAT_ITEMS = [
-  { id: 'threat-great-wood', label: 'A dark, unwholesome presence lurking in the Great Wood' },
-  { id: 'threat-ruined-tower', label: 'A strange, furtive figure seen near the Ruined Tower' },
-  { id: 'threat-foothills', label: 'Something big & savage stalking the northern foothills' },
-  { id: 'threat-suarachan', label: "Whatever's made the lizard-like suarachan of Ferrier's Fen so bold" },
-  { id: 'threat-hillfolk', label: 'That of which the Hillfolk refuse to speak' },
+const GROUPS: ChecklistGroup[] = [
+  {
+    max: 1,
+    items: [
+      { id: 'threat-great-wood', label: 'A dark, unwholesome presence lurking in the Great Wood' },
+      { id: 'threat-ruined-tower', label: 'A strange, furtive figure seen near the Ruined Tower' },
+      { id: 'threat-foothills', label: 'Something big & savage stalking the northern foothills' },
+      { id: 'threat-suarachan', label: "Whatever's made the lizard-like suarachan of Ferrier's Fen so bold" },
+      { id: 'threat-hillfolk', label: 'That of which the Hillfolk refuse to speak' },
+    ],
+  },
 ];
 
-const ANSWER_PROMPTS = [
+const ANSWER_PROMPTS: AnswerPromptConfig[] = [
   { key: 'what', label: 'What, exactly, do you think it is?' },
   { key: 'saw', label: 'What did you see, and how close did you have to get to see it?' },
   { key: 'lost', label: 'Whom or what have you lost to it?' },
@@ -22,31 +25,17 @@ const ANSWER_PROMPTS = [
   { key: 'more', label: 'Who can tell you more, if you can only convince them?' },
 ];
 
-type RangerSomethingWickedProps = PlaybookSectionProps;
-
-export const RangerSomethingWicked = ({ data, onSave }: RangerSomethingWickedProps) => {
-  const { checked, handleChange: handleCheck, answers, handleAnswer, flushAnswers } = usePlaybookCheckedWithAnswers(
-    data, onSave, 'rangerSomethingWicked', 'rangerSomethingWickedAnswers',
-  );
-
-  return (
-    <PlaybookSection title="Something Wicked This Way Comes">
-      <Text size="xs" color="muted">
-        You know firsthand that trouble is out there, and like it or not, one of these days the
-        folk of Stonetop are going to have to face it. What is it that you're so worried about?
-        (choose 1)
-      </Text>
-      <CheckboxGroup
-        items={THREAT_ITEMS}
-        checked={checked}
-        onChange={handleCheck}
-        max={1}
-      />
-      <Divider />
-      <Text size="xs" color="muted">
-        Then, answer at least 3 of the following questions about this threat:
-      </Text>
-      <AnswerPrompts prompts={ANSWER_PROMPTS} answers={answers} onAnswer={handleAnswer} onFlush={flushAnswers} />
-    </PlaybookSection>
-  );
-};
+export const RangerSomethingWicked = ({ data, onSave }: PlaybookSectionProps) => (
+  <PlaybookChecklistSection
+    title="Something Wicked This Way Comes"
+    featureKey="rangerSomethingWicked"
+    introVariant="xs"
+    intro="You know firsthand that trouble is out there, and like it or not, one of these days the folk of Stonetop are going to have to face it. What is it that you're so worried about? (choose 1)"
+    groups={GROUPS}
+    answerKey="rangerSomethingWickedAnswers"
+    answersIntro="Then, answer at least 3 of the following questions about this threat:"
+    answerPrompts={ANSWER_PROMPTS}
+    data={data}
+    onSave={onSave}
+  />
+);
