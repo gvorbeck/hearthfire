@@ -27,7 +27,7 @@ const inspect = async () => {
   }
   const data = snap.data() as Record<string, unknown>;
 
-  const backupPath = path.resolve(`./game-${gameId}-backup.json`);
+  const backupPath = path.resolve(`./game-${gameId}-backup-${Date.now()}.json`);
   fs.writeFileSync(backupPath, JSON.stringify(data, null, 2));
   console.log(`\nBackup written: ${backupPath}`);
 
