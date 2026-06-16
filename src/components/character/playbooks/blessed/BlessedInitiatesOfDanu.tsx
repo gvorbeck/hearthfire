@@ -4,7 +4,7 @@ import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
 import { useCrewSave } from '../shared/useCrewSave';
 import { useToast } from '@/components/app';
 import { Input, Radio, RadioGroup, Text, CheckboxGroup } from '@/components/ui';
-import { PlaybookSection } from '../../PlaybookSection';
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import { StatBox, LoyaltyRow } from '../shared/CrewWidgets';
 import type { PlaybookSectionProps } from '@/types';
 import styles from './BlessedInitiatesOfDanu.module.css';
@@ -200,7 +200,7 @@ const InitiateSection = memo(({
                   data-line-key={line.key}
                   checked={picks[line.key] === opt}
                   onChange={handlePickChange}
-                  label={<span className={styles.pickLabel}>{opt}</span>}
+                  label={<Text as="span" font="serif">{opt}</Text>}
                 />
               ))}
             </RadioGroup>

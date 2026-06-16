@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { Radio, RadioGroup, Input, Text } from '@/components/ui';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import { useCollapsibleSection } from '@/hooks/useCollapsibleSection';
-import { PlaybookSection } from '../PlaybookSection';
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import type { RadioOption } from '@/types';
 import type { CharacterData } from '@/types';
 import styles from './RadioSelect.module.css';
@@ -132,8 +132,8 @@ export const RadioSelect = ({
               label={
                 <span className={styles.optionLabel}>
                   <span className={styles.optionTitle}>{opt.label}</span>
-                  {opt.description && <span className={styles.optionDesc}>{opt.description}</span>}
-                  {opt.subtitle && <span className={styles.optionDesc}>{opt.subtitle}</span>}
+                  {opt.description && <Text as="span" size="sm" color="muted">{opt.description}</Text>}
+                  {opt.subtitle && <Text as="span" size="sm" color="muted">{opt.subtitle}</Text>}
                 </span>
               }
             />

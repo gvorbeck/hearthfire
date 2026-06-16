@@ -1,4 +1,4 @@
-import { type SelectHTMLAttributes } from "react";
+import { forwardRef, type ForwardedRef, type SelectHTMLAttributes } from "react";
 import clsx from "clsx";
 import styles from "./Dropdown.module.css";
 
@@ -43,17 +43,20 @@ type DropdownGroupedProps<T extends string> = (DropdownWithLabel<T> | DropdownWi
 
 type DropdownProps<T extends string> = DropdownFlatProps<T> | DropdownGroupedProps<T>;
 
-export const Dropdown = <T extends string>({
-  label,
-  id,
-  options,
-  groups,
-  value,
-  onChange,
-  placeholder = "Select…",
-  className,
-  ...props
-}: DropdownProps<T>) => {
+const DropdownInner = <T extends string>(
+  {
+    label,
+    id,
+    options,
+    groups,
+    value,
+    onChange,
+    placeholder = "Select…",
+    className,
+    ...props
+  }: DropdownProps<T>,
+  ref: ForwardedRef<HTMLSelectElement>,
+) => {
   const selectCx = clsx(styles.select, !value && styles.placeholder, className);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -65,6 +68,7 @@ export const Dropdown = <T extends string>({
       {label && <label htmlFor={id} className={styles.label}>{label}</label>}
       <div className={styles.selectWrapper}>
         <select
+          ref={ref}
           id={id}
           className={selectCx}
           value={value}
@@ -95,3 +99,9 @@ export const Dropdown = <T extends string>({
     </div>
   );
 };
+
+// forwardRef erases the generic, so cast back to a generic-preserving signature
+// (the standard pattern for generic forwardRef components).
+export const Dropdown = forwardRef(DropdownInner) as <T extends string>(
+  props: DropdownProps<T> & { ref?: ForwardedRef<HTMLSelectElement> },
+) => ReturnType<typeof DropdownInner>;

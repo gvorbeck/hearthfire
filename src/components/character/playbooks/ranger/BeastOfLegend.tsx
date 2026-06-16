@@ -1,5 +1,5 @@
 import { CheckboxGroup, Text } from '@/components/ui';
-import { PlaybookSection } from '../../PlaybookSection';
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 
 const BEAST_OF_LEGEND_ITEMS = [
   { id: 'bol-exceptional', label: 'They are *exceptional* (see Order Followers below)' },

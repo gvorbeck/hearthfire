@@ -12,7 +12,7 @@ import {
 } from "@/components/ui";
 
 import { useToast } from "@/components/app";
-import { PlaybookSection } from "../../PlaybookSection";
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import { resolvePlaybookFeatures } from "@/lib/resolvePlaybookFeatures";
 import { useCrewSave } from "../shared/useCrewSave";
 import { StatBox, LoyaltyRow, CustomItemsGrid } from "../shared/CrewWidgets";

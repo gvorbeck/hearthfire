@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { useCallback, useId } from 'react';
 import clsx from 'clsx';
 import { Heading, Text, Checkbox, Button, Radio } from '@/components/ui';
-import { useToast } from '@/components/app';
+import { useOptimisticField } from '@/hooks/useOptimisticField';
 import type { SteadingData, SteadingSize } from '@/types';
 import styles from './SteadingStats.module.css';
 
@@ -54,7 +54,7 @@ const StatStepper = ({ label, description, value, min = -1, max = 3, onChange }:
           />
         </div>
       </div>
-      <span className={styles.statDesc} id={descId}>{description}</span>
+      <Text as="span" size="xs" color="muted" leading="normal" id={descId}>{description}</Text>
     </div>
   );
 };
@@ -76,27 +76,24 @@ const readStats = (s: SteadingData): Record<NumericStatKey, number> => ({
 });
 
 export const SteadingStats = ({ steading, onSave }: SteadingStatsProps) => {
-  const { addToast } = useToast();
-  const pendingRef = useRef(0);
-  const [stats, setStats] = useState<Record<NumericStatKey, number>>(() => readStats(steading));
-  const [size, setSize] = useState<SteadingSize>(() => steading.size ?? 'village');
-  const [debilities, setDebilities] = useState(() => steading.debilities ?? {});
-
-  useEffect(() => {
-    if (pendingRef.current > 0) return;
-    setStats(readStats(steading));
-    setSize(steading.size ?? 'village');
-    setDebilities(steading.debilities ?? {});
-  }, [steading]);
+  // Each stat persists only its own key (a narrow patch) so a concurrent edit to
+  // another stat isn't clobbered, while the optimistic value holds the full record.
+  const { value: stats, save: saveStats } = useOptimisticField<Record<NumericStatKey, number>, [key: NumericStatKey]>(
+    readStats(steading),
+    (next, key) => onSave({ [key]: next[key] }),
+  );
+  const { value: size, save: saveSizeField } = useOptimisticField<SteadingSize>(
+    steading.size ?? 'village',
+    (next) => onSave({ size: next }),
+  );
+  const { value: debilities, save: saveDebilities } = useOptimisticField<NonNullable<SteadingData['debilities']>>(
+    steading.debilities ?? {},
+    (next) => onSave({ debilities: next }),
+  );
 
   const saveStat = useCallback((key: NumericStatKey, v: number) => {
-    const prev = stats[key];
-    setStats((s) => ({ ...s, [key]: v }));
-    pendingRef.current += 1;
-    onSave({ [key]: v })
-      .catch(() => { setStats((s) => ({ ...s, [key]: prev })); addToast('Failed to save.', 'error'); })
-      .finally(() => { pendingRef.current -= 1; });
-  }, [onSave, addToast, stats]);
+    saveStats((s) => ({ ...s, [key]: v }), key);
+  }, [saveStats]);
 
   const saveFortunes = useCallback((v: number) => saveStat('fortunes', v), [saveStat]);
   const savePopulation = useCallback((v: number) => saveStat('population', v), [saveStat]);
@@ -104,44 +101,20 @@ export const SteadingStats = ({ steading, onSave }: SteadingStatsProps) => {
   const saveDefenses = useCallback((v: number) => saveStat('defenses', v), [saveStat]);
 
   const saveSize = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const next = e.target.value as SteadingSize;
-    const prev = size;
-    setSize(next);
-    pendingRef.current += 1;
-    onSave({ size: next })
-      .catch(() => { setSize(prev); addToast('Failed to save.', 'error'); })
-      .finally(() => { pendingRef.current -= 1; });
-  }, [onSave, addToast, size]);
+    saveSizeField(e.target.value as SteadingSize);
+  }, [saveSizeField]);
 
   const handleDecrementSurplus = useCallback(() => {
-    const prev = stats.surplus;
-    const next = Math.max(0, prev - 1);
-    setStats((s) => ({ ...s, surplus: next }));
-    pendingRef.current += 1;
-    onSave({ surplus: next })
-      .catch(() => { setStats((s) => ({ ...s, surplus: prev })); addToast('Failed to save.', 'error'); })
-      .finally(() => { pendingRef.current -= 1; });
-  }, [onSave, addToast, stats.surplus]);
+    saveStats((s) => ({ ...s, surplus: Math.max(0, s.surplus - 1) }), 'surplus');
+  }, [saveStats]);
 
   const handleIncrementSurplus = useCallback(() => {
-    const prev = stats.surplus;
-    const next = prev + 1;
-    setStats((s) => ({ ...s, surplus: next }));
-    pendingRef.current += 1;
-    onSave({ surplus: next })
-      .catch(() => { setStats((s) => ({ ...s, surplus: prev })); addToast('Failed to save.', 'error'); })
-      .finally(() => { pendingRef.current -= 1; });
-  }, [onSave, addToast, stats.surplus]);
+    saveStats((s) => ({ ...s, surplus: s.surplus + 1 }), 'surplus');
+  }, [saveStats]);
 
   const toggleDebility = useCallback((key: keyof NonNullable<SteadingData['debilities']>) => {
-    const next = { ...debilities, [key]: !debilities[key] };
-    const prev = debilities;
-    setDebilities(next);
-    pendingRef.current += 1;
-    onSave({ debilities: next })
-      .catch(() => { setDebilities(prev); addToast('Failed to save.', 'error'); })
-      .finally(() => { pendingRef.current -= 1; });
-  }, [onSave, addToast, debilities]);
+    saveDebilities((d) => ({ ...d, [key]: !d[key] }));
+  }, [saveDebilities]);
 
   return (
     <div className={styles.root}>
@@ -149,7 +122,7 @@ export const SteadingStats = ({ steading, onSave }: SteadingStatsProps) => {
         <div className={styles.statTop}>
           <div className={styles.statMeta}>
             <span className={styles.statLabel}>Size</span>
-            <span className={styles.statDesc}>Starts at village</span>
+            <Text as="span" size="xs" color="muted" leading="normal">Starts at village</Text>
           </div>
           <div className={styles.sizeOptions} role="group" aria-label="Size">
             {SIZES.map((s) => (
@@ -157,7 +130,7 @@ export const SteadingStats = ({ steading, onSave }: SteadingStatsProps) => {
                 key={s.value}
                 name="steading-size"
                 value={s.value}
-                label={<span className={styles.sizeLabel}>{s.label} <span className={styles.sizeDesc}>({s.description})</span></span>}
+                label={<span className={styles.sizeLabel}>{s.label} <Text as="span" color="muted">({s.description})</Text></span>}
                 checked={size === s.value}
                 onChange={saveSize}
               />
@@ -215,7 +188,7 @@ export const SteadingStats = ({ steading, onSave }: SteadingStatsProps) => {
             />
           </div>
         </div>
-        <span className={styles.statDesc}>Food in the granary, livestock ready to slaughter, whisky to drink or trade. Starts at 1; no upper limit.</span>
+        <Text as="span" size="xs" color="muted" leading="normal">Food in the granary, livestock ready to slaughter, whisky to drink or trade. Starts at 1; no upper limit.</Text>
       </div>
 
       <div className={styles.debilities}>

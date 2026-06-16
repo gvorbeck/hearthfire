@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { Input, Text } from '@/components/ui';
-import { PlaybookSection } from '../../PlaybookSection';
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import { StatBox } from '../shared/CrewWidgets';
 import styles from './RangerAnimalCompanion.module.css';
 

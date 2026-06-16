@@ -40,5 +40,18 @@
       "Bash(sed -n *)",
       "Bash(gh repo view *)"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -c 'if (.tool_input.command | test(\"gh issue view\")) then {hookSpecificOutput:{hookEventName:\"PreToolUse\",permissionDecision:\"allow\",permissionDecisionReason:\"gh issue view is read-only and pre-approved for /issue\"}} else empty end'"
+          }
+        ]
+      }
+    ]
   }
 }

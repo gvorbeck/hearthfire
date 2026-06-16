@@ -26,9 +26,3 @@
   min-width: 2rem;
 }
 
-.prosperityNote {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  font-style: italic;
-}

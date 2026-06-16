@@ -17,6 +17,11 @@ interface LocationState {
   isNew?: boolean;
 }
 
+// Auto-scroll the viewport when a drag enters within SCROLL_ZONE px of the top
+// or bottom edge, moving SCROLL_SPEED px per dragover event.
+const SCROLL_ZONE = 80;
+const SCROLL_SPEED = 8;
+
 
 interface CharacterRowProps {
   character: Character;
@@ -130,9 +135,6 @@ const GameContent = ({
   const handleDragOver = useCallback((e: React.DragEvent, id: string) => {
     e.preventDefault();
 
-    // Auto-scroll when dragging within 80px of the viewport top or bottom edge.
-    const SCROLL_ZONE = 80;
-    const SCROLL_SPEED = 8;
     const { clientY } = e;
     if (clientY < SCROLL_ZONE) {
       window.scrollBy(0, -SCROLL_SPEED);

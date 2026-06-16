@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
-import { Heading, Text } from '@/components/ui';
+import { Text, Stack } from '@/components/ui';
 import { ImprovementList } from './ImprovementList';
-import playbookStyles from '@/components/gm-playbook/Playbook.module.css';
 import {
   STONETOP_NAMES_STR,
   MARSHEDGE_NAMES_STR,
@@ -48,56 +47,53 @@ const BUILT_IN_PLACES = [
   'Watchtowers',
 ];
 
-interface SteadingReferenceProps {
+interface PlacesOfInterestProps {
   placesOfInterest: string[] | undefined;
   onSave: (patch: Partial<SteadingData>) => Promise<void>;
 }
 
-export const SteadingReference = ({ placesOfInterest, onSave }: SteadingReferenceProps) => {
+export const PlacesOfInterest = ({ placesOfInterest, onSave }: PlacesOfInterestProps) => {
   const savePlaces = useCallback((items: string[]) => onSave({ placesOfInterest: items }), [onSave]);
 
   return (
-    <div className={styles.root}>
-      <div className={styles.places}>
-        <Heading as="h3" size="sm">Places of interest</Heading>
-        <Text size="xs" color="muted">Key locations on the village map. Add PC homes and notable NPC homes as established in play.</Text>
-        <ImprovementList
-          fixedItems={BUILT_IN_PLACES}
-          improvementItems={[]}
-          customItems={placesOfInterest}
-          improvements={{}}
-          onSave={savePlaces}
-          addLabel="Add location"
-          itemLabel="Location"
-        />
-      </div>
-
-      <div className={styles.subsection}>
-        <Heading as="h3" size="sm">Names</Heading>
-        <Text size="xs" color="muted">Pick one, make one up, or ask a player to.</Text>
-        <div className={playbookStyles.paragraphs}>
-          <Text size="xs">{`**Stonetop** (Welsh): ${STONETOP_NAMES_STR}`}</Text>
-          <Text size="xs">{`**Marshedge** (Irish): ${MARSHEDGE_NAMES_STR}`}</Text>
-          <Text size="xs">{`**Hillfolk** (Breton, clipped): ${HILLFOLK_NAMES_STR}`}</Text>
-          <Text size="xs">{`**Southern** (Greek, Hebrew, Persian, Arabic): ${SOUTHERN_NAMES_STR}`}</Text>
-          <Text size="xs">{`**Manmarch** (Germanic): ${MANMARCH_NAMES_STR}`}</Text>
-          <Text size="xs">{`**Barrier Pass** (Tibetan, Nepali): ${BARRIER_PASS_NAMES_STR}`}</Text>
-          <Text size="xs" color="muted">*Gordin's Delve: choose from other lists; everyone there comes from somewhere else.*</Text>
-        </div>
-      </div>
-
-      <div className={styles.subsection}>
-        <Heading as="h3" size="sm">NPC Traits</Heading>
-        <Text size="xs" color="muted">Assign as needed; choose from this list or make up your own.</Text>
-        <div className={styles.traitsGrid}>
-          <ul className={styles.traitsList} aria-label="NPC traits (first half)">
-            {TRAITS_COL_A.map((t) => <li key={t} className={styles.trait}>{t}</li>)}
-          </ul>
-          <ul className={styles.traitsList} aria-label="NPC traits (second half)">
-            {TRAITS_COL_B.map((t) => <li key={t} className={styles.trait}>{t}</li>)}
-          </ul>
-        </div>
-      </div>
+    <div className={styles.places}>
+      <Text size="xs" color="muted">Key locations on the village map. Add PC homes and notable NPC homes as established in play.</Text>
+      <ImprovementList
+        fixedItems={BUILT_IN_PLACES}
+        improvementItems={[]}
+        customItems={placesOfInterest}
+        improvements={{}}
+        onSave={savePlaces}
+        addLabel="Add location"
+        itemLabel="Location"
+      />
     </div>
   );
 };
+
+export const ReferenceNames = () => (
+  <Stack gap={4}>
+    <Text size="xs" color="muted">Pick one, make one up, or ask a player to.</Text>
+    <Text size="xs">{`**Stonetop** (Welsh): ${STONETOP_NAMES_STR}`}</Text>
+    <Text size="xs">{`**Marshedge** (Irish): ${MARSHEDGE_NAMES_STR}`}</Text>
+    <Text size="xs">{`**Hillfolk** (Breton, clipped): ${HILLFOLK_NAMES_STR}`}</Text>
+    <Text size="xs">{`**Southern** (Greek, Hebrew, Persian, Arabic): ${SOUTHERN_NAMES_STR}`}</Text>
+    <Text size="xs">{`**Manmarch** (Germanic): ${MANMARCH_NAMES_STR}`}</Text>
+    <Text size="xs">{`**Barrier Pass** (Tibetan, Nepali): ${BARRIER_PASS_NAMES_STR}`}</Text>
+    <Text size="xs" color="muted">*Gordin's Delve: choose from other lists; everyone there comes from somewhere else.*</Text>
+  </Stack>
+);
+
+export const NpcTraits = () => (
+  <>
+    <Text size="xs" color="muted">Assign as needed; choose from this list or make up your own.</Text>
+    <div className={styles.traitsGrid}>
+      <ul className={styles.traitsList} aria-label="NPC traits (first half)">
+        {TRAITS_COL_A.map((t) => <li key={t} className={styles.trait}>{t}</li>)}
+      </ul>
+      <ul className={styles.traitsList} aria-label="NPC traits (second half)">
+        {TRAITS_COL_B.map((t) => <li key={t} className={styles.trait}>{t}</li>)}
+      </ul>
+    </div>
+  </>
+);

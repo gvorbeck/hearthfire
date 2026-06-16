@@ -39,8 +39,8 @@ const ArcanaOption = memo(
         className={cx}
         onClick={handleClick}
       >
-        <span className={styles.itemName}>{item.name}</span>
-        {item.tags && <span className={styles.itemTags}>{item.tags}</span>}
+        <Text as="span" font="serif" size="sm">{item.name}</Text>
+        {item.tags && <Text as="span" font="serif" size="xs" italic color="muted">{item.tags}</Text>}
       </div>
     );
   },

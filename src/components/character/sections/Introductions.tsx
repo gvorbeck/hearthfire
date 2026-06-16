@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { useLatest } from '@/hooks/useLatest';
 import { useOptimisticField } from '@/hooks/useOptimisticField';
 import { CheckboxGroup, List, Text } from '@/components/ui';
-import { PlaybookSection } from '../PlaybookSection';
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import type { CharacterData, IntroductionsConfig } from '@/types';
 import styles from './Introductions.module.css';
 

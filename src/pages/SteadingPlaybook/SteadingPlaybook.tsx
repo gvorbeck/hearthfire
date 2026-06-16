@@ -6,16 +6,15 @@ import { useGame } from '@/hooks/useGame';
 import { ScrollToTop, Tabs, Dropdown, Button, PlaybookColumns } from '@/components/ui';
 import type { DropdownGroup } from '@/components/ui';
 import { PageLayout } from '@/components/app/PageLayout/PageLayout';
-import { SteadingResources } from '@/components/gm-playbook/sections/SteadingResources';
-import { SteadingFortifications } from '@/components/gm-playbook/sections/SteadingFortifications';
-import { PlaybookSection } from '@/components/character/PlaybookSection';
+import { SteadingImprovementList, RESOURCES_CONFIG, FORTIFICATIONS_CONFIG } from '@/components/gm-playbook/sections/SteadingImprovementList';
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import { GameGuard } from '@/components/app/GameGuard/GameGuard';
 import { DEFAULT_GAME_NAME, getPlaybook } from '@/lib/constants';
 import { SteadingStats } from '@/components/gm-playbook/sections/SteadingStats';
 import { SteadingImprovements } from '@/components/gm-playbook/sections/SteadingImprovements';
 import { SteadingAssets } from '@/components/gm-playbook/sections/SteadingAssets';
 import { SteadingNPCs } from '@/components/gm-playbook/sections/SteadingNPCs/SteadingNPCs';
-import { SteadingReference } from '@/components/gm-playbook/sections/SteadingReference';
+import { PlacesOfInterest, ReferenceNames, NpcTraits } from '@/components/gm-playbook/sections/SteadingReference';
 import type { GameSession, SteadingData, SteadingNPC } from '@/types';
 import styles from './SteadingPlaybook.module.css';
 
@@ -97,16 +96,18 @@ const SteadingTab = ({ steading, updateSteading }: SteadingTabProps) => (
     }
     right={<>
       <PlaybookSection title="Resources">
-        <SteadingResources
-          resources={steading.resources}
+        <SteadingImprovementList
+          config={RESOURCES_CONFIG}
+          items={steading.resources}
           improvements={steading.improvements}
           gmImprovements={steading.gmImprovements}
           onSave={updateSteading}
         />
       </PlaybookSection>
       <PlaybookSection title="Fortifications">
-        <SteadingFortifications
-          fortifications={steading.fortifications}
+        <SteadingImprovementList
+          config={FORTIFICATIONS_CONFIG}
+          items={steading.fortifications}
           improvements={steading.improvements}
           gmImprovements={steading.gmImprovements}
           onSave={updateSteading}
@@ -114,6 +115,9 @@ const SteadingTab = ({ steading, updateSteading }: SteadingTabProps) => (
       </PlaybookSection>
       <PlaybookSection title="Assets">
         <SteadingAssets steading={steading} onSave={updateSteading} />
+      </PlaybookSection>
+      <PlaybookSection title="Places of interest">
+        <PlacesOfInterest placesOfInterest={steading.placesOfInterest} onSave={updateSteading} />
       </PlaybookSection>
     </>}
   />
@@ -153,8 +157,19 @@ const NpcsTab = ({ g, steading, updateSteading, npcFilter, onFilterChange }: Npc
   </div>
 );
 
-const ReferenceTab = ({ steading, updateSteading }: SteadingTabProps) => (
-  <PlaybookColumns full={<SteadingReference placesOfInterest={steading.placesOfInterest} onSave={updateSteading} />} />
+const ReferenceTab = () => (
+  <PlaybookColumns
+    left={
+      <PlaybookSection title="Names">
+        <ReferenceNames />
+      </PlaybookSection>
+    }
+    right={
+      <PlaybookSection title="NPC Traits">
+        <NpcTraits />
+      </PlaybookSection>
+    }
+  />
 );
 
 const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
@@ -187,7 +202,7 @@ const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
     {
       id: 'reference',
       label: 'Reference',
-      content: <ReferenceTab steading={steading} updateSteading={updateSteading} />,
+      content: <ReferenceTab />,
     },
   ], [g.characters, steading, updateSteading, npcFilter]);
 

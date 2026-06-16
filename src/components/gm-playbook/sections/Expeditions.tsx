@@ -11,7 +11,7 @@ export const Expeditions = () => (
 
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Requirements</Heading>
-      <List variant="dash" items={[
+      <List variant="bullet" items={[
         'You must first travel to ___, and from there to your destination',
         'You must wait until ___',
         'You need a knowledgeable guide/accurate map/detailed directions',
@@ -22,7 +22,7 @@ export const Expeditions = () => (
 
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Challenges</Heading>
-      <List variant="dash" items={[
+      <List variant="bullet" items={[
         'You need to watch out for ___',
         'The way is perilous, plagued with danger',
         'You risk getting lost',
@@ -85,7 +85,7 @@ export const Expeditions = () => (
 
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">When they make camp</Heading>
-      <List variant="dash" items={[
+      <List variant="bullet" items={[
         'How will you avoid attention/spot danger?',
         'How do you plan to keep warm?',
         'Do you start a fire? What do you use for fuel?',
@@ -108,7 +108,7 @@ export const Expeditions = () => (
       <Text>**If familiar, short, uneventful:** gloss over it.</Text>
       <Text>**If unfamiliar:** describe it, give impressions.</Text>
       <Text>**To create a sense of time passing:** ask questions and/or have them Keep Company.</Text>
-      <List variant="dash" items={[
+      <List variant="bullet" items={[
         'What\'s the most striking thing that you notice?',
         'What\'s the best/worst/most unexpected thing about this leg of the journey?',
         'What have you heard about this area?',
@@ -119,7 +119,7 @@ export const Expeditions = () => (
       ]} />
       <Text>Portray NPCs, add details, answer questions.</Text>
       <Text>Make a soft GM move:</Text>
-      <List variant="dash" items={[
+      <List variant="bullet" items={[
         'Present a challenge from Chart a Course',
         'Present some other encounter',
         'Have an NPC/follower get into/cause trouble',
@@ -131,7 +131,7 @@ export const Expeditions = () => (
 
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Points of interest</Heading>
-      <List variant="dash" items={[
+      <List variant="bullet" items={[
         'Landmarks not yet seen in play',
         'Where you plan to frame scenes, make moves',
         'Their destination',
@@ -139,7 +139,7 @@ export const Expeditions = () => (
       <Text>**If you want to build tension:** frame the scene with the location in sight but at a distance. Otherwise, frame the scene with them already there.</Text>
       <Text>**If unfamiliar:** describe, give impressions. If the PCs know or picked this place, ask them instead.</Text>
       <Text>On the first visit to a landmark, ask questions.</Text>
-      <List variant="dash" items={[
+      <List variant="bullet" items={[
         'What\'s the most striking thing that you notice?',
         'What here tells you that this is a place where/of/that ___?',
         'What have you heard about this place?',

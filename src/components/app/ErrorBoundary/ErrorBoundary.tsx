@@ -1,4 +1,4 @@
-import { Component, type ReactNode } from 'react';
+import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { Button } from '@/components/ui';
 import { Heading } from '@/components/ui';
 import { Text } from '@/components/ui';
@@ -6,16 +6,31 @@ import styles from './ErrorBoundary.module.css';
 
 interface Props {
   children: ReactNode;
+  // Changing this value (e.g. the current route) clears a caught error so
+  // navigating away from a broken page recovers without a hard reload.
+  resetKey?: string;
 }
 
 interface State {
   hasError: boolean;
+  resetKey?: string;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
-  state: State = { hasError: false };
+  state: State = { hasError: false, resetKey: this.props.resetKey };
 
-  static getDerivedStateFromError = (): State => ({ hasError: true });
+  static getDerivedStateFromError = (): Partial<State> => ({ hasError: true });
+
+  // Reset on resetKey change so a render error on one route doesn't blank the
+  // whole app once the user navigates elsewhere.
+  static getDerivedStateFromProps = (props: Props, state: State): Partial<State> | null =>
+    props.resetKey !== state.resetKey
+      ? { hasError: false, resetKey: props.resetKey }
+      : null;
+
+  componentDidCatch = (error: Error, info: ErrorInfo) => {
+    console.error('ErrorBoundary caught an error:', error, info.componentStack);
+  };
 
   render = () => {
     if (this.state.hasError) {

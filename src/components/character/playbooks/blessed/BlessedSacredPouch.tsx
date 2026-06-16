@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useOptimisticField } from '@/hooks/useOptimisticField';
 import { Divider, Radio, RadioGroup, Text } from '@/components/ui';
-import { PlaybookSection } from '../../PlaybookSection';
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import type { PlaybookSectionProps } from '@/types';
 import styles from './BlessedSacredPouch.module.css';
@@ -78,7 +78,7 @@ export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) =>
                     data-key={line.key}
                     checked={is[line.key] === opt}
                     onChange={handleIs}
-                    label={<span className={styles.optionLabel}>{opt}</span>}
+                    label={opt}
                   />
                 ))}
               </RadioGroup>
@@ -97,7 +97,7 @@ export const BlessedSacredPouch = ({ data, onSave }: BlessedSacredPouchProps) =>
               value={t}
               checked={trait === t}
               onChange={handleTrait}
-              label={<span className={styles.optionLabel}>{t}</span>}
+              label={t}
             />
           ))}
         </RadioGroup>

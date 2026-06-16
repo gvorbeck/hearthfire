@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useLatest } from '@/hooks/useLatest';
 import { useCharacterField } from '@/hooks/useCharacterField';
-import { PlaybookSection } from '../PlaybookSection';
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import { Collapse, Text, Toggle } from '@/components/ui';
 import { Move } from '../Move';
 import type { MoveDefinition } from '@/types';

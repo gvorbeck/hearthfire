@@ -20,23 +20,35 @@ const EXIT_DURATION_MS = 200;
 const ToastEntry = ({
   item,
   onDismiss,
+  onPause,
+  onResume,
 }: {
   item: ToastItem;
   onDismiss: (id: string) => void;
+  onPause: (id: string) => void;
+  onResume: (id: string) => void;
 }) => {
   const cx = clsx(styles.toast, styles[item.variant], item.exiting && styles.exiting);
   const iconCx = clsx(styles.icon, styles[item.variant]);
   const handleDismissItem = useCallback(() => onDismiss(item.id), [onDismiss, item.id]);
+  const handlePause = useCallback(() => onPause(item.id), [onPause, item.id]);
+  const handleResume = useCallback(() => onResume(item.id), [onResume, item.id]);
   const iconName = ({ error: 'warning', success: 'check', info: 'info' } as const)[item.variant];
+  // Errors interrupt assertively; info/success announce politely without preempting.
+  const isError = item.variant === 'error';
 
   return (
-    <div role="alert" className={cx}>
-      <span className={iconCx}>
-        <Icon name={iconName} size="small" />
-      </span>
-      <span className={styles.body}>
-        <Text as="span" size="xs">{item.message}</Text>
-      </span>
+    <div
+      role={isError ? 'alert' : 'status'}
+      aria-live={isError ? 'assertive' : 'polite'}
+      className={cx}
+      onMouseEnter={handlePause}
+      onMouseLeave={handleResume}
+      onFocus={handlePause}
+      onBlur={handleResume}
+    >
+      <Icon name={iconName} size="small" className={iconCx} />
+      <Text as="span" size="xs" className={styles.body}>{item.message}</Text>
       <Button
         variant="ghost"
         size="sm"
@@ -91,6 +103,27 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
     startExit(id);
   }, [startExit]);
 
+  // WCAG 2.2.1 — pause the auto-dismiss countdown while the user hovers or
+  // focuses a toast so it can't vanish mid-read; resume with a fresh timer.
+  const pauseToast = useCallback((id: string) => {
+    // Don't touch the timer of a toast that's already exiting — once startExit
+    // runs it deletes the key here, and the timer under this id is its removal
+    // timer. Clearing that would strand the toast in the DOM forever.
+    if (!visibleKeys.current.has(id)) return;
+    const existing = timers.current.get(id);
+    if (existing) clearTimeout(existing);
+  }, []);
+
+  const resumeToast = useCallback((id: string) => {
+    // Only restart for toasts that are still visible (not already exiting).
+    if (!visibleKeys.current.has(id)) return;
+    // Clear any existing timer first so rapid focus/blur can't leave concurrent
+    // timeouts racing to dismiss the same toast.
+    const existing = timers.current.get(id);
+    if (existing) clearTimeout(existing);
+    timers.current.set(id, setTimeout(() => startExit(id), AUTO_DISMISS_MS));
+  }, [startExit]);
+
   useEffect(() => {
     return () => { timers.current.forEach(clearTimeout); };
   }, []);
@@ -105,7 +138,13 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
       {createPortal(
         <div role="region" className={styles.region} aria-label="Notifications">
           {toasts.map((item) => (
-            <ToastEntry key={item.id} item={item} onDismiss={handleDismiss} />
+            <ToastEntry
+              key={item.id}
+              item={item}
+              onDismiss={handleDismiss}
+              onPause={pauseToast}
+              onResume={resumeToast}
+            />
           ))}
         </div>,
         document.body

@@ -1,5 +1,6 @@
 import { useId, forwardRef, type InputHTMLAttributes, type TextareaHTMLAttributes } from 'react';
 import clsx from 'clsx';
+import { Text } from '../Text/Text';
 import styles from './Input.module.css';
 
 interface BaseProps {
@@ -48,7 +49,7 @@ export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, Props>(
       return (
         <>
           {el}
-          {note && <span id={noteId} className={styles.note}>{note}</span>}
+          {note && <Text as="span" size="xs" color="muted" id={noteId}>{note}</Text>}
           {error && <span id={errorId} className={styles.error}>{error}</span>}
         </>
       );
@@ -58,7 +59,7 @@ export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, Props>(
       <div className={styles.wrapper}>
         <div className={styles.labelRow}>
           <label htmlFor={resolvedId} className={styles.label}>{label}</label>
-          {note && <span id={noteId} className={styles.note}>{note}</span>}
+          {note && <Text as="span" size="xs" color="muted" id={noteId}>{note}</Text>}
         </div>
         {el}
         {error && <span id={errorId} className={styles.error}>{error}</span>}

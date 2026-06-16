@@ -2,7 +2,7 @@ import { useMemo, useCallback } from 'react';
 import { useLatest } from '@/hooks/useLatest';
 import { useCharacterField } from '@/hooks/useCharacterField';
 import { Divider, PlaybookColumns } from '@/components/ui';
-import { PlaybookSection } from '../../PlaybookSection';
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import type { PlaybookSectionProps } from '@/types';
 import { computeTotalLoad, getShieldWeight } from './inventoryData';
 import { MainInventorySection } from './MainInventorySection';

@@ -1,6 +1,5 @@
-import { useState, useCallback, useEffect } from 'react';
 import { Text, List, Input } from '@/components/ui';
-import { useDebouncedSave } from '@/hooks/useDebouncedSave';
+import { useDebouncedTextField } from '@/hooks/useDebouncedTextField';
 import styles from '@/pages/GmPlaybook/GmPlaybook.module.css';
 
 interface IWonderProps {
@@ -9,32 +8,19 @@ interface IWonderProps {
 }
 
 export const IWonder = ({ value, onSave }: IWonderProps) => {
-  const [local, setLocal] = useState(value);
-  const { onChange: debouncedChange, flush, isPendingRef } = useDebouncedSave(onSave, 1500);
-
-  useEffect(() => {
-    if (isPendingRef.current) return;
-    setLocal(value);
-  }, [value, isPendingRef]);
-
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setLocal(e.target.value);
-    debouncedChange(e.target.value);
-  }, [debouncedChange]);
-
-  const handleBlur = useCallback(() => { flush(local); }, [flush, local]);
+  const questions = useDebouncedTextField(value, onSave);
 
   return (
-    <div>
+    <div className={styles.contentForm}>
       <div className={styles.contentRules}>
         <Text size="xs">Keep a running list of open questions that either…</Text>
-        <List variant="dash" items={[
+        <List variant="bullet" items={[
           "you don't know how to answer yet, or",
           'you want to answer via play.',
         ]} />
         <Text size="xs">Update this list between each session.</Text>
       </div>
-      <Input multiline label="Questions" value={local} rows={12} onChange={handleChange} onBlur={handleBlur} />
+      <Input multiline label="Questions" rows={12} {...questions} />
     </div>
   );
 };

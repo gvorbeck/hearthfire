@@ -9,7 +9,7 @@ import {
   UseDots,
 } from "@/components/ui";
 import { useToast } from "@/components/app";
-import { PlaybookSection } from "../../PlaybookSection";
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import {
   resolvePlaybookFeatures,
   featurePatch,

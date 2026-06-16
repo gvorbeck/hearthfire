@@ -1,7 +1,7 @@
-import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Text, Button } from '@/components/ui';
 import type { DropdownGroup } from '@/components/ui';
-import { useToast } from '@/components/app';
+import { useOptimisticField } from '@/hooks/useOptimisticField';
 import type { SteadingData, SteadingNPC, NpcRelationship, GameSession } from '@/types';
 import { generateId, NPC_CONFIG, buildGroups, buildNameMap } from './npcData';
 import type { NpcFormState, RelTarget } from './npcData';
@@ -18,8 +18,7 @@ interface NpcSectionProps {
   title: string;
   description: string;
   npcs: SteadingNPC[];
-  allNpcs: SteadingNPC[];
-  onUpdate: (npcs: SteadingNPC[]) => void;
+  onUpdate: (transform: (current: SteadingNPC[]) => SteadingNPC[]) => void;
   onToggleDead: (id: string) => void;
   relationshipGroups: DropdownGroup<RelTarget>[];
   resolveTarget: (rel: NpcRelationship) => string;
@@ -34,7 +33,7 @@ const npcToForm = (npc: SteadingNPC): NpcFormState => ({
   notes: npc.notes ?? '',
 });
 
-const NpcSection = ({ title, description, npcs, allNpcs, onUpdate, onToggleDead, relationshipGroups, resolveTarget }: NpcSectionProps) => {
+const NpcSection = ({ title, description, npcs, onUpdate, onToggleDead, relationshipGroups, resolveTarget }: NpcSectionProps) => {
   const [addOpen, setAddOpen] = useState(false);
   const [editNpc, setEditNpc] = useState<SteadingNPC | null>(null);
 
@@ -43,8 +42,9 @@ const NpcSection = ({ title, description, npcs, allNpcs, onUpdate, onToggleDead,
   const closeEdit = useCallback(() => setEditNpc(null), []);
 
   const handleAdd = useCallback((form: NpcFormState) => {
-    onUpdate([...allNpcs, { id: generateId(), ...form }]);
-  }, [allNpcs, onUpdate]);
+    const npc = { id: generateId(), ...form };
+    onUpdate((current) => [...current, npc]);
+  }, [onUpdate]);
 
   const handleEdit = useCallback((npc: SteadingNPC) => {
     setEditNpc(npc);
@@ -52,12 +52,12 @@ const NpcSection = ({ title, description, npcs, allNpcs, onUpdate, onToggleDead,
 
   const handleSaveEdit = useCallback((form: NpcFormState) => {
     if (!editNpc) return;
-    onUpdate(allNpcs.map((n) => n.id === editNpc.id ? { ...editNpc, ...form } : n));
-  }, [allNpcs, onUpdate, editNpc]);
+    onUpdate((current) => current.map((n) => n.id === editNpc.id ? { ...editNpc, ...form } : n));
+  }, [onUpdate, editNpc]);
 
   const handleRemove = useCallback((id: string) => {
-    onUpdate(allNpcs.filter((n) => n.id !== id));
-  }, [allNpcs, onUpdate]);
+    onUpdate((current) => current.filter((n) => n.id !== id));
+  }, [onUpdate]);
 
   return (
     <div className={styles.section}>
@@ -104,27 +104,15 @@ interface SteadingNPCsProps {
 }
 
 export const SteadingNPCs = ({ section, npcs = [], onSave, game, filterTargetId }: SteadingNPCsProps) => {
-  const { addToast } = useToast();
   const { title, description } = NPC_CONFIG[section];
-  const pendingRef = useRef(0);
-  const [localNpcs, setLocalNpcs] = useState<SteadingNPC[]>(() => npcs);
-
-  useEffect(() => {
-    if (pendingRef.current === 0) setLocalNpcs(npcs);
-  }, [npcs]);
-
-  const saveNpcs = useCallback((updated: SteadingNPC[]) => {
-    const prev = localNpcs;
-    setLocalNpcs(updated);
-    pendingRef.current += 1;
-    onSave({ [section]: updated })
-      .catch(() => { setLocalNpcs(prev); addToast('Failed to save.', 'error'); })
-      .finally(() => { pendingRef.current -= 1; });
-  }, [onSave, addToast, section, localNpcs]);
+  const { value: localNpcs, save: saveNpcs } = useOptimisticField(
+    npcs,
+    (next: SteadingNPC[]) => onSave({ [section]: next }),
+  );
 
   const handleToggleDead = useCallback((id: string) => {
-    saveNpcs(localNpcs.map((n) => n.id === id ? { ...n, dead: !n.dead } : n));
-  }, [localNpcs, saveNpcs]);
+    saveNpcs((current) => current.map((n) => n.id === id ? { ...n, dead: !n.dead } : n));
+  }, [saveNpcs]);
   const visibleNpcs = useMemo(() => {
     const list = filterTargetId
       ? localNpcs.filter((n) => (n.relationships ?? []).some((r) => r.targetId === filterTargetId))
@@ -151,7 +139,6 @@ export const SteadingNPCs = ({ section, npcs = [], onSave, game, filterTargetId 
       title={title}
       description={description}
       npcs={visibleNpcs}
-      allNpcs={localNpcs}
       onUpdate={saveNpcs}
       onToggleDead={handleToggleDead}
       relationshipGroups={groups}

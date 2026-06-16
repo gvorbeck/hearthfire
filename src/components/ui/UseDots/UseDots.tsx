@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import { Text } from '../Text/Text';
 import styles from './UseDots.module.css';
 
 interface UseDotsProps {
@@ -27,7 +28,7 @@ export const UseDots = ({ total, checked, onChange, disabled, label }: UseDotsPr
   return (
     <div role="group" className={styles.useDots} aria-label={label ?? `Uses: ${checked} of ${total}`}>
       {dots}
-      {label && <span className={styles.useDotsLabel} aria-hidden="true">{label}</span>}
+      {label && <Text as="span" font="serif" size="xs" italic color="muted" className={styles.useDotsLabel} aria-hidden="true">{label}</Text>}
     </div>
   );
 };

@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { List } from '@/components/ui';
 
 export const Principles = memo(() => (
-  <List variant="dash" items={[
+  <List variant="bullet" items={[
     'Follow the rules',
     'Begin and end with the fiction',
     'Address the characters, not the players',

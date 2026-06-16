@@ -12,10 +12,6 @@
   composes: label from "../field.module.css";
 }
 
-.note {
-  font-size: var(--text-xs);
-  color: var(--text-secondary);
-}
 
 .input {
   font-family: var(--font-sans);

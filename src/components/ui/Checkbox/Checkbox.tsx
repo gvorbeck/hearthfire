@@ -1,7 +1,7 @@
 import { useId, type InputHTMLAttributes } from 'react';
 import clsx from 'clsx';
-import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import { Icon } from '../Icon/Icon';
+import { Text } from '../Text/Text';
 import styles from './Checkbox.module.css';
 
 interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
@@ -30,7 +30,7 @@ export const Checkbox = ({ label, className, variant = 'default', weight = 1, ..
           <span className={styles.check} />
         </span>
       )}
-      <span>{typeof label === 'string' ? parseInlineMarkdown(label) : label}</span>
+      {typeof label === 'string' ? <Text as="span">{label}</Text> : label}
     </label>
   );
 };

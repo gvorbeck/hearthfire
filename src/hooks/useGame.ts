@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { arrayUnion, doc, onSnapshot, runTransaction, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { GAMES_COLLECTION } from '@/lib/constants';
+import { filterByType, isBoolean, isNumber, isRecord, isString } from '@/lib/typeGuards';
 import type { Character, CharacterData, ContentLists, GameSession, GmImprovement, NpcRelationship, SteadingData, SteadingNPC } from '@/types';
 
 interface UseGameResult {
@@ -24,63 +25,58 @@ const VALID_PLAYBOOKS = new Set<string>([
 ]);
 
 const isCharacter = (v: unknown): v is Character =>
-  typeof v === 'object' && v !== null &&
-  typeof (v as Record<string, unknown>).id === 'string' &&
-  typeof (v as Record<string, unknown>).name === 'string' &&
-  VALID_PLAYBOOKS.has((v as Record<string, unknown>).playbook as string) &&
-  typeof (v as Record<string, unknown>).level === 'number';
+  isRecord(v) &&
+  isString(v.id) &&
+  isString(v.name) &&
+  VALID_PLAYBOOKS.has(v.playbook as string) &&
+  isNumber(v.level);
 
 export const parseCharacters = (raw: { characters?: unknown }): Character[] =>
-  Array.isArray(raw?.characters) ? (raw.characters as unknown[]).filter(isCharacter) : [];
+  filterByType(raw?.characters, isCharacter) ?? [];
 
 export const parseContent = (raw: unknown): ContentLists | undefined => {
-  if (typeof raw !== 'object' || raw === null) return undefined;
-  const r = raw as Record<string, unknown>;
+  if (!isRecord(raw)) return undefined;
   return {
-    excluded: typeof r.excluded === 'string' ? r.excluded : '',
-    veiled: typeof r.veiled === 'string' ? r.veiled : '',
-    specialHandling: typeof r.specialHandling === 'string' ? r.specialHandling : '',
+    excluded: isString(raw.excluded) ? raw.excluded : '',
+    veiled: isString(raw.veiled) ? raw.veiled : '',
+    specialHandling: isString(raw.specialHandling) ? raw.specialHandling : '',
   };
 };
 
-const num = (v: unknown): number | undefined => typeof v === 'number' ? v : undefined;
+const num = (v: unknown): number | undefined => isNumber(v) ? v : undefined;
 const strArr = (v: unknown): string[] | undefined =>
-  Array.isArray(v) ? (v as unknown[]).filter((x): x is string => typeof x === 'string') : typeof v === 'string' && v ? v.split('\n').filter(Boolean) : undefined;
+  Array.isArray(v) ? v.filter(isString) : isString(v) && v ? v.split('\n').filter(Boolean) : undefined;
 
 const VALID_SIZES = new Set(['hamlet', 'village', 'town', 'city']);
 
 const parseDebilities = (v: unknown): SteadingData['debilities'] => {
-  if (typeof v !== 'object' || v === null) return undefined;
-  const r = v as Record<string, unknown>;
+  if (!isRecord(v)) return undefined;
   return {
-    diminished: typeof r.diminished === 'boolean' ? r.diminished : undefined,
-    lacking: typeof r.lacking === 'boolean' ? r.lacking : undefined,
-    malcontent: typeof r.malcontent === 'boolean' ? r.malcontent : undefined,
+    diminished: isBoolean(v.diminished) ? v.diminished : undefined,
+    lacking: isBoolean(v.lacking) ? v.lacking : undefined,
+    malcontent: isBoolean(v.malcontent) ? v.malcontent : undefined,
   };
 };
 
 const isNpcRelationship = (v: unknown): v is NpcRelationship =>
-  typeof v === 'object' && v !== null &&
-  typeof (v as Record<string, unknown>).id === 'string' &&
-  typeof (v as Record<string, unknown>).type === 'string' &&
-  typeof (v as Record<string, unknown>).targetId === 'string' &&
-  ((v as Record<string, unknown>).targetKind === 'pc' ||
-   (v as Record<string, unknown>).targetKind === 'resident' ||
-   (v as Record<string, unknown>).targetKind === 'neighbor');
+  isRecord(v) &&
+  isString(v.id) &&
+  isString(v.type) &&
+  isString(v.targetId) &&
+  (v.targetKind === 'pc' || v.targetKind === 'resident' || v.targetKind === 'neighbor');
 
 const parseNpc = (v: unknown): SteadingNPC | null => {
-  if (typeof v !== 'object' || v === null) return null;
-  const r = v as Record<string, unknown>;
-  if (typeof r.id !== 'string' || typeof r.name !== 'string') return null;
+  if (!isRecord(v)) return null;
+  if (!isString(v.id) || !isString(v.name)) return null;
   return {
-    id: r.id,
-    name: r.name,
-    pronouns: typeof r.pronouns === 'string' ? r.pronouns : undefined,
-    occupation: typeof r.occupation === 'string' ? r.occupation : undefined,
-    traits: Array.isArray(r.traits) ? (r.traits as unknown[]).filter((t): t is string => typeof t === 'string') : undefined,
-    relationships: Array.isArray(r.relationships) ? (r.relationships as unknown[]).filter(isNpcRelationship) : undefined,
-    notes: typeof r.notes === 'string' ? r.notes : undefined,
-    dead: r.dead === true ? true : undefined,
+    id: v.id,
+    name: v.name,
+    pronouns: isString(v.pronouns) ? v.pronouns : undefined,
+    occupation: isString(v.occupation) ? v.occupation : undefined,
+    traits: filterByType(v.traits, isString),
+    relationships: filterByType(v.relationships, isNpcRelationship),
+    notes: isString(v.notes) ? v.notes : undefined,
+    dead: v.dead === true ? true : undefined,
   };
 };
 
@@ -90,14 +86,14 @@ const parseNpcs = (v: unknown): SteadingNPC[] | undefined => {
 };
 
 const parseGmImprovement = (v: unknown, i: number): GmImprovement | null => {
-  if (typeof v !== 'object' || v === null) return null;
-  const r = v as Record<string, unknown>;
-  if (typeof r.title !== 'string' || typeof r.summary !== 'string' ||
-      typeof r.requirements !== 'string' || typeof r.effects !== 'string' ||
-      typeof r.completed !== 'boolean') return null;
+  if (!isRecord(v)) return null;
+  const r = v;
+  if (!isString(r.title) || !isString(r.summary) ||
+      !isString(r.requirements) || !isString(r.effects) ||
+      !isBoolean(r.completed)) return null;
   const cat = r.category;
   return {
-    id: typeof r.id === 'string' ? r.id : `gm-imp-legacy-${i}`,
+    id: isString(r.id) ? r.id : `gm-imp-legacy-${i}`,
     title: r.title,
     summary: r.summary,
     requirements: r.requirements,
@@ -108,8 +104,8 @@ const parseGmImprovement = (v: unknown, i: number): GmImprovement | null => {
 };
 
 export const parseSteading = (raw: unknown): SteadingData | undefined => {
-  if (typeof raw !== 'object' || raw === null) return undefined;
-  const r = raw as Record<string, unknown>;
+  if (!isRecord(raw)) return undefined;
+  const r = raw;
   return {
     size: VALID_SIZES.has(r.size as string) ? r.size as SteadingData['size'] : undefined,
     fortunes: num(r.fortunes),
@@ -120,13 +116,13 @@ export const parseSteading = (raw: unknown): SteadingData | undefined => {
     debilities: parseDebilities(r.debilities),
     resources: strArr(r.resources),
     fortifications: strArr(r.fortifications),
-    improvements: typeof r.improvements === 'object' && r.improvements !== null
-      ? Object.fromEntries(Object.entries(r.improvements as Record<string, unknown>).filter(([, iv]) => typeof iv === 'boolean')) as Record<string, boolean>
+    improvements: isRecord(r.improvements)
+      ? Object.fromEntries(Object.entries(r.improvements).filter(([, iv]) => isBoolean(iv))) as Record<string, boolean>
       : undefined,
     gmImprovements: Array.isArray(r.gmImprovements)
       ? (r.gmImprovements as unknown[]).map(parseGmImprovement).filter((g): g is GmImprovement => g !== null)
       : undefined,
-    assetsList: Array.isArray(r.assetsList) ? (r.assetsList as unknown[]).filter((x): x is string => typeof x === 'string') : undefined,
+    assetsList: filterByType(r.assetsList, isString),
     silverPurses: num(r.silverPurses),
     silverHandfuls: num(r.silverHandfuls),
     silverCoins: num(r.silverCoins),
@@ -135,23 +131,24 @@ export const parseSteading = (raw: unknown): SteadingData | undefined => {
     goldCoins: num(r.goldCoins),
     residents: parseNpcs(r.residents),
     neighbors: parseNpcs(r.neighbors),
-    neighborNotes: typeof r.neighborNotes === 'object' && r.neighborNotes !== null
-      ? Object.fromEntries(Object.entries(r.neighborNotes as Record<string, unknown>).filter(([, iv]) => typeof iv === 'string')) as Record<string, string>
+    neighborNotes: isRecord(r.neighborNotes)
+      ? Object.fromEntries(Object.entries(r.neighborNotes).filter(([, iv]) => isString(iv))) as Record<string, string>
       : undefined,
-    placesOfInterest: Array.isArray(r.placesOfInterest) ? (r.placesOfInterest as unknown[]).filter((x): x is string => typeof x === 'string') : undefined,
+    placesOfInterest: filterByType(r.placesOfInterest, isString),
   };
 };
 
 const parseGameSession = (raw: Record<string, unknown>, id: string): GameSession => {
-  if (typeof raw.name !== 'string') throw new Error('Game document missing required field: name');
   return {
     id,
-    name: raw.name,
-    createdAt: typeof raw.createdAt === 'number' ? raw.createdAt : 0,
+    // Defaults to '' like every other field so a legacy/corrupt doc missing
+    // name stays readable rather than failing the whole parse.
+    name: isString(raw.name) ? raw.name : '',
+    createdAt: isNumber(raw.createdAt) ? raw.createdAt : 0,
     characters: parseCharacters(raw),
     content: parseContent(raw.content),
-    threats: typeof raw.threats === 'string' ? raw.threats : undefined,
-    iWonder: typeof raw.iWonder === 'string' ? raw.iWonder : undefined,
+    threats: isString(raw.threats) ? raw.threats : undefined,
+    iWonder: isString(raw.iWonder) ? raw.iWonder : undefined,
     steading: parseSteading(raw.steading),
   };
 };
@@ -238,15 +235,28 @@ export const useGame = (gameId: string): UseGameResult => {
   }, [gameRef]);
 
   const updateCharacterData = useCallback(async (characterId: string, data: Partial<CharacterData>) => {
-    await withCharacters(gameRef, (chars) => chars.map((c) => c.id === characterId ? { ...c, data: { ...c.data, ...data } } : c));
+    await withCharacters(gameRef, (chars) => chars.map((c) => {
+      if (c.id !== characterId) return c;
+      // Deep-merge playbookFeatures against the freshly-read doc so concurrent
+      // saves to different feature keys don't clobber each other — the incoming
+      // patch is built from a (possibly stale) prop snapshot of the whole object.
+      const next = { ...c.data, ...data };
+      if (data.playbookFeatures) {
+        next.playbookFeatures = { ...c.data?.playbookFeatures, ...data.playbookFeatures };
+      }
+      return { ...c, data: next };
+    }));
   }, [gameRef]);
 
   const updateSteading = useCallback(async (patch: Partial<SteadingData>) => {
     const dotted: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(patch)) {
-      if (k === 'improvements' && v !== null && typeof v === 'object') {
-        for (const [ik, iv] of Object.entries(v as Record<string, boolean>)) {
-          dotted[`steading.improvements.${ik}`] = iv;
+      if (k === 'improvements' && isRecord(v)) {
+        // Only write entries whose value is actually boolean — the patch is
+        // cast at the Firestore boundary, so guard against a non-boolean slipping
+        // into the dotted write.
+        for (const [ik, iv] of Object.entries(v)) {
+          if (isBoolean(iv)) dotted[`steading.improvements.${ik}`] = iv;
         }
       } else {
         // Strip undefined fields from array elements (e.g. parsed NPCs with optional fields)

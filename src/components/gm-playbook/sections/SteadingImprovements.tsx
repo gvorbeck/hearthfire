@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback } from 'react';
 import { Text } from '@/components/ui';
-import { useToast } from '@/components/app';
 import type { SteadingData, GmImprovement } from '@/types';
+import { useOptimisticField } from '@/hooks/useOptimisticField';
 import { PredefinedImprovementsList } from './PredefinedImprovementsList';
 import { GmImprovementSlots } from './GmImprovementSlots';
 import styles from './SteadingImprovements.module.css';
@@ -13,26 +13,16 @@ interface SteadingImprovementsProps {
 }
 
 export const SteadingImprovements = ({ improvements = {}, gmImprovements, onSave }: SteadingImprovementsProps) => {
-  const { addToast } = useToast();
-  const pendingImprovementsRef = useRef(0);
-  const [localImprovements, setLocalImprovements] = useState<Record<string, boolean>>(() => improvements);
-
-  const onSaveRef = useRef(onSave);
-  onSaveRef.current = onSave;
-
-  useEffect(() => {
-    if (pendingImprovementsRef.current === 0) setLocalImprovements(improvements);
-  }, [improvements]);
+  const { value: localImprovements, save } = useOptimisticField<Record<string, boolean>, [key: string]>(
+    improvements,
+    // Persist only the toggled key so a concurrent remote toggle of a different
+    // key isn't clobbered; updateSteading merges it into the record dot-wise.
+    (next, key) => onSave({ improvements: { [key]: next[key] } }),
+  );
 
   const toggleKey = useCallback((key: string) => {
-    const next = { ...localImprovements, [key]: !localImprovements[key] };
-    const prev = localImprovements;
-    setLocalImprovements(next);
-    pendingImprovementsRef.current += 1;
-    onSaveRef.current({ improvements: { [key]: next[key] } })
-      .catch(() => { setLocalImprovements(prev); addToast('Failed to save.', 'error'); })
-      .finally(() => { pendingImprovementsRef.current -= 1; });
-  }, [addToast, localImprovements]);
+    save((current) => ({ ...current, [key]: !current[key] }), key);
+  }, [save]);
 
   return (
     <div className={styles.root}>

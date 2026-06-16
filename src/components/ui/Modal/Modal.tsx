@@ -54,6 +54,14 @@ export const Modal = ({ open, onClose, children, className, 'aria-labelledby': l
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
 
+      // If focus has escaped the panel entirely (e.g. inert unsupported in
+      // older Safari/Firefox), pull it back to the first focusable element.
+      if (!panel.contains(document.activeElement)) {
+        e.preventDefault();
+        first.focus();
+        return;
+      }
+
       if (e.shiftKey) {
         if (document.activeElement === first || document.activeElement === panel) {
           e.preventDefault();

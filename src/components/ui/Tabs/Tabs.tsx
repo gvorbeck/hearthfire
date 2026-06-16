@@ -281,21 +281,6 @@ export const Tabs = ({
 }: TabsProps) => {
   const [internalActive, setInternalActive] = useState(defaultIndex);
   const active = activeIndex ?? internalActive;
-  const [everActive, setEverActive] = useState(() => new Set([activeIndex ?? defaultIndex]));
-  const setActive = useCallback(
-    (i: number) => {
-      setInternalActive(i);
-      setEverActive((prev) => (prev.has(i) ? prev : new Set([...prev, i])));
-      onActiveChange?.(i);
-    },
-    [onActiveChange],
-  );
-
-  useEffect(() => {
-    if (activeIndex !== undefined) {
-      setEverActive((prev) => (prev.has(activeIndex) ? prev : new Set([...prev, activeIndex])));
-    }
-  }, [activeIndex]);
 
   const baseId = useId();
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -308,6 +293,31 @@ export const Tabs = ({
       })),
     [tabs, baseId],
   );
+
+  // Track which panels have ever been active by resolved id, not index: panels
+  // render keyed by id, and dynamic insert tabs shift indices out from under a
+  // Set<number>, which would mis-mount panels.
+  const [everActiveIds, setEverActiveIds] = useState<Set<string>>(
+    () => new Set([resolvedTabs[active]?.id].filter((id): id is string => id !== undefined)),
+  );
+  const setActive = useCallback(
+    (i: number) => {
+      setInternalActive(i);
+      const id = resolvedTabs[i]?.id;
+      if (id !== undefined) {
+        setEverActiveIds((prev) => (prev.has(id) ? prev : new Set([...prev, id])));
+      }
+      onActiveChange?.(i);
+    },
+    [onActiveChange, resolvedTabs],
+  );
+
+  useEffect(() => {
+    const id = resolvedTabs[active]?.id;
+    if (id !== undefined) {
+      setEverActiveIds((prev) => (prev.has(id) ? prev : new Set([...prev, id])));
+    }
+  }, [active, resolvedTabs]);
 
   const cx = clsx(styles.root, className);
 
@@ -365,7 +375,7 @@ export const Tabs = ({
           hidden={active !== i}
           className={styles.panel}
         >
-          {everActive.has(i) ? tab.content : null}
+          {everActiveIds.has(tab.id) ? tab.content : null}
         </div>
       ))}
     </div>

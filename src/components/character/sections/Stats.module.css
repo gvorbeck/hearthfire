@@ -3,25 +3,12 @@
   text-align: center;
 }
 
-.statsSection {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-4);
-}
-
 .statRow {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
   justify-content: center;
   gap: var(--spacing-4) var(--spacing-6);
-}
-
-.statBox {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-1);
 }
 
 .statLabel {
@@ -64,12 +51,6 @@
   outline-offset: 2px;
 }
 
-.statAbbr {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-}
-
 .statGroup {
   display: flex;
   flex-direction: column;
@@ -103,26 +84,12 @@
   border-color: var(--border-accent);
 }
 
-.debilityLabel {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  font-style: italic;
-  color: var(--text-secondary);
-}
-
 .infoRow {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-2) var(--spacing-3);
   align-items: flex-end;
   justify-content: center;
-}
-
-.infoBox {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-1);
 }
 
 .infoInput {
@@ -174,9 +141,6 @@
 }
 
 .infoLabel {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
   white-space: nowrap;
 }
 

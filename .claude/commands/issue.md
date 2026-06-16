@@ -18,6 +18,7 @@ Reject with a clear explanation and stop if any of the following are true:
 - The issue body is empty or too vague to act on (no reproduction steps, no clear expected vs actual behavior, no acceptance criteria).
 - The issue describes a feature request with no concrete spec — label includes `enhancement` or `feature` and the body contains no implementation detail.
 - The issue is out of scope for this codebase (e.g., it references files, routes, or systems that do not exist in this repo).
+- The issue is not worth the time investment or does not meet the needs of the application.
 
 If valid, briefly summarize the issue in one sentence: what is broken and where.
 

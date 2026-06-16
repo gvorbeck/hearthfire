@@ -18,11 +18,6 @@
   color: var(--text-primary);
 }
 
-.sizeDesc {
-  font-weight: 400;
-  color: var(--text-secondary);
-}
-
 /* ── Stats grid ───────────────────────────────────────── */
 .statsGrid {
   display: grid;
@@ -85,11 +80,6 @@
   color: var(--text-primary);
 }
 
-.statDesc {
-  font-size: var(--text-xs);
-  color: var(--text-secondary);
-  line-height: 1.5;
-}
 
 /* ── Stepper control ──────────────────────────────────── */
 .statControl {

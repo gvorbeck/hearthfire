@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useOptimisticField } from '@/hooks/useOptimisticField';
 import { CheckboxGroup, Divider, Radio, RadioGroup, Text } from '@/components/ui';
-import { PlaybookSection } from '../../PlaybookSection';
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import type { PlaybookSectionProps } from '@/types';
 import styles from './BlessedEarthMother.module.css';
@@ -59,7 +59,7 @@ export const BlessedEarthMother = ({ data, onSave }: BlessedEarthMotherProps) =>
               value={opt}
               checked={shrine === opt}
               onChange={() => saveShrine(opt)}
-              label={<span className={styles.optionLabel}>{opt}</span>}
+              label={opt}
             />
           ))}
         </RadioGroup>

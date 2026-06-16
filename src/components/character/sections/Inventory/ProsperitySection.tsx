@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import clsx from 'clsx';
 import { Text } from '@/components/ui';
-import { PlaybookSection } from '../../PlaybookSection';
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import { PROSPERITY_NOTES } from './inventoryData';
 import styles from './ProsperitySection.module.css';
 
@@ -15,7 +15,7 @@ const ProsperityOptionRow = memo(({ val, selected }: ProsperityOptionRowProps) =
   return (
     <div className={cx} aria-current={selected ? true : undefined}>
       <span className={styles.prosperityValue}>{val > 0 ? `+${val}` : val}</span>
-      <span className={styles.prosperityNote}>{PROSPERITY_NOTES[val]}</span>
+      <Text as="span" font="serif" size="sm" color="muted" italic>{PROSPERITY_NOTES[val]}</Text>
     </div>
   );
 });

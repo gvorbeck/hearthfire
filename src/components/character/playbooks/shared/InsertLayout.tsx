@@ -1,6 +1,6 @@
 import { useCallback, useMemo, type ReactNode } from 'react';
 import { CheckboxGroup, Text } from '@/components/ui';
-import { PlaybookSection } from '../../PlaybookSection';
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import { Move } from '../../Move';
 import type { MoveDefinition } from '@/types';
 import { PurposeDetail } from './InsertSections';

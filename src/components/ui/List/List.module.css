@@ -45,43 +45,9 @@
   font-family: var(--font-sans);
 }
 
-/* ── Dash variant ────────────────────────────────────── */
-.dash {
-  gap: var(--spacing-2);
-}
-
-.dash .item {
-  position: relative;
-  padding-left: var(--spacing-4);
-  color: var(--color-stone-200);
-  line-height: 1.55;
-  font-size: var(--text-sm);
-}
-
-.dash .item::before {
-  content: '–';
-  position: absolute;
-  left: 0;
-  color: var(--color-gold-500);
-  font-weight: 700;
-}
-
-/* When a dash list is nested inside a numbered item, add breathing room above */
+/* When a list is nested inside a numbered item, add breathing room above */
 .numbered > .item .list {
   margin-top: var(--spacing-2);
-}
-
-/* When a dash list is nested inside a numbered item, use the bullet glyph */
-.numbered > .item .dash .item {
-  padding-left: var(--spacing-5);
-}
-
-.numbered > .item .dash .item::before {
-  content: '\2609';
-  font-weight: normal;
-  font-size: var(--text-xs);
-  line-height: 1.6;
-  font-family: var(--font-sans);
 }
 
 /* ── Numbered variant ────────────────────────────────── */

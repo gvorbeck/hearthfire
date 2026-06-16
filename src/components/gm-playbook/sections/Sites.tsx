@@ -26,7 +26,7 @@ export const Sites = () => (
         loop, but keep in mind:
       </Text>
       <List
-        variant="dash"
+        variant="bullet"
         items={[
           "Physical space: dimensions, construction, clearance, obstacles, footing, levels, etc.",
           "Light sources: who has them, range/tags, who out there sees them, duration",
@@ -62,7 +62,7 @@ export const Sites = () => (
         Transition directly to the next scene/situation, or zoom out and:
       </Text>
       <List
-        variant="dash"
+        variant="bullet"
         items={[
           "Describe environment they pass through",
           "Ask the PCs questions",
@@ -84,7 +84,7 @@ export const Sites = () => (
             Lay the site's foundation
           </Heading>
           <List
-            variant="dash"
+            variant="bullet"
             items={[
               "Ask questions, if they'd know of this place",
               "Build on what you've got: context, established details, things you've decided, your purpose for including the site",
@@ -97,7 +97,7 @@ export const Sites = () => (
             Build up the site's story
           </Heading>
           <List
-            variant="dash"
+            variant="bullet"
             items={[
               "Look for connections to setting elements, the PCs, stuff players care about, threats, NPCs, past events, open questions.",
               "Ask yourself questions that arise naturally from all of the above.",
@@ -111,7 +111,7 @@ export const Sites = () => (
             Sketch out the site's contents
           </Heading>
           <List
-            variant="dash"
+            variant="bullet"
             items={[
               "Populate it with various NPCs/monsters",
               "Identify dangers & discoveries implied by the site's foundation, story, and denizens",
@@ -127,7 +127,7 @@ export const Sites = () => (
           </Heading>
           <Text>As much as you like and find helpful.</Text>
           <List
-            variant="dash"
+            variant="bullet"
             items={[
               "Create maps or visuals, if you have time and you think it'll help.",
               "Detail areas/rooms: descriptions, impressions, questions, content, story, exits",
