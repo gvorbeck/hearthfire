@@ -108,7 +108,7 @@
 .customPlaceholder {
   font-family: var(--font-serif);
   font-size: var(--text-sm);
-  color: var(--text-tertiary, var(--text-secondary));
+  color: var(--text-tertiary);
   font-style: italic;
 }
 

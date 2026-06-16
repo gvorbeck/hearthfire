@@ -3,7 +3,7 @@
   flex-direction: column;
   gap: var(--spacing-2);
   padding: var(--spacing-3);
-  background: var(--surface-sunken);
+  background: var(--surface-page);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
 }

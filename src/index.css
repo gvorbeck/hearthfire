@@ -85,6 +85,8 @@
 
   --text-primary: var(--color-stone-100);
   --text-secondary: var(--color-stone-400);
+  /* Dimmest text tier — instructions, placeholder labels, drag handles */
+  --text-tertiary: var(--color-stone-500);
   --text-accent: var(--color-gold-300);
   --text-heading: var(--color-gold-300);
 
