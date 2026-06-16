@@ -1,5 +1,8 @@
+import { isBoolean, isNumber, isString } from '@/lib/typeGuards';
 import type { CharacterData, PlaybookFeatures } from '@/types';
 
+// Stricter than isRecord — excludes arrays so a nested feature object can be
+// told apart from a feature array below.
 const isPlainObject = (v: unknown): v is Record<string, unknown> =>
   v !== null && typeof v === 'object' && !Array.isArray(v);
 
@@ -11,9 +14,9 @@ const safeFeatures = (raw: unknown): PlaybookFeatures => {
     const val = raw[key];
     if (val === undefined || val === null) continue;
     if (
-      typeof val === 'string' ||
-      typeof val === 'number' ||
-      typeof val === 'boolean' ||
+      isString(val) ||
+      isNumber(val) ||
+      isBoolean(val) ||
       isPlainObject(val) ||
       Array.isArray(val)
     ) {
