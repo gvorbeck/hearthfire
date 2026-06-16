@@ -106,6 +106,10 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
   // WCAG 2.2.1 — pause the auto-dismiss countdown while the user hovers or
   // focuses a toast so it can't vanish mid-read; resume with a fresh timer.
   const pauseToast = useCallback((id: string) => {
+    // Don't touch the timer of a toast that's already exiting — once startExit
+    // runs it deletes the key here, and the timer under this id is its removal
+    // timer. Clearing that would strand the toast in the DOM forever.
+    if (!visibleKeys.current.has(id)) return;
     const existing = timers.current.get(id);
     if (existing) clearTimeout(existing);
   }, []);
@@ -113,6 +117,10 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
   const resumeToast = useCallback((id: string) => {
     // Only restart for toasts that are still visible (not already exiting).
     if (!visibleKeys.current.has(id)) return;
+    // Clear any existing timer first so rapid focus/blur can't leave concurrent
+    // timeouts racing to dismiss the same toast.
+    const existing = timers.current.get(id);
+    if (existing) clearTimeout(existing);
     timers.current.set(id, setTimeout(() => startExit(id), AUTO_DISMISS_MS));
   }, [startExit]);
 

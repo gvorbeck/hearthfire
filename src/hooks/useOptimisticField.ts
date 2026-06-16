@@ -58,7 +58,10 @@ export const useOptimisticField = <T, A extends unknown[] = []>(
     return saveFnRef.current(updated, ...args)
       .then(() => undefined)
       .catch(() => {
-        setValue(prev);
+        // Only roll back if our optimistic write is still the current value; a
+        // newer overlapping save may have superseded it, and reverting to this
+        // save's `prev` would clobber that newer edit.
+        setValue((current) => (current === updated ? prev : current));
         addToastRef.current(errorMsgRef.current, 'error');
       })
       .finally(() => {
