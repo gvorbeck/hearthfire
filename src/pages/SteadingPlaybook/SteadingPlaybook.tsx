@@ -14,7 +14,7 @@ import { SteadingStats } from '@/components/gm-playbook/sections/SteadingStats';
 import { SteadingImprovements } from '@/components/gm-playbook/sections/SteadingImprovements';
 import { SteadingAssets } from '@/components/gm-playbook/sections/SteadingAssets';
 import { SteadingNPCs } from '@/components/gm-playbook/sections/SteadingNPCs/SteadingNPCs';
-import { SteadingReference } from '@/components/gm-playbook/sections/SteadingReference';
+import { PlacesOfInterest, ReferenceNames, NpcTraits } from '@/components/gm-playbook/sections/SteadingReference';
 import type { GameSession, SteadingData, SteadingNPC } from '@/types';
 import styles from './SteadingPlaybook.module.css';
 
@@ -116,6 +116,9 @@ const SteadingTab = ({ steading, updateSteading }: SteadingTabProps) => (
       <PlaybookSection title="Assets">
         <SteadingAssets steading={steading} onSave={updateSteading} />
       </PlaybookSection>
+      <PlaybookSection title="Places of interest">
+        <PlacesOfInterest placesOfInterest={steading.placesOfInterest} onSave={updateSteading} />
+      </PlaybookSection>
     </>}
   />
 );
@@ -154,8 +157,19 @@ const NpcsTab = ({ g, steading, updateSteading, npcFilter, onFilterChange }: Npc
   </div>
 );
 
-const ReferenceTab = ({ steading, updateSteading }: SteadingTabProps) => (
-  <PlaybookColumns full={<SteadingReference placesOfInterest={steading.placesOfInterest} onSave={updateSteading} />} />
+const ReferenceTab = () => (
+  <PlaybookColumns
+    left={
+      <PlaybookSection title="Names">
+        <ReferenceNames />
+      </PlaybookSection>
+    }
+    right={
+      <PlaybookSection title="NPC Traits">
+        <NpcTraits />
+      </PlaybookSection>
+    }
+  />
 );
 
 const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
@@ -188,7 +202,7 @@ const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
     {
       id: 'reference',
       label: 'Reference',
-      content: <ReferenceTab steading={steading} updateSteading={updateSteading} />,
+      content: <ReferenceTab />,
     },
   ], [g.characters, steading, updateSteading, npcFilter]);
 
