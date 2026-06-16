@@ -1,7 +1,7 @@
 import { useCallback, memo } from 'react';
 import { Checkbox, Divider, Stack, Text } from '@/components/ui';
 import { RepeaterField } from '@/components/fields';
-import { PlaybookSection } from '../../PlaybookSection';
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import { SMALL_ITEMS, UNDEFINED_SMALL_COUNT, type SmallItem } from './inventoryData';
 import { UndefinedProvisions } from './UndefinedProvisions';
 import shared from './inventoryItem.module.css';

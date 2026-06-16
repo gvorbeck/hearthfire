@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { Text, Button } from '@/components/ui';
 import type { DropdownGroup } from '@/components/ui';
-import { useOptimisticSteadingField } from '@/hooks/useOptimisticSteadingField';
+import { useOptimisticField } from '@/hooks/useOptimisticField';
 import type { SteadingData, SteadingNPC, NpcRelationship, GameSession } from '@/types';
 import { generateId, NPC_CONFIG, buildGroups, buildNameMap } from './npcData';
 import type { NpcFormState, RelTarget } from './npcData';
@@ -105,7 +105,7 @@ interface SteadingNPCsProps {
 
 export const SteadingNPCs = ({ section, npcs = [], onSave, game, filterTargetId }: SteadingNPCsProps) => {
   const { title, description } = NPC_CONFIG[section];
-  const { value: localNpcs, save: saveNpcs } = useOptimisticSteadingField(
+  const { value: localNpcs, save: saveNpcs } = useOptimisticField(
     npcs,
     (next: SteadingNPC[]) => onSave({ [section]: next }),
   );

@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useLatest } from '@/hooks/useLatest';
 import { useOptimisticField } from '@/hooks/useOptimisticField';
-import { useDebouncedSave } from '@/hooks/useDebouncedSave';
+import { useDebouncedTextField } from '@/hooks/useDebouncedTextField';
 import clsx from 'clsx';
 import { Checkbox, Input, Radio, Text, UseDots } from '@/components/ui';
 import { useToast } from '@/components/app';
-import { PlaybookSection } from '../PlaybookSection';
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import type { Possession, PossessionSubItem, PlaybookSpecialPossessions } from '@/lib/specialPossessionsOptions';
 import type { CharacterData } from '@/types';
 import styles from './SpecialPossessions.module.css';
@@ -201,16 +201,15 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1, chooseOver
     (next) => onSaveRef.current?.({ specialPossessionUses: next }) ?? Promise.resolve(),
     'Failed to save.',
   );
-  const [customText, setCustomText] = useState<string>(() => data?.specialPossessionCustom ?? '');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const hasInitializedCollapse = useRef(false);
-  const customTextRef = useLatest(customText);
   const background = data?.background;
 
-  const { onChange: customSaveDebounced, flush: customSaveFlush } = useDebouncedSave<string>(
-    (next) => onSaveRef.current?.({ specialPossessionCustom: next }) ?? Promise.resolve(),
-    1000,
+  const saveCustom = useCallback(
+    (next: string) => onSaveRef.current?.({ specialPossessionCustom: next }) ?? Promise.resolve(),
+    [onSaveRef],
   );
+  const customField = useDebouncedTextField(data?.specialPossessionCustom ?? '', saveCustom, 1000);
 
   const alwaysSelectedIds = useMemo(() => {
     const ids = new Set<string>();
@@ -279,16 +278,6 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1, chooseOver
 
   const handleToggleCollapse = useCallback(() => setIsCollapsed((v) => !v), []);
 
-  const handleCustomChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setCustomText(value);
-    customSaveDebounced(value);
-  }, [customSaveDebounced]);
-
-  const handleCustomBlur = useCallback(() => {
-    customSaveFlush(customTextRef.current);
-  }, [customSaveFlush, customTextRef]);
-
   if (!config?.items.length) return <PlaybookSection title="Special Possessions" />;
 
   const topLevelIds = new Set(config.items.map(p => p.id));
@@ -344,11 +333,9 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1, chooseOver
                 <div className={styles.customInputWrapper}>
                   <Input
                     aria-label="Custom possession name"
-                    value={customText}
                     placeholder="Describe possession…"
-                    onChange={handleCustomChange}
-                    onBlur={handleCustomBlur}
                     onClick={stopPropagation}
+                    {...customField}
                   />
                 </div>
               )}

@@ -5,7 +5,7 @@ import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { ScrollToTop, Tabs, PlaybookColumns } from '@/components/ui';
 import { PageLayout } from '@/components/app/PageLayout/PageLayout';
-import { PlaybookSection } from '@/components/character/PlaybookSection';
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import { CoreLoop, GmMoves, Principles, DamageAndDebilities, ContentSection, Threats, IWonder, Expeditions, Sites, Discoveries, Hazards, Monsters, NPCs, Followers, Homefront, FlowOfPlay, MoveSearch } from '@/components/gm-playbook/sections';
 import { GameGuard } from '@/components/app/GameGuard/GameGuard';
 import { DEFAULT_GAME_NAME } from '@/lib/constants';

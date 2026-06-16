@@ -5,7 +5,7 @@ import { useCollapsibleSection } from '@/hooks/useCollapsibleSection';
 import { useOptimisticField } from '@/hooks/useOptimisticField';
 import { Checkbox, Input, Radio, RadioGroup, Text } from '@/components/ui';
 import { useToast } from '@/components/app';
-import { PlaybookSection } from '../PlaybookSection';
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import type { AppearanceRows } from '@/lib/appearanceOptions';
 import type { CharacterData } from '@/types';
 import styles from './Appearance.module.css';

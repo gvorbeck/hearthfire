@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Heading, Text, Input } from '@/components/ui';
-import { useOptimisticSteadingField } from '@/hooks/useOptimisticSteadingField';
+import { useOptimisticField } from '@/hooks/useOptimisticField';
 import { ImprovementList } from './ImprovementList';
 import type { SteadingData } from '@/types';
 import styles from './SteadingAssets.module.css';
@@ -92,7 +92,7 @@ export const SteadingAssets = ({ steading, onSave }: SteadingAssetsProps) => {
     goldCoins = 0,
   } = steading;
 
-  const { value: localAssetsList, save: saveAssetsList } = useOptimisticSteadingField(
+  const { value: localAssetsList, save: saveAssetsList } = useOptimisticField(
     assetsList,
     (next: string[]) => onSave({ assetsList: next }),
   );
@@ -101,7 +101,7 @@ export const SteadingAssets = ({ steading, onSave }: SteadingAssetsProps) => {
     () => ({ silverPurses, silverHandfuls, silverCoins, goldPurses, goldHandfuls, goldCoins }),
     [silverPurses, silverHandfuls, silverCoins, goldPurses, goldHandfuls, goldCoins],
   );
-  const { value: localCurrency, save: saveCurrency } = useOptimisticSteadingField<Record<CurrencyKey, number>, [key: CurrencyKey]>(
+  const { value: localCurrency, save: saveCurrency } = useOptimisticField<Record<CurrencyKey, number>, [key: CurrencyKey]>(
     firestoreCurrency,
     // Persist only the changed denomination so a concurrent edit to another isn't clobbered.
     (next, key) => onSave({ [key]: next[key] }),

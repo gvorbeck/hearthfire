@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import { CheckboxGroup, Divider, Text } from '@/components/ui';
-import { PlaybookSection } from '../../PlaybookSection';
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import { AnswerPrompts } from '../AnswerPrompts';
 import { usePlaybookChecked, usePlaybookCheckedWithAnswers } from '@/hooks/usePlaybookChecked';
 import type { CheckboxGroupItem, PlaybookFeatures, PlaybookSectionProps } from '@/types';

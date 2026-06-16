@@ -1,5 +1,4 @@
-import { Heading, Text, List, Table, Callout } from "@/components/ui";
-import playbookStyles from "@/components/gm-playbook/Playbook.module.css";
+import { Heading, Text, List, Table, Callout, Stack } from "@/components/ui";
 import styles from "@/pages/GmPlaybook/GmPlaybook.module.css";
 
 export const Monsters = () => (
@@ -286,7 +285,7 @@ export const Monsters = () => (
         Write any of these that will help you portray the monster or use it in
         play.
       </Text>
-      <div className={playbookStyles.paragraphs}>
+      <Stack gap={4}>
         <Text>**Tactics:** if/then or when/then statements, like…</Text>
         <List
           variant="bullet"
@@ -298,7 +297,7 @@ export const Monsters = () => (
         />
         <Text>**Something interesting/something useful:** pre-plan things to reveal if PCs Know Things.</Text>
         <Text>**Custom player moves:** particularly good for resolving nasty attacks (mind control, poison, etc.).</Text>
-      </div>
+      </Stack>
     </div>
 
     <div className={styles.subsection}>

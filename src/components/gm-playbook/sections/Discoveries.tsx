@@ -1,5 +1,4 @@
-import { Heading, Text, List } from '@/components/ui';
-import playbookStyles from '@/components/gm-playbook/Playbook.module.css';
+import { Heading, Text, List, Stack } from '@/components/ui';
 import styles from '@/pages/GmPlaybook/GmPlaybook.module.css';
 
 export const Discoveries = () => (
@@ -50,11 +49,11 @@ export const Discoveries = () => (
 
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Artifacts &amp; arcana</Heading>
-      <div className={playbookStyles.paragraphs}>
+      <Stack gap={4}>
         <Text>Place them where they make sense, where they tell a story. Be generous with info. Don't imply deeper mysteries if there are none. If there are, make that clear: **hint at more than meets the eye** or **offer an opportunity**.</Text>
         <Text>If they get a 7+ to Know Things, reveal some combo of what it is/does, what it's worth, how they might activate it or sell it for full value, or how they might learn more. On a 7-9, reveal the trigger of an artifact's move or the front of an arcanum; on a 10+, give them the full move or both the front and back of an arcanum.</Text>
         <Text>If they can't figure it out, give them a path: **tell the requirements**, Make a Plan, write a love letter, or just tell them after some downtime and ask how they figured it out.</Text>
-      </div>
+      </Stack>
     </div>
   </div>
 );

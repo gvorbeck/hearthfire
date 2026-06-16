@@ -63,4 +63,25 @@ describe('useOptimisticField', () => {
     rerender({ remote: 'b' });
     expect(result.current.value).toBe('b');
   });
+
+  it('accepts a transform and forwards the computed value to saveFn', async () => {
+    const saveFn = vi.fn().mockResolvedValue(undefined);
+    const { result } = renderHook(() => useOptimisticField<number>(1, saveFn, 'failed'));
+
+    await act(async () => { result.current.save((c) => c + 1); });
+    expect(result.current.value).toBe(2);
+    expect(saveFn).toHaveBeenCalledWith(2);
+  });
+
+  it('forwards extra patch args to saveFn for narrower-than-full writes', async () => {
+    const saveFn = vi.fn().mockResolvedValue(undefined);
+    const { result } = renderHook(() =>
+      useOptimisticField<Record<string, number>, [key: string]>({ a: 0, b: 0 }, saveFn, 'failed'),
+    );
+
+    await act(async () => { result.current.save((c) => ({ ...c, a: 5 }), 'a'); });
+    expect(result.current.value).toEqual({ a: 5, b: 0 });
+    // Full optimistic value computed; extra arg 'a' forwarded so the caller can persist a narrow patch.
+    expect(saveFn).toHaveBeenCalledWith({ a: 5, b: 0 }, 'a');
+  });
 });

@@ -1,3 +1,50 @@
 .tabs {
   margin-top: 0;
 }
+
+/* ── Content form (intro text + stacked inputs) ──────────── */
+.contentForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+/* ── Content rules block (instructional text above inputs) ── */
+.contentRules {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+/* ── Season heading with icon ──────────────────────────── */
+.seasonHeading {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.seasonIcon {
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+/* ── Section divider ─────────────────────────────────────── */
+.subsection {
+  composes: subsection from '@/components/playbook/playbook.shared.module.css';
+}
+
+/* ── Threats: threat-type move grid ──────────────────────── */
+.threatMovesGrid {
+  composes: grid2 from '@/components/playbook/playbook.shared.module.css';
+  margin-top: var(--spacing-2);
+}
+
+.threatType {
+  margin-bottom: var(--spacing-1);
+}
+
+/* ── Expeditions: weather tables grid ───────────────────── */
+.weatherGrid {
+  composes: grid2 from '@/components/playbook/playbook.shared.module.css';
+  margin-top: var(--spacing-2);
+}

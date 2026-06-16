@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import clsx from 'clsx';
 import { Text } from '@/components/ui';
-import { PlaybookSection } from '../../PlaybookSection';
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import { PROSPERITY_NOTES } from './inventoryData';
 import styles from './ProsperitySection.module.css';
 

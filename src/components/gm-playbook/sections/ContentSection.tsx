@@ -1,6 +1,6 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useCallback } from 'react';
 import { Text, Input } from '@/components/ui';
-import { useDebouncedSave } from '@/hooks/useDebouncedSave';
+import { useDebouncedTextField } from '@/hooks/useDebouncedTextField';
 import type { ContentLists } from '@/types';
 import styles from '@/pages/GmPlaybook/GmPlaybook.module.css';
 
@@ -9,43 +9,17 @@ interface ContentSectionProps {
   onSave: (field: keyof ContentLists, value: string) => Promise<void>;
 }
 
-const useContentField = (
-  initial: string,
-  save: (v: string) => Promise<void>,
-) => {
-  const [local, setLocal] = useState(initial);
-  const { onChange: debouncedChange, flush } = useDebouncedSave(save, 1500);
-  const pendingRef = useRef(false);
-
-  useEffect(() => {
-    if (!pendingRef.current) setLocal(initial);
-  }, [initial]);
-
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    pendingRef.current = true;
-    setLocal(e.target.value);
-    debouncedChange(e.target.value);
-  }, [debouncedChange]);
-
-  const handleBlur = useCallback(() => {
-    flush(local);
-    pendingRef.current = false;
-  }, [flush, local]);
-
-  return { value: local, onChange: handleChange, onBlur: handleBlur };
-};
-
 export const ContentSection = ({ content, onSave }: ContentSectionProps) => {
   const saveExcluded = useCallback((v: string) => onSave('excluded', v), [onSave]);
   const saveVeiled = useCallback((v: string) => onSave('veiled', v), [onSave]);
   const saveSpecial = useCallback((v: string) => onSave('specialHandling', v), [onSave]);
 
-  const excluded = useContentField(content?.excluded ?? '', saveExcluded);
-  const veiled = useContentField(content?.veiled ?? '', saveVeiled);
-  const special = useContentField(content?.specialHandling ?? '', saveSpecial);
+  const excluded = useDebouncedTextField(content?.excluded ?? '', saveExcluded);
+  const veiled = useDebouncedTextField(content?.veiled ?? '', saveVeiled);
+  const special = useDebouncedTextField(content?.specialHandling ?? '', saveSpecial);
 
   return (
-    <div>
+    <div className={styles.contentForm}>
       <div className={styles.contentRules}>
         <Text size="xs">Keep this in sync with the steading playbook. Review it at the start of each session.</Text>
         <Text size="xs">When **anyone calls "time out,"** play stops. Step out of character, check in with each other, maybe take a break. Discuss what's wrong, player-to-player.</Text>

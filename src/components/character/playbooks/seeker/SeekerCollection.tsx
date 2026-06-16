@@ -1,5 +1,5 @@
 import { CheckboxGroup, Divider, Text } from "@/components/ui";
-import { PlaybookSection } from "../../PlaybookSection";
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import { AnswerPrompts } from "../AnswerPrompts";
 import { usePlaybookCheckedWithAnswers } from "@/hooks/usePlaybookChecked";
 import type { PlaybookSectionProps } from "@/types";

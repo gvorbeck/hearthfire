@@ -3,8 +3,8 @@ import { useLatest } from '@/hooks/useLatest';
 import { useFirestoreSync } from '@/hooks/useFirestoreSync';
 import clsx from 'clsx';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
-import { Checkbox, Input, Text } from '@/components/ui';
-import { PlaybookSection } from '../PlaybookSection';
+import { Checkbox, Input, Text, Stack } from '@/components/ui';
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import type { CharacterData } from '@/types';
 import styles from './Stats.module.css';
 
@@ -28,7 +28,7 @@ const StatBox = ({ label, abbr, statKey, value, onChange, onBlur }: StatBoxProps
   }, [onChange, statKey]);
 
   return (
-    <div className={styles.statBox}>
+    <Stack gap={1} align="center">
       <label className={styles.statLabel} htmlFor={`stat-${abbr}`}>{label}</label>
       <Input
         id={`stat-${abbr}`}
@@ -41,7 +41,7 @@ const StatBox = ({ label, abbr, statKey, value, onChange, onBlur }: StatBoxProps
         onWheel={handleStatWheel}
       />
       <Text as="span" font="serif" size="sm" color="muted">({abbr})</Text>
-    </div>
+    </Stack>
   );
 };
 
@@ -56,7 +56,7 @@ interface InfoBoxProps {
 }
 
 const InfoBox = ({ label, statKey, value, isStatic, min, onChange, onBlur }: InfoBoxProps) => (
-  <div className={styles.infoBox}>
+  <Stack gap={1} align="center">
     {isStatic ? (
       <span className={styles.infoStatic}>{value}</span>
     ) : (
@@ -72,7 +72,7 @@ const InfoBox = ({ label, statKey, value, isStatic, min, onChange, onBlur }: Inf
       />
     )}
     <Text as="span" font="serif" size="sm" color="muted" className={styles.infoLabel}>{label}</Text>
-  </div>
+  </Stack>
 );
 
 interface DebilityRowProps {
@@ -265,7 +265,7 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
   return (
     <PlaybookSection title="Stats" warn={warn} warnText="All stat fields must be filled in before play.">
       <Text color="muted" className={styles.statsInstruction}>{scoreInstruction}</Text>
-      <div className={styles.statsSection}>
+      <Stack gap={4}>
         <div className={styles.statRow}>
           {STAT_GROUPS.map((group) => (
             <div key={group.debilityKey} className={styles.statGroup}>
@@ -306,7 +306,7 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
             {levelUpHint}
           </Text>
         )}
-      </div>
+      </Stack>
     </PlaybookSection>
   );
 };

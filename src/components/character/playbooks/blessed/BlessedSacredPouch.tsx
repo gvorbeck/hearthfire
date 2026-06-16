@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useOptimisticField } from '@/hooks/useOptimisticField';
 import { Divider, Radio, RadioGroup, Text } from '@/components/ui';
-import { PlaybookSection } from '../../PlaybookSection';
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import type { PlaybookSectionProps } from '@/types';
 import styles from './BlessedSacredPouch.module.css';

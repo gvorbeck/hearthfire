@@ -1,0 +1,30 @@
+/* Shared playbook layout primitives, used across the PC / Steading / GM
+   playbook pages so the same concept has one definition. Compose these into
+   local rules via `composes: <name> from '@/components/playbook/playbook.shared.module.css'`. */
+
+/* ── Section divider ─────────────────────────────────────
+   A subsection set off from the preceding block by a top rule, with breathing
+   room above and below the divider. */
+.subsection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  border-top: 1px solid var(--border-subtle);
+  padding-top: var(--spacing-6);
+  margin-top: var(--spacing-6);
+}
+
+/* ── Responsive two-column grid ──────────────────────────
+   Two equal columns on wider viewports, collapsing to a single column on
+   narrow screens. */
+.grid2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-4) var(--spacing-6);
+}
+
+@media (max-width: 600px) {
+  .grid2 {
+    grid-template-columns: 1fr;
+  }
+}

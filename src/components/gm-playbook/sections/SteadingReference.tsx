@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
-import { Heading, Text } from '@/components/ui';
+import { Heading, Text, Stack } from '@/components/ui';
 import { ImprovementList } from './ImprovementList';
-import playbookStyles from '@/components/gm-playbook/Playbook.module.css';
 import {
   STONETOP_NAMES_STR,
   MARSHEDGE_NAMES_STR,
@@ -75,7 +74,7 @@ export const SteadingReference = ({ placesOfInterest, onSave }: SteadingReferenc
       <div className={styles.subsection}>
         <Heading as="h3" size="sm">Names</Heading>
         <Text size="xs" color="muted">Pick one, make one up, or ask a player to.</Text>
-        <div className={playbookStyles.paragraphs}>
+        <Stack gap={4}>
           <Text size="xs">{`**Stonetop** (Welsh): ${STONETOP_NAMES_STR}`}</Text>
           <Text size="xs">{`**Marshedge** (Irish): ${MARSHEDGE_NAMES_STR}`}</Text>
           <Text size="xs">{`**Hillfolk** (Breton, clipped): ${HILLFOLK_NAMES_STR}`}</Text>
@@ -83,7 +82,7 @@ export const SteadingReference = ({ placesOfInterest, onSave }: SteadingReferenc
           <Text size="xs">{`**Manmarch** (Germanic): ${MANMARCH_NAMES_STR}`}</Text>
           <Text size="xs">{`**Barrier Pass** (Tibetan, Nepali): ${BARRIER_PASS_NAMES_STR}`}</Text>
           <Text size="xs" color="muted">*Gordin's Delve: choose from other lists; everyone there comes from somewhere else.*</Text>
-        </div>
+        </Stack>
       </div>
 
       <div className={styles.subsection}>

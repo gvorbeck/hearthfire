@@ -1,6 +1,6 @@
 import { useCallback, memo } from 'react';
 import { Text } from '@/components/ui';
-import { PlaybookSection } from '../../PlaybookSection';
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import { Move } from '../../Move';
 import { usePlaybookChecked } from '@/hooks/usePlaybookChecked';
 import { LIGHTBEARER_INVOCATIONS } from '@/lib/lightbearerInvocations';

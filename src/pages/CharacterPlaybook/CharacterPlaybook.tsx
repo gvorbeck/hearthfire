@@ -5,7 +5,7 @@ import { useParams, Link } from 'react-router-dom';
 import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { PLAYBOOKS, DEFAULT_GAME_NAME, getPlaybook } from '@/lib/constants';
-import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Icon, Text, PlaybookColumns } from '@/components/ui';
+import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Icon, Text, PlaybookColumns, Stack } from '@/components/ui';
 import { AddInsertModal } from './modals/AddInsertModal';
 import { RemoveInsertModal } from './modals/RemoveInsertModal';
 import { GameGuard } from '@/components/app/GameGuard/GameGuard';
@@ -34,7 +34,6 @@ import {
   WouldBeHeroFearAnger,
   RevenantInsert, GhostInsert, ThrallInsert, FollowersInsert,
 } from '@/components/character/playbooks';
-import charSheetStyles from '@/components/character/CharacterSheet.module.css';
 import type { Character, CharacterData, GameSession, PlaybookType, PlaybookFeatures } from '@/types';
 import styles from './CharacterPlaybook.module.css';
 
@@ -110,11 +109,11 @@ const PCPlaybookTab = ({ playbook, data, level, playbookOption, onSave, insertIn
       <PlaybookColumns full={<SpecialPossessions config={SPECIAL_POSSESSIONS_OPTIONS[playbook]} data={data} onSave={onSave} level={level} chooseOverride={foxChooseOverride} />} />
       <PlaybookColumns
         left={PLAYBOOK_SECTIONS[playbook] ? (
-          <div className={charSheetStyles.stack}>
+          <Stack gap={6}>
             {PLAYBOOK_SECTIONS[playbook]!.map(({ key, Component }) => (
               <Component key={key} data={data} onSave={onSave} />
             ))}
-          </div>
+          </Stack>
         ) : undefined}
         right={<Introductions config={INTRODUCTIONS_OPTIONS[playbook]} data={data} onSave={onSave} />}
       />

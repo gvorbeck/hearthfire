@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import clsx from 'clsx';
 import { Button, Input, Text } from '@/components/ui';
-import { PlaybookSection } from '../../PlaybookSection';
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import { Move } from '../../Move';
 import { RadioSelect } from '../../sections/RadioSelect';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';

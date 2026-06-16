@@ -1,5 +1,4 @@
-import { Heading, Text, Icon, List, Callout } from "@/components/ui";
-import playbookStyles from "@/components/gm-playbook/Playbook.module.css";
+import { Heading, Text, Icon, List, Callout, Stack } from "@/components/ui";
 import styles from "@/pages/GmPlaybook/GmPlaybook.module.css";
 
 const SeasonHeading = ({
@@ -23,7 +22,7 @@ export const Homefront = () => (
       <Heading as="h3" size="sm">
         Life in Stonetop
       </Heading>
-      <div className={playbookStyles.paragraphs}>
+      <Stack gap={4}>
         <div>
           <Text>**People:**</Text>
           <List
@@ -74,7 +73,7 @@ export const Homefront = () => (
             ]}
           />
         </div>
-      </div>
+      </Stack>
     </div>
 
     <div className={styles.subsection}>
@@ -253,7 +252,7 @@ export const Homefront = () => (
         Relative Value
       </Heading>
       <Text>Exchange rates are not standard, but&hellip;</Text>
-      <div className={playbookStyles.paragraphs}>
+      <Stack gap={4}>
         <div>
           <Text>**A Value 0 item** is generally worth:</Text>
           <List
@@ -321,7 +320,7 @@ export const Homefront = () => (
         <Text>*Exotic trade goods are +1 Value.</Text>
         <Text>A ◊ **purse of coins** contains ~10 **handfuls of coins**. A handful is ~10 individual coins, and so a purse has ~100 coins in it.</Text>
         <Text>Remember, trade is based more on barter, debts, and honor than standard currency.</Text>
-      </div>
+      </Stack>
     </div>
   </div>
 );

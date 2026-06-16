@@ -1,5 +1,4 @@
-import { Heading, Text, List, Table } from '@/components/ui';
-import playbookStyles from '@/components/gm-playbook/Playbook.module.css';
+import { Heading, Text, List, Table, Stack } from '@/components/ui';
 import styles from '@/pages/GmPlaybook/GmPlaybook.module.css';
 
 export const Hazards = () => (
@@ -23,11 +22,11 @@ export const Hazards = () => (
 
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">As an impending doom</Heading>
-      <div className={playbookStyles.paragraphs}>
+      <Stack gap={4}>
         <Text>Write down the ultimate bad thing that can happen (e.g. tunnel collapses, they roll Death's Door).</Text>
         <Text>Write 1-4 events describing how it starts and escalates; assign each event one or more check boxes.</Text>
         <Text>Optional: write a trigger that causes it to advance, fictional ("Each time the pillars are damaged") or mechanical ("Each time someone rolls doubles").</Text>
-      </div>
+      </Stack>
     </div>
 
     <div className={styles.subsection}>

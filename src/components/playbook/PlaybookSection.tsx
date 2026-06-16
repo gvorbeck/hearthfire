@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import clsx from 'clsx';
 import { Button, Heading, Icon, Text, Tooltip } from '@/components/ui';
-import styles from './CharacterSheet.module.css';
+import styles from './PlaybookSection.module.css';
 
 const DEFAULT_WARN_TEXT = 'This section has unresolved choices — select an option to complete it.';
 

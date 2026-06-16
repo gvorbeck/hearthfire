@@ -91,12 +91,6 @@
   color: var(--text-secondary);
 }
 
-.stack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-6);
-}
-
 .sectionOverride {
   opacity: 0.45;
   pointer-events: none;

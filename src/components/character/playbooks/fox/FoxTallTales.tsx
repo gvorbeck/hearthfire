@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { Checkbox, CheckboxGroup, Divider, Text } from '@/components/ui';
-import { PlaybookSection } from '../../PlaybookSection';
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import { usePlaybookChecked } from '@/hooks/usePlaybookChecked';
 import type { PlaybookSectionProps } from '@/types';
 import localStyles from './FoxTallTales.module.css';

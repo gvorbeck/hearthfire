@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import type { GmImprovement, SteadingData } from '@/types';
-import { useOptimisticSteadingField } from '@/hooks/useOptimisticSteadingField';
+import { useOptimisticField } from '@/hooks/useOptimisticField';
 import { ImprovementList } from './ImprovementList';
 
 interface ImprovementOption {
@@ -45,7 +45,7 @@ export const SteadingImprovementList = ({
   const { fieldKey, gmCategory, fixedItems, improvementItems, addLabel, itemLabel } = config;
 
   const firestoreItems = items ?? [];
-  const { value: localItems, save } = useOptimisticSteadingField(
+  const { value: localItems, save } = useOptimisticField(
     firestoreItems,
     (next: string[]) => onSave({ [fieldKey]: next }),
   );

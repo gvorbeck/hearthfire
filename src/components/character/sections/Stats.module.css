@@ -3,25 +3,12 @@
   text-align: center;
 }
 
-.statsSection {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-4);
-}
-
 .statRow {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
   justify-content: center;
   gap: var(--spacing-4) var(--spacing-6);
-}
-
-.statBox {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-1);
 }
 
 .statLabel {
@@ -103,13 +90,6 @@
   gap: var(--spacing-2) var(--spacing-3);
   align-items: flex-end;
   justify-content: center;
-}
-
-.infoBox {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-1);
 }
 
 .infoInput {

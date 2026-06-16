@@ -5,11 +5,7 @@
 }
 
 .subsection {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3);
-  border-top: 1px solid var(--border-subtle);
-  padding-top: var(--spacing-6);
+  composes: subsection from '@/components/playbook/playbook.shared.module.css';
 }
 
 .places {
@@ -20,16 +16,11 @@
 
 /* ── Traits grid ──────────────────────────────────────── */
 .traitsGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  composes: grid2 from '@/components/playbook/playbook.shared.module.css';
+  /* Tighter row gap than the shared default; the shared rule sets the columns
+     and the narrow-screen collapse. */
   gap: var(--spacing-2) var(--spacing-6);
   margin-top: var(--spacing-2);
-}
-
-@media (max-width: 480px) {
-  .traitsGrid {
-    grid-template-columns: 1fr;
-  }
 }
 
 .traitsList {

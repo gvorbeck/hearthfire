@@ -1,4 +1,4 @@
-import { Heading, Text, List, Callout } from "@/components/ui";
+import { Heading, Text, List, Callout, Stack } from "@/components/ui";
 import playbookStyles from "@/components/gm-playbook/Playbook.module.css";
 import styles from "@/pages/GmPlaybook/GmPlaybook.module.css";
 
@@ -7,22 +7,22 @@ export const NPCs = () => (
     <div>
       <Heading as="h3" size="sm">Names</Heading>
       <Text>Pick one, make one up, or ask a player to.</Text>
-      <div className={playbookStyles.paragraphs}>
+      <Stack gap={4}>
         <Text>**Stonetop names** (Welsh): Aderyn, Aeronwen, Afanen, Afon, Alun, Andras, Aneirin, Awstin, Bedwyr, Berwyn, Betrys, Braith, Briallen, Bronwen, Bryn, Cadi, Cadoc, Cadwygan, Caron, Cefin, Ceinwen, Ceridwyn, Cerys, Colwyn, Deiniol, Dilwen, Dylis, Eifion, Eirlys, Eluned, Emrys, Enfys, Eurwen, Gaenor, Garet, Gethin, Glyndir, Heledd, Hywel, Ifan, Iorwerth, Iwan, Leuca, Lewela, Linos, Mado, Maldwyn, Malon, Mared, Marged, Martyn, Meirion, Menwen, Mererid, Neirin, Nia, Ofydd, Olwyn, Owain, Padrig, Parry, Pryce, Pryder, Rheinal, Rhisiart, Rhosyn, Rydderch, Sawyl, Siana, Sioned, Talfryn, Tegid, Tiwlip, Tomos, Tudyr, Winifred, Yorath</Text>
         <Text>**Marshedge names** (Irish): Abben, Ailen, Brin, Brogan, Catlin, Coln, Daedre, Dermos, Ennin, Finnen, Gilor, Isbeal, Kiran, Lile, Lim, Mathuin, Mirne, Noren, Owan, Ragan, Renan, Seadha, Seann, Tierney, Ulliam</Text>
         <Text>**Hillfolk names** (Breton, missing vowels, clipped): Adm, Blej, Cirl, Davth, Elst, Gwilm, Gwenl, Henri, Ines, Jenfir, Jown, Juda, Kiln, Laurl, Loic, Merrn, Maikl, Nanzl, Nolwn, Quent, Reegn, Ropr, Sabi, Stren, Yanz</Text>
         <Text>**Southern names** (Greek, Hebrew, Persian, Arabic): Agatte, Aref, Alix, Baraz, Canan, Darya, Demetra, Elene, Elios, Fotios, Faruza, Golza, Iasos, Iona, Kyriakos, Marika, Maayan, Osher, Natasa, Nivola, Rinat, Stamat, Thecla, Zhaleh</Text>
         <Text>**Manmarcher names** (Germanic): Alther, Bathhilde, Berkhard, Bertrim, Clothar, Dagmar, Elfrida, Ganter, Gerhild, Hartig, Hilde, Hiltrude, Hramn, Ludig, Luise, Meike, Modd, Sabrinne, Swanhilde, Ulrike, Urrsla, Weillem, Wiland, Wulfrim</Text>
         <Text>**Barrier Pass names** (Tibetan, Nepali): Choden, Dawa, Dorji, Duga, Jamya, Kunza, Lhamo, Norbu, Nyado, Passan, Sonam, Tashi, Tenzi, Tseri, Wanchu, Yonta</Text>
-      </div>
+      </Stack>
     </div>
 
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Trait</Heading>
-      <div className={playbookStyles.paragraphs}>
+      <Stack gap={4}>
         <Text>Pick an NPC Trait from the steading playbook, make one up, or ask a player to do so.</Text>
         <Text>Build on that trait, and what you already know about them and their relationship to the PCs. Make connections and coherent contradictions. Breathe life into them!</Text>
-      </div>
+      </Stack>
     </div>
 
     <div className={styles.subsection}>
@@ -71,7 +71,7 @@ export const NPCs = () => (
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Impressions</Heading>
       <Text>Give up to 3, from different areas. Most should reflect their nature; maybe 1 should contrast.</Text>
-      <div className={playbookStyles.paragraphs}>
+      <Stack gap={4}>
         <Text>**Face:** angular, broken nose, dimpled, freckles, hawk nose, leathery, missing teeth, paint, scar, scowl, soft, sunburnt, tattoo, warts, etc.</Text>
         <Text>**Eyes:** big, bright, cool, cloudy, dark, deep, droopy, missing, pale, small, squinty, quick, watery, etc.</Text>
         <Text>**Hair:** bald, curly, greasy, straight, thick, thin, etc.</Text>
@@ -80,17 +80,17 @@ export const NPCs = () => (
         <Text>**Scent:** earthy, musky, floral, ripe, sour, smoky, etc.</Text>
         <Text>**Clothes:** boots, charms, clean, [color], dirty, furs, ribbons, silk, torc, threadbare, unkempt, etc.</Text>
         <Text>**Voice:** breathy, clipped, crass, gruff, high, hoarse, lilting, lisping, monotone, mumbly, nasally, quavery, rumbling, shrill, soft, stutter, etc.</Text>
-      </div>
+      </Stack>
     </div>
 
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Instinct</Heading>
-      <div className={playbookStyles.paragraphs}>
+      <Stack gap={4}>
         <Text>**What do they naturally do?** Write it as "to ___" (e.g. "to protect her family").</Text>
         <Text>**If they're a monster or a threat**, it should bring them into conflict with others.</Text>
         <Text>**If they're a follower**, it should cause trouble for the PC who leads them.</Text>
         <Text>**For anyone else**, it should reflect their basic outlook and how they approach the world.</Text>
-      </div>
+      </Stack>
     </div>
 
     <div className={styles.subsection}>
@@ -140,12 +140,12 @@ export const NPCs = () => (
         Embodiment <span className={playbookStyles.muted}>(optional)</span>
       </Heading>
       <Text>Use one or more tricks to embody the NPC:</Text>
-      <div className={playbookStyles.paragraphs}>
+      <Stack gap={4}>
         <Text>**Pick an actor or character from TV, film, or theater.** Try to portray them.</Text>
         <Text>**Pick someone you know, personally.** Try to impersonate them, but don't tell anyone.</Text>
         <Text>**Pick a way of speaking/tweaking your voice**, a catch phrase, or a physical tic or behavior for this NPC. Use it whenever you portray them.</Text>
         <Text>**Find or create a picture of them.** Display it when portraying this NPC.</Text>
-      </div>
+      </Stack>
     </div>
 
     <div className={styles.subsection}>
@@ -176,10 +176,10 @@ export const NPCs = () => (
           "Or anything else that makes sense",
         ]}
       />
-      <div className={playbookStyles.paragraphs}>
+      <Stack gap={4}>
         <Text>Make your choices based on your sense of the NPC, their instinct, their motives, and your prep. The PC might not be able to convince them *right now*, but a 7+ should always at least reveal a path forward.</Text>
         <Text>It's okay to offer alternatives on how the NPC could be convinced. "He's waiting for a bribe; a few coppers would do it. Or you could rough him up a bit, you're pretty sure that'd work, too."</Text>
-      </div>
+      </Stack>
     </div>
   </div>
 );

@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { Text } from '@/components/ui';
 import type { SteadingData, GmImprovement } from '@/types';
-import { useOptimisticSteadingField } from '@/hooks/useOptimisticSteadingField';
+import { useOptimisticField } from '@/hooks/useOptimisticField';
 import { PredefinedImprovementsList } from './PredefinedImprovementsList';
 import { GmImprovementSlots } from './GmImprovementSlots';
 import styles from './SteadingImprovements.module.css';
@@ -13,7 +13,7 @@ interface SteadingImprovementsProps {
 }
 
 export const SteadingImprovements = ({ improvements = {}, gmImprovements, onSave }: SteadingImprovementsProps) => {
-  const { value: localImprovements, save } = useOptimisticSteadingField<Record<string, boolean>, [key: string]>(
+  const { value: localImprovements, save } = useOptimisticField<Record<string, boolean>, [key: string]>(
     improvements,
     // Persist only the toggled key so a concurrent remote toggle of a different
     // key isn't clobbered; updateSteading merges it into the record dot-wise.

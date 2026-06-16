@@ -10,12 +10,3 @@
 .spacerTop {
   margin-top: var(--spacing-6);
 }
-
-/* ── Paragraphs ─────────────────────────────────────── */
-.paragraphs {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-4);
-}
-
-

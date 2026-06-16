@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef } from 'react';
 import clsx from 'clsx';
 import { Button, Heading, Text, Checkbox, Input, Radio, RadioGroup } from '@/components/ui';
-import { useToast } from '@/components/app';
+import { useOptimisticField } from '@/hooks/useOptimisticField';
 import type { SteadingData, GmImprovement } from '@/types';
 import { makeEmptyGmImprovement } from './steadingImprovementsData';
 import card from './improvementCard.module.css';
@@ -131,74 +131,62 @@ interface GmImprovementSlotsProps {
 }
 
 export const GmImprovementSlots = ({ gmImprovements, onSave }: GmImprovementSlotsProps) => {
-  const { addToast } = useToast();
-  const pendingSlotsRef = useRef(0);
+  const {
+    value: localSlots,
+    ref: localSlotsRef,
+    setValue: setLocalSlots,
+    save: saveSlots,
+    pendingRef,
+  } = useOptimisticField<GmImprovement[]>(
+    gmImprovements ?? [],
+    (slots) => onSave({ gmImprovements: slots }),
+  );
 
-  const onSaveRef = useRef(onSave);
-  onSaveRef.current = onSave;
-
-  const [localSlots, setLocalSlots] = useState<GmImprovement[]>(() => gmImprovements ?? []);
+  // A text field's edits aren't written until blur, so while one is focused we must
+  // defer remote echoes that would clobber the in-flight typing. This is a separate
+  // concern from the hook's save-pending gate: a category/completed toggle saves
+  // *while* a title field is still focused, and that save's settlement clears the
+  // hook's pendingRef — which would drop the focus gate and let an echo through.
+  // So we keep an independent focusedRef and re-pin pendingRef true whenever it
+  // could have been cleared while a field is still focused. This focus-scoped gate
+  // is the one place that intentionally diverges from the shared pattern.
   const focusedRef = useRef(false);
-  const localSlotsRef = useRef(localSlots);
+  const holdSyncWhileFocused = useCallback(() => {
+    if (focusedRef.current) pendingRef.current = true;
+  }, [pendingRef]);
 
-  useEffect(() => {
-    if (!focusedRef.current && pendingSlotsRef.current === 0) {
-      const next = gmImprovements ?? [];
-      localSlotsRef.current = next;
-      setLocalSlots(next);
-    }
-  }, [gmImprovements]);
+  const handleSlotFocus = useCallback(() => {
+    focusedRef.current = true;
+    pendingRef.current = true;
+  }, [pendingRef]);
 
-  const saveSlots = useCallback((slots: GmImprovement[]) => {
-    const prev = localSlotsRef.current;
-    pendingSlotsRef.current += 1;
-    onSaveRef.current({ gmImprovements: slots })
-      .catch(() => { localSlotsRef.current = prev; setLocalSlots(prev); addToast('Failed to save.', 'error'); })
-      .finally(() => { pendingSlotsRef.current -= 1; });
-  }, [addToast]);
-
-  const handleSlotFocus = useCallback(() => { focusedRef.current = true; }, []);
-
+  // Optimistic-only update while typing; the write is deferred to blur.
   const handleSlotChange = useCallback((index: number, patch: Partial<GmImprovement>) => {
-    setLocalSlots((prev) => {
-      const next = prev.map((s, i) => i === index ? { ...s, ...patch } : s);
-      localSlotsRef.current = next;
-      return next;
-    });
-  }, []);
+    setLocalSlots((prev) => prev.map((s, i) => i === index ? { ...s, ...patch } : s));
+  }, [setLocalSlots]);
 
   const handleSlotBlur = useCallback(() => {
     focusedRef.current = false;
     saveSlots(localSlotsRef.current);
-  }, [saveSlots]);
+  }, [saveSlots, localSlotsRef]);
 
+  // Category/completed toggles can fire while a title field is still focused; after
+  // their save settles (clearing the hook's pendingRef) re-pin the focus gate.
   const handleSlotCategoryChange = useCallback((index: number, category: GmImprovement['category']) => {
-    const next = localSlotsRef.current.map((s, i) => i === index ? { ...s, category } : s);
-    localSlotsRef.current = next;
-    setLocalSlots(next);
-    saveSlots(next);
-  }, [saveSlots]);
+    saveSlots((prev) => prev.map((s, i) => i === index ? { ...s, category } : s)).finally(holdSyncWhileFocused);
+  }, [saveSlots, holdSyncWhileFocused]);
 
   const handleSlotCompletedToggle = useCallback((index: number) => {
-    const next = localSlotsRef.current.map((s, i) => i === index ? { ...s, completed: !s.completed } : s);
-    localSlotsRef.current = next;
-    setLocalSlots(next);
-    saveSlots(next);
-  }, [saveSlots]);
+    saveSlots((prev) => prev.map((s, i) => i === index ? { ...s, completed: !s.completed } : s)).finally(holdSyncWhileFocused);
+  }, [saveSlots, holdSyncWhileFocused]);
 
   const handleAdd = useCallback(() => {
-    const next = [...localSlotsRef.current, makeEmptyGmImprovement()];
-    localSlotsRef.current = next;
-    setLocalSlots(next);
-    saveSlots(next);
-  }, [saveSlots]);
+    saveSlots((prev) => [...prev, makeEmptyGmImprovement()]).finally(holdSyncWhileFocused);
+  }, [saveSlots, holdSyncWhileFocused]);
 
   const handleRemove = useCallback((index: number) => {
-    const next = localSlotsRef.current.filter((_, i) => i !== index);
-    localSlotsRef.current = next;
-    setLocalSlots(next);
-    saveSlots(next);
-  }, [saveSlots]);
+    saveSlots((prev) => prev.filter((_, i) => i !== index)).finally(holdSyncWhileFocused);
+  }, [saveSlots, holdSyncWhileFocused]);
 
   return (
     <div className={styles.gmSlots}>

@@ -3,7 +3,7 @@ import { useLatest } from '@/hooks/useLatest';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import { useCollapsibleSection } from '@/hooks/useCollapsibleSection';
 import { useOptimisticField } from '@/hooks/useOptimisticField';
-import { PlaybookSection } from '../PlaybookSection';
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import { BackgroundOptionItem } from './BackgroundOption';
 import type { BackgroundOption, CharacterData } from '@/types';
 import styles from './Background.module.css';

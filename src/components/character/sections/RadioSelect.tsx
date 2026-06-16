@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { Radio, RadioGroup, Input, Text } from '@/components/ui';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import { useCollapsibleSection } from '@/hooks/useCollapsibleSection';
-import { PlaybookSection } from '../PlaybookSection';
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import type { RadioOption } from '@/types';
 import type { CharacterData } from '@/types';
 import styles from './RadioSelect.module.css';

@@ -4,7 +4,7 @@ import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
 import { useCrewSave } from '../shared/useCrewSave';
 import { useToast } from '@/components/app';
 import { Input, Radio, RadioGroup, Text, CheckboxGroup } from '@/components/ui';
-import { PlaybookSection } from '../../PlaybookSection';
+import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import { StatBox, LoyaltyRow } from '../shared/CrewWidgets';
 import type { PlaybookSectionProps } from '@/types';
 import styles from './BlessedInitiatesOfDanu.module.css';
