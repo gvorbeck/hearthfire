@@ -46,19 +46,19 @@ export const useOptimisticField = <T, A extends unknown[] = []>(
   useFirestoreSync(firestoreValue, setValue, pendingRef);
 
   const save = useCallback((next: T | ((current: T) => T), ...args: A): Promise<void> => {
-    let prev: T;
-    let updated: T;
-    setValue((current) => {
-      prev = current;
-      updated = typeof next === 'function' ? (next as (c: T) => T)(current) : next;
-      return updated;
-    });
+    // Compute from the freshest committed value via the ref — NOT inside the
+    // setValue updater. React batches the updater and may run it after this
+    // function returns (and twice under StrictMode), so reading `updated` off it
+    // synchronously would pass `undefined` to saveFn.
+    const prev = ref.current;
+    const updated = typeof next === 'function' ? (next as (c: T) => T)(prev) : next;
+    setValue(updated);
     pendingCountRef.current += 1;
     pendingRef.current = true;
-    return saveFnRef.current(updated!, ...args)
+    return saveFnRef.current(updated, ...args)
       .then(() => undefined)
       .catch(() => {
-        setValue(prev!);
+        setValue(prev);
         addToastRef.current(errorMsgRef.current, 'error');
       })
       .finally(() => {

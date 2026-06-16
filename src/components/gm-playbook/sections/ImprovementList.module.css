@@ -1,6 +1,9 @@
 .root {
   display: flex;
   flex-direction: column;
+  /* Match the intra-list row gap so the last bullet and the first custom row
+     don't touch where the two stacked lists meet. */
+  gap: var(--spacing-1);
 }
 
 .fixedItem {
