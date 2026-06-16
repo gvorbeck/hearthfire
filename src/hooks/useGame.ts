@@ -256,8 +256,11 @@ export const useGame = (gameId: string): UseGameResult => {
     const dotted: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(patch)) {
       if (k === 'improvements' && v !== null && typeof v === 'object') {
-        for (const [ik, iv] of Object.entries(v as Record<string, boolean>)) {
-          dotted[`steading.improvements.${ik}`] = iv;
+        // Only write entries whose value is actually boolean — the patch is
+        // cast at the Firestore boundary, so guard against a non-boolean slipping
+        // into the dotted write.
+        for (const [ik, iv] of Object.entries(v as Record<string, unknown>)) {
+          if (typeof iv === 'boolean') dotted[`steading.improvements.${ik}`] = iv;
         }
       } else {
         // Strip undefined fields from array elements (e.g. parsed NPCs with optional fields)

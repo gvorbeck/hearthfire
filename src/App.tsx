@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { ToastProvider, ErrorBoundary } from "@/components/app";
 import styles from "./App.module.css";
 
@@ -51,9 +51,13 @@ const NotFound = lazy(() =>
  * SiteBanner, the TopBar wordmark, and the footer are all handled inside
  * PageLayout / PageHeader, so no shared shell wrapper is needed here.
  */
-export const App = () => (
+export const App = () => {
+  // Key the boundary to the route path so a render error on one page clears
+  // when the user navigates elsewhere, instead of blanking the app until reload.
+  const { pathname } = useLocation();
+  return (
   <ToastProvider>
-    <ErrorBoundary>
+    <ErrorBoundary resetKey={pathname}>
       <Suspense
         fallback={
           <div className={styles.loading} aria-live="polite" aria-busy="true">
@@ -72,4 +76,5 @@ export const App = () => (
       </Suspense>
     </ErrorBoundary>
   </ToastProvider>
-);
+  );
+};
