@@ -58,6 +58,17 @@ describe('useGame mutations', () => {
     expect(stored.map((c) => c.id)).toEqual(['a', 'b']);
   });
 
+  it('addCharacter does not duplicate a character on a repeat add (#186)', async () => {
+    firestoreStore.set(GAME_PATH, { name: '', createdAt: 0, characters: [char('a')] });
+    const { result } = renderGame();
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    // A double-tap or post-network-blip retry adds the same id twice.
+    await act(async () => { await result.current.addCharacter(char('a')); });
+    const stored = firestoreStore.get(GAME_PATH)!.characters as Character[];
+    expect(stored.map((c) => c.id)).toEqual(['a']);
+  });
+
   it('removeCharacter deletes only the target and preserves the rest', async () => {
     firestoreStore.set(GAME_PATH, { name: '', createdAt: 0, characters: [char('a'), char('b'), char('c')] });
     const { result } = renderGame();
