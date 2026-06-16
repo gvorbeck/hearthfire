@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import styles from './List.module.css';
 
-type ListVariant = 'bullet' | 'dash' | 'numbered' | 'ellipses';
+type ListVariant = 'bullet' | 'numbered' | 'ellipses';
 
 interface ListProps {
   variant: ListVariant;

@@ -4,7 +4,7 @@ import styles from '@/pages/GmPlaybook/GmPlaybook.module.css';
 
 export const GmMoves = memo(() => (
   <div>
-    <List variant="dash" items={[
+    <List variant="bullet" items={[
       'Announce trouble (future or offscreen)',
       'Reveal an unwelcome truth',
       'Ask a provocative question',
@@ -21,7 +21,7 @@ export const GmMoves = memo(() => (
     ]} />
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Exploration</Heading>
-      <List variant="dash" items={[
+      <List variant="bullet" items={[
         'Provide a choice of paths',
         'Hint at more than meets the eye',
         'Offer riches at a price',
@@ -33,7 +33,7 @@ export const GmMoves = memo(() => (
     </div>
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">Homefront</Heading>
-      <List variant="dash" items={[
+      <List variant="bullet" items={[
         'Introduce someone interesting',
         'Reveal simmering tensions',
         'Present a want or need',

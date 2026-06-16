@@ -12,7 +12,7 @@ export const Hazards = () => (
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">As GM moves</Heading>
       <Text>Write one or more GM moves that reflect some of the following, as makes sense for the hazard:</Text>
-      <List variant="dash" items={[
+      <List variant="bullet" items={[
         'How its presence is foreshadowed or revealed',
         'How it harms or hinders',
         'How it escalates or gets worse',
@@ -33,7 +33,7 @@ export const Hazards = () => (
     <div className={styles.subsection}>
       <Heading as="h3" size="sm">As player moves</Heading>
       <Text>Write a fictional trigger ("When you ***trigger the hazard***, …") and resolution, using any combo of the following that makes sense:</Text>
-      <List variant="dash" items={[
+      <List variant="bullet" items={[
         '___ happens (and ___ is bad)',
         'Pick X from a list',
         'Tell us ___',

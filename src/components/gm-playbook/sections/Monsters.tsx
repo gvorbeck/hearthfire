@@ -212,7 +212,7 @@ export const Monsters = () => (
       </Heading>
       <Text>Write one for each of the following it possesses:</Text>
       <List
-        variant="dash"
+        variant="bullet"
         items={[
           "An exceptional/limited sense",
           "A useful adaptation/defense",
@@ -289,7 +289,7 @@ export const Monsters = () => (
       <div className={playbookStyles.paragraphs}>
         <Text>**Tactics:** if/then or when/then statements, like…</Text>
         <List
-          variant="dash"
+          variant="bullet"
           items={[
             '"If the PCs make noise/draw attention: watch from afar, alert others, wait until night."',
             '"If the PCs talk in their presence: learn their voices, to mimic them later."',
@@ -305,7 +305,7 @@ export const Monsters = () => (
       <Callout title="Monsters & followers">
         <Text>When you ***convert a monster into a follower***:</Text>
         <List
-          variant="dash"
+          variant="bullet"
           items={[
             "Add any tags you deem appropriate",
             "Choose (or make up) a cost, and add a spot to record their Loyalty (max 3)",

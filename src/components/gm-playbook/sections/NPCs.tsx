@@ -29,7 +29,7 @@ export const NPCs = () => (
       <Heading as="h3" size="sm">Questions</Heading>
       <Text>For locals, or people the PCs know well:</Text>
       <List
-        variant="dash"
+        variant="bullet"
         items={[
           "Are you related to them? How?",
           "What's their family situation? (Married? Kids? Parents? Siblings? Grandparents/kids?)",
@@ -45,7 +45,7 @@ export const NPCs = () => (
       />
       <Text>For outsiders that the PCs know:</Text>
       <List
-        variant="dash"
+        variant="bullet"
         items={[
           "When and how did you first meet them?",
           "When did you last see them?",
@@ -58,7 +58,7 @@ export const NPCs = () => (
       />
       <Text>For folks the PCs have heard of:</Text>
       <List
-        variant="dash"
+        variant="bullet"
         items={[
           "What are they known for?",
           "What's said to be their most notable feature?",
@@ -107,7 +107,7 @@ export const NPCs = () => (
       </Heading>
       <Text>Ask yourself some or all of the following:</Text>
       <List
-        variant="dash"
+        variant="bullet"
         items={[
           "What do they think of the PCs?",
           "Who are they related to? Friends with?",
@@ -123,7 +123,7 @@ export const NPCs = () => (
       </Heading>
       <Text>Ask yourself some of the following:</Text>
       <List
-        variant="dash"
+        variant="bullet"
         items={[
           "What do they fear?",
           "What angers them?",
@@ -161,7 +161,7 @@ export const NPCs = () => (
       </Callout>
       <Text className={playbookStyles.spacerTop}>Things that might convince an NPC:</Text>
       <List
-        variant="dash"
+        variant="bullet"
         items={[
           "A promise/oath/vow",
           "A chance to do it safely/freely/discretely",

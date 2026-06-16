@@ -28,7 +28,7 @@ export const IWonder = ({ value, onSave }: IWonderProps) => {
     <div>
       <div className={styles.contentRules}>
         <Text size="xs">Keep a running list of open questions that either…</Text>
-        <List variant="dash" items={[
+        <List variant="bullet" items={[
           "you don't know how to answer yet, or",
           'you want to answer via play.',
         ]} />

@@ -150,7 +150,7 @@ const stepsItems = [
       What do they naturally do that causes trouble for the PC(s) they
       follow? For example:
     </Text>
-    <List variant="dash" items={instinctItems} />
+    <List variant="bullet" items={instinctItems} />
   </>,
   <>
     <Heading as="h3" size="sm">
@@ -169,7 +169,7 @@ const stepsItems = [
       Choose one or make something up. When their cost is paid, they hold
       +1 Loyalty (max 3).
     </Text>
-    <List variant="dash" items={costItems} />
+    <List variant="bullet" items={costItems} />
   </>,
   <>
     <Heading as="h3" size="sm">
@@ -195,7 +195,7 @@ export const Followers = () => (
         <Text>**Followers trigger player moves only if a PC directs them to do so** (via Order Followers). If they act on their own, you say what happens.</Text>
         <Text>When a follower gets scared, tell the player. They can spend 1 Loyalty to have them overcome their fear and do as they're told. Otherwise, consider: **would the follower do this willingly if they weren't scared?**</Text>
       </div>
-      <List variant="dash" items={followersInPlayFearItems} />
+      <List variant="bullet" items={followersInPlayFearItems} />
       <Text>**Followers might also resist orders if…**</Text>
       <List variant="ellipses" items={followersInPlayResistItems} />
       <div className={playbookStyles.paragraphs}>
@@ -208,7 +208,7 @@ export const Followers = () => (
         <Text>**When a follower Defends** and gets a 7+, the follower holds Readiness but the player decides when/how to spend it. Consider: would the follower actually do that, though? If not, the player must spend 1 Loyalty, too.</Text>
         <Text>**At 0 HP**, a follower is out of action and their fate is in your hands. For lethal damage, pick 1:</Text>
       </div>
-      <List variant="dash" items={followersAtZeroHPItems} />
+      <List variant="bullet" items={followersAtZeroHPItems} />
     </div>
 
     <div className={styles.subsection}>
