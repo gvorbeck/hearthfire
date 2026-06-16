@@ -48,6 +48,9 @@ const WorldTabContent = () => (
       <PlaybookSection title="Hazards" collapsible>
         <Hazards />
       </PlaybookSection>
+      <PlaybookSection title="Homefront" collapsible>
+        <Homefront />
+      </PlaybookSection>
     </>}
     right={<>
       <PlaybookSection title="Monsters" collapsible>
@@ -58,9 +61,6 @@ const WorldTabContent = () => (
       </PlaybookSection>
       <PlaybookSection title="Followers" collapsible>
         <Followers />
-      </PlaybookSection>
-      <PlaybookSection title="Homefront" collapsible>
-        <Homefront />
       </PlaybookSection>
     </>}
   />

@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { parseInlineMarkdown } from '@/lib/parseMarkdown';
+import { Text } from '../Text/Text';
 import styles from './List.module.css';
 
 type ListVariant = 'bullet' | 'numbered' | 'ellipses';
@@ -18,11 +18,16 @@ export const List = ({ variant, items, keyPrefix, className }: ListProps) => {
 
   return (
     <Tag className={cx}>
-      {items.map((item, i) => (
-        <li key={`${prefix}-${i}`} className={styles.item}>
-          {typeof item === 'string' ? parseInlineMarkdown(item) : item}
-        </li>
-      ))}
+      {items.map((item, i) => {
+        const isStringItem = typeof item === 'string';
+        return (
+          <li key={`${prefix}-${i}-${isStringItem ? item : ''}`} className={styles.item}>
+            {isStringItem
+              ? <Text as="span" font="serif" leading="tight">{item}</Text>
+              : item}
+          </li>
+        );
+      })}
     </Tag>
   );
 };
