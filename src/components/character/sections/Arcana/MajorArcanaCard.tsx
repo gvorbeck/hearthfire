@@ -8,6 +8,7 @@ import type {
   MajorArcanum,
   MajorArcanaMysteryMove,
   MoveDefinition,
+  RightControlSpec,
   ArcanaMove,
 } from "@/types";
 import type { ArcanaMajorEntry } from "@/types";
@@ -128,6 +129,10 @@ interface MysteryMoveBlockProps {
   trackerValue?: number;
   followerHp?: number[];
   bodyChecks?: Record<string, boolean>;
+  // Lock reasons shown under a Move-shaped entry when its prerequisites aren't met; empty when unlocked.
+  requirement?: string[];
+  // Overrides the move's own rightControl specs — used to widen Mindwalking's Power dots dynamically.
+  rightControlOverride?: RightControlSpec[];
   onToggle: (id: string, checked: boolean) => void;
   onTrackerChange: (id: string, value: number) => void;
   onFollowerHpChange: (id: string, index: number, value: number) => void;
@@ -146,6 +151,8 @@ const MysteryMoveBlock = memo(
     trackerValue,
     followerHp,
     bodyChecks,
+    requirement,
+    rightControlOverride,
     onToggle,
     onTrackerChange,
     onFollowerHpChange,
@@ -174,17 +181,20 @@ const MysteryMoveBlock = memo(
     // Move-shaped entries render through the shared Move component: its select box maps to the
     // mystery-move checked state, and its rightControl dots persist via the same tracker path.
     if (isMoveDefinition(move)) {
+      const rightSpecs = rightControlOverride ?? move.rightControl;
       return (
         <Move
           title={move.name}
           move={move}
+          requirement={requirement}
           selection={{
             selected: checked,
             onSelectChange: (next) => onToggle(move.id, next),
             takesChecked: 0,
             onTakesChange: () => {},
           }}
-          rightControlState={move.rightControl?.map(() => ({
+          rightControl={rightControlOverride}
+          rightControlState={rightSpecs?.map(() => ({
             checked: trackerValue ?? 0,
             onChange: handleTracker,
           }))}
@@ -258,6 +268,48 @@ export const MajorArcanaCard = ({
   const unlocked = entry.marksValue >= (marks.unlockAt ?? marks.max);
 
   const cx = clsx(styles.card, unlocked && styles.cardUnlocked);
+
+  // Budget gate for sub-moves that require a parent move (e.g. Noruba's Ice Sphere): the book grants
+  // one such move "for every 2 Consequences you mark", so the number of selectable sub-moves is
+  // floor(markedConsequences / 2). A sub-move is locked while its parent is unselected, or once the
+  // grant budget is spent on other sub-moves.
+  const consequenceIds = mystery.consequences.flatMap((c) => [
+    c.id,
+    ...(c.children?.map((child) => child.id) ?? []),
+  ]);
+  const markedConsequenceCount = consequenceIds.filter(
+    (id) => entry.consequencesMarked[id],
+  ).length;
+  const consequenceGrants = Math.floor(markedConsequenceCount / 2);
+  const selectedSubMoves = mystery.moves.filter(
+    (m) => "requires" in m && m.requires?.length && entry.mysteryMovesChecked[m.id],
+  ).length;
+
+  // Returns the lock reasons for a sub-move, or an empty array when it is selectable.
+  const getMysteryRequirement = (move: MajorArcanum["mystery"]["moves"][number]): string[] => {
+    if (!("requires" in move) || !move.requires?.length) return [];
+    if (entry.mysteryMovesChecked[move.id]) return [];
+    const unmetParents = move.requires
+      .filter((id) => !entry.mysteryMovesChecked[id])
+      .map((id) => mystery.moves.find((m) => m.id === id)?.name ?? id);
+    if (unmetParents.length > 0) return [`Requires ${unmetParents.join(", ")}`];
+    if (selectedSubMoves >= consequenceGrants) return ["Mark 2 more Consequences"];
+    return [];
+  };
+
+  // A sub-move listed in mystery.dotBonuses widens its target's dot control by 1 once selected
+  // (e.g. A Mighty Will → Mindwalking's Power). Returns undefined when no active bonus applies.
+  const getDotOverride = (
+    move: MajorArcanum["mystery"]["moves"][number],
+  ): RightControlSpec[] | undefined => {
+    const base = "rightControl" in move ? move.rightControl : undefined;
+    if (!base) return undefined;
+    const hasBonus = (mystery.dotBonuses ?? []).some(
+      (b) => b.targetId === move.id && entry.mysteryMovesChecked[b.sourceId],
+    );
+    if (!hasBonus) return undefined;
+    return base.map((spec) => ({ ...spec, number: (spec.number ?? 1) + 1 }));
+  };
 
   return (
     <div className={cx}>
@@ -361,6 +413,8 @@ export const MajorArcanaCard = ({
                     trackerValue={entry.trackerValues?.[move.id]}
                     followerHp={entry.followerHp?.[move.id]}
                     bodyChecks={entry.bodyChecks?.[move.id]}
+                    requirement={getMysteryRequirement(move)}
+                    rightControlOverride={getDotOverride(move)}
                     onToggle={onMysteryMoveToggle}
                     onTrackerChange={onTrackerChange}
                     onFollowerHpChange={onFollowerHpChange}

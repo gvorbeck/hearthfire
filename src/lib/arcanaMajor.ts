@@ -336,9 +336,76 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         {
           id: "mindwalking",
           name: "Mindwalking",
-          subtitle: "use the Ice Sphere as a psychic anchor",
-          tracker: { label: "Power", max: 3 },
-          text: "Your consciousness leaves your body and walks the world as a spirit, invisible and insubstantial. Roll +INT: **on a 10+**, hold 3 Power; **on a 7-9**, hold 2 Power; **on a 6-**, hold 2 Power and mark a Consequence. While mindwalking, you may spend your Power, 1-for-1 to:\n\n- Manifest as a ghostly voice and/or presence\n- Manipulate an unattended item (small or ◊, no bigger)\n- Return instantly to the Ice Sphere from any distance\n\nFor every 2 Consequences you mark, gain one of the following moves:\n\n**A Mighty Will** — When you *mindwalk*, hold +1 Power.\n\n**Farwalker** — When you *mindwalk*, you may spend 1 Power to instantly send your mind to any place you have ever visited, physically or mentally.\n\n**Telepathy** — When you *mindwalk*, you may spend 1 Power to become able to communicate mentally with someone nearby, as long as you remain in their presence. They can choose whether to respond, and can attempt to ignore you, but cannot shut you out completely without magic of their own.\n\n**Thoughtcrafter** — When you *mindwalk*, you may spend 1 Power to animate a mass of loose material (gravel, snow, leaves, etc.) into a body no larger than your own. When you would roll STR, DEX, or CON in this form, use INT instead. This form has 10 HP. When reduced to 0 HP, it dissipates and you return to your physical body.",
+          // The book grants +1 Power dot once "A Mighty Will" is selected; MajorArcanaCard widens
+          // this control to 4 dots dynamically, so the base spec stays at 3.
+          rightControl: [{ type: "dot", number: 3, label: "Power" }],
+          body: [
+            {
+              kind: "para",
+              text: "When you **use the Ice Sphere as a psychic anchor**, your consciousness leaves your body and walks the world as a spirit, invisible and insubstantial. Roll +INT: **on a 10+**, hold 3 Power; **on a 7-9**, hold 2 Power; **on a 6-**, hold 2 Power and mark a Consequence. While mindwalking, you may spend your Power, 1-for-1 to:",
+            },
+            {
+              kind: "list",
+              items: [
+                "Manifest as a ghostly voice and/or presence",
+                "Manipulate an unattended item (small or ◊, no bigger)",
+                "Return instantly to the Ice Sphere from any distance",
+              ],
+            },
+            {
+              kind: "para",
+              text: "For every 2 Consequences you mark, gain one of the following moves:",
+            },
+          ],
+          citation: "Book 2, p. 547",
+        },
+        {
+          id: "a-mighty-will",
+          name: "A Mighty Will",
+          requires: ["mindwalking"],
+          body: [
+            {
+              kind: "para",
+              text: "When you *mindwalk*, hold +1 Power.",
+            },
+          ],
+          citation: "Book 2, p. 547",
+        },
+        {
+          id: "farwalker",
+          name: "Farwalker",
+          requires: ["mindwalking"],
+          body: [
+            {
+              kind: "para",
+              text: "When you *mindwalk*, you may spend 1 Power to instantly send your mind to any place you have ever visited, physically or mentally.",
+            },
+          ],
+          citation: "Book 2, p. 547",
+        },
+        {
+          id: "telepathy",
+          name: "Telepathy",
+          requires: ["mindwalking"],
+          body: [
+            {
+              kind: "para",
+              text: "When you *mindwalk*, you may spend 1 Power to become able to communicate mentally with someone nearby, as long as you remain in their presence. They can choose whether to respond, and can attempt to ignore you, but cannot shut you out completely without magic of their own.",
+            },
+          ],
+          citation: "Book 2, p. 547",
+        },
+        {
+          id: "thoughtcrafter",
+          name: "Thoughtcrafter",
+          requires: ["mindwalking"],
+          body: [
+            {
+              kind: "para",
+              text: "When you *mindwalk*, you may spend 1 Power to animate a mass of loose material (gravel, snow, leaves, etc.) into a body no larger than your own. When you would roll STR, DEX, or CON in this form, use INT instead. This form has 10 HP. When reduced to 0 HP, it dissipates and you return to your physical body.",
+            },
+          ],
+          citation: "Book 2, p. 547",
         },
       ],
       consequences: [
@@ -375,6 +442,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
           text: "When you **roll 6- at Death's Door**, you have no choice: gain the Ghost insert (with the Ice Sphere as your tether).",
         },
       ],
+      dotBonuses: [{ targetId: "mindwalking", sourceId: "a-mighty-will" }],
     },
   },
   {
