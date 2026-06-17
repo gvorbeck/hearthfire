@@ -6,11 +6,17 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-3);
-  transition: border-color 150ms ease;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
 .cardUnlocked {
   border-color: var(--border-accent);
+  /* Layered gold glow — a tight inner halo plus a soft outer bloom — so an
+     unlocked arcanum reads as charged with magic rather than merely outlined. */
+  box-shadow:
+    0 0 0 1px var(--color-gold-500),
+    0 0 12px -2px rgb(200 149 15 / 0.55),
+    0 0 28px -4px rgb(200 149 15 / 0.35);
 }
 
 .header {
@@ -131,20 +137,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-3);
-}
-
-.mysteryMove {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-  padding: var(--spacing-3);
-  background: var(--surface-overlay);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-}
-
-.mysteryMoveChosen {
-  border-color: var(--border-accent);
 }
 
 .mysteryMoveHeader {

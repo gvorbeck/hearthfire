@@ -131,7 +131,7 @@ export interface MajorArcanaMysteryConsequence {
 
 export interface MajorArcanaMystery {
   sectionLabel?: string;
-  moves: MajorArcanaMysteryMove[];
+  moves: (MajorArcanaMysteryMove | MoveDefinition)[];
   consequences: MajorArcanaMysteryConsequence[];
 }
 
