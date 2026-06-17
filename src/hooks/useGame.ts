@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { arrayUnion, doc, onSnapshot, runTransaction, updateDoc } from 'firebase/firestore';
+import { doc, onSnapshot, runTransaction, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { GAMES_COLLECTION } from '@/lib/constants';
 import { filterByType, isBoolean, isNumber, isRecord, isString } from '@/lib/typeGuards';
@@ -215,7 +215,11 @@ export const useGame = (gameId: string): UseGameResult => {
   }, [gameRef]);
 
   const addCharacter = useCallback(async (character: Character) => {
-    await updateDoc(gameRef, { characters: arrayUnion(character) });
+    // Read-modify-write so a double-tap or post-blip retry can't append the
+    // same id twice — arrayUnion treats each Character object as unique.
+    await withCharacters(gameRef, (chars) =>
+      chars.some((c) => c.id === character.id) ? chars : [...chars, character]
+    );
   }, [gameRef]);
 
   const removeCharacter = useCallback(async (characterId: string) => {

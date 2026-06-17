@@ -14,15 +14,17 @@ interface MajorArcanaCardRowProps {
   onConsequenceToggle: (id: string, consequenceId: string, checked: boolean) => void;
   onTrackerChange: (id: string, moveId: string, value: number) => void;
   onFollowerHpChange: (id: string, moveId: string, index: number, value: number) => void;
+  onBodyCheckChange: (id: string, moveId: string, itemId: string, checked: boolean) => void;
   onRemove: (id: string) => void;
 }
 
-const MajorArcanaCardRow = memo(({ entry, arcanum, onMarksChange, onMysteryMoveToggle, onConsequenceToggle, onTrackerChange, onFollowerHpChange, onRemove }: MajorArcanaCardRowProps) => {
+const MajorArcanaCardRow = memo(({ entry, arcanum, onMarksChange, onMysteryMoveToggle, onConsequenceToggle, onTrackerChange, onFollowerHpChange, onBodyCheckChange, onRemove }: MajorArcanaCardRowProps) => {
   const handleMarks = useCallback((value: number) => onMarksChange(entry.id, value), [entry.id, onMarksChange]);
   const handleMysteryMove = useCallback((moveId: string, checked: boolean) => onMysteryMoveToggle(entry.id, moveId, checked), [entry.id, onMysteryMoveToggle]);
   const handleConsequence = useCallback((consequenceId: string, checked: boolean) => onConsequenceToggle(entry.id, consequenceId, checked), [entry.id, onConsequenceToggle]);
   const handleTracker = useCallback((moveId: string, value: number) => onTrackerChange(entry.id, moveId, value), [entry.id, onTrackerChange]);
   const handleFollowerHp = useCallback((moveId: string, index: number, value: number) => onFollowerHpChange(entry.id, moveId, index, value), [entry.id, onFollowerHpChange]);
+  const handleBodyCheck = useCallback((moveId: string, itemId: string, checked: boolean) => onBodyCheckChange(entry.id, moveId, itemId, checked), [entry.id, onBodyCheckChange]);
   const handleRemove = useCallback(() => onRemove(entry.id), [entry.id, onRemove]);
   return (
     <MajorArcanaCard
@@ -33,6 +35,7 @@ const MajorArcanaCardRow = memo(({ entry, arcanum, onMarksChange, onMysteryMoveT
       onConsequenceToggle={handleConsequence}
       onTrackerChange={handleTracker}
       onFollowerHpChange={handleFollowerHp}
+      onBodyCheckChange={handleBodyCheck}
       onRemove={handleRemove}
     />
   );
@@ -127,6 +130,23 @@ export const MajorArcanaPanel = ({ arcanaMajor, arcanaMajorRef, saveMajor }: Maj
     [saveMajor],
   );
 
+  const handleMajorBodyCheckChange = useCallback(
+    (id: string, moveId: string, itemId: string, checked: boolean) => {
+      saveMajor(arcanaMajorRef.current.map((a) =>
+        a.id === id
+          ? {
+              ...a,
+              bodyChecks: {
+                ...a.bodyChecks,
+                [moveId]: { ...a.bodyChecks?.[moveId], [itemId]: checked },
+              },
+            }
+          : a,
+      ));
+    },
+    [saveMajor],
+  );
+
   const handleOpenMajorModal = useCallback(() => setMajorModalOpen(true), []);
   const handleCloseMajorModal = useCallback(() => setMajorModalOpen(false), []);
 
@@ -163,6 +183,7 @@ export const MajorArcanaPanel = ({ arcanaMajor, arcanaMajorRef, saveMajor }: Maj
                   onConsequenceToggle={handleConsequenceToggle}
                   onTrackerChange={handleMajorTrackerChange}
                   onFollowerHpChange={handleMajorFollowerHpChange}
+                  onBodyCheckChange={handleMajorBodyCheckChange}
                   onRemove={handleRemoveMajor}
                 />
               );

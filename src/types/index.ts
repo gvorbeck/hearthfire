@@ -131,8 +131,11 @@ export interface MajorArcanaMysteryConsequence {
 
 export interface MajorArcanaMystery {
   sectionLabel?: string;
-  moves: MajorArcanaMysteryMove[];
+  moves: (MajorArcanaMysteryMove | MoveDefinition)[];
   consequences: MajorArcanaMysteryConsequence[];
+  // When `sourceId` is selected, `targetId`'s dot control gains +1 (e.g. A Mighty Will grants
+  // Mindwalking +1 Power). Read generically by MajorArcanaCard so no arcanum is special-cased.
+  dotBonuses?: { targetId: string; sourceId: string }[];
 }
 
 export interface MajorArcanum {
@@ -354,6 +357,8 @@ export interface ArcanaMajorEntry {
   consequencesMarked: Record<string, boolean>;
   trackerValues?: Record<string, number>;
   followerHp?: Record<string, number[]>;
+  // Per-move checkbox-block state: moveId -> itemId -> checked.
+  bodyChecks?: Record<string, Record<string, boolean>>;
   carried?: boolean;
 }
 
