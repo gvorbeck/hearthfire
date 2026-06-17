@@ -22,7 +22,42 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         {
           id: "power-of-the-lidless-orb",
           name: "Power of the Lidless Orb",
-          text: "When you **bear the staff and call upon the power of the Orb**, choose one of the effects that you have marked:\n\n- Cast your sight afar, seeing either a time in the past of your current locale or the present of a distant place which you have previously visited. While you maintain the effect, you are blind to the world around you.\n- Hold the Orb before another creature's gaze and steal its sense of sight, blinding them until you use this effect again. When you see through the Lidless Orb, you can choose to see using the currently stolen sense of sight.\n- Hold the Orb before a mortal being's gaze, keeping it transfixed, mesmerized, and receptive to your suggestions. A weak-willed creature will obey outright; a strong-willed one might require convincing.\n- Point the Orb at a living victim and roll 2d4. If you roll higher than the victim's current HP, it's debilitated with nausea and vertigo while you remain in its presence (and possibly for some time thereafter). Otherwise, the victim reels momentarily but soon recovers.\n\nAfter you've chosen the effect, roll +CON: **on a 10+**, the effect occurs as described; **on a 7-9**, you decide either to mark a Consequence and have the effect occur, or to have the effect fail; **on a 6-**, ask the GM what happens (which may or may not involve marking a Consequence).",
+          body: [
+            {
+              kind: "para",
+              text: "When you **bear the staff and call upon the power of the Orb**, choose one of the effects that you have marked:",
+            },
+            {
+              kind: "checkbox",
+              items: [
+                {
+                  id: "orb-effect-sight-afar",
+                  label:
+                    "Cast your sight afar, seeing either a time in the past of your current locale or the present of a distant place which you have previously visited. While you maintain the effect, you are blind to the world around you.",
+                },
+                {
+                  id: "orb-effect-steal-sight",
+                  label:
+                    "Hold the Orb before another creature's gaze and steal its sense of sight, blinding them until you use this effect again. When you see through the Lidless Orb, you can choose to see using the currently stolen sense of sight.",
+                },
+                {
+                  id: "orb-effect-mesmerize",
+                  label:
+                    "Hold the Orb before a mortal being's gaze, keeping it transfixed, mesmerized, and receptive to your suggestions. A weak-willed creature will obey outright; a strong-willed one might require convincing.",
+                },
+                {
+                  id: "orb-effect-nausea",
+                  label:
+                    "Point the Orb at a living victim and roll 2d4. If you roll higher than the victim's current HP, it's debilitated with nausea and vertigo while you remain in its presence (and possibly for some time thereafter). Otherwise, the victim reels momentarily but soon recovers.",
+                },
+              ],
+            },
+            {
+              kind: "para",
+              text: "After you've chosen the effect, roll +CON: **on a 10+**, the effect occurs as described; **on a 7-9**, you decide either to mark a Consequence and have the effect occur, or to have the effect fail; **on a 6-**, ask the GM what happens (which may or may not involve marking a Consequence).",
+            },
+          ],
+          citation: "Book 2, p. 541",
         },
       ],
       consequences: [

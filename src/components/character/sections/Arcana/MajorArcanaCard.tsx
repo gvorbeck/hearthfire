@@ -22,6 +22,7 @@ interface MajorArcanaCardProps {
   onConsequenceToggle: (consequenceId: string, checked: boolean) => void;
   onTrackerChange: (moveId: string, value: number) => void;
   onFollowerHpChange: (moveId: string, index: number, value: number) => void;
+  onBodyCheckChange: (moveId: string, itemId: string, checked: boolean) => void;
   onRemove: () => void;
 }
 
@@ -126,9 +127,11 @@ interface MysteryMoveBlockProps {
   checked: boolean;
   trackerValue?: number;
   followerHp?: number[];
+  bodyChecks?: Record<string, boolean>;
   onToggle: (id: string, checked: boolean) => void;
   onTrackerChange: (id: string, value: number) => void;
   onFollowerHpChange: (id: string, index: number, value: number) => void;
+  onBodyCheckChange: (moveId: string, itemId: string, checked: boolean) => void;
 }
 
 // A move authored in the Move-component shape (typed body blocks) rather than the legacy flat string.
@@ -142,9 +145,11 @@ const MysteryMoveBlock = memo(
     checked,
     trackerValue,
     followerHp,
+    bodyChecks,
     onToggle,
     onTrackerChange,
     onFollowerHpChange,
+    onBodyCheckChange,
   }: MysteryMoveBlockProps) => {
     const handleToggle = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -159,6 +164,11 @@ const MysteryMoveBlock = memo(
       (index: number, value: number) =>
         onFollowerHpChange(move.id, index, value),
       [move.id, onFollowerHpChange],
+    );
+    const handleBodyCheck = useCallback(
+      (itemId: string, value: boolean) =>
+        onBodyCheckChange(move.id, itemId, value),
+      [move.id, onBodyCheckChange],
     );
 
     // Move-shaped entries render through the shared Move component: its select box maps to the
@@ -178,6 +188,7 @@ const MysteryMoveBlock = memo(
             checked: trackerValue ?? 0,
             onChange: handleTracker,
           }))}
+          bodyCheck={{ checked: bodyChecks ?? {}, onChange: handleBodyCheck }}
         />
       );
     }
@@ -240,6 +251,7 @@ export const MajorArcanaCard = ({
   onConsequenceToggle,
   onTrackerChange,
   onFollowerHpChange,
+  onBodyCheckChange,
   onRemove,
 }: MajorArcanaCardProps) => {
   const { marks, mystery } = arcanum;
@@ -348,9 +360,11 @@ export const MajorArcanaCard = ({
                     checked={!!entry.mysteryMovesChecked[move.id]}
                     trackerValue={entry.trackerValues?.[move.id]}
                     followerHp={entry.followerHp?.[move.id]}
+                    bodyChecks={entry.bodyChecks?.[move.id]}
                     onToggle={onMysteryMoveToggle}
                     onTrackerChange={onTrackerChange}
                     onFollowerHpChange={onFollowerHpChange}
+                    onBodyCheckChange={onBodyCheckChange}
                   />
                 ))}
               </div>

@@ -354,6 +354,8 @@ export interface ArcanaMajorEntry {
   consequencesMarked: Record<string, boolean>;
   trackerValues?: Record<string, number>;
   followerHp?: Record<string, number[]>;
+  // Per-move checkbox-block state: moveId -> itemId -> checked.
+  bodyChecks?: Record<string, Record<string, boolean>>;
   carried?: boolean;
 }
 
