@@ -65,6 +65,31 @@
   text-align: right;
 }
 
+/* N-column tables left-align every header, overriding the two-column trailing right-align. */
+.tableThStart,
+.tableThStart:last-child {
+  text-align: left;
+}
+
+/* ── Selectable N-column rows ───────────────────────── */
+.tableCellsRow td {
+  padding: var(--spacing-2) var(--spacing-3) var(--spacing-2) 0;
+  color: var(--color-stone-200);
+  vertical-align: top;
+}
+
+.tableSelectableRow {
+  cursor: pointer;
+}
+
+.tableSelectableRow:hover {
+  background-color: var(--surface-overlay);
+}
+
+.tableSelectedRow {
+  background-color: var(--surface-overlay);
+}
+
 /* ── Bordered table variant ─────────────────────────── */
 .tableWrapper {
   border: 1px solid var(--border-subtle);

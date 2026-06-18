@@ -188,3 +188,7 @@
   gap: var(--spacing-1);
   padding-left: var(--spacing-6);
 }
+
+.consequenceTable {
+  padding-left: var(--spacing-6);
+}

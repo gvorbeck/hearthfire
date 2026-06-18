@@ -1,13 +1,15 @@
-import { useCallback, useState, useRef, useEffect, memo } from "react";
+import { useCallback, useMemo, useState, useRef, useEffect, memo } from "react";
 import clsx from "clsx";
-import { Button, Checkbox, CreatureCard, Text } from "@/components/ui";
+import { Button, Checkbox, CreatureCard, Table, Text } from "@/components/ui";
 import { UseDots } from "@/components/ui/UseDots/UseDots";
 import { useLatest } from "@/hooks/useLatest";
 import { parseMarkdown } from "@/lib/parseMarkdown";
+import { projectCreature } from "@/lib/creatureMutations";
 import { Move } from "../../Move";
 import type {
   MajorArcanum,
   MajorArcanaMysteryMove,
+  MajorArcanaMysteryConsequence,
   MoveDefinition,
   RightControlSpec,
   ArcanaMove,
@@ -23,6 +25,7 @@ interface MajorArcanaCardProps {
   onMarksChange: (value: number) => void;
   onMysteryMoveToggle: (moveId: string, checked: boolean) => void;
   onConsequenceToggle: (consequenceId: string, checked: boolean) => void;
+  onConsequenceTableChoice: (consequenceId: string, rowId: string) => void;
   onTrackerChange: (moveId: string, value: number) => void;
   onFollowerHpChange: (moveId: string, index: number, value: number) => void;
   onBodyCheckChange: (moveId: string, itemId: string, checked: boolean) => void;
@@ -124,6 +127,42 @@ const ConsequenceRow = memo(
       </label>
     );
   },
+);
+
+interface ConsequenceTableBlockProps {
+  consequenceId: string;
+  table: NonNullable<MajorArcanaMysteryConsequence["table"]>;
+  selectedRowId?: string;
+  // The table only drives an effect while its consequence is marked, so the rows stay disabled until
+  // the box is checked.
+  disabled: boolean;
+  onChoose: (consequenceId: string, rowId: string) => void;
+}
+
+// The Mindgem's 1d4 purpose table: each row is radio-selectable, and the pick drives the row's
+// effect on the creature. Rendered through the shared ui/Table with its selectable-cells rows.
+const ConsequenceTableBlock = memo(
+  ({
+    consequenceId,
+    table,
+    selectedRowId,
+    disabled,
+    onChoose,
+  }: ConsequenceTableBlockProps) => (
+    <div className={styles.consequenceTable}>
+      <Table
+        columnHeaders={table.columnHeaders}
+        selectionLabel={table.columnHeaders.join(" ")}
+        rows={table.rows.map((row) => ({
+          cells: [row.roll, ...row.cells],
+          selectable: true,
+          selected: selectedRowId === row.id,
+          disabled,
+          onSelect: () => onChoose(consequenceId, row.id),
+        }))}
+      />
+    </div>
+  ),
 );
 
 interface MysteryMoveBlockProps {
@@ -257,63 +296,29 @@ const MysteryMoveBlock = memo(
 );
 
 interface MysteryCreatureCardProps {
-  // Book seed used until the player edits the creature.
-  seed: Creature;
-  // Player's saved working copy, if any.
-  saved?: Creature;
+  // Fully projected creature: book data (from seed + marked consequences) with the player's saved
+  // HP/armor/loyalty already merged in. Recomputed upstream whenever a consequence toggles.
+  creature: Creature;
   onSave: (creature: Creature) => void;
 }
 
-// Coerce a stored creature into the current shape, migrating fields that earlier shapes used:
-//   - instinct as an array (pre-split) — the first line is the single instinct; any later lines were
-//     really moves, so prepend them to the moves list
-//   - separate damage/specialQualities/cost strings — these are now presented `qualities` lines, so
-//     fold any that exist into the qualities list (and drop the orphaned fields)
-const normalizeCreature = (creature: Creature): Creature => {
-  const { damage, specialQualities, cost, ...rest } = creature as Creature & {
-    damage?: string;
-    specialQualities?: string;
-    cost?: string;
-  };
-  // A stored instinct array splits into the single instinct (first line) and trailing move lines.
-  const instinctArray = Array.isArray(rest.instinct)
-    ? (rest.instinct as string[])
-    : undefined;
-  const instinct = instinctArray ? instinctArray[0] : rest.instinct;
-  const movesFromInstinct = instinctArray ? instinctArray.slice(1) : [];
-  const legacyQualities = [
-    damage && `**Damage** ${damage}`,
-    specialQualities && `**Special qualities** ${specialQualities}`,
-    cost && `**Cost** ${cost}`,
-  ].filter((line): line is string => Boolean(line));
-  return {
-    ...rest,
-    qualities: [...(rest.qualities ?? []), ...legacyQualities],
-    instinct,
-    moves: [...movesFromInstinct, ...(rest.moves ?? [])],
-  };
-};
-
-// Wraps the presentational CreatureCard with optimistic local state, persisting a single creature
-// (the Mindgem's Mighty Servant) onto the arcanum entry. Text edits save on blur; loyalty saves
-// immediately since it has no blur.
-const MysteryCreatureCard = memo(({ seed, saved, onSave }: MysteryCreatureCardProps) => {
-  const [creature, setCreature] = useState<Creature>(() => normalizeCreature(saved ?? seed));
+// Wraps the presentational CreatureCard with optimistic local state, persisting the player's edits
+// (HP, armor, loyalty) onto the arcanum entry. Text edits save on blur; loyalty saves immediately
+// since it has no blur. The book-data fields are read-only here — they come from the projection.
+const MysteryCreatureCard = memo(({ creature: projected, onSave }: MysteryCreatureCardProps) => {
+  const [creature, setCreature] = useState<Creature>(projected);
   const creatureRef = useLatest(creature);
   const onSaveRef = useLatest(onSave);
 
-  // Re-seed only when a genuinely new saved snapshot arrives from Firestore, not on every
-  // local keystroke re-render.
-  const lastSavedRef = useRef<string | undefined>(
-    saved ? JSON.stringify(saved) : undefined,
-  );
+  // Re-sync when a genuinely new projection arrives (a consequence toggled, or a fresh Firestore
+  // snapshot), not on every local keystroke re-render.
+  const lastSavedRef = useRef<string>(JSON.stringify(projected));
   useEffect(() => {
-    if (saved === undefined) return;
-    const incoming = JSON.stringify(saved);
+    const incoming = JSON.stringify(projected);
     if (incoming === lastSavedRef.current) return;
     lastSavedRef.current = incoming;
-    setCreature(normalizeCreature(saved));
-  }, [saved]);
+    setCreature(projected);
+  }, [projected]);
 
   const commit = useCallback((next: Creature) => {
     setCreature(next);
@@ -351,6 +356,7 @@ export const MajorArcanaCard = ({
   onMarksChange,
   onMysteryMoveToggle,
   onConsequenceToggle,
+  onConsequenceTableChoice,
   onTrackerChange,
   onFollowerHpChange,
   onBodyCheckChange,
@@ -403,6 +409,28 @@ export const MajorArcanaCard = ({
     if (!hasBonus) return undefined;
     return base.map((spec) => ({ ...spec, number: (spec.number ?? 1) + 1 }));
   };
+
+  // The creature's book data is a projection of the seed plus every marked consequence; recompute it
+  // only when the seed or marked state changes so the memo on MysteryCreatureCard holds.
+  const projectedCreature = useMemo(
+    () =>
+      mystery.mysteryCreature
+        ? projectCreature(
+            mystery.mysteryCreature,
+            entry.mysteryCreature,
+            mystery.consequences,
+            entry.consequencesMarked,
+            entry.consequenceTableChoice ?? {},
+          )
+        : undefined,
+    [
+      mystery.mysteryCreature,
+      mystery.consequences,
+      entry.mysteryCreature,
+      entry.consequencesMarked,
+      entry.consequenceTableChoice,
+    ],
+  );
 
   return (
     <div className={cx}>
@@ -498,10 +526,9 @@ export const MajorArcanaCard = ({
               {mystery.sectionLabel ?? "Mysteries"}
             </Text>
 
-            {mystery.mysteryCreature && (
+            {projectedCreature && (
               <MysteryCreatureCard
-                seed={mystery.mysteryCreature}
-                saved={entry.mysteryCreature}
+                creature={projectedCreature}
                 onSave={onMysteryCreatureSave}
               />
             )}
@@ -545,6 +572,15 @@ export const MajorArcanaCard = ({
                       checked={!!entry.consequencesMarked[c.id]}
                       onToggle={onConsequenceToggle}
                     />
+                    {c.table && (
+                      <ConsequenceTableBlock
+                        consequenceId={c.id}
+                        table={c.table}
+                        selectedRowId={entry.consequenceTableChoice?.[c.id]}
+                        disabled={!entry.consequencesMarked[c.id]}
+                        onChoose={onConsequenceTableChoice}
+                      />
+                    )}
                     {c.children && c.children.length > 0 && (
                       <div className={styles.consequenceChildren}>
                         {c.children.map((child) => (

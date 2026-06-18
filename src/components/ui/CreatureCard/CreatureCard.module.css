@@ -109,12 +109,6 @@
   flex-shrink: 0;
 }
 
-.instinct {
-  display: flex;
-  align-items: baseline;
-  gap: var(--spacing-2);
-}
-
 .moves {
   display: flex;
   flex-direction: column;

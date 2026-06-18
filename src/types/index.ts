@@ -94,6 +94,12 @@ export interface ArcanaFollower {
   cost?: string;
 }
 
+// A presented stat line on a creature card — a bold label (e.g. "Damage") and its value.
+export interface CreatureQuality {
+  label: string;
+  value: string;
+}
+
 // An NPC creature/follower stat block, modeled on the Stonetop creature card (name, tags, HP/Armor
 // boxes, presented qualities, loyalty, a single instinct, bulleted moves, and a trailing rule).
 // Rendered by the presentational ui/CreatureCard; the host owns persistence. Everything but HP, armor,
@@ -106,12 +112,21 @@ export interface Creature {
   hpMax?: string;
   armor?: string;
   armorNote?: string;
-  qualities?: string[];
+  qualities?: CreatureQuality[];
   loyalty?: number;
-  instinct?: string;
   moves?: string[];
   notes?: string;
 }
+
+// A declarative mutation a consequence applies to its creature when marked. Book-data fields
+// (tags, moves, qualities) are always a pure projection of the seed plus the effects of every
+// currently-marked consequence, so toggling a box is fully reversible without an undo trail.
+export type CreatureEffect =
+  | { op: "addTag"; tag: string }
+  | { op: "removeTag"; tag: string }
+  | { op: "replaceTag"; from: string; to: string }
+  | { op: "addMove"; move: string }
+  | { op: "replaceQuality"; label: string; value: string };
 
 export interface ArcanaMove {
   name: string;
@@ -142,10 +157,32 @@ export interface MajorArcanaMysteryMove {
   follower?: ArcanaFollower;
 }
 
+// A selectable row in a consequence's roll table (e.g. the Mindgem's 1d4 purpose table). Picking a
+// row applies its `effect` to the creature; the chosen row id persists on the entry.
+export interface ConsequenceTableRow {
+  id: string;
+  roll: string;
+  cells: string[];
+  effect: CreatureEffect;
+}
+
+export interface ConsequenceTable {
+  columnHeaders: string[];
+  rows: ConsequenceTableRow[];
+}
+
 export interface MajorArcanaMysteryConsequence {
   id: string;
   text: string;
-  children?: { id: string; text: string }[];
+  // Effects applied to the arcanum's creature while this consequence is marked.
+  effects?: CreatureEffect[];
+  // A roll table whose row, once picked, drives an effect (e.g. the Mindgem's 1d4 new-cost table).
+  table?: ConsequenceTable;
+  children?: {
+    id: string;
+    text: string;
+    effects?: CreatureEffect[];
+  }[];
 }
 
 export interface MajorArcanaMystery {
@@ -377,6 +414,9 @@ export interface ArcanaMajorEntry {
   marksValue: number;
   mysteryMovesChecked: Record<string, boolean>;
   consequencesMarked: Record<string, boolean>;
+  // Picked row id for a consequence's roll table: consequenceId -> rowId (e.g. the Mindgem's chosen
+  // 1d4 purpose). Drives the row's effect on the creature.
+  consequenceTableChoice?: Record<string, string>;
   trackerValues?: Record<string, number>;
   followerHp?: Record<string, number[]>;
   // Per-move checkbox-block state: moveId -> itemId -> checked.

@@ -133,9 +133,20 @@ export const CreatureCard = memo(
             )}
             {(creature.qualities ?? []).length > 0 && (
               <div className={styles.qualities}>
-                {(creature.qualities ?? []).map((line, i) => (
-                  <Text key={`quality-${creature.id}-${i}`} as="span" font="serif">
-                    {line}
+                {(creature.qualities ?? []).map((quality, i) => (
+                  <Text
+                    key={`quality-${creature.id}-${i}`}
+                    as="span"
+                    font="serif"
+                  >
+                    {quality.label && (
+                      <Text as="span" font="serif" weight="bold">
+                        {`${quality.label} `}
+                      </Text>
+                    )}
+                    <Text as="span" font="serif">
+                      {quality.value}
+                    </Text>
                   </Text>
                 ))}
               </div>
@@ -155,21 +166,6 @@ export const CreatureCard = memo(
                 onChange={handleLoyalty}
               />
             </div>
-            {creature.instinct && (
-              <div className={styles.instinct}>
-                <Text
-                  as="span"
-                  font="serif"
-                  weight="bold"
-                  className={styles.fieldLabel}
-                >
-                  Instinct
-                </Text>
-                <Text as="span" font="serif">
-                  {creature.instinct}
-                </Text>
-              </div>
-            )}
             {(creature.moves ?? []).length > 0 && (
               <div className={styles.moves}>
                 <Text
