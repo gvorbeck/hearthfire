@@ -199,8 +199,8 @@ const TabButton = ({
   baseId: string;
   isActive: boolean;
   onActivate: (index: number) => void;
-  onKeyDown: (e: KeyboardEvent<HTMLButtonElement>, index: number) => void;
-  tabRefs: React.MutableRefObject<(HTMLButtonElement | null)[]>;
+  onKeyDown: (e: KeyboardEvent<HTMLDivElement>, index: number) => void;
+  tabRefs: React.MutableRefObject<(HTMLDivElement | null)[]>;
   onRemove?: () => void;
 }) => {
   const tooltip = useTooltip({
@@ -214,13 +214,22 @@ const TabButton = ({
     tooltip.visible && styles.tabTooltipVisible,
   );
 
-  const handleRef = useCallback((el: HTMLButtonElement | null) => {
+  const handleRef = useCallback((el: HTMLDivElement | null) => {
     tabRefs.current[index] = el;
     tooltip.anchorRef.current = el;
   }, [tabRefs, index, tooltip.anchorRef]);
 
   const handleClick = useCallback(() => onActivate(index), [onActivate, index]);
-  const handleKeyDown = useCallback((e: KeyboardEvent<HTMLButtonElement>) => onKeyDown(e, index), [onKeyDown, index]);
+  const handleKeyDown = useCallback((e: KeyboardEvent<HTMLDivElement>) => {
+    // role="tab" is not a native button, so activate on Enter/Space ourselves; arrow/Home/End
+    // navigation is delegated to the parent handler.
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onActivate(index);
+      return;
+    }
+    onKeyDown(e, index);
+  }, [onActivate, onKeyDown, index]);
 
   const badgeTooltipEl = tab.badgeTooltip ? (
     <span
@@ -242,7 +251,7 @@ const TabButton = ({
   ) : null;
 
   return (
-    <button
+    <div
       ref={handleRef}
       role="tab"
       id={`${baseId}-tab-${slotId}`}
@@ -266,7 +275,7 @@ const TabButton = ({
         />
       )}
       {badgeTooltipEl}
-    </button>
+    </div>
   );
 };
 
@@ -283,7 +292,7 @@ export const Tabs = ({
   const active = activeIndex ?? internalActive;
 
   const baseId = useId();
-  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const tabRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const resolvedTabs = useMemo(
     () =>
@@ -322,7 +331,7 @@ export const Tabs = ({
   const cx = clsx(styles.root, className);
 
   const handleKeyDown = useCallback(
-    (e: KeyboardEvent<HTMLButtonElement>, i: number) => {
+    (e: KeyboardEvent<HTMLDivElement>, i: number) => {
       if (e.key === "ArrowRight") {
         const next = (i + 1) % tabs.length;
         setActive(next);

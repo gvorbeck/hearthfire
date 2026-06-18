@@ -1,7 +1,8 @@
-import { useCallback, memo } from "react";
+import { useCallback, useState, useRef, useEffect, memo } from "react";
 import clsx from "clsx";
-import { Button, Checkbox, Text } from "@/components/ui";
+import { Button, Checkbox, CreatureCard, Text } from "@/components/ui";
 import { UseDots } from "@/components/ui/UseDots/UseDots";
+import { useLatest } from "@/hooks/useLatest";
 import { parseMarkdown } from "@/lib/parseMarkdown";
 import { Move } from "../../Move";
 import type {
@@ -10,6 +11,7 @@ import type {
   MoveDefinition,
   RightControlSpec,
   ArcanaMove,
+  Creature,
 } from "@/types";
 import type { ArcanaMajorEntry } from "@/types";
 import { ArcanaFollowerBlock } from "./ArcanaFollowerBlock";
@@ -24,6 +26,7 @@ interface MajorArcanaCardProps {
   onTrackerChange: (moveId: string, value: number) => void;
   onFollowerHpChange: (moveId: string, index: number, value: number) => void;
   onBodyCheckChange: (moveId: string, itemId: string, checked: boolean) => void;
+  onMysteryCreatureSave: (creature: Creature) => void;
   onRemove: () => void;
 }
 
@@ -253,6 +256,95 @@ const MysteryMoveBlock = memo(
   },
 );
 
+interface MysteryCreatureCardProps {
+  // Book seed used until the player edits the creature.
+  seed: Creature;
+  // Player's saved working copy, if any.
+  saved?: Creature;
+  onSave: (creature: Creature) => void;
+}
+
+// Coerce a stored creature into the current shape, migrating fields that earlier shapes used:
+//   - instinct as an array (pre-split) — the first line is the single instinct; any later lines were
+//     really moves, so prepend them to the moves list
+//   - separate damage/specialQualities/cost strings — these are now presented `qualities` lines, so
+//     fold any that exist into the qualities list (and drop the orphaned fields)
+const normalizeCreature = (creature: Creature): Creature => {
+  const { damage, specialQualities, cost, ...rest } = creature as Creature & {
+    damage?: string;
+    specialQualities?: string;
+    cost?: string;
+  };
+  // A stored instinct array splits into the single instinct (first line) and trailing move lines.
+  const instinctArray = Array.isArray(rest.instinct)
+    ? (rest.instinct as string[])
+    : undefined;
+  const instinct = instinctArray ? instinctArray[0] : rest.instinct;
+  const movesFromInstinct = instinctArray ? instinctArray.slice(1) : [];
+  const legacyQualities = [
+    damage && `**Damage** ${damage}`,
+    specialQualities && `**Special qualities** ${specialQualities}`,
+    cost && `**Cost** ${cost}`,
+  ].filter((line): line is string => Boolean(line));
+  return {
+    ...rest,
+    qualities: [...(rest.qualities ?? []), ...legacyQualities],
+    instinct,
+    moves: [...movesFromInstinct, ...(rest.moves ?? [])],
+  };
+};
+
+// Wraps the presentational CreatureCard with optimistic local state, persisting a single creature
+// (the Mindgem's Mighty Servant) onto the arcanum entry. Text edits save on blur; loyalty saves
+// immediately since it has no blur.
+const MysteryCreatureCard = memo(({ seed, saved, onSave }: MysteryCreatureCardProps) => {
+  const [creature, setCreature] = useState<Creature>(() => normalizeCreature(saved ?? seed));
+  const creatureRef = useLatest(creature);
+  const onSaveRef = useLatest(onSave);
+
+  // Re-seed only when a genuinely new saved snapshot arrives from Firestore, not on every
+  // local keystroke re-render.
+  const lastSavedRef = useRef<string | undefined>(
+    saved ? JSON.stringify(saved) : undefined,
+  );
+  useEffect(() => {
+    if (saved === undefined) return;
+    const incoming = JSON.stringify(saved);
+    if (incoming === lastSavedRef.current) return;
+    lastSavedRef.current = incoming;
+    setCreature(normalizeCreature(saved));
+  }, [saved]);
+
+  const commit = useCallback((next: Creature) => {
+    setCreature(next);
+    lastSavedRef.current = JSON.stringify(next);
+    onSaveRef.current(next);
+  }, []);
+
+  const handleFieldChange = useCallback(
+    <K extends keyof Creature>(field: K, value: Creature[K]) => {
+      const next = { ...creatureRef.current, [field]: value };
+      // Loyalty has no blur, so persist it right away; text fields persist on blur.
+      if (field === "loyalty") {
+        commit(next);
+      } else {
+        setCreature(next);
+      }
+    },
+    [commit],
+  );
+
+  const handleBlur = useCallback(() => commit(creatureRef.current), [commit]);
+
+  return (
+    <CreatureCard
+      creature={creature}
+      onFieldChange={handleFieldChange}
+      onBlur={handleBlur}
+    />
+  );
+});
+
 export const MajorArcanaCard = ({
   arcanum,
   entry,
@@ -262,6 +354,7 @@ export const MajorArcanaCard = ({
   onTrackerChange,
   onFollowerHpChange,
   onBodyCheckChange,
+  onMysteryCreatureSave,
   onRemove,
 }: MajorArcanaCardProps) => {
   const { marks, mystery } = arcanum;
@@ -392,7 +485,9 @@ export const MajorArcanaCard = ({
       )}
 
       {unlocked &&
-        (mystery.moves.length > 0 || mystery.consequences.length > 0) && (
+        (mystery.moves.length > 0 ||
+          mystery.mysteryCreature !== undefined ||
+          mystery.consequences.length > 0) && (
           <div className={styles.mysteries}>
             <Text
               font="serif"
@@ -402,6 +497,14 @@ export const MajorArcanaCard = ({
             >
               {mystery.sectionLabel ?? "Mysteries"}
             </Text>
+
+            {mystery.mysteryCreature && (
+              <MysteryCreatureCard
+                seed={mystery.mysteryCreature}
+                saved={entry.mysteryCreature}
+                onSave={onMysteryCreatureSave}
+              />
+            )}
 
             {mystery.moves.length > 0 && (
               <div className={styles.mysteryMoves}>

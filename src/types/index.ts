@@ -94,6 +94,25 @@ export interface ArcanaFollower {
   cost?: string;
 }
 
+// An NPC creature/follower stat block, modeled on the Stonetop creature card (name, tags, HP/Armor
+// boxes, presented qualities, loyalty, a single instinct, bulleted moves, and a trailing rule).
+// Rendered by the presentational ui/CreatureCard; the host owns persistence. Everything but HP, armor,
+// and loyalty is presented book data, not user input.
+export interface Creature {
+  id: string;
+  name?: string;
+  tags?: string;
+  hp?: string;
+  hpMax?: string;
+  armor?: string;
+  armorNote?: string;
+  qualities?: string[];
+  loyalty?: number;
+  instinct?: string;
+  moves?: string[];
+  notes?: string;
+}
+
 export interface ArcanaMove {
   name: string;
   subtitle?: string;
@@ -136,6 +155,9 @@ export interface MajorArcanaMystery {
   // When `sourceId` is selected, `targetId`'s dot control gains +1 (e.g. A Mighty Will grants
   // Mindwalking +1 Power). Read generically by MajorArcanaCard so no arcanum is special-cased.
   dotBonuses?: { targetId: string; sourceId: string }[];
+  // Some arcana (e.g. the Mindgem) grant an editable creature instead of mystery moves. This is the
+  // book seed rendered through CreatureCard; the player's working copy lives on the entry.
+  mysteryCreature?: Creature;
 }
 
 export interface MajorArcanum {
@@ -359,6 +381,9 @@ export interface ArcanaMajorEntry {
   followerHp?: Record<string, number[]>;
   // Per-move checkbox-block state: moveId -> itemId -> checked.
   bodyChecks?: Record<string, Record<string, boolean>>;
+  // Player's working copy of an arcanum's granted creature (e.g. the Mindgem's Mighty Servant),
+  // seeded from mystery.mysteryCreature and editable via CreatureCard.
+  mysteryCreature?: Creature;
   carried?: boolean;
 }
 

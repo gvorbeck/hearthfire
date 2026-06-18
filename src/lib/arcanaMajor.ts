@@ -455,28 +455,42 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     frontMoves: [
       {
         name: "Consult the Mindgem about the Makers, their arts, or their history",
-        text: 'Ask a question and roll +INT: **on a 7+**, it answers but **on a 10+**, pick 1; **on a 7-9**, pick 2:\n\n- The answer is cryptic, vague, or lacking crucial context\n- It takes a long time—hours or even days—to get the answer\n- Your mind is left reeling; take disadvantage on your next roll\n\n**On a 6-**, choose 1:\n\n- It wastes your time with irrelevant histories and data\n- It answers now, but refuses to answer further questions until you make progress towards restoring its body (or, if its body is assembled, until you pay its Cost).\n\nThe Mindgem knows that a body was crafted for it, and that it has likely survived—at least in part. It longs for the body to be whole, and to interact with the world. To assemble the Mindgem\'s body and unlock its mysteries:\n\n- Recover its chassis of white granite, which weighs well over a ton\n- Recover its ◊ "heart," a chunk of makerglass that forever burns with terrible heat (*indestructible, dangerous*)\n- Recover and repair the intricate ◊◊ bronze helm (*awkward, big*) that serves as a casing for the Mindgem\n- Puzzle out how to assemble all the pieces',
+        text: "Ask a question and roll +INT: **on a 7+**, it answers but **on a 10+**, pick 1; **on a 7-9**, pick 2:\n\n- The answer is cryptic, vague, or lacking crucial context\n- It takes a long time—hours or even days—to get the answer\n- Your mind is left reeling; take disadvantage on your next roll\n\n**On a 6-**, choose 1:\n\n- It wastes your time with irrelevant histories and data\n- It answers now, but refuses to answer further questions until you make progress towards restoring its body (or, if its body is assembled, until you pay its Cost).\n\nThe Mindgem knows that a body was crafted for it, and that it has likely survived—at least in part. It longs for the body to be whole, and to interact with the world. To assemble the Mindgem's body and unlock its mysteries, complete the tasks below.",
       },
     ],
-    marks: { max: 4 },
-    mystery: {
-      moves: [
-        {
-          id: "the-mighty-servant",
-          name: "The Mighty Servant",
-          text: "When **the Mighty Servant makes a move at your behest** (see Order Followers), on a 6-, in addition to whatever the GM says, mark a consequence.",
-          follower: {
-            name: "The Mighty Servant",
-            tags: "large, construct, Maker-wise, beautiful, meek, hardy, slow, strong, exceptional",
-            hp: 24,
-            armor: 4,
-            damage: "stone fists d10+1 (hand, close, disadvantage)",
-            instinct: "to misunderstand",
-            qualities: ["living stone, tireless"],
-            cost: "wonder, excitement, joy, discovery (Loyalty ◻◻◻)",
-          },
-        },
+    marks: {
+      max: 4,
+      unlockAt: 4,
+      tasks: [
+        "Recover its chassis of white granite, which weighs well over a ton",
+        'Recover its ◊ "heart," a chunk of makerglass that forever burns with terrible heat (*indestructible, dangerous*)',
+        "Recover and repair the intricate ◊◊ bronze helm (*awkward, big*) that serves as a casing for the Mindgem",
+        "Puzzle out how to assemble all the pieces",
       ],
+    },
+    mystery: {
+      moves: [],
+      mysteryCreature: {
+        id: "the-mighty-servant",
+        name: "The Mighty Servant",
+        tags: "large, construct, Maker-wise, beautiful, meek, hardy, slow, strong, exceptional",
+        hpMax: "24",
+        armor: "4",
+        armorNote: "Made of stone",
+        qualities: [
+          "**Damage** stone fists d10+1 (*hand, close, disadvantage*)",
+          "**Special qualities** living stone, tireless",
+          "**Cost** wonder, excitement, joy, discovery",
+        ],
+        loyalty: 3,
+        instinct: "To misunderstand",
+        moves: [
+          "Perform a mighty feat of strength",
+          "Carry on implacably",
+        ],
+        notes:
+          "When the Mighty Servant makes a move at your behest (see Order Followers), on a 6-, in addition to whatever the GM says, mark a consequence.",
+      },
       consequences: [
         {
           id: "mindgem-c1",
