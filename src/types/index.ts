@@ -212,7 +212,10 @@ export interface MajorArcanum {
   tags?: string;
   weight?: 1 | 2;
   description: string;
-  frontMoves: ArcanaMove[];
+  // Most front moves are terse ArcanaMoves (a name + a string of prose). A few (e.g. the Hec'tumel
+  // Codex's "Cast a Codex Spell") are full moves with typed body blocks and persistent dot controls,
+  // authored as a MoveDefinition and rendered through the shared Move component.
+  frontMoves: (ArcanaMove | MoveDefinition)[];
   marks: { label?: string; max: number; unlockAt?: number; tasks?: string[] };
   mystery: MajorArcanaMystery;
 }

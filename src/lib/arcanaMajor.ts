@@ -898,13 +898,38 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     frontMoves: [
       {
         name: "First run your fingers over the inscriptions",
-        text: "Your dreams that night are filled with images of a pale, reptilian creature with skulls for eyes, slithering through darksome caverns. You awake with an alien incantation on your tongue, its words emblazoned in your mind. You can Cast a Codex Spell, and know Call the Pale Lizard.",
+        text: "When you **first run your fingers over the inscriptions**, your dreams that night are filled with images of a pale, reptilian creature with skulls for eyes, slithering through darksome caverns. You awake with an alien incantation on your tongue, its words emblazoned in your mind. You can Cast a Codex Spell, and know Call the Pale Lizard.",
       },
       {
+        id: "cast-a-codex-spell",
         name: "Cast a Codex Spell",
-        subtitle: "Casting penalty ◻◻◻◻◻",
-        text: "When you **cast a spell learned from the Hec'tumel Codex**, roll +INT: **on a 10+**, the spell works as described; **on a 7-9**, the spell works, but choose 1 from the list below; **on a 6-**, mark a consequence (see reverse) in addition to whatever the GM says.\n\n- You draw unwelcome attention or put yourself in a spot (ask the GM how)\n- Something shifts in your mind; take a -1 penalty to Cast a Codex Spell until you get Hec'tumel to show you what you're doing wrong (the penalty is cumulative)\n\n**Call the Pale Lizard.** Cast this spell at night. Hec'tumel (*Slithering One! Death Is Its Eyes!*) manifests in the shadows until sunrise or until dismissed. It has no power unless given a host and no knowledge of the present except that which you give it. It knows much of the ancient past and the arcane arts, and can teach you if you make it worth its while. It cannot lie, but need not answer fully.\n\nWhen **Hec'tumel spends the night teaching you a spell from the Codex**, mark 1.\n\nEach time you **make a mark**, choose one of the Codex Spells (see reverse)—you can now cast it. When you **make the last mark**, you have unlocked the mysteries of the Codex and gain the Darksome Vessel move (see reverse).",
-        tracker: { label: "Casting Penalty", max: 5 },
+        rightControl: [{ type: "dot", number: 5, label: "Casting penalty" }],
+        body: [
+          {
+            kind: "para",
+            text: "When you **cast a spell learned from the Hec'tumel Codex**, roll +INT: **on a 10+**, the spell works as described; **on a 7-9**, the spell works, but choose 1 from the list below; **on a 6-**, mark a consequence (see reverse) in addition to whatever the GM says.",
+          },
+          {
+            kind: "list",
+            items: [
+              "You draw unwelcome attention or put yourself in a spot (ask the GM how)",
+              "Something shifts in your mind; take a -1 penalty to Cast a Codex Spell until you get Hec'tumel to show you what you're doing wrong (the penalty is cumulative)",
+            ],
+          },
+          { kind: "divider" },
+          {
+            kind: "para",
+            text: "**Call the Pale Lizard.** Cast this spell at night. Hec'tumel (*Slithering One! Death Is Its Eyes!*) manifests in the shadows until sunrise or until dismissed. It has no power unless given a host and no knowledge of the present except that which you give it. It knows much of the ancient past and the arcane arts, and can teach you if you make it worth its while. It cannot lie, but need not answer fully.",
+          },
+          {
+            kind: "para",
+            text: "When **Hec'tumel spends the night teaching you a spell from the Codex**, mark 1.",
+          },
+          {
+            kind: "para",
+            text: "Each time you **make a mark**, choose one of the Codex Spells (see reverse)—you can now cast it. When you **make the last mark**, you have unlocked the mysteries of the Codex and gain the Darksome Vessel move (see reverse).",
+          },
+        ],
       },
     ],
     marks: { max: 4, unlockAt: 1 },

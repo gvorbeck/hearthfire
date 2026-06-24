@@ -1,4 +1,5 @@
 import {
+  Fragment,
   useCallback,
   useId,
   useMemo,
@@ -43,18 +44,39 @@ interface MajorArcanaCardProps {
   onRemove: () => void;
 }
 
+// A move authored in the Move-component shape (typed body blocks) rather than the legacy flat string.
+const isMoveDefinition = (
+  move: ArcanaMove | MajorArcanaMysteryMove | MoveDefinition,
+): move is MoveDefinition => "body" in move;
+
 interface FrontMoveRowProps {
-  move: ArcanaMove;
+  move: ArcanaMove | MoveDefinition;
   trackerValue: number;
   onTrackerChange: (moveId: string, value: number) => void;
 }
 
 const FrontMoveRow = memo(
   ({ move, trackerValue, onTrackerChange }: FrontMoveRowProps) => {
-    const handleTracker = useCallback(
-      (v: number) => onTrackerChange(move.name, v),
-      [move.name, onTrackerChange],
+    // A MoveDefinition front move (e.g. the Codex's "Cast a Codex Spell") renders through the shared
+    // Move component as an always-on granted move so its dot controls stay live; its tracker persists
+    // under move.id, like mystery moves.
+    const handleMoveTracker = useCallback(
+      (v: number) => onTrackerChange(isMoveDefinition(move) ? move.id : move.name, v),
+      [move, onTrackerChange],
     );
+    if (isMoveDefinition(move)) {
+      return (
+        <Move
+          title={move.name}
+          move={move}
+          defaultChecked
+          rightControlState={move.rightControl?.map(() => ({
+            checked: trackerValue,
+            onChange: handleMoveTracker,
+          }))}
+        />
+      );
+    }
     // The rulebook prints terse moves as one inline sentence whose bold trigger opens the body
     // ("When you **draw the Sword**, it leaps…"). When `text` already carries that bold trigger we
     // skip the standalone name header so the sentence reads as one line, as printed.
@@ -80,7 +102,7 @@ const FrontMoveRow = memo(
             label={move.tracker.label}
             total={move.tracker.max}
             checked={trackerValue}
-            onChange={handleTracker}
+            onChange={handleMoveTracker}
           />
         )}
         <div className={styles.moveText}>{parseMarkdown(move.text)}</div>
@@ -255,11 +277,6 @@ interface MysteryMoveBlockProps {
   onFollowerHpChange: (id: string, index: number, value: number) => void;
   onBodyCheckChange: (moveId: string, itemId: string, checked: boolean) => void;
 }
-
-// A move authored in the Move-component shape (typed body blocks) rather than the legacy flat string.
-const isMoveDefinition = (
-  move: MajorArcanaMysteryMove | MoveDefinition,
-): move is MoveDefinition => "body" in move;
 
 const MysteryMoveBlock = memo(
   ({
@@ -555,14 +572,21 @@ export const MajorArcanaCard = ({
 
       {arcanum.frontMoves.length > 0 && (
         <div className={styles.frontMoves}>
-          {arcanum.frontMoves.map((move) => (
-            <FrontMoveRow
-              key={move.name}
-              move={move}
-              trackerValue={entry.trackerValues?.[move.name] ?? 0}
-              onTrackerChange={onTrackerChange}
-            />
-          ))}
+          {arcanum.frontMoves.map((move, i) => {
+            const trackerKey = isMoveDefinition(move) ? move.id : move.name;
+            return (
+              <Fragment key={move.name}>
+                {/* The rulebook rules off each front-side section from the next; mirror that with a
+                    divider before every entry after the first. */}
+                {i > 0 && <Divider />}
+                <FrontMoveRow
+                  move={move}
+                  trackerValue={entry.trackerValues?.[trackerKey] ?? 0}
+                  onTrackerChange={onTrackerChange}
+                />
+              </Fragment>
+            );
+          })}
         </div>
       )}
 
