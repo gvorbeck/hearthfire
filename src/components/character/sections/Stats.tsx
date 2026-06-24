@@ -210,7 +210,29 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
     (payload: Partial<CharacterData>) => onSaveRef.current?.(payload) ?? Promise.resolve(),
     [],
   );
-  const { onChange: debouncedSave, flush, isPendingRef } = useDebouncedSave(savePayload, 1000);
+
+  // Once a field's value is persisted, drop it from the dirty set so it goes
+  // back to being driven by incoming snapshots. Without this a field stays
+  // "owned" forever, and a tab whose listener was suspended (e.g. backgrounded
+  // mobile Safari) replays its stale value the next time any field saves.
+  // Skip a field the user re-edited while the save was in flight — its current
+  // value no longer matches what we just persisted.
+  const handleSaveSuccess = useCallback((payload: Partial<CharacterData>) => {
+    const current = { ...statsRef.current, ...debilitiesRef.current } as Record<string, string | boolean>;
+    for (const key of Object.keys(payload)) {
+      const k = key as keyof StatsState | keyof DebilitiesState;
+      if (current[k] === (payload as Record<string, string | boolean>)[k]) {
+        dirtyRef.current.delete(k);
+      }
+    }
+  }, []);
+
+  const { onChange: debouncedSave, flush, isPendingRef } = useDebouncedSave(
+    savePayload,
+    1000,
+    undefined,
+    handleSaveSuccess,
+  );
 
   useFirestoreSync(syncedStats, setStats, isPendingRef);
   useFirestoreSync(syncedDebilities, setDebilities, isPendingRef);
