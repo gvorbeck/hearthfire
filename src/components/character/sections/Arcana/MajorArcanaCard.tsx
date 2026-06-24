@@ -1,4 +1,12 @@
-import { useCallback, useMemo, useState, useRef, useEffect, memo } from "react";
+import {
+  useCallback,
+  useId,
+  useMemo,
+  useState,
+  useRef,
+  useEffect,
+  memo,
+} from "react";
 import clsx from "clsx";
 import { Button, Checkbox, CreatureCard, Table, Text } from "@/components/ui";
 import { UseDots } from "@/components/ui/UseDots/UseDots";
@@ -104,30 +112,76 @@ const TaskRow = memo(({ taskKey, task, checked, onToggle }: TaskRowProps) => {
   );
 });
 
+// A consequence prefixed with a run of ◻ glyphs (e.g. "◻◻◻ The dark spirit…") can be marked that
+// many separate times. Split the boxes off into a mark count and return the prose without them.
+const LEADING_MARK_BOXES_RE = /^(◻+)\s*/;
+const parseConsequenceMarks = (
+  text: string,
+): { markCount: number; text: string } => {
+  const match = text.match(LEADING_MARK_BOXES_RE);
+  if (!match) return { markCount: 1, text };
+  return { markCount: match[1].length, text: text.slice(match[0].length) };
+};
+
+// The id for one box of a multi-mark consequence. Box 0 keeps the consequence's own id so existing
+// single-box marks (and any effects keyed on that id) stay valid; later boxes get a suffix.
+const consequenceMarkId = (baseId: string, index: number): string =>
+  index === 0 ? baseId : `${baseId}#${index}`;
+
 interface ConsequenceRowProps {
   id: string;
   text: string;
-  checked: boolean;
+  // Checked state for each mark box, in order; its length is the number of boxes to render.
+  checkedMarks: boolean[];
   onToggle: (id: string, checked: boolean) => void;
 }
 
-const ConsequenceRow = memo(
-  ({ id, text, checked, onToggle }: ConsequenceRowProps) => {
-    const handleChange = useCallback(
-      (e: React.ChangeEvent<HTMLInputElement>) =>
-        onToggle(id, e.target.checked),
-      [id, onToggle],
-    );
-    return (
-      <label className={styles.consequenceRow}>
-        <Checkbox checked={checked} onChange={handleChange} />
-        <Text as="span" font="serif">
-          {text}
-        </Text>
-      </label>
-    );
-  },
-);
+// Not memoized: each card renders only a handful of consequences and they change rarely, so the
+// per-render `checkedMarks` array (which would defeat memo anyway) costs nothing here.
+const ConsequenceRow = ({
+  id,
+  text,
+  checkedMarks,
+  onToggle,
+}: ConsequenceRowProps) => {
+  const { markCount, text: prose } = parseConsequenceMarks(text);
+  const proseId = useId();
+  // Not a <label>: each box is its own labelable control, so wrapping the shared prose in one label
+  // would bind every click to only the first box. Each box is named by the prose instead (via
+  // aria-labelledby, so the rendered text—not its markdown markers—is read), plus a hidden position
+  // when there is more than one box.
+  return (
+    <div className={styles.consequenceRow}>
+      <span className={styles.consequenceMarks}>
+        {Array.from({ length: markCount }, (_, i) => {
+          const markId = consequenceMarkId(id, i);
+          const posId = `${proseId}-pos-${i}`;
+          return (
+            <Checkbox
+              key={markId}
+              checked={!!checkedMarks[i]}
+              onChange={(e) => onToggle(markId, e.target.checked)}
+              aria-labelledby={markCount > 1 ? `${proseId} ${posId}` : proseId}
+            />
+          );
+        })}
+        {markCount > 1 &&
+          Array.from({ length: markCount }, (_, i) => (
+            <span
+              key={`${proseId}-pos-${i}`}
+              id={`${proseId}-pos-${i}`}
+              className={styles.srOnly}
+            >
+              mark {i + 1} of {markCount}
+            </span>
+          ))}
+      </span>
+      <Text as="span" id={proseId} font="serif">
+        {prose}
+      </Text>
+    </div>
+  );
+};
 
 interface ConsequenceTableBlockProps {
   consequenceId: string;
@@ -220,8 +274,14 @@ const MysteryMoveBlock = memo(
       [move.id, onBodyCheckChange],
     );
 
-    // Move-shaped entries render through the shared Move component: its select box maps to the
-    // mystery-move checked state, and its rightControl dots persist via the same tracker path.
+    // A move with `requires` is one of a budgeted set the player chooses between, so it keeps a select
+    // box. Every other mystery move is granted outright once the arcanum unlocks — it is already
+    // activated, so it shows no checkbox.
+    const isSelectable = "requires" in move && !!move.requires?.length;
+
+    // Move-shaped entries render through the shared Move component: a selectable move's select box maps
+    // to the mystery-move checked state; a granted move is `defaultChecked` (always-on, no box). Either
+    // way rightControl dots persist via the same tracker path.
     if (isMoveDefinition(move)) {
       const rightSpecs = rightControlOverride ?? move.rightControl;
       return (
@@ -229,12 +289,17 @@ const MysteryMoveBlock = memo(
           title={move.name}
           move={move}
           requirement={requirement}
-          selection={{
-            selected: checked,
-            onSelectChange: (next) => onToggle(move.id, next),
-            takesChecked: 0,
-            onTakesChange: () => {},
-          }}
+          defaultChecked={!isSelectable}
+          selection={
+            isSelectable
+              ? {
+                  selected: checked,
+                  onSelectChange: (next) => onToggle(move.id, next),
+                  takesChecked: 0,
+                  onTakesChange: () => {},
+                }
+              : undefined
+          }
           rightControl={rightControlOverride}
           rightControlState={rightSpecs?.map(() => ({
             checked: trackerValue ?? 0,
@@ -245,21 +310,29 @@ const MysteryMoveBlock = memo(
       );
     }
 
+    const titleBlock = (
+      <div className={styles.mysteryMoveTitle}>
+        <Text as="span" font="serif" weight="bold">
+          {move.name}
+        </Text>
+        {move.subtitle && (
+          <Text as="span" font="serif" italic color="muted">
+            {move.subtitle}
+          </Text>
+        )}
+      </div>
+    );
+
     return (
       <div>
-        <label className={styles.mysteryMoveHeader}>
-          <Checkbox checked={checked} onChange={handleToggle} />
-          <div className={styles.mysteryMoveTitle}>
-            <Text as="span" font="serif" weight="bold">
-              {move.name}
-            </Text>
-            {move.subtitle && (
-              <Text as="span" font="serif" italic color="muted">
-                {move.subtitle}
-              </Text>
-            )}
-          </div>
-        </label>
+        {isSelectable ? (
+          <label className={styles.mysteryMoveHeader}>
+            <Checkbox checked={checked} onChange={handleToggle} />
+            {titleBlock}
+          </label>
+        ) : (
+          <div className={styles.mysteryMoveHeader}>{titleBlock}</div>
+        )}
 
         {move.tracker && (
           <div className={styles.tracker}>
@@ -370,15 +443,24 @@ export const MajorArcanaCard = ({
 
   // Budget gate for sub-moves that require a parent move (e.g. Noruba's Ice Sphere): the book grants
   // one such move "for every 2 Consequences you mark", so the number of selectable sub-moves is
-  // floor(markedConsequences / 2). A sub-move is locked while its parent is unselected, or once the
-  // grant budget is spent on other sub-moves.
+  // floor(markedConsequences / 2), and a sub-move is locked while its parent is unselected or once the
+  // grant budget is spent. Each box of a multi-mark consequence is its own markable id, so a 3-box
+  // consequence contributes up to 3 toward that budget.
+  const markIdsFor = (id: string, text: string): string[] =>
+    Array.from({ length: parseConsequenceMarks(text).markCount }, (_, i) =>
+      consequenceMarkId(id, i),
+    );
   const consequenceIds = mystery.consequences.flatMap((c) => [
-    c.id,
-    ...(c.children?.map((child) => child.id) ?? []),
+    ...markIdsFor(c.id, c.text),
+    ...(c.children?.flatMap((child) => markIdsFor(child.id, child.text)) ?? []),
   ]);
   const markedConsequenceCount = consequenceIds.filter(
     (id) => entry.consequencesMarked[id],
   ).length;
+
+  // The checked state of each mark box of a consequence, in box order, for ConsequenceRow.
+  const getConsequenceCheckedMarks = (id: string, text: string): boolean[] =>
+    markIdsFor(id, text).map((markId) => !!entry.consequencesMarked[markId]);
   const consequenceGrants = Math.floor(markedConsequenceCount / 2);
   const selectedSubMoves = mystery.moves.filter(
     (m) => "requires" in m && m.requires?.length && entry.mysteryMovesChecked[m.id],
@@ -569,7 +651,7 @@ export const MajorArcanaCard = ({
                     <ConsequenceRow
                       id={c.id}
                       text={c.text}
-                      checked={!!entry.consequencesMarked[c.id]}
+                      checkedMarks={getConsequenceCheckedMarks(c.id, c.text)}
                       onToggle={onConsequenceToggle}
                     />
                     {c.table && (
@@ -588,7 +670,10 @@ export const MajorArcanaCard = ({
                             key={child.id}
                             id={child.id}
                             text={child.text}
-                            checked={!!entry.consequencesMarked[child.id]}
+                            checkedMarks={getConsequenceCheckedMarks(
+                              child.id,
+                              child.text,
+                            )}
                             onToggle={onConsequenceToggle}
                           />
                         ))}

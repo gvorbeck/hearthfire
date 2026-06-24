@@ -629,7 +629,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     frontMoves: [
       {
         name: "Spend a few hours staring into the stones and listening to their whispers",
-        text: "Name someone you know but on whom you have never used this power before. Then, roll +INT: **on a 10+**, the stones reveal a secret about them; **on a 7-9**, the stones reveal a secret, but you must first reveal a secret to the stones (about your hopes, fears, regrets, desires); **on a 6-**, the stones pry a secret from you.\n\nWhen you **reveal a secret to the stones**, or they pry one from your mind, mark 1.",
+        text: "Name someone you know but on whom you have never used this power before. Then, roll +INT: **on a 10+**, the stones reveal a secret about them; **on a 7-9**, the stones reveal a secret, but you must first reveal a secret to the stones (about your hopes, fears, regrets, desires); **on a 6-**, the stones pry a secret from you.\n\nWhen you **reveal a secret to the stones**, or they pry one from your mind, mark 1.\n\nWhen you **make the last mark**, you unlock the mysteries of the rocks, and are able to use Shadow Magic (see reverse).\n\nWhen **one of the rocks is shattered**, cross off one of the Shadow Magic options; it is no longer available.",
       },
     ],
     marks: { max: 5 },
@@ -638,7 +638,24 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         {
           id: "shadow-magic",
           name: "Shadow Magic",
-          text: "When you **hold a Whispering Rock and call out the shadows within**, choose one thing which you wish to do:\n\n- Cloak yourself in shadows and silence, moving unseen and unnoticed as long as you draw no attention to yourself and avoid the sun or sacred light\n- Name someone you know or to whom you have an arcane link (hair, clothing, or the like); you can see them, hear them, and whisper to them as if from a nearby shadow\n- Name someone you can see; the nearby shadows ensnare them, doing no harm but hampering their sight and movement\n\nThen, roll +CON: **on a 10+**, the effect lasts as long as you wish, but you have disadvantage on all rolls while you maintain it; **on a 7-9**, either mark a consequence and the effect lasts as on a 10+, or the effect flickers out after mere moments (your choice which); **on a 6-**, ask the GM what happens (which may or may not involve marking a consequence).\n\nWhen **one of the rocks is shattered**, cross off one of the Shadow Magic options; it is no longer available.",
+          body: [
+            {
+              kind: "para",
+              text: "When you **hold a Whispering Rock and call out the shadows within**, choose one thing which you wish to do:",
+            },
+            {
+              kind: "list",
+              items: [
+                "Cloak yourself in shadows and silence, moving unseen and unnoticed as long as you draw no attention to yourself and avoid the sun or sacred light",
+                "Name someone you know or to whom you have an arcane link (hair, clothing, or the like); you can see them, hear them, and whisper to them as if from a nearby shadow",
+                "Name someone you can see; the nearby shadows ensnare them, doing no harm but hampering their sight and movement",
+              ],
+            },
+            {
+              kind: "para",
+              text: "Then, roll +CON: **on a 10+**, the effect lasts as long as you wish, but you have disadvantage on all rolls while you maintain it; **on a 7-9**, either mark a consequence and the effect lasts as on a 10+, or the effect flickers out after mere moments (your choice which); **on a 6-**, ask the GM what happens (which may or may not involve marking a consequence).",
+            },
+          ],
         },
       ],
       consequences: [
