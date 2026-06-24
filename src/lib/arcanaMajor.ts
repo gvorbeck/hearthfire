@@ -916,20 +916,11 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
               "Something shifts in your mind; take a -1 penalty to Cast a Codex Spell until you get Hec'tumel to show you what you're doing wrong (the penalty is cumulative)",
             ],
           },
-          { kind: "divider" },
-          {
-            kind: "para",
-            text: "**Call the Pale Lizard.** Cast this spell at night. Hec'tumel (*Slithering One! Death Is Its Eyes!*) manifests in the shadows until sunrise or until dismissed. It has no power unless given a host and no knowledge of the present except that which you give it. It knows much of the ancient past and the arcane arts, and can teach you if you make it worth its while. It cannot lie, but need not answer fully.",
-          },
-          {
-            kind: "para",
-            text: "When **Hec'tumel spends the night teaching you a spell from the Codex**, mark 1.",
-          },
-          {
-            kind: "para",
-            text: "Each time you **make a mark**, choose one of the Codex Spells (see reverse)—you can now cast it. When you **make the last mark**, you have unlocked the mysteries of the Codex and gain the Darksome Vessel move (see reverse).",
-          },
         ],
+      },
+      {
+        name: "Call the Pale Lizard",
+        text: "Cast this spell at night. Hec'tumel (*Slithering One! Death Is Its Eyes!*) manifests in the shadows until sunrise or until dismissed. It has no power unless given a host and no knowledge of the present except that which you give it. It knows much of the ancient past and the arcane arts, and can teach you if you make it worth its while. It cannot lie, but need not answer fully.\n\nWhen **Hec'tumel spends the night teaching you a spell from the Codex**, mark 1.\n\nEach time you **make a mark**, choose one of the Codex Spells (see reverse)—you can now cast it. When you **make the last mark**, you have unlocked the mysteries of the Codex and gain the Darksome Vessel move (see reverse).",
       },
     ],
     marks: { max: 4, unlockAt: 1 },
