@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo, memo, type MutableRefObject } from 'react';
 import { Button, Text } from '@/components/ui';
 import { MAJOR_ARCANA } from '@/lib/arcanaMajor';
+import { applyInstinctOverride, isInstinctConsequence } from '@/lib/arcanaInstinct';
 import type { MajorArcanum, ArcanaMajorEntry, Creature } from '@/types';
 import { MajorArcanaCard } from './MajorArcanaCard';
 import { AddArcanaModal } from './AddArcanaModal';
@@ -51,9 +52,13 @@ interface MajorArcanaPanelProps {
   arcanaMajor: ArcanaMajorEntry[];
   arcanaMajorRef: MutableRefObject<ArcanaMajorEntry[]>;
   saveMajor: (next: ArcanaMajorEntry[]) => void;
+  // The character's current Instinct plus its latest ref and setter, so an instinct-altering
+  // consequence (e.g. the Sword's "Paranoia") can overwrite it on mark and restore it on unmark.
+  instinctRef: MutableRefObject<string>;
+  saveInstinct: (next: string) => void;
 }
 
-export const MajorArcanaPanel = ({ arcanaMajor, arcanaMajorRef, saveMajor }: MajorArcanaPanelProps) => {
+export const MajorArcanaPanel = ({ arcanaMajor, arcanaMajorRef, saveMajor, instinctRef, saveInstinct }: MajorArcanaPanelProps) => {
   const [majorModalOpen, setMajorModalOpen] = useState(false);
 
   const existingMajorIds = useMemo(() => arcanaMajor.map((a) => a.id), [arcanaMajor]);
@@ -99,17 +104,35 @@ export const MajorArcanaPanel = ({ arcanaMajor, arcanaMajorRef, saveMajor }: Maj
 
   const handleConsequenceToggle = useCallback(
     (id: string, consequenceId: string, checked: boolean) => {
+      const arcanum = MAJOR_ARCANA.find((m) => m.id === id);
+      // A consequence that rewrites the character's Instinct (e.g. the Sword's "Paranoia"): compute
+      // the new Instinct and the entry's stash bookkeeping up front, then persist the Instinct once —
+      // not inside the map below, which React may run twice under StrictMode.
+      const instinctChange =
+        arcanum && isInstinctConsequence(arcanum, consequenceId)
+          ? applyInstinctOverride(
+              arcanum,
+              arcanaMajorRef.current.find((a) => a.id === id) ??
+                ({ id } as ArcanaMajorEntry),
+              consequenceId,
+              checked,
+              instinctRef.current,
+            )
+          : undefined;
       saveMajor(arcanaMajorRef.current.map((a) => {
         if (a.id !== id) return a;
         const consequencesMarked = { ...a.consequencesMarked, [consequenceId]: checked };
+        if (instinctChange) {
+          return { ...instinctChange.entry, consequencesMarked };
+        }
         if (!consequenceId.startsWith('task-')) return { ...a, consequencesMarked };
-        const arcanum = MAJOR_ARCANA.find((m) => m.id === id);
         const taskCount = arcanum?.marks.tasks?.length ?? 0;
         const marksValue = Array.from({ length: taskCount }, (_, i) => !!consequencesMarked[`task-${i}`]).filter(Boolean).length;
         return { ...a, consequencesMarked, marksValue };
       }));
+      if (instinctChange?.instinct !== undefined) saveInstinct(instinctChange.instinct);
     },
-    [saveMajor],
+    [saveMajor, instinctRef, saveInstinct],
   );
 
   const handleConsequenceTableChoice = useCallback(

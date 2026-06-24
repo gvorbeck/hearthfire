@@ -21,6 +21,13 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
     (next) => onSave({ arcanaMajor: next }),
     'Failed to save.',
   );
+  // An instinct-altering consequence (e.g. the Sword's "Paranoia") rewrites this field, so the major
+  // panel needs the latest value (ref) and a way to persist it.
+  const { ref: instinctRef, save: saveInstinct } = useOptimisticField(
+    data?.instinct ?? '',
+    (next) => onSave({ instinct: next }),
+    'Failed to save.',
+  );
 
   return (
     <div className={styles.root}>
@@ -44,6 +51,8 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
           arcanaMajor={arcanaMajor}
           arcanaMajorRef={arcanaMajorRef}
           saveMajor={saveMajor}
+          instinctRef={instinctRef}
+          saveInstinct={saveInstinct}
         />
       )}
     </div>

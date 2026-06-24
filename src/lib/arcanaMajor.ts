@@ -770,6 +770,8 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
             {
               id: "sword-c2a",
               text: 'Your instinct becomes "Paranoia: to accuse someone of plotting against or wanting to steal the Blood-quenched Sword, and do something about it."',
+              setsInstinct:
+                "Paranoia: to accuse someone of plotting against or wanting to steal the Blood-quenched Sword, and do something about it.",
             },
           ],
         },
@@ -779,7 +781,8 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         },
         {
           id: "sword-c4",
-          text: "You no longer gain sustenance from food. When you **slay a living, bleeding creature with the Sword**, hold 1 Sustenance (max 3). When you would consume a ration, lose 1 Sustenance instead. ◻◻◻",
+          text: "You no longer gain sustenance from food. When you **slay a living, bleeding creature with the Sword**, hold 1 Sustenance (max 3). When you would consume a ration, lose 1 Sustenance instead.",
+          tracker: { label: "Sustenance", max: 3 },
         },
         {
           id: "sword-c5",
@@ -798,16 +801,19 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     frontMoves: [
       {
         name: "Bear the Shield openly",
-        text: "Natural creatures give you wide berth and treat you with the respect that they would give a 1,000-lb. bison.",
+        text: "When you **bear the Shield openly**, natural creatures give you wide berth and treat you with the respect that they would give a 1,000-lb. bison.",
       },
       {
         name: "Use the Shield to Defend with both feet planted firmly on the ground",
-        text: "So long as you hold Readiness you cannot be moved or tripped. When you **spend Readiness to strike back at an attacker**, you also break their momentum, knock them back, and/or send them reeling.",
+        text: "When you **use the Shield to Defend with both feet planted firmly on the ground**, so long as you hold Readiness you cannot be moved or tripped. When you **spend Readiness to strike back at an attacker**, you also break their momentum, knock them back, and/or send them reeling.",
       },
       {
         name: "Perform the sacred rites of the forest witches",
-        subtitle: "alone in the woods under a clear crescent moon",
-        text: "Mark 1.",
+        text: "When you **perform the sacred rites of the forest witches**, alone in the woods under a clear crescent moon, mark 1:",
+      },
+      {
+        name: "Make the last mark",
+        text: "When you **make the last mark**, you unlock the shield's mysteries, and can use Spirits of the Herd (see reverse).",
       },
     ],
     marks: { max: 5 },
@@ -816,10 +822,34 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         {
           id: "spirits-of-the-herd",
           name: "Spirits of the Herd",
-          subtitle:
-            "proudly bear the Shield of the Wisent Witch and call upon the spirits of the herd",
-          tracker: { label: "Might", max: 3 },
-          text: "Choose 1 of the following effects:\n\n- So long as you bear the Shield and until one of you speaks in the tongues of men, you and any allies that you mark with mud from the forest floor take on the visage of a herd of wisents. While this spell lasts, you and your allies cover ground at great speed and can graze rather than consuming supplies/provisions.\n- As you charge your foes, conjure a herd of stampeding wisent to join you. Treat the herd as a weapon (+2d4 damage, *forceful, messy, area, dangerous, terrifying*) as you Clash. The herd vanishes once the charge's momentum is spent.\n- Hold 3 Might. You can spend Might 1-for-1 to: Plow past, over, or through an opponent or obstacle; Tear free from any physical restraint; Shrug off a physical blow, unfazed and unharmed.\n\nAfter choosing an effect, roll +CON: **on a 10+**, the effect occurs as described; **on a 7-9**, the effect occurs, but only if you mark 1 Consequence; **on a 6-**, mark 1 Consequence, and the effect occurs—but the GM will tell you what goes wrong.",
+          rightControl: [{ type: "dot", number: 3, label: "Might" }],
+          body: [
+            {
+              kind: "para",
+              text: "When you **proudly bear the Shield of the Wisent Witch and call upon the spirits of the herd**, choose 1 of the following effects:",
+            },
+            {
+              kind: "list",
+              items: [
+                "So long as you bear the Shield and until one of you speaks in the tongues of men, you and any allies that you mark with mud from the forest floor take on the visage of a herd of wisents. While this spell lasts, you and your allies cover ground at great speed and can graze rather than consuming supplies/provisions.",
+                "As you charge your foes, conjure a herd of stampeding wisent to join you. Treat the herd as a weapon (+2d4 damage, *forceful, messy, area, dangerous, terrifying*) as you Clash. The herd vanishes once the charge's momentum is spent.",
+                "Hold 3 Might. You can spend Might 1-for-1 to:",
+              ],
+            },
+            {
+              kind: "list",
+              indent: true,
+              items: [
+                "Plow past, over, or through an opponent or obstacle",
+                "Tear free from any physical restraint",
+                "Shrug off a physical blow, unfazed and unharmed",
+              ],
+            },
+            {
+              kind: "para",
+              text: "After choosing an effect, roll +CON: **on a 10+**, the effect occurs as described; **on a 7-9**, the effect occurs, but only if you mark 1 Consequence; **on a 6-**, mark 1 Consequence, and the effect occurs—but the GM will tell you what goes wrong.",
+            },
+          ],
         },
       ],
       consequences: [
@@ -868,13 +898,29 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     frontMoves: [
       {
         name: "First run your fingers over the inscriptions",
-        text: "Your dreams that night are filled with images of a pale, reptilian creature with skulls for eyes, slithering through darksome caverns. You awake with an alien incantation on your tongue, its words emblazoned in your mind. You can Cast a Codex Spell, and know Call the Pale Lizard.",
+        text: "When you **first run your fingers over the inscriptions**, your dreams that night are filled with images of a pale, reptilian creature with skulls for eyes, slithering through darksome caverns. You awake with an alien incantation on your tongue, its words emblazoned in your mind. You can Cast a Codex Spell, and know Call the Pale Lizard.",
       },
       {
+        id: "cast-a-codex-spell",
         name: "Cast a Codex Spell",
-        subtitle: "Casting penalty ◻◻◻◻◻",
-        text: "When you **cast a spell learned from the Hec'tumel Codex**, roll +INT: **on a 10+**, the spell works as described; **on a 7-9**, the spell works, but choose 1 from the list below; **on a 6-**, mark a consequence (see reverse) in addition to whatever the GM says.\n\n- You draw unwelcome attention or put yourself in a spot (ask the GM how)\n- Something shifts in your mind; take a -1 penalty to Cast a Codex Spell until you get Hec'tumel to show you what you're doing wrong (the penalty is cumulative)\n\n**Call the Pale Lizard.** Cast this spell at night. Hec'tumel (*Slithering One! Death Is Its Eyes!*) manifests in the shadows until sunrise or until dismissed. It has no power unless given a host and no knowledge of the present except that which you give it. It knows much of the ancient past and the arcane arts, and can teach you if you make it worth its while. It cannot lie, but need not answer fully.\n\nWhen **Hec'tumel spends the night teaching you a spell from the Codex**, mark 1.\n\nEach time you **make a mark**, choose one of the Codex Spells (see reverse)—you can now cast it. When you **make the last mark**, you have unlocked the mysteries of the Codex and gain the Darksome Vessel move (see reverse).",
-        tracker: { label: "Casting Penalty", max: 5 },
+        rightControl: [{ type: "dot", number: 5, label: "Casting penalty" }],
+        body: [
+          {
+            kind: "para",
+            text: "When you **cast a spell learned from the Hec'tumel Codex**, roll +INT: **on a 10+**, the spell works as described; **on a 7-9**, the spell works, but choose 1 from the list below; **on a 6-**, mark a consequence (see reverse) in addition to whatever the GM says.",
+          },
+          {
+            kind: "list",
+            items: [
+              "You draw unwelcome attention or put yourself in a spot (ask the GM how)",
+              "Something shifts in your mind; take a -1 penalty to Cast a Codex Spell until you get Hec'tumel to show you what you're doing wrong (the penalty is cumulative)",
+            ],
+          },
+        ],
+      },
+      {
+        name: "Call the Pale Lizard",
+        text: "Cast this spell at night. Hec'tumel (*Slithering One! Death Is Its Eyes!*) manifests in the shadows until sunrise or until dismissed. It has no power unless given a host and no knowledge of the present except that which you give it. It knows much of the ancient past and the arcane arts, and can teach you if you make it worth its while. It cannot lie, but need not answer fully.\n\nWhen **Hec'tumel spends the night teaching you a spell from the Codex**, mark 1.\n\nEach time you **make a mark**, choose one of the Codex Spells (see reverse)—you can now cast it. When you **make the last mark**, you have unlocked the mysteries of the Codex and gain the Darksome Vessel move (see reverse).",
       },
     ],
     marks: { max: 4, unlockAt: 1 },

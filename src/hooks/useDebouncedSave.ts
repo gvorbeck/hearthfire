@@ -17,6 +17,10 @@ export const useDebouncedSave = <T>(
   delay = 1500,
   // Overrides the default error toast for callers that surface failures themselves.
   onError?: (error: unknown) => void,
+  // Fires with the value once it is known persisted (a successful write, or a
+  // dedup against an already-saved value). Lets callers release per-field
+  // ownership so stale local state can't ride along on a later multi-field save.
+  onSuccess?: (value: T) => void,
 ): UseDebouncedSaveReturn<T> => {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSavedRef = useRef<string | null>(null);
@@ -33,6 +37,8 @@ export const useDebouncedSave = <T>(
   onSaveRef.current = onSave;
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
+  const onSuccessRef = useRef(onSuccess);
+  onSuccessRef.current = onSuccess;
 
   const addToast = useToastOptional()?.addToast;
 
@@ -57,12 +63,15 @@ export const useDebouncedSave = <T>(
     activeSavesRef.current += 1;
     const run = chainRef.current.then(async () => {
       const key = JSON.stringify(value);
-      if (key === lastSavedRef.current) return;
+      // Already persisted — skip the write, but still report success so callers
+      // can release ownership of fields a redundant flush re-submitted.
+      if (key === lastSavedRef.current) { onSuccessRef.current?.(value); return; }
       try {
         await onSaveRef.current(value);
         // Only mark saved on success — after a failure, the next flush/change
         // must not be deduped away, or the edit is lost for good.
         lastSavedRef.current = key;
+        onSuccessRef.current?.(value);
         if (failedKeyRef.current !== null) {
           failedKeyRef.current = null;
           if (!onErrorRef.current) addToast?.('Changes saved.', 'success');
