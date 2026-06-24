@@ -134,6 +134,11 @@ interface ConsequenceRowProps {
   // Checked state for each mark box, in order; its length is the number of boxes to render.
   checkedMarks: boolean[];
   onToggle: (id: string, checked: boolean) => void;
+  // A "hold up to max" dot tracker shown after the prose (e.g. Sustenance), interactive only while the
+  // consequence's first box is marked.
+  tracker?: { label: string; max: number };
+  trackerValue?: number;
+  onTrackerChange?: (id: string, value: number) => void;
 }
 
 // Not memoized: each card renders only a handful of consequences and they change rarely, so the
@@ -143,9 +148,16 @@ const ConsequenceRow = ({
   text,
   checkedMarks,
   onToggle,
+  tracker,
+  trackerValue,
+  onTrackerChange,
 }: ConsequenceRowProps) => {
   const { markCount, text: prose } = parseConsequenceMarks(text);
   const proseId = useId();
+  const handleTracker = useCallback(
+    (v: number) => onTrackerChange?.(id, v),
+    [id, onTrackerChange],
+  );
   // Not a <label>: each box is its own labelable control, so wrapping the shared prose in one label
   // would bind every click to only the first box. Each box is named by the prose instead (via
   // aria-labelledby, so the rendered text—not its markdown markers—is read), plus a hidden position
@@ -179,6 +191,15 @@ const ConsequenceRow = ({
       <Text as="span" id={proseId} font="serif">
         {prose}
       </Text>
+      {tracker && (
+        <UseDots
+          total={tracker.max}
+          checked={trackerValue ?? 0}
+          onChange={handleTracker}
+          disabled={!checkedMarks[0]}
+          label={tracker.label}
+        />
+      )}
     </div>
   );
 };
@@ -642,6 +663,9 @@ export const MajorArcanaCard = ({
                       text={c.text}
                       checkedMarks={getConsequenceCheckedMarks(c.id, c.text)}
                       onToggle={onConsequenceToggle}
+                      tracker={c.tracker}
+                      trackerValue={entry.trackerValues?.[c.id]}
+                      onTrackerChange={onTrackerChange}
                     />
                     {c.table && (
                       <ConsequenceTableBlock

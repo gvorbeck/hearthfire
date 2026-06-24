@@ -770,6 +770,8 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
             {
               id: "sword-c2a",
               text: 'Your instinct becomes "Paranoia: to accuse someone of plotting against or wanting to steal the Blood-quenched Sword, and do something about it."',
+              setsInstinct:
+                "Paranoia: to accuse someone of plotting against or wanting to steal the Blood-quenched Sword, and do something about it.",
             },
           ],
         },
@@ -779,7 +781,8 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         },
         {
           id: "sword-c4",
-          text: "You no longer gain sustenance from food. When you **slay a living, bleeding creature with the Sword**, hold 1 Sustenance (max 3). When you would consume a ration, lose 1 Sustenance instead. ◻◻◻",
+          text: "You no longer gain sustenance from food. When you **slay a living, bleeding creature with the Sword**, hold 1 Sustenance (max 3). When you would consume a ration, lose 1 Sustenance instead.",
+          tracker: { label: "Sustenance", max: 3 },
         },
         {
           id: "sword-c5",
@@ -798,16 +801,19 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     frontMoves: [
       {
         name: "Bear the Shield openly",
-        text: "Natural creatures give you wide berth and treat you with the respect that they would give a 1,000-lb. bison.",
+        text: "When you **bear the Shield openly**, natural creatures give you wide berth and treat you with the respect that they would give a 1,000-lb. bison.",
       },
       {
         name: "Use the Shield to Defend with both feet planted firmly on the ground",
-        text: "So long as you hold Readiness you cannot be moved or tripped. When you **spend Readiness to strike back at an attacker**, you also break their momentum, knock them back, and/or send them reeling.",
+        text: "When you **use the Shield to Defend with both feet planted firmly on the ground**, so long as you hold Readiness you cannot be moved or tripped. When you **spend Readiness to strike back at an attacker**, you also break their momentum, knock them back, and/or send them reeling.",
       },
       {
         name: "Perform the sacred rites of the forest witches",
-        subtitle: "alone in the woods under a clear crescent moon",
-        text: "Mark 1.",
+        text: "When you **perform the sacred rites of the forest witches**, alone in the woods under a clear crescent moon, mark 1:",
+      },
+      {
+        name: "Make the last mark",
+        text: "When you **make the last mark**, you unlock the shield's mysteries, and can use Spirits of the Herd (see reverse).",
       },
     ],
     marks: { max: 5 },
@@ -816,10 +822,34 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         {
           id: "spirits-of-the-herd",
           name: "Spirits of the Herd",
-          subtitle:
-            "proudly bear the Shield of the Wisent Witch and call upon the spirits of the herd",
-          tracker: { label: "Might", max: 3 },
-          text: "Choose 1 of the following effects:\n\n- So long as you bear the Shield and until one of you speaks in the tongues of men, you and any allies that you mark with mud from the forest floor take on the visage of a herd of wisents. While this spell lasts, you and your allies cover ground at great speed and can graze rather than consuming supplies/provisions.\n- As you charge your foes, conjure a herd of stampeding wisent to join you. Treat the herd as a weapon (+2d4 damage, *forceful, messy, area, dangerous, terrifying*) as you Clash. The herd vanishes once the charge's momentum is spent.\n- Hold 3 Might. You can spend Might 1-for-1 to: Plow past, over, or through an opponent or obstacle; Tear free from any physical restraint; Shrug off a physical blow, unfazed and unharmed.\n\nAfter choosing an effect, roll +CON: **on a 10+**, the effect occurs as described; **on a 7-9**, the effect occurs, but only if you mark 1 Consequence; **on a 6-**, mark 1 Consequence, and the effect occurs—but the GM will tell you what goes wrong.",
+          rightControl: [{ type: "dot", number: 3, label: "Might" }],
+          body: [
+            {
+              kind: "para",
+              text: "When you **proudly bear the Shield of the Wisent Witch and call upon the spirits of the herd**, choose 1 of the following effects:",
+            },
+            {
+              kind: "list",
+              items: [
+                "So long as you bear the Shield and until one of you speaks in the tongues of men, you and any allies that you mark with mud from the forest floor take on the visage of a herd of wisents. While this spell lasts, you and your allies cover ground at great speed and can graze rather than consuming supplies/provisions.",
+                "As you charge your foes, conjure a herd of stampeding wisent to join you. Treat the herd as a weapon (+2d4 damage, *forceful, messy, area, dangerous, terrifying*) as you Clash. The herd vanishes once the charge's momentum is spent.",
+                "Hold 3 Might. You can spend Might 1-for-1 to:",
+              ],
+            },
+            {
+              kind: "list",
+              indent: true,
+              items: [
+                "Plow past, over, or through an opponent or obstacle",
+                "Tear free from any physical restraint",
+                "Shrug off a physical blow, unfazed and unharmed",
+              ],
+            },
+            {
+              kind: "para",
+              text: "After choosing an effect, roll +CON: **on a 10+**, the effect occurs as described; **on a 7-9**, the effect occurs, but only if you mark 1 Consequence; **on a 6-**, mark 1 Consequence, and the effect occurs—but the GM will tell you what goes wrong.",
+            },
+          ],
         },
       ],
       consequences: [

@@ -179,12 +179,18 @@ export interface MajorArcanaMysteryConsequence {
   text: string;
   // Effects applied to the arcanum's creature while this consequence is marked.
   effects?: CreatureEffect[];
+  // A "hold up to max" dot tracker shown after the prose (e.g. the Blood-quenched Sword's Sustenance),
+  // interactive only while the consequence is marked. Its value persists under entry.trackerValues[id].
+  tracker?: { label: string; max: number };
   // A roll table whose row, once picked, drives an effect (e.g. the Mindgem's 1d4 new-cost table).
   table?: ConsequenceTable;
   children?: {
     id: string;
     text: string;
     effects?: CreatureEffect[];
+    // When marked, overwrites the character's main Instinct with this text (and restores the prior
+    // value on unmark) — e.g. the Blood-quenched Sword's "Paranoia" instinct.
+    setsInstinct?: string;
   }[];
 }
 
@@ -427,6 +433,10 @@ export interface ArcanaMajorEntry {
   // Player's working copy of an arcanum's granted creature (e.g. the Mindgem's Mighty Servant),
   // seeded from mystery.mysteryCreature and editable via CreatureCard.
   mysteryCreature?: Creature;
+  // The character's Instinct captured just before an instinct-altering consequence (e.g. the
+  // Blood-quenched Sword's "Paranoia") overwrote it, so unmarking can restore it. Keyed by the child
+  // consequence's id.
+  instinctBeforeConsequence?: Record<string, string>;
   carried?: boolean;
 }
 
