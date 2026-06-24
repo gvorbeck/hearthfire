@@ -37,6 +37,9 @@ export interface MoveDefinition {
   startingMove?: boolean;
   requires?: string[];
   requiresLevel?: number;
+  // Major Arcana only: a granted mystery move that stays locked until this many Consequences are
+  // marked (e.g. A Flickering Flame unlocks at 3). Gated by MajorArcanaCard, not the character engine.
+  requiresConsequences?: number;
   excludes?: string[];
 }
 
@@ -94,6 +97,40 @@ export interface ArcanaFollower {
   cost?: string;
 }
 
+// A presented stat line on a creature card — a bold label (e.g. "Damage") and its value.
+export interface CreatureQuality {
+  label: string;
+  value: string;
+}
+
+// An NPC creature/follower stat block, modeled on the Stonetop creature card (name, tags, HP/Armor
+// boxes, presented qualities, loyalty, a single instinct, bulleted moves, and a trailing rule).
+// Rendered by the presentational ui/CreatureCard; the host owns persistence. Everything but HP, armor,
+// and loyalty is presented book data, not user input.
+export interface Creature {
+  id: string;
+  name?: string;
+  tags?: string;
+  hp?: string;
+  hpMax?: string;
+  armor?: string;
+  armorNote?: string;
+  qualities?: CreatureQuality[];
+  loyalty?: number;
+  moves?: string[];
+  notes?: string;
+}
+
+// A declarative mutation a consequence applies to its creature when marked. Book-data fields
+// (tags, moves, qualities) are always a pure projection of the seed plus the effects of every
+// currently-marked consequence, so toggling a box is fully reversible without an undo trail.
+export type CreatureEffect =
+  | { op: "addTag"; tag: string }
+  | { op: "removeTag"; tag: string }
+  | { op: "replaceTag"; from: string; to: string }
+  | { op: "addMove"; move: string }
+  | { op: "replaceQuality"; label: string; value: string };
+
 export interface ArcanaMove {
   name: string;
   subtitle?: string;
@@ -123,10 +160,32 @@ export interface MajorArcanaMysteryMove {
   follower?: ArcanaFollower;
 }
 
+// A selectable row in a consequence's roll table (e.g. the Mindgem's 1d4 purpose table). Picking a
+// row applies its `effect` to the creature; the chosen row id persists on the entry.
+export interface ConsequenceTableRow {
+  id: string;
+  roll: string;
+  cells: string[];
+  effect: CreatureEffect;
+}
+
+export interface ConsequenceTable {
+  columnHeaders: string[];
+  rows: ConsequenceTableRow[];
+}
+
 export interface MajorArcanaMysteryConsequence {
   id: string;
   text: string;
-  children?: { id: string; text: string }[];
+  // Effects applied to the arcanum's creature while this consequence is marked.
+  effects?: CreatureEffect[];
+  // A roll table whose row, once picked, drives an effect (e.g. the Mindgem's 1d4 new-cost table).
+  table?: ConsequenceTable;
+  children?: {
+    id: string;
+    text: string;
+    effects?: CreatureEffect[];
+  }[];
 }
 
 export interface MajorArcanaMystery {
@@ -136,6 +195,9 @@ export interface MajorArcanaMystery {
   // When `sourceId` is selected, `targetId`'s dot control gains +1 (e.g. A Mighty Will grants
   // Mindwalking +1 Power). Read generically by MajorArcanaCard so no arcanum is special-cased.
   dotBonuses?: { targetId: string; sourceId: string }[];
+  // Some arcana (e.g. the Mindgem) grant an editable creature instead of mystery moves. This is the
+  // book seed rendered through CreatureCard; the player's working copy lives on the entry.
+  mysteryCreature?: Creature;
 }
 
 export interface MajorArcanum {
@@ -355,10 +417,16 @@ export interface ArcanaMajorEntry {
   marksValue: number;
   mysteryMovesChecked: Record<string, boolean>;
   consequencesMarked: Record<string, boolean>;
+  // Picked row id for a consequence's roll table: consequenceId -> rowId (e.g. the Mindgem's chosen
+  // 1d4 purpose). Drives the row's effect on the creature.
+  consequenceTableChoice?: Record<string, string>;
   trackerValues?: Record<string, number>;
   followerHp?: Record<string, number[]>;
   // Per-move checkbox-block state: moveId -> itemId -> checked.
   bodyChecks?: Record<string, Record<string, boolean>>;
+  // Player's working copy of an arcanum's granted creature (e.g. the Mindgem's Mighty Servant),
+  // seeded from mystery.mysteryCreature and editable via CreatureCard.
+  mysteryCreature?: Creature;
   carried?: boolean;
 }
 

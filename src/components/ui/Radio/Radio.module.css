@@ -55,3 +55,12 @@
 .label:hover .indicator {
   border-color: var(--color-gold-400);
 }
+
+.label:has(.input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.label:has(.input:disabled):hover .indicator {
+  border-color: var(--border-strong);
+}

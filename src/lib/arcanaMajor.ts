@@ -455,28 +455,42 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     frontMoves: [
       {
         name: "Consult the Mindgem about the Makers, their arts, or their history",
-        text: 'Ask a question and roll +INT: **on a 7+**, it answers but **on a 10+**, pick 1; **on a 7-9**, pick 2:\n\n- The answer is cryptic, vague, or lacking crucial context\n- It takes a long time—hours or even days—to get the answer\n- Your mind is left reeling; take disadvantage on your next roll\n\n**On a 6-**, choose 1:\n\n- It wastes your time with irrelevant histories and data\n- It answers now, but refuses to answer further questions until you make progress towards restoring its body (or, if its body is assembled, until you pay its Cost).\n\nThe Mindgem knows that a body was crafted for it, and that it has likely survived—at least in part. It longs for the body to be whole, and to interact with the world. To assemble the Mindgem\'s body and unlock its mysteries:\n\n- Recover its chassis of white granite, which weighs well over a ton\n- Recover its ◊ "heart," a chunk of makerglass that forever burns with terrible heat (*indestructible, dangerous*)\n- Recover and repair the intricate ◊◊ bronze helm (*awkward, big*) that serves as a casing for the Mindgem\n- Puzzle out how to assemble all the pieces',
+        text: "Ask a question and roll +INT: **on a 7+**, it answers but **on a 10+**, pick 1; **on a 7-9**, pick 2:\n\n- The answer is cryptic, vague, or lacking crucial context\n- It takes a long time—hours or even days—to get the answer\n- Your mind is left reeling; take disadvantage on your next roll\n\n**On a 6-**, choose 1:\n\n- It wastes your time with irrelevant histories and data\n- It answers now, but refuses to answer further questions until you make progress towards restoring its body (or, if its body is assembled, until you pay its Cost).\n\nThe Mindgem knows that a body was crafted for it, and that it has likely survived—at least in part. It longs for the body to be whole, and to interact with the world. To assemble the Mindgem's body and unlock its mysteries, complete the tasks below.",
       },
     ],
-    marks: { max: 4 },
-    mystery: {
-      moves: [
-        {
-          id: "the-mighty-servant",
-          name: "The Mighty Servant",
-          text: "When **the Mighty Servant makes a move at your behest** (see Order Followers), on a 6-, in addition to whatever the GM says, mark a consequence.",
-          follower: {
-            name: "The Mighty Servant",
-            tags: "large, construct, Maker-wise, beautiful, meek, hardy, slow, strong, exceptional",
-            hp: 24,
-            armor: 4,
-            damage: "stone fists d10+1 (hand, close, disadvantage)",
-            instinct: "to misunderstand",
-            qualities: ["living stone, tireless"],
-            cost: "wonder, excitement, joy, discovery (Loyalty ◻◻◻)",
-          },
-        },
+    marks: {
+      max: 4,
+      unlockAt: 4,
+      tasks: [
+        "Recover its chassis of white granite, which weighs well over a ton",
+        'Recover its ◊ "heart," a chunk of makerglass that forever burns with terrible heat (*indestructible, dangerous*)',
+        "Recover and repair the intricate ◊◊ bronze helm (*awkward, big*) that serves as a casing for the Mindgem",
+        "Puzzle out how to assemble all the pieces",
       ],
+    },
+    mystery: {
+      moves: [],
+      mysteryCreature: {
+        id: "the-mighty-servant",
+        name: "The Mighty Servant",
+        tags: "large, construct, Maker-wise, beautiful, meek, hardy, slow, strong, exceptional",
+        hpMax: "24",
+        armor: "4",
+        armorNote: "Made of stone",
+        qualities: [
+          {
+            label: "Damage",
+            value: "stone fists d10+1 (*hand, close, disadvantage*)",
+          },
+          { label: "Special qualities", value: "living stone, tireless" },
+          { label: "Cost", value: "wonder, excitement, joy, discovery" },
+          { label: "Instinct", value: "To misunderstand" },
+        ],
+        loyalty: 3,
+        moves: ["Perform a mighty feat of strength", "Carry on implacably"],
+        notes:
+          "When **the Mighty Servant makes a move at your behest** (see Order Followers), on a 6-, in addition to whatever the GM says, mark a consequence.",
+      },
       consequences: [
         {
           id: "mindgem-c1",
@@ -485,32 +499,123 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         {
           id: "mindgem-c2",
           text: "It begins to understand (or perhaps it remembers) lies and deception. It gains the *devious* tag and this move: ➤ Reveal an earlier deception or half-truth.",
+          effects: [
+            { op: "addTag", tag: "devious" },
+            {
+              op: "addMove",
+              move: "Reveal an earlier deception or half-truth",
+            },
+          ],
         },
         {
           id: "mindgem-c3",
           text: "It develops a sense of pride; cross off the *meek* tag.",
+          effects: [{ op: "removeTag", tag: "meek" }],
         },
         {
           id: "mindgem-c4",
-          text: "It realizes its potential as a weapon. Replace the *slow* tag with the *warrior* tag, and its damage becomes 1d10+5 (*hand, close, messy, forceful*, 3 piercing).",
+          text: "It realizes its potential as a weapon. Replace the *slow* tag with the *warrior* tag, and its damage becomes d10+5 (*hand, close, messy, forceful*, 3 piercing).",
+          effects: [
+            { op: "replaceTag", from: "slow", to: "warrior" },
+            {
+              op: "replaceQuality",
+              label: "Damage",
+              value:
+                "stone fists d10+5 (*hand, close, messy, forceful*, 3 piercing)",
+            },
+          ],
           children: [
             {
               id: "mindgem-c4a",
               text: "It becomes aggressive and reckless in battle. Its attacks gain the *area* and *dangerous* tags.",
+              effects: [
+                { op: "addTag", tag: "area" },
+                { op: "addTag", tag: "dangerous" },
+              ],
             },
           ],
         },
         {
           id: "mindgem-c5",
-          text: 'It remembers its original purpose. The GM will pick 1 or have you roll 1d4 on the table below to determine the Servant\'s new cost (replacing "wonder, excitement, joy"): 1 To punish — Victory against Hillfolk, sorcerers, the Things Below; 2 To preserve — Acquiring artifacts of the past, safely hiding them away; 3 To purge — Destroying artifacts of the Green Lords or Things Below; 4 To build — Progress towards building an enormous, enigmatic edifice.',
-        },
-        {
-          id: "mindgem-c6",
-          text: 'Its instinct becomes "to pursue its purpose." You must Persuade it to do anything unrelated to that purpose, and it will flat-out refuse to act against its purpose.',
-        },
-        {
-          id: "mindgem-c7",
-          text: "It wanders off in pursuit of its purpose, implacably pursuing it. It is no longer a follower, though you might still be able to Persuade it.",
+          text: 'It remembers its original purpose. The GM will pick 1 or have you roll 1d4 on the table below to determine the Servant\'s new cost (replacing "wonder, excitement, joy").',
+          table: {
+            columnHeaders: ["1d4", "Purpose", "Cost"],
+            rows: [
+              {
+                id: "mindgem-c5-1",
+                roll: "1",
+                cells: [
+                  "To punish",
+                  "Victory against Hillfolk, sorcerers, the Things Below",
+                ],
+                effect: {
+                  op: "replaceQuality",
+                  label: "Cost",
+                  value:
+                    "Victory against Hillfolk, sorcerers, the Things Below",
+                },
+              },
+              {
+                id: "mindgem-c5-2",
+                roll: "2",
+                cells: [
+                  "To preserve",
+                  "Acquiring artifacts of the past, safely hiding them away",
+                ],
+                effect: {
+                  op: "replaceQuality",
+                  label: "Cost",
+                  value:
+                    "Acquiring artifacts of the past, safely hiding them away",
+                },
+              },
+              {
+                id: "mindgem-c5-3",
+                roll: "3",
+                cells: [
+                  "To purge",
+                  "Destroying artifacts of the Green Lords or Things Below",
+                ],
+                effect: {
+                  op: "replaceQuality",
+                  label: "Cost",
+                  value:
+                    "Destroying artifacts of the Green Lords or Things Below",
+                },
+              },
+              {
+                id: "mindgem-c5-4",
+                roll: "4",
+                cells: [
+                  "To build",
+                  "Progress towards building an enormous, enigmatic edifice",
+                ],
+                effect: {
+                  op: "replaceQuality",
+                  label: "Cost",
+                  value:
+                    "Progress towards building an enormous, enigmatic edifice",
+                },
+              },
+            ],
+          },
+          children: [
+            {
+              id: "mindgem-c6",
+              text: 'Its instinct becomes "to pursue its purpose." You must Persuade it to do anything unrelated to that purpose, and it will flat-out refuse to act against its purpose.',
+              effects: [
+                {
+                  op: "replaceQuality",
+                  label: "Instinct",
+                  value: "To pursue its purpose",
+                },
+              ],
+            },
+            {
+              id: "mindgem-c7",
+              text: "It wanders off in pursuit of its purpose, implacably pursuing it. It is no longer a follower, though you might still be able to Persuade it.",
+            },
+          ],
         },
       ],
     },
@@ -524,7 +629,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     frontMoves: [
       {
         name: "Spend a few hours staring into the stones and listening to their whispers",
-        text: "Name someone you know but on whom you have never used this power before. Then, roll +INT: **on a 10+**, the stones reveal a secret about them; **on a 7-9**, the stones reveal a secret, but you must first reveal a secret to the stones (about your hopes, fears, regrets, desires); **on a 6-**, the stones pry a secret from you.\n\nWhen you **reveal a secret to the stones**, or they pry one from your mind, mark 1.",
+        text: "Name someone you know but on whom you have never used this power before. Then, roll +INT: **on a 10+**, the stones reveal a secret about them; **on a 7-9**, the stones reveal a secret, but you must first reveal a secret to the stones (about your hopes, fears, regrets, desires); **on a 6-**, the stones pry a secret from you.\n\nWhen you **reveal a secret to the stones**, or they pry one from your mind, mark 1.\n\nWhen you **make the last mark**, you unlock the mysteries of the rocks, and are able to use Shadow Magic (see reverse).\n\nWhen **one of the rocks is shattered**, cross off one of the Shadow Magic options; it is no longer available.",
       },
     ],
     marks: { max: 5 },
@@ -533,7 +638,24 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         {
           id: "shadow-magic",
           name: "Shadow Magic",
-          text: "When you **hold a Whispering Rock and call out the shadows within**, choose one thing which you wish to do:\n\n- Cloak yourself in shadows and silence, moving unseen and unnoticed as long as you draw no attention to yourself and avoid the sun or sacred light\n- Name someone you know or to whom you have an arcane link (hair, clothing, or the like); you can see them, hear them, and whisper to them as if from a nearby shadow\n- Name someone you can see; the nearby shadows ensnare them, doing no harm but hampering their sight and movement\n\nThen, roll +CON: **on a 10+**, the effect lasts as long as you wish, but you have disadvantage on all rolls while you maintain it; **on a 7-9**, either mark a consequence and the effect lasts as on a 10+, or the effect flickers out after mere moments (your choice which); **on a 6-**, ask the GM what happens (which may or may not involve marking a consequence).\n\nWhen **one of the rocks is shattered**, cross off one of the Shadow Magic options; it is no longer available.",
+          body: [
+            {
+              kind: "para",
+              text: "When you **hold a Whispering Rock and call out the shadows within**, choose one thing which you wish to do:",
+            },
+            {
+              kind: "list",
+              items: [
+                "Cloak yourself in shadows and silence, moving unseen and unnoticed as long as you draw no attention to yourself and avoid the sun or sacred light",
+                "Name someone you know or to whom you have an arcane link (hair, clothing, or the like); you can see them, hear them, and whisper to them as if from a nearby shadow",
+                "Name someone you can see; the nearby shadows ensnare them, doing no harm but hampering their sight and movement",
+              ],
+            },
+            {
+              kind: "para",
+              text: "Then, roll +CON: **on a 10+**, the effect lasts as long as you wish, but you have disadvantage on all rolls while you maintain it; **on a 7-9**, either mark a consequence and the effect lasts as on a 10+, or the effect flickers out after mere moments (your choice which); **on a 6-**, ask the GM what happens (which may or may not involve marking a consequence).",
+            },
+          ],
         },
       ],
       consequences: [
@@ -574,19 +696,19 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     frontMoves: [
       {
         name: "Draw the Blood-quenched Sword",
-        text: "It leaps from its sheath before any present have time to even blink, and must spill blood before you can return it to its sheath.",
+        text: "When you **draw the Blood-quenched Sword**, it leaps from its sheath before any present have time to even blink, and must spill blood before you can return it to its sheath.",
       },
       {
         name: "Spill your own blood in order to return the Sword to its sheath",
-        text: "Take 1d4 damage (ignoring armor) and the scars from the cut never fade.",
+        text: "When you **spill your own blood in order to return the Sword to its sheath**, take 1d4 damage (ignoring armor) and the scars from the cut never fade.",
       },
       {
         name: "Strike first in a fight with the Blood-quenched Sword",
-        text: "Gain advantage on your first roll.",
+        text: "When you **strike first in a fight with the Blood-quenched Sword**, gain advantage on your first roll.",
       },
       {
         name: "Sheathe the Sword after using it to kill a living, bleeding foe",
-        text: "Mark 1 unless you have already done so since the last sunset.",
+        text: "When you **sheathe the Sword after using it to kill a living, bleeding foe**, mark 1 unless you have already done so since the last sunset.\n\nWhen you **make the last mark**, you unlock the Sword's mysteries; gain Unquenched (see reverse).",
       },
     ],
     marks: { max: 5 },
@@ -595,15 +717,45 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         {
           id: "unquenched",
           name: "Unquenched",
-          text: "When you **Clash with a living, bleeding foe with the Blood-quenched Sword**, you may mark a Consequence to shift the result up one step (a 6- becomes a 7-9; a 7-9 becomes a 10-11; a 10-11 becomes 12+). You can do this only once per roll.\n\nWhen you **have marked 3 consequences**, you gain A Flickering Flame.",
+          body: [
+            {
+              kind: "para",
+              text: "When you **Clash with a living, bleeding foe with the Blood-quenched Sword**, you may mark a Consequence to shift the result up one step (a 6- becomes a 7-9; a 7-9 becomes a 10-11; a 10-11 becomes 12+). You can do this only once per roll.",
+            },
+            {
+              kind: "para",
+              text: "When you **have marked 3 consequences**, you gain A Flickering Flame.",
+            },
+          ],
         },
         {
           id: "a-flickering-flame",
           name: "A Flickering Flame",
-          subtitle:
-            "wield the Blood-quenched Blade and leap headlong into battle against multiple foes",
-          tracker: { label: "Speed", max: 3 },
-          text: "Roll +CON: **on a 10+**, hold 3 Speed; **on a 7-9**, hold 2 Speed; **on a 6-**, hold 2 Speed, and mark a consequence.\n\nDuring this battle, you may spend Speed, 1-for-1 to do the following:\n\n- Attack any number of foes within your reach; roll Clash once and apply the result to all of them, but roll damage separately for each foe\n- Strike a weak point, ignoring your foe's armor\n- Disengage from a foe you are fighting\n- Name a foe on the scene but out of your reach; you cross the distance to them before any can react\n\nWhen you stop fighting, lose all Speed.",
+          requiresConsequences: 3,
+          rightControl: [{ type: "dot", number: 3, label: "Speed" }],
+          body: [
+            {
+              kind: "para",
+              text: "When you **wield the Blood-quenched Blade and leap headlong into battle against multiple foes**, roll +CON: **on a 10+**, hold 3 Speed; **on a 7-9**, hold 2 Speed; **on a 6-**, hold 2 Speed, and mark a consequence.",
+            },
+            {
+              kind: "para",
+              text: "During this battle, you may spend Speed, 1-for-1 to do the following:",
+            },
+            {
+              kind: "list",
+              items: [
+                "Attack any number of foes within your reach; roll Clash once and apply the result to all of them, but roll damage separately for each foe",
+                "Strike a weak point, ignoring your foe's armor",
+                "Disengage from a foe you are fighting",
+                "Name a foe on the scene but out of your reach; you cross the distance to them before any can react",
+              ],
+            },
+            {
+              kind: "para",
+              text: "When you stop fighting, lose all Speed.",
+            },
+          ],
         },
       ],
       consequences: [

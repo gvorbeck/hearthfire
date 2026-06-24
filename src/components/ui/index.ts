@@ -26,3 +26,5 @@ export { Toggle } from './Toggle/Toggle';
 export { Table } from './Table/Table';
 export { Callout } from './Callout/Callout';
 export { PlaybookColumns } from './PlaybookColumns/PlaybookColumns';
+export { CreatureCard } from './CreatureCard/CreatureCard';
+export type { CreatureCardProps } from './CreatureCard/CreatureCard';
