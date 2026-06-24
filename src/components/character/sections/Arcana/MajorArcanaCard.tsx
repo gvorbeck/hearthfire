@@ -8,12 +8,14 @@ import {
   memo,
 } from "react";
 import clsx from "clsx";
-import { Button, Checkbox, CreatureCard, Table, Text } from "@/components/ui";
+import { Checkbox, CreatureCard, Divider, Table, Text } from "@/components/ui";
 import { UseDots } from "@/components/ui/UseDots/UseDots";
 import { useLatest } from "@/hooks/useLatest";
 import { parseMarkdown } from "@/lib/parseMarkdown";
 import { projectCreature } from "@/lib/creatureMutations";
 import { Move } from "../../Move";
+import { ArcanaCardHeader } from "./ArcanaCardHeader";
+import { ArcanaTrackerRow } from "./ArcanaTrackerRow";
 import type {
   MajorArcanum,
   MajorArcanaMysteryMove,
@@ -53,35 +55,33 @@ const FrontMoveRow = memo(
       (v: number) => onTrackerChange(move.name, v),
       [move.name, onTrackerChange],
     );
+    // The rulebook prints terse moves as one inline sentence whose bold trigger opens the body
+    // ("When you **draw the Sword**, it leaps…"). When `text` already carries that bold trigger we
+    // skip the standalone name header so the sentence reads as one line, as printed.
+    const hasInlineTrigger = move.text.startsWith("When you **");
     return (
       <div className={styles.frontMove}>
-        <div className={styles.moveHeader}>
-          <Text font="serif" weight="bold">
-            {move.name}
-          </Text>
-          {move.subtitle && (
-            <Text font="serif" italic color="muted">
-              {move.subtitle}
-            </Text>
-          )}
-        </div>
-        {move.tracker && (
-          <div className={styles.tracker}>
-            <Text
-              as="span"
-              font="serif"
-              size="xs"
-              color="muted"
-              className={styles.trackerLabel}
-            >
-              {move.tracker.label}
-            </Text>
-            <UseDots
-              total={move.tracker.max}
-              checked={trackerValue}
-              onChange={handleTracker}
-            />
+        {(!hasInlineTrigger || move.subtitle) && (
+          <div className={styles.moveHeader}>
+            {!hasInlineTrigger && (
+              <Text font="serif" weight="bold">
+                {move.name}
+              </Text>
+            )}
+            {move.subtitle && (
+              <Text font="serif" italic color="muted">
+                {move.subtitle}
+              </Text>
+            )}
           </div>
+        )}
+        {move.tracker && (
+          <ArcanaTrackerRow
+            label={move.tracker.label}
+            total={move.tracker.max}
+            checked={trackerValue}
+            onChange={handleTracker}
+          />
         )}
         <div className={styles.moveText}>{parseMarkdown(move.text)}</div>
       </div>
@@ -278,6 +278,9 @@ const MysteryMoveBlock = memo(
     // box. Every other mystery move is granted outright once the arcanum unlocks — it is already
     // activated, so it shows no checkbox.
     const isSelectable = "requires" in move && !!move.requires?.length;
+    // A granted move gated on a Consequence threshold stays display-only (inactive, no box) until the
+    // threshold is met; only then is it `defaultChecked` (always-on). `requirement` carries the reason.
+    const isLockedGrant = !isSelectable && (requirement?.length ?? 0) > 0;
 
     // Move-shaped entries render through the shared Move component: a selectable move's select box maps
     // to the mystery-move checked state; a granted move is `defaultChecked` (always-on, no box). Either
@@ -289,7 +292,7 @@ const MysteryMoveBlock = memo(
           title={move.name}
           move={move}
           requirement={requirement}
-          defaultChecked={!isSelectable}
+          defaultChecked={!isSelectable && !isLockedGrant}
           selection={
             isSelectable
               ? {
@@ -335,22 +338,12 @@ const MysteryMoveBlock = memo(
         )}
 
         {move.tracker && (
-          <div className={styles.tracker}>
-            <Text
-              as="span"
-              font="serif"
-              size="xs"
-              color="muted"
-              className={styles.trackerLabel}
-            >
-              {move.tracker.label}
-            </Text>
-            <UseDots
-              total={move.tracker.max}
-              checked={trackerValue ?? 0}
-              onChange={handleTracker}
-            />
-          </div>
+          <ArcanaTrackerRow
+            label={move.tracker.label}
+            total={move.tracker.max}
+            checked={trackerValue ?? 0}
+            onChange={handleTracker}
+          />
         )}
 
         <div className={styles.moveText}>{parseMarkdown(move.text)}</div>
@@ -466,8 +459,16 @@ export const MajorArcanaCard = ({
     (m) => "requires" in m && m.requires?.length && entry.mysteryMovesChecked[m.id],
   ).length;
 
-  // Returns the lock reasons for a sub-move, or an empty array when it is selectable.
+  // Returns the lock reasons for a sub-move, or an empty array when it is available.
   const getMysteryRequirement = (move: MajorArcanum["mystery"]["moves"][number]): string[] => {
+    // A move granted at a Consequence threshold (e.g. A Flickering Flame at 3) stays locked until that
+    // many Consequences are marked.
+    if ("requiresConsequences" in move && move.requiresConsequences) {
+      if (markedConsequenceCount < move.requiresConsequences) {
+        return [`Mark ${move.requiresConsequences} Consequences`];
+      }
+      return [];
+    }
     if (!("requires" in move) || !move.requires?.length) return [];
     if (entry.mysteryMovesChecked[move.id]) return [];
     const unmetParents = move.requires
@@ -516,32 +517,20 @@ export const MajorArcanaCard = ({
 
   return (
     <div className={cx}>
-      <div className={styles.header}>
-        <div className={styles.headerText}>
-          <Text font="serif" weight="bold">
-            {arcanum.name}
-          </Text>
-          {arcanum.tags && (
-            <Text as="span" font="serif" italic color="muted">
-              {arcanum.tags}
-            </Text>
-          )}
-        </div>
-        <Button
-          variant="ghost"
-          onClick={onRemove}
-          aria-label={`Remove ${arcanum.name}`}
-          className={styles.removeBtn}
-        >
-          ×
-        </Button>
-      </div>
+      <ArcanaCardHeader
+        id={arcanum.id}
+        name={arcanum.name}
+        tags={arcanum.tags}
+        onRemove={onRemove}
+      />
 
       {arcanum.description && (
         <div className={styles.description}>
           {parseMarkdown(arcanum.description)}
         </div>
       )}
+
+      {arcanum.description && arcanum.frontMoves.length > 0 && <Divider />}
 
       {arcanum.frontMoves.length > 0 && (
         <div className={styles.frontMoves}>

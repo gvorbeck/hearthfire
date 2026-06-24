@@ -1,0 +1,32 @@
+import { Text } from '@/components/ui';
+import { UseDots } from '@/components/ui/UseDots/UseDots';
+import styles from './ArcanaTrackerRow.module.css';
+
+interface ArcanaTrackerRowProps {
+  label: string;
+  total: number;
+  checked: number;
+  onChange: (value: number) => void;
+}
+
+// The labelled dot tracker shared by every arcana move (front moves, mystery moves, the minor-card
+// reveal). Label on the left, UseDots on the right.
+export const ArcanaTrackerRow = ({
+  label,
+  total,
+  checked,
+  onChange,
+}: ArcanaTrackerRowProps) => (
+  <div className={styles.tracker}>
+    <Text
+      as="span"
+      font="serif"
+      size="xs"
+      color="muted"
+      className={styles.trackerLabel}
+    >
+      {label}
+    </Text>
+    <UseDots total={total} checked={checked} onChange={onChange} />
+  </div>
+);

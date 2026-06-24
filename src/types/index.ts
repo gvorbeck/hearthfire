@@ -37,6 +37,9 @@ export interface MoveDefinition {
   startingMove?: boolean;
   requires?: string[];
   requiresLevel?: number;
+  // Major Arcana only: a granted mystery move that stays locked until this many Consequences are
+  // marked (e.g. A Flickering Flame unlocks at 3). Gated by MajorArcanaCard, not the character engine.
+  requiresConsequences?: number;
   excludes?: string[];
 }
 

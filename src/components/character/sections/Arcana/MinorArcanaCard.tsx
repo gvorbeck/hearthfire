@@ -1,10 +1,11 @@
 import { useCallback } from 'react';
 import clsx from 'clsx';
-import { Button, Checkbox, Icon, Text } from '@/components/ui';
-import { UseDots } from '@/components/ui/UseDots/UseDots';
+import { Checkbox, Text } from '@/components/ui';
 import { parseMarkdown } from '@/lib/parseMarkdown';
 import type { MinorArcanum } from '@/types';
+import { ArcanaCardHeader } from './ArcanaCardHeader';
 import { ArcanaFollowerBlock } from './ArcanaFollowerBlock';
+import { ArcanaTrackerRow } from './ArcanaTrackerRow';
 import styles from './MinorArcanaCard.module.css';
 
 interface MinorArcanaCardProps {
@@ -45,40 +46,13 @@ export const MinorArcanaCard = ({
 
   return (
     <div className={cx}>
-      <div className={styles.header}>
-        <div className={styles.headerText}>
-          <Text font="serif" weight="bold">
-            {arcanum.name}
-          </Text>
-          <div className={styles.meta}>
-            {arcanum.weight !== undefined && (
-              <span className={styles.provisions}>
-                {Array.from({ length: arcanum.weight }).map((_, i) => (
-                  <Icon
-                    key={`prov-${arcanum.id}-${i}`}
-                    name="empty-provisions"
-                    size="small"
-                    aria-label="provisions"
-                  />
-                ))}
-              </span>
-            )}
-            {arcanum.tags && (
-              <Text as="span" font="serif" italic color="muted">
-                {arcanum.tags}
-              </Text>
-            )}
-          </div>
-        </div>
-        <Button
-          variant="ghost"
-         
-          icon="close"
-          onClick={onRemove}
-          aria-label={`Remove ${arcanum.name}`}
-          className={styles.removeBtn}
-        />
-      </div>
+      <ArcanaCardHeader
+        id={arcanum.id}
+        name={arcanum.name}
+        tags={arcanum.tags}
+        weight={arcanum.weight}
+        onRemove={onRemove}
+      />
 
       <div className={styles.description}>
         {parseMarkdown(arcanum.description)}
@@ -112,22 +86,12 @@ export const MinorArcanaCard = ({
           </div>
 
           {move.tracker && (
-            <div className={styles.tracker}>
-              <Text
-                as="span"
-                font="serif"
-                size="xs"
-                color="muted"
-                className={styles.trackerLabel}
-              >
-                {move.tracker.label}
-              </Text>
-              <UseDots
-                total={move.tracker.max}
-                checked={trackerValue ?? 0}
-                onChange={onTrackerChange}
-              />
-            </div>
+            <ArcanaTrackerRow
+              label={move.tracker.label}
+              total={move.tracker.max}
+              checked={trackerValue ?? 0}
+              onChange={onTrackerChange}
+            />
           )}
 
           <div className={styles.moveText}>{parseMarkdown(move.text)}</div>

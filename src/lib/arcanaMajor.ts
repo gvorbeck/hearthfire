@@ -696,19 +696,19 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     frontMoves: [
       {
         name: "Draw the Blood-quenched Sword",
-        text: "It leaps from its sheath before any present have time to even blink, and must spill blood before you can return it to its sheath.",
+        text: "When you **draw the Blood-quenched Sword**, it leaps from its sheath before any present have time to even blink, and must spill blood before you can return it to its sheath.",
       },
       {
         name: "Spill your own blood in order to return the Sword to its sheath",
-        text: "Take 1d4 damage (ignoring armor) and the scars from the cut never fade.",
+        text: "When you **spill your own blood in order to return the Sword to its sheath**, take 1d4 damage (ignoring armor) and the scars from the cut never fade.",
       },
       {
         name: "Strike first in a fight with the Blood-quenched Sword",
-        text: "Gain advantage on your first roll.",
+        text: "When you **strike first in a fight with the Blood-quenched Sword**, gain advantage on your first roll.",
       },
       {
         name: "Sheathe the Sword after using it to kill a living, bleeding foe",
-        text: "Mark 1 unless you have already done so since the last sunset.",
+        text: "When you **sheathe the Sword after using it to kill a living, bleeding foe**, mark 1 unless you have already done so since the last sunset.\n\nWhen you **make the last mark**, you unlock the Sword's mysteries; gain Unquenched (see reverse).",
       },
     ],
     marks: { max: 5 },
@@ -717,15 +717,45 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         {
           id: "unquenched",
           name: "Unquenched",
-          text: "When you **Clash with a living, bleeding foe with the Blood-quenched Sword**, you may mark a Consequence to shift the result up one step (a 6- becomes a 7-9; a 7-9 becomes a 10-11; a 10-11 becomes 12+). You can do this only once per roll.\n\nWhen you **have marked 3 consequences**, you gain A Flickering Flame.",
+          body: [
+            {
+              kind: "para",
+              text: "When you **Clash with a living, bleeding foe with the Blood-quenched Sword**, you may mark a Consequence to shift the result up one step (a 6- becomes a 7-9; a 7-9 becomes a 10-11; a 10-11 becomes 12+). You can do this only once per roll.",
+            },
+            {
+              kind: "para",
+              text: "When you **have marked 3 consequences**, you gain A Flickering Flame.",
+            },
+          ],
         },
         {
           id: "a-flickering-flame",
           name: "A Flickering Flame",
-          subtitle:
-            "wield the Blood-quenched Blade and leap headlong into battle against multiple foes",
-          tracker: { label: "Speed", max: 3 },
-          text: "Roll +CON: **on a 10+**, hold 3 Speed; **on a 7-9**, hold 2 Speed; **on a 6-**, hold 2 Speed, and mark a consequence.\n\nDuring this battle, you may spend Speed, 1-for-1 to do the following:\n\n- Attack any number of foes within your reach; roll Clash once and apply the result to all of them, but roll damage separately for each foe\n- Strike a weak point, ignoring your foe's armor\n- Disengage from a foe you are fighting\n- Name a foe on the scene but out of your reach; you cross the distance to them before any can react\n\nWhen you stop fighting, lose all Speed.",
+          requiresConsequences: 3,
+          rightControl: [{ type: "dot", number: 3, label: "Speed" }],
+          body: [
+            {
+              kind: "para",
+              text: "When you **wield the Blood-quenched Blade and leap headlong into battle against multiple foes**, roll +CON: **on a 10+**, hold 3 Speed; **on a 7-9**, hold 2 Speed; **on a 6-**, hold 2 Speed, and mark a consequence.",
+            },
+            {
+              kind: "para",
+              text: "During this battle, you may spend Speed, 1-for-1 to do the following:",
+            },
+            {
+              kind: "list",
+              items: [
+                "Attack any number of foes within your reach; roll Clash once and apply the result to all of them, but roll damage separately for each foe",
+                "Strike a weak point, ignoring your foe's armor",
+                "Disengage from a foe you are fighting",
+                "Name a foe on the scene but out of your reach; you cross the distance to them before any can react",
+              ],
+            },
+            {
+              kind: "para",
+              text: "When you stop fighting, lose all Speed.",
+            },
+          ],
         },
       ],
       consequences: [

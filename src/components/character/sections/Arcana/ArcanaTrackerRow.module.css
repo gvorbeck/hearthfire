@@ -1,0 +1,9 @@
+.tracker {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.trackerLabel {
+  min-width: 4rem;
+}
