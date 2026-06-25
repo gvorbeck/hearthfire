@@ -112,8 +112,16 @@
 .removeBtn {
   flex-shrink: 0;
   color: var(--text-tertiary);
-  opacity: 0.2;
+  opacity: 0.55;
   transition: opacity 0.1s ease;
+}
+
+/* Dim-until-hover only on hover-capable pointers; touch devices keep it
+   visible since they can't hover to reveal it. */
+@media (hover: hover) {
+  .removeBtn {
+    opacity: 0.2;
+  }
 }
 
 .item:hover .removeBtn,
