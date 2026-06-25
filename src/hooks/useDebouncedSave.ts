@@ -1,5 +1,6 @@
 import { useRef, useCallback, useEffect, useState, type MutableRefObject } from 'react';
 import { useToastOptional } from '@/components/app/Toast/ToastContext';
+import { SAVE_ERROR_MESSAGE } from '@/lib/constants';
 
 interface UseDebouncedSaveReturn<T> {
   onChange: (value: T) => void;
@@ -80,7 +81,7 @@ export const useDebouncedSave = <T>(
         const isFirstFailure = failedKeyRef.current !== key;
         failedKeyRef.current = key;
         if (onErrorRef.current) onErrorRef.current(error);
-        else addToast?.("Couldn't save your changes — check your connection.", 'error');
+        else addToast?.(SAVE_ERROR_MESSAGE, 'error');
         if (isFirstFailure) {
           retryTimerRef.current = setTimeout(() => { void saveRef.current(value); }, RETRY_DELAY_MS);
         }

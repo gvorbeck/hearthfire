@@ -3,6 +3,14 @@ import type { PlaybookType } from "@/types";
 export const DEFAULT_GAME_NAME = "Stonetop Game";
 export const GAMES_COLLECTION = "games";
 
+// Shown when a Firestore write fails. Both useGame's central reportSave wrapper
+// and useDebouncedSave's per-field handler toast this on failure; the Toast
+// dedupes by exact message, so a debounced field that fails through both paths
+// collapses to one toast. Keep them sharing this constant — diverging the text
+// would silently produce double toasts.
+export const SAVE_ERROR_MESSAGE =
+  "Couldn't save your changes — check your connection.";
+
 export interface PlaybookOption {
   value: PlaybookType;
   label: string;

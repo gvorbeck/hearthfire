@@ -1,0 +1,66 @@
+/*
+ * .root — a sticky, pill-shaped save-status indicator. Fixed to the bottom-left
+ * so it stays glanceable no matter how far down a long character sheet the user
+ * has scrolled. Mirrors the floating-element pattern used by ScrollToTop
+ * (bottom-right), so the two never overlap.
+ */
+/*
+ * Hidden on mobile — the pill would eat scarce screen space there, and the
+ * save behaviour is unchanged. Only shown from the desktop breakpoint up.
+ */
+.root {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .root {
+    position: fixed;
+    bottom: var(--spacing-8);
+    left: var(--spacing-8);
+    z-index: var(--z-floating);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-4);
+    border-radius: 999px;
+    border: 1px solid var(--border-subtle);
+    background-color: var(--surface-raised);
+    box-shadow: var(--shadow-sm);
+    line-height: 1;
+    /* Fade in only when there is something to show — see .visible. */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+
+  .visible {
+    opacity: 1;
+  }
+}
+
+.icon {
+  color: var(--text-accent);
+  flex-shrink: 0;
+}
+
+.spinner {
+  width: var(--text-sm);
+  height: var(--text-sm);
+  border: 2px solid var(--border-subtle);
+  border-top-color: var(--color-gold-300);
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: save-status-spin 0.8s linear infinite;
+}
+
+@keyframes save-status-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 2s;
+  }
+}
