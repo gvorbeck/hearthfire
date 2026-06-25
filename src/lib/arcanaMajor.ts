@@ -950,7 +950,17 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         {
           id: "darksome-vessel",
           name: "Darksome Vessel",
-          text: "When you **cast a Codex spell**, on a 12+ you can choose the Empowered effect. When you **choose to mark a consequence before casting a spell**, don't roll; you get a 12+.",
+          requiresMarks: 4,
+          body: [
+            {
+              kind: "para",
+              text: "When you **cast a Codex spell**, on a 12+ you can choose the Empowered effect.",
+            },
+            {
+              kind: "para",
+              text: "When you **choose to mark a consequence before casting a spell**, don't roll; you get a 12+.",
+            },
+          ],
         },
       ],
       consequences: [
