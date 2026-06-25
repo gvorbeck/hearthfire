@@ -3,10 +3,20 @@
   line-height: 1.5;
 }
 
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
 .questionList {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2);
-  margin-top: var(--spacing-3);
+  margin-top: var(--spacing-1);
   line-height: 1.45;
+}
+
+.answer {
+  margin-top: var(--spacing-1);
 }

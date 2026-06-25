@@ -490,6 +490,7 @@ export interface CharacterData {
   sacredPouchStock?: number;
   herbGardenStock?: number;
   introductionQuestions?: Record<string, boolean>;
+  introductionAnswers?: Record<string, string>;
   inserts?: string[];
   playbookFeatures?: PlaybookFeatures;
   arcanaMinor?: ArcanaMinorEntry[];
