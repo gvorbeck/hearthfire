@@ -16,6 +16,17 @@ import { initializeApp, cert, type ServiceAccount } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as readline from 'readline';
+
+const confirm = (question: string): Promise<boolean> => {
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  return new Promise((resolve) => {
+    rl.question(question, (answer) => {
+      rl.close();
+      resolve(answer.trim().toLowerCase() === 'y');
+    });
+  });
+};
 
 const serviceKeyPath = path.resolve(process.env.GOOGLE_APPLICATION_CREDENTIALS ?? '');
 if (!serviceKeyPath || !fs.existsSync(serviceKeyPath)) {
@@ -59,15 +70,45 @@ const recover = async () => {
     console.log(`[${doc.id}] characters object is empty — nothing to recover.`);
     return;
   }
-  const maxIndex = Math.max(...keys.map(Number));
+
+  // Only keys that are non-negative integers are real array indices. A stray
+  // non-numeric key would make Number() return NaN and corrupt maxIndex, so
+  // ignore it and surface it rather than letting it poison the rebuild.
+  const indexKeys = keys.filter((k) => /^\d+$/.test(k));
+  const ignoredKeys = keys.filter((k) => !/^\d+$/.test(k));
+  if (ignoredKeys.length > 0) {
+    console.warn(`  ⚠ WARNING: ignoring non-index keys [${ignoredKeys.join(', ')}] — their values will not be recovered.`);
+  }
+  if (indexKeys.length === 0) {
+    console.log(`[${doc.id}] no numeric index keys — nothing to recover.`);
+    return;
+  }
+  const maxIndex = Math.max(...indexKeys.map(Number));
   const recovered: unknown[] = [];
+  const gaps: number[] = [];
   for (let i = 0; i <= maxIndex; i++) {
+    if (charMap[String(i)] === undefined) gaps.push(i);
     recovered.push(charMap[String(i)] ?? null);
   }
 
-  console.log(`[${doc.id}] corrupt — keys: [${keys.join(', ')}] → array length ${recovered.length}`);
+  console.log(`[${doc.id}] corrupt — index keys: [${indexKeys.join(', ')}] → array length ${recovered.length}`);
+
+  // A gap means an index between 0 and maxIndex has no character. The rebuilt
+  // array gets a null there, and parseCharacters silently drops it on load —
+  // so writing this recovery would lose a character without warning.
+  if (gaps.length > 0) {
+    console.warn(`  ⚠ WARNING: missing indices [${gaps.join(', ')}] — these become null and will be dropped when the game loads.`);
+  }
 
   if (WRITE) {
+    const lossy = gaps.length + ignoredKeys.length;
+    if (lossy > 0) {
+      const ok = await confirm(`  Write a recovery that drops ${lossy} entr${lossy === 1 ? 'y' : 'ies'}? [y/N] `);
+      if (!ok) {
+        console.log('  → aborted (data loss not confirmed)');
+        return;
+      }
+    }
     await doc.ref.update({ characters: recovered });
     console.log(`  → restored`);
   } else {
