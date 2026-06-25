@@ -59,7 +59,7 @@
 }
 
 .moveBodyIcon {
-  color: var(--color-gold-500);
+  color: var(--text-accent);
   flex-shrink: 0;
   margin-top: 0.1em;
 }

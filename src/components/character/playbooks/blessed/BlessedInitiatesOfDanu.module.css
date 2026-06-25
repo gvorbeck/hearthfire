@@ -93,7 +93,7 @@
 }
 
 .pronounInput::placeholder {
-  color: var(--color-stone-500);
+  color: var(--text-tertiary);
   font-style: italic;
 }
 

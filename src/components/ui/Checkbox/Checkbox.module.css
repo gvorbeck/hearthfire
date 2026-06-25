@@ -82,7 +82,7 @@
 }
 
 .provisionIconChecked {
-  color: var(--color-gold-400);
+  color: var(--text-accent);
 }
 
 .input:focus-visible ~ .provisionIcons {

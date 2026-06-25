@@ -21,12 +21,12 @@
 }
 
 .separator {
-  color: var(--color-stone-500);
+  color: var(--text-tertiary);
   font-size: var(--text-xs);
 }
 
 .link {
-  color: var(--color-stone-400);
+  color: var(--text-secondary);
   text-decoration: none;
   transition: color 0.15s ease;
 }
@@ -36,5 +36,5 @@
 }
 
 .current {
-  color: var(--color-stone-400);
+  color: var(--text-secondary);
 }

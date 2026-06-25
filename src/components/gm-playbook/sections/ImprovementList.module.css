@@ -13,7 +13,7 @@
 }
 
 .infoIcon {
-  color: var(--color-stone-500);
+  color: var(--text-tertiary);
   flex-shrink: 0;
 }
 

@@ -12,7 +12,7 @@
 
 /* Make links inside the footer gold-colored and always underlined for WCAG 1.4.1 (non-color affordance). */
 .footer a {
-  color: var(--color-gold-300);
+  color: var(--text-accent);
   text-decoration: underline;
 }
 

@@ -14,7 +14,7 @@
 }
 
 .bullet {
-  color: var(--color-gold-500);
+  color: var(--text-accent);
   font-size: var(--text-xs);
   flex-shrink: 0;
   line-height: 1.6;
@@ -52,7 +52,7 @@
 }
 
 .provisionIconChecked {
-  color: var(--color-gold-400);
+  color: var(--text-accent);
 }
 
 .provisionInput:focus-visible ~ .provisionLabel {
@@ -100,7 +100,7 @@
 }
 
 .input::placeholder {
-  color: var(--color-stone-500);
+  color: var(--text-tertiary);
   font-style: italic;
 }
 
@@ -111,7 +111,7 @@
 
 .removeBtn {
   flex-shrink: 0;
-  color: var(--color-stone-500);
+  color: var(--text-tertiary);
   opacity: 0.2;
   transition: opacity 0.1s ease;
 }
@@ -127,7 +127,7 @@
 
 .addBtn {
   align-self: flex-start;
-  color: var(--color-stone-400);
+  color: var(--text-secondary);
 }
 
 .addBtnOffset {

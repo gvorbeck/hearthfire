@@ -23,7 +23,7 @@
 .sm {
   font-size: var(--text-md);
   letter-spacing: 0.01em;
-  color: var(--color-stone-200);
+  color: var(--text-primary);
 }
 
 .label {
@@ -32,5 +32,5 @@
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--color-stone-400);
+  color: var(--text-secondary);
 }

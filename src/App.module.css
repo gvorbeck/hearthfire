@@ -38,7 +38,7 @@
 }
 
 .footer a {
-  color: var(--color-gold-300);
+  color: var(--text-accent);
 }
 
 .footer a:hover {

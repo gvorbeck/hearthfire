@@ -43,7 +43,7 @@
   border-radius: 3px;
   padding: var(--spacing-1) var(--spacing-3);
   cursor: pointer;
-  color: var(--color-gold-400);
+  color: var(--text-accent);
   font-size: var(--text-md);
   line-height: 1;
   align-self: center;
@@ -71,7 +71,7 @@
   padding: var(--spacing-3) var(--spacing-6);
   cursor: pointer;
   user-select: none;
-  color: var(--color-stone-400);
+  color: var(--text-secondary);
   font-family: var(--font-serif);
   font-size: var(--text-md);
   letter-spacing: 0.03em;

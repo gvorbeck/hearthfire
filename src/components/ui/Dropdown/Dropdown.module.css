@@ -26,7 +26,7 @@
 }
 
 .select.placeholder {
-  color: var(--color-stone-400);
+  color: var(--text-secondary);
 }
 
 .select:focus {

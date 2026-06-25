@@ -8,7 +8,7 @@
   border-radius: 50%;
   border: 1px solid var(--color-gold-500);
   background-color: var(--surface-raised);
-  color: var(--color-gold-300);
+  color: var(--text-accent);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -26,7 +26,7 @@
 .btn.visible:hover {
   background-color: color-mix(in srgb, var(--color-gold-400) 12%, transparent);
   border-color: var(--color-gold-300);
-  color: var(--color-gold-200);
+  color: var(--text-accent-strong);
   box-shadow: 0 0 16px rgba(230, 176, 32, 0.15);
 }
 

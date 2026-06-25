@@ -55,7 +55,7 @@
 }
 
 .icon.info {
-  color: var(--color-gold-300);
+  color: var(--text-accent);
   background: none;
   border: none;
   padding: 0;

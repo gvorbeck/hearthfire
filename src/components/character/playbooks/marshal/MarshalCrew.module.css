@@ -36,7 +36,7 @@
 }
 
 .customTagInput::placeholder {
-  color: var(--color-stone-500);
+  color: var(--text-tertiary);
   font-style: italic;
 }
 
@@ -92,7 +92,7 @@
 }
 
 .inlineTextInput::placeholder {
-  color: var(--color-stone-500);
+  color: var(--text-tertiary);
   font-style: italic;
 }
 
@@ -179,7 +179,7 @@
 }
 
 .individualInput::placeholder {
-  color: var(--color-stone-500);
+  color: var(--text-tertiary);
   font-style: italic;
 }
 
@@ -205,7 +205,7 @@
 }
 
 .individualTraits::placeholder {
-  color: var(--color-stone-500);
+  color: var(--text-tertiary);
   font-style: italic;
 }
 

@@ -28,7 +28,7 @@
 }
 
 .input::placeholder {
-  color: var(--color-stone-400);
+  color: var(--text-secondary);
 }
 
 .input:focus {

@@ -37,7 +37,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--color-stone-300);
+  color: var(--text-primary);
   font-family: var(--font-serif);
   font-size: var(--text-md);
   font-weight: normal;
@@ -80,11 +80,11 @@
 
 .open .trigger .chevron {
   transform: rotate(180deg);
-  color: var(--color-gold-500);
+  color: var(--text-accent);
 }
 
 .trigger:hover .chevron {
-  color: var(--color-gold-400);
+  color: var(--text-accent-strong);
 }
 
 .body {

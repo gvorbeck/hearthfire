@@ -16,13 +16,13 @@
 
 .tableCell {
   padding: var(--spacing-2) var(--spacing-3) var(--spacing-2) 0;
-  color: var(--color-stone-200);
+  color: var(--text-primary);
   vertical-align: top;
 }
 
 .tableCellIndent {
   padding: var(--spacing-1) var(--spacing-3) var(--spacing-1) var(--spacing-5);
-  color: var(--color-stone-300);
+  color: var(--text-primary);
   vertical-align: top;
 }
 
@@ -40,7 +40,7 @@
 .tableValue {
   text-align: right;
   white-space: nowrap;
-  color: var(--color-gold-300);
+  color: var(--text-accent);
   font-family: var(--font-serif);
   font-size: var(--text-md);
   font-weight: normal;
@@ -55,7 +55,7 @@
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-stone-400);
+  color: var(--text-secondary);
   padding: var(--spacing-2) var(--spacing-3) var(--spacing-2) 0;
   text-align: left;
   border-bottom: 1px solid var(--border-subtle);
@@ -74,7 +74,7 @@
 /* ── Selectable N-column rows ───────────────────────── */
 .tableCellsRow td {
   padding: var(--spacing-2) var(--spacing-3) var(--spacing-2) 0;
-  color: var(--color-stone-200);
+  color: var(--text-primary);
   vertical-align: top;
 }
 
