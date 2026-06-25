@@ -6,6 +6,12 @@
  * the whole array back in one operation. Never use dot-notation paths to update
  * array elements — Firestore will silently convert the array to a map.
  *
+ * Resumability: in WRITE mode each successfully-updated doc id is recorded to a
+ * checkpoint file before moving on. A run that dies mid-loop can simply be
+ * re-run — already-processed docs are skipped — and the checkpoint is deleted
+ * once the run completes cleanly. Since writes are idempotent (the patch is a
+ * no-op on already-migrated data) per-doc writes are safe; no batch needed.
+ *
  * Usage:
  *   npm run migrate:dry    — inspect only, no writes
  *   npm run migrate:write  — commit changes to Firestore
@@ -96,6 +102,31 @@ const db = getFirestore();
 const WRITE = process.argv.includes('--write');
 
 // ---------------------------------------------------------------------------
+// Checkpoint — records ids already written so an interrupted run can resume.
+// ---------------------------------------------------------------------------
+
+const CHECKPOINT_PATH = path.resolve('./.migrate-playbook-features.checkpoint.json');
+
+const loadCheckpoint = (): Set<string> => {
+  if (!fs.existsSync(CHECKPOINT_PATH)) return new Set();
+  try {
+    const ids = JSON.parse(fs.readFileSync(CHECKPOINT_PATH, 'utf8')) as string[];
+    return new Set(ids);
+  } catch {
+    console.warn(`  ⚠ checkpoint at ${CHECKPOINT_PATH} is unreadable — ignoring it.`);
+    return new Set();
+  }
+};
+
+const saveCheckpoint = (done: Set<string>): void => {
+  fs.writeFileSync(CHECKPOINT_PATH, JSON.stringify([...done], null, 2));
+};
+
+const clearCheckpoint = (): void => {
+  if (fs.existsSync(CHECKPOINT_PATH)) fs.rmSync(CHECKPOINT_PATH);
+};
+
+// ---------------------------------------------------------------------------
 // Per-character patch (pure JS — no Firestore paths)
 // ---------------------------------------------------------------------------
 
@@ -124,10 +155,16 @@ const migrateCharacterData = (data: CharacterData): CharacterData | null => {
 const migrate = async () => {
   console.log(`Mode: ${WRITE ? 'WRITE' : 'DRY RUN (pass --write to commit)'}\n`);
 
+  const done = WRITE ? loadCheckpoint() : new Set<string>();
+  if (WRITE && done.size > 0) {
+    console.log(`Resuming: ${done.size} doc(s) already processed in a prior run will be skipped.\n`);
+  }
+
   const snapshot = await db.collection('games').get();
   let docsInspected = 0;
   let docsNeedingUpdate = 0;
   let docsUpdated = 0;
+  let docsSkipped = 0;
 
   for (const doc of snapshot.docs) {
     docsInspected++;
@@ -148,11 +185,20 @@ const migrate = async () => {
     if (affectedIndices.length === 0) continue;
 
     docsNeedingUpdate++;
+
+    if (WRITE && done.has(doc.id)) {
+      docsSkipped++;
+      console.log(`[${doc.id}] already migrated (checkpoint) — skipping`);
+      continue;
+    }
+
     console.log(`[${doc.id}] needs migration`);
 
     if (WRITE) {
       // Write the full array back — never use dot-notation paths on array elements.
       await doc.ref.update({ characters: updatedCharacters });
+      done.add(doc.id);
+      saveCheckpoint(done);
       docsUpdated++;
       console.log(`  → updated`);
     } else {
@@ -160,10 +206,14 @@ const migrate = async () => {
     }
   }
 
+  // Clean run — drop the checkpoint so the next invocation starts fresh.
+  if (WRITE) clearCheckpoint();
+
   console.log(`\nDone.`);
   console.log(`  Docs inspected:       ${docsInspected}`);
   console.log(`  Docs needing update:  ${docsNeedingUpdate}`);
   if (WRITE) {
+    console.log(`  Docs skipped (resume):${docsSkipped}`);
     console.log(`  Docs updated:         ${docsUpdated}`);
   }
 };
