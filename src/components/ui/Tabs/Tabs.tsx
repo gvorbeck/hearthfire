@@ -7,7 +7,6 @@ import {
   useMemo,
   type ReactNode,
   type KeyboardEvent,
-  type MouseEvent,
 } from "react";
 import { createPortal } from "react-dom";
 import clsx from "clsx";
@@ -106,10 +105,7 @@ const TabRemoveButton = ({
     portal: true,
   });
 
-  const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    onRemove();
-  };
+  const handleClick = () => onRemove();
 
   return (
     <span className={styles.tabRemoveWrapper}>
@@ -207,7 +203,8 @@ const TabButton = ({
     side: "bottom",
     tooltipId: tab.badgeTooltip ? `${baseId}-tab-${slotId}-tooltip` : undefined,
   });
-  const cx = clsx(styles.tab, isActive && styles.active);
+  const cx = clsx(styles.tab, isActive && styles.active, onRemove && styles.tabHasRemove);
+  const slotCx = clsx(styles.tabSlot, isActive && styles.tabSlotActive);
   const tipCx = clsx(
     styles.tabTooltip,
     styles[tooltip.resolvedSide],
@@ -250,22 +247,28 @@ const TabButton = ({
     </span>
   ) : null;
 
+  // The remove control is a real <button>; render it as a sibling of the
+  // role="tab" element (which is itself interactive) rather than a child, so the
+  // tab never contains an interactive descendant.
   return (
-    <div
-      ref={handleRef}
-      role="tab"
-      id={`${baseId}-tab-${slotId}`}
-      aria-controls={`${baseId}-panel-${slotId}`}
-      aria-selected={isActive}
-      aria-describedby={tab.badgeTooltip ? tooltip.tooltipId : undefined}
-      tabIndex={isActive ? 0 : -1}
-      className={cx}
-      onClick={handleClick}
-      onKeyDown={handleKeyDown}
-      {...(tab.badgeTooltip ? tooltip.anchorProps : {})}
-    >
-      {tab.label}
-      {tab.badge}
+    <div className={slotCx}>
+      <div
+        ref={handleRef}
+        role="tab"
+        id={`${baseId}-tab-${slotId}`}
+        aria-controls={`${baseId}-panel-${slotId}`}
+        aria-selected={isActive}
+        aria-describedby={tab.badgeTooltip ? tooltip.tooltipId : undefined}
+        tabIndex={isActive ? 0 : -1}
+        className={cx}
+        onClick={handleClick}
+        onKeyDown={handleKeyDown}
+        {...(tab.badgeTooltip ? tooltip.anchorProps : {})}
+      >
+        {tab.label}
+        {tab.badge}
+        {badgeTooltipEl}
+      </div>
       {onRemove && (
         <TabRemoveButton
           tab={tab}
@@ -274,7 +277,6 @@ const TabButton = ({
           onRemove={onRemove}
         />
       )}
-      {badgeTooltipEl}
     </div>
   );
 };
