@@ -1,4 +1,4 @@
-import { useState, useCallback, useId, useMemo } from 'react';
+import { useState, useCallback, useId, useMemo, useEffect } from 'react';
 import {
   Button,
   Dropdown,
@@ -27,6 +27,11 @@ export const AddCharacterModal = ({
   const headingId = useId();
   const { addToast } = useToast();
   const [playbook, setPlaybook] = useState<PlaybookType | ''>('');
+  const [adding, setAdding] = useState(false);
+
+  useEffect(() => {
+    if (!open) setAdding(false);
+  }, [open]);
 
   const handleClose = useCallback(() => {
     setPlaybook('');
@@ -35,12 +40,19 @@ export const AddCharacterModal = ({
 
   const handlePlaybookChange = useCallback((value: PlaybookType) => setPlaybook(value), []);
 
-  const handleAdd = useCallback(() => {
+  const handleAdd = useCallback(async () => {
     if (!playbook) return;
     const selectedLabel = getPlaybook(playbook)?.label ?? playbook;
     const character = { id: crypto.randomUUID(), name: selectedLabel, playbook, level: 1, data: { statLevel: '1' } };
-    handleClose();
-    onAdd(character).catch(() => addToast('Failed to add character. Please try again.', 'error'));
+    setAdding(true);
+    try {
+      await onAdd(character);
+      setAdding(false);
+      handleClose();
+    } catch {
+      setAdding(false);
+      addToast('Failed to add character. Please try again.', 'error');
+    }
   }, [playbook, handleClose, onAdd, addToast]);
 
   const availablePlaybooks = useMemo(
@@ -68,6 +80,7 @@ export const AddCharacterModal = ({
         value={playbook}
         onChange={handlePlaybookChange}
         placeholder="Choose a playbook…"
+        disabled={adding}
       />
       {selectedPlaybook && (
         <Text color="muted" className={styles.description}>
@@ -75,14 +88,12 @@ export const AddCharacterModal = ({
         </Text>
       )}
       <div className={styles.actions}>
-        <Button type="button" variant="secondary" onClick={handleClose} size="md">
+        <Button type="button" variant="secondary" onClick={handleClose} size="md" disabled={adding}>
           Cancel
         </Button>
-        {playbook && (
-          <Button type="button" onClick={handleAdd} size="md">
-            Add Character
-          </Button>
-        )}
+        <Button type="button" onClick={handleAdd} size="md" disabled={!playbook || adding}>
+          {adding ? 'Adding…' : 'Add Character'}
+        </Button>
       </div>
     </Modal>
   );

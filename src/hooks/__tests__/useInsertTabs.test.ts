@@ -131,7 +131,6 @@ describe('useInsertTabs — handleConfirmRemoveInsert', () => {
       playbookFeatures: { followers: [{ id: 'f1', name: 'Ada' }] },
     });
     expect(setActiveIndex).toHaveBeenCalledWith(0);
-    expect(hook.result.current.removeInsert).toBeNull();
   });
 
   it('strips the followers feature when removing the Followers insert', async () => {
@@ -153,15 +152,18 @@ describe('useInsertTabs — handleConfirmRemoveInsert', () => {
     expect(saved.playbookFeatures).toEqual({ revenantInstinct: 'kept' });
   });
 
-  it('toasts and clears the pending insert on save failure', async () => {
+  // Error handling (toast/close/in-flight) now lives in RemoveInsertModal; the
+  // hook propagates the rejection and leaves the active tab unchanged.
+  it('propagates the save failure without changing the active tab', async () => {
     const onSave = vi.fn().mockRejectedValue(new Error('network'));
     const { hook, setActiveIndex } = setup({ inserts: ['Ghost'] }, onSave);
 
     act(() => hook.result.current.handleRequestRemoveInsert('Ghost'));
-    await act(async () => { await hook.result.current.handleConfirmRemoveInsert(); });
+    await act(async () => {
+      await expect(hook.result.current.handleConfirmRemoveInsert()).rejects.toThrow('network');
+    });
 
     expect(setActiveIndex).not.toHaveBeenCalled();
-    expect(hook.result.current.removeInsert).toBeNull();
-    expect(addToastSpy).toHaveBeenCalledWith('Failed to remove insert. Try again.', 'error');
+    expect(addToastSpy).not.toHaveBeenCalled();
   });
 });
