@@ -5,10 +5,11 @@
  *
  * This script reconstructs the characters array from the numeric object keys
  * and writes it back as a proper Firestore array, restoring the correct shape.
+ * It operates on a single targeted game to avoid mutating every doc at once.
  *
  * Usage:
- *   npm run recover:dry    — inspect only
- *   npm run recover:write  — commit fixes
+ *   npm run recover:dry -- <gameId>    — inspect only
+ *   npm run recover:write -- <gameId>  — commit fix
  */
 
 import { initializeApp, cert, type ServiceAccount } from 'firebase-admin/app';
@@ -22,55 +23,58 @@ if (!serviceKeyPath || !fs.existsSync(serviceKeyPath)) {
   process.exit(1);
 }
 
+const WRITE = process.argv.includes('--write');
+const gameId = process.argv.slice(2).find((arg) => !arg.startsWith('--'));
+if (!gameId) {
+  console.error('Usage: npm run recover:dry -- <gameId>  (add recover:write to commit)');
+  process.exit(1);
+}
+
 const serviceAccount = JSON.parse(fs.readFileSync(serviceKeyPath, 'utf8')) as ServiceAccount;
 initializeApp({ credential: cert(serviceAccount) });
 const db = getFirestore();
 
-const WRITE = process.argv.includes('--write');
-
 const recover = async () => {
-  console.log(`Mode: ${WRITE ? 'WRITE' : 'DRY RUN (pass --write to commit)'}\n`);
+  console.log(`Mode: ${WRITE ? 'WRITE' : 'DRY RUN (pass --write to commit)'}`);
+  console.log(`Game: ${gameId}\n`);
 
-  const snapshot = await db.collection('games').get();
-  let docsInspected = 0;
-  let docsNeedingRecovery = 0;
-  let docsRecovered = 0;
+  const doc = await db.collection('games').doc(gameId).get();
+  if (!doc.exists) {
+    console.error(`Game ${gameId} not found`);
+    process.exit(1);
+  }
 
-  for (const doc of snapshot.docs) {
-    docsInspected++;
-    const data = doc.data() as { characters?: unknown };
-    const chars = data.characters;
+  const data = doc.data() as { characters?: unknown };
+  const chars = data.characters;
 
-    if (!chars || Array.isArray(chars) || typeof chars !== 'object') continue;
+  if (!chars || Array.isArray(chars) || typeof chars !== 'object') {
+    console.log(`[${doc.id}] characters is not a corrupt object — nothing to recover.`);
+    return;
+  }
 
-    // characters is a plain object with numeric string keys — convert to array.
-    const charMap = chars as Record<string, unknown>;
-    const keys = Object.keys(charMap);
-    if (keys.length === 0) continue;
-    const maxIndex = Math.max(...keys.map(Number));
-    const recovered: unknown[] = [];
-    for (let i = 0; i <= maxIndex; i++) {
-      recovered.push(charMap[String(i)] ?? null);
-    }
+  // characters is a plain object with numeric string keys — convert to array.
+  const charMap = chars as Record<string, unknown>;
+  const keys = Object.keys(charMap);
+  if (keys.length === 0) {
+    console.log(`[${doc.id}] characters object is empty — nothing to recover.`);
+    return;
+  }
+  const maxIndex = Math.max(...keys.map(Number));
+  const recovered: unknown[] = [];
+  for (let i = 0; i <= maxIndex; i++) {
+    recovered.push(charMap[String(i)] ?? null);
+  }
 
-    docsNeedingRecovery++;
-    console.log(`[${doc.id}] corrupt — keys: [${Object.keys(charMap).join(', ')}] → array length ${recovered.length}`);
+  console.log(`[${doc.id}] corrupt — keys: [${keys.join(', ')}] → array length ${recovered.length}`);
 
-    if (WRITE) {
-      await doc.ref.update({ characters: recovered });
-      docsRecovered++;
-      console.log(`  → restored`);
-    } else {
-      console.log(`  → (dry run) would restore array of length ${recovered.length}`);
-    }
+  if (WRITE) {
+    await doc.ref.update({ characters: recovered });
+    console.log(`  → restored`);
+  } else {
+    console.log(`  → (dry run) would restore array of length ${recovered.length}`);
   }
 
   console.log(`\nDone.`);
-  console.log(`  Docs inspected:       ${docsInspected}`);
-  console.log(`  Docs needing recovery: ${docsNeedingRecovery}`);
-  if (WRITE) {
-    console.log(`  Docs recovered:       ${docsRecovered}`);
-  }
 };
 
 recover().catch((err) => {
