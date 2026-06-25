@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { PageLayout } from '@/components/app/PageLayout/PageLayout';
-import { createGame, createGameWithId } from '@/lib/game';
+import { createGame, createGameWithId, gameIdExists } from '@/lib/game';
 import { useGameIdCheck } from '@/hooks/useGameIdCheck';
 import { Button, Heading, Icon, Input, RuleDivider, Stack, Text } from '@/components/ui';
 import styles from './Home.module.css';
@@ -23,6 +23,7 @@ export const Home = () => {
 
   const [joinId, setJoinId] = useState('');
   const [joinError, setJoinError] = useState('');
+  const [joining, setJoining] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState('');
   const [customIdRaw, setCustomIdRaw] = useState('');
@@ -56,14 +57,27 @@ export const Home = () => {
     setCreateError('');
   }, []);
 
-  const handleJoin = useCallback((e: React.FormEvent) => {
+  const handleJoin = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = joinId.trim();
     if (!trimmed) {
       setJoinError('Please enter a game ID.');
       return;
     }
-    navigate(`/game/${trimmed}`);
+    setJoining(true);
+    setJoinError('');
+    try {
+      const exists = await gameIdExists(trimmed);
+      if (exists) {
+        navigate(`/game/${trimmed}`);
+      } else {
+        setJoinError('No game found with that ID.');
+      }
+    } catch {
+      setJoinError('Could not check that ID. Please try again.');
+    } finally {
+      setJoining(false);
+    }
   }, [joinId, navigate]);
 
   const handleJoinIdChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -157,8 +171,8 @@ export const Home = () => {
                 onChange={handleJoinIdChange}
                 error={joinError}
               />
-              <Button type="submit" variant="secondary" size="lg" fullWidth>
-                Join
+              <Button type="submit" variant="secondary" size="lg" fullWidth disabled={joining}>
+                {joining ? 'Joining…' : 'Join'}
               </Button>
             </Stack>
           </form>
