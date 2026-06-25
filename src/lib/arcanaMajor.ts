@@ -1010,21 +1010,30 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
       "A bronze rod, tipped with a glowing red crystal and carved with openwork shapes of hungry, leering faces.",
     frontMoves: [
       {
-        name: "Hold the Scepter and wind blows through the openings in the crystal",
-        text: "It makes a soft howling noise.",
-      },
-      {
-        name: "Gesture at an open flame with the scepter",
-        text: "The flame flickers or flares as if blown by the wind.",
-      },
-      {
-        name: "Bleed a helpless, living creature and dip the Scepter's crystal in their still-warm blood",
-        text: "Mark 1 charge as the crystal soaks up the blood (to a maximum of 3). ◊◊◊",
-      },
-      {
-        name: "Inflame",
-        text: "When you **wield the Scepter and incite an individual to violent action**, you may erase 1 charge to roll +CHA: **on a 10+**, they must pick 1 from the list below; **on a 7-9**, they may choose to either lash out violently against a target of their choice or choose 1 from the list below.\n\n- Act as you suggest, without doubt or fear, dealing +1d4 damage while they do so\n- Resist, but suffer painful burns (2d4 damage, ignores armor).\n\nWhen you **Inflame someone and they kill one or more living beings as a result**, mark 1.",
+        name: "Red Scepter",
+        text: "When you **hold the Scepter and wind blows through the openings in the crystal**, it makes a soft howling noise.\n\nWhen you **gesture at an open flame with the scepter**, the flame flickers or flares as if blown by the wind.\n\nWhen you **bleed a helpless, living creature and dip the Scepter's crystal in their still-warm blood**, mark 1 charge as the crystal soaks up the blood (to a maximum of 3).",
         tracker: { label: "Charges", max: 3 },
+      },
+      {
+        id: "inflame",
+        name: "Inflame",
+        body: [
+          {
+            kind: "para",
+            text: "When you **wield the Scepter and incite an individual to violent action**, you may erase 1 charge to roll +CHA: **on a 10+**, they must pick 1 from the list below; **on a 7-9**, they may choose to either lash out violently against a target of their choice or choose 1 from the list below.",
+          },
+          {
+            kind: "list",
+            items: [
+              "Act as you suggest, without doubt or fear, dealing +1d4 damage while they do so",
+              "Resist, but suffer painful burns (2d4 damage, ignores armor).",
+            ],
+          },
+        ],
+      },
+      {
+        name: "Inflame someone and they kill one or more living beings as a result",
+        text: "When you **Inflame someone and they kill one or more living beings as a result**, mark 1.\n\nWhen you **make the last mark**, you unlock the Scepter's mysteries and gain Burning Hatred (in the Mysteries below).",
       },
     ],
     marks: { max: 4 },
@@ -1033,13 +1042,44 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         {
           id: "burning-hatred",
           name: "Burning Hatred",
-          subtitle: "near, magical, reload",
-          text: "When you **point the Red Scepter at an object of your hatred and erase 1 charge**, roll +CHA: **on a 10+**, the Scepter deals 2d4 damage (*messy*, ignores armor), manifested as blistering burns; **on a 7-9**, as a 10+ but pick 1:\n\n- Mark a consequence\n- Spend a few seconds chanting and muttering before dealing damage\n- Cause any exposed, combustible items in range to burst into flames\n\n**On a 6-**, the GM says what happens (which may or may not involve marking a consequence).\n\nWhen you **mark 3 Consequences**, you gain Fanning the Flames.",
+          body: [
+            { kind: "para", text: "*near, magical, reload*" },
+            {
+              kind: "para",
+              text: "When you **point the Red Scepter at an object of your hatred and erase 1 charge**, roll +CHA: **on a 10+**, the Scepter deals 2d4 damage (*messy*, ignores armor), manifested as blistering burns; **on a 7-9**, as a 10+ but pick 1:",
+            },
+            {
+              kind: "list",
+              items: [
+                "Mark a consequence",
+                "Spend a few seconds chanting and muttering before dealing damage",
+                "Cause any exposed, combustible items in range to burst into flames",
+              ],
+            },
+            {
+              kind: "para",
+              text: "**On a 6-**, the GM says what happens (which may or may not involve marking a consequence).",
+            },
+            {
+              kind: "para",
+              text: "When you **mark 3 Consequences**, you gain Fanning the Flames.",
+            },
+          ],
         },
         {
           id: "fanning-the-flames",
           name: "Fanning the Flames",
-          text: "When you **use Inflame**, you can incite everyone who can hear you into violent action, not just an individual. If you do, roll once for the entire crowd, but each target makes their own choices. **On a 7-9**, you must also choose a Consequence; **on a 6-**, the GM chooses a Consequence for you in addition to whatever else happens.\n\nWhen you **use Burning Hatred**, you can mark a consequence to target not just the person or thing you hate but also everything near them. Roll +CHA once but roll damage for each victim. Any combustibles on your targets also erupt into flame.",
+          requiresConsequences: 3,
+          body: [
+            {
+              kind: "para",
+              text: "When you **use Inflame**, you can incite everyone who can hear you into violent action, not just an individual. If you do, roll once for the entire crowd, but each target makes their own choices. **On a 7-9**, you must also choose a Consequence; **on a 6-**, the GM chooses a Consequence for you in addition to whatever else happens.",
+            },
+            {
+              kind: "para",
+              text: "When you **use Burning Hatred**, you can mark a consequence to target not just the person or thing you hate but also everything near them. Roll +CHA once but roll damage for each victim. Any combustibles on your targets also erupt into flame.",
+            },
+          ],
         },
       ],
       consequences: [
