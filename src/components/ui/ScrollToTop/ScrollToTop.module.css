@@ -2,7 +2,7 @@
   position: fixed;
   bottom: var(--spacing-8);
   right: var(--spacing-8);
-  z-index: 100;
+  z-index: var(--z-floating);
   width: 44px;
   height: 44px;
   border-radius: 50%;
