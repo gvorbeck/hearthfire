@@ -35,6 +35,20 @@ const restore = async () => {
   const ids = Object.keys(data);
   console.log(`Found ${ids.length} documents in backup.\n`);
 
+  // Before overwriting anything, snapshot the current live state of exactly the
+  // docs we're about to clobber. A stale or partial backup file would otherwise
+  // replace live data with no undo path.
+  if (WRITE) {
+    const safety: Record<string, unknown> = {};
+    for (const id of ids) {
+      const snap = await db.collection('games').doc(id).get();
+      if (snap.exists) safety[id] = snap.data();
+    }
+    const safetyPath = path.resolve(`./firestore-pre-restore-${Date.now()}.json`);
+    fs.writeFileSync(safetyPath, JSON.stringify(safety, null, 2));
+    console.log(`Safety snapshot of ${Object.keys(safety).length} live documents written to ${safetyPath}\n`);
+  }
+
   for (const id of ids) {
     if (WRITE) {
       await db.collection('games').doc(id).set(data[id] as Record<string, unknown>);
