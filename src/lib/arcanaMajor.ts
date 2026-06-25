@@ -110,7 +110,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
       },
       {
         name: "First plunge the Spear into a spirit or demon",
-        text: "Your mind reels with strange visions. These tasks become known to you. When you **complete a task**, mark it off.\n\nWhen you **have marked 3 tasks**, you unlock the mysteries of the Twisted Spear. Choose one of the moves on the reverse; you can use that move as long as you wield the Spear. Each time you mark a task thereafter, gain another move from the reverse.",
+        text: "Your mind reels with strange visions. These tasks become known to you. When you **complete a task**, mark it off.\n\nWhen you **have marked 3 tasks**, you unlock the mysteries of the Twisted Spear. Choose one of the Mystery moves below; you can use that move as long as you wield the Spear. Each time you mark a task thereafter, gain another Mystery move.",
       },
     ],
     marks: {
@@ -629,7 +629,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     frontMoves: [
       {
         name: "Spend a few hours staring into the stones and listening to their whispers",
-        text: "Name someone you know but on whom you have never used this power before. Then, roll +INT: **on a 10+**, the stones reveal a secret about them; **on a 7-9**, the stones reveal a secret, but you must first reveal a secret to the stones (about your hopes, fears, regrets, desires); **on a 6-**, the stones pry a secret from you.\n\nWhen you **reveal a secret to the stones**, or they pry one from your mind, mark 1.\n\nWhen you **make the last mark**, you unlock the mysteries of the rocks, and are able to use Shadow Magic (see reverse).\n\nWhen **one of the rocks is shattered**, cross off one of the Shadow Magic options; it is no longer available.",
+        text: "Name someone you know but on whom you have never used this power before. Then, roll +INT: **on a 10+**, the stones reveal a secret about them; **on a 7-9**, the stones reveal a secret, but you must first reveal a secret to the stones (about your hopes, fears, regrets, desires); **on a 6-**, the stones pry a secret from you.\n\nWhen you **reveal a secret to the stones**, or they pry one from your mind, mark 1.\n\nWhen you **make the last mark**, you unlock the mysteries of the rocks, and are able to use Shadow Magic (in the Mysteries below).\n\nWhen **one of the rocks is shattered**, cross off one of the Shadow Magic options; it is no longer available.",
       },
     ],
     marks: { max: 5 },
@@ -708,7 +708,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
       },
       {
         name: "Sheathe the Sword after using it to kill a living, bleeding foe",
-        text: "When you **sheathe the Sword after using it to kill a living, bleeding foe**, mark 1 unless you have already done so since the last sunset.\n\nWhen you **make the last mark**, you unlock the Sword's mysteries; gain Unquenched (see reverse).",
+        text: "When you **sheathe the Sword after using it to kill a living, bleeding foe**, mark 1 unless you have already done so since the last sunset.\n\nWhen you **make the last mark**, you unlock the Sword's mysteries; gain Unquenched (in the Mysteries below).",
       },
     ],
     marks: { max: 5 },
@@ -813,7 +813,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
       },
       {
         name: "Make the last mark",
-        text: "When you **make the last mark**, you unlock the shield's mysteries, and can use Spirits of the Herd (see reverse).",
+        text: "When you **make the last mark**, you unlock the shield's mysteries, and can use Spirits of the Herd (in the Mysteries below).",
       },
     ],
     marks: { max: 5 },
@@ -907,7 +907,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         body: [
           {
             kind: "para",
-            text: "When you **cast a spell learned from the Hec'tumel Codex**, roll +INT: **on a 10+**, the spell works as described; **on a 7-9**, the spell works, but choose 1 from the list below; **on a 6-**, mark a consequence (see reverse) in addition to whatever the GM says.",
+            text: "When you **cast a spell learned from the Hec'tumel Codex**, roll +INT: **on a 10+**, the spell works as described; **on a 7-9**, the spell works, but choose 1 from the list below; **on a 6-**, mark a Consequence (in the Mysteries below) in addition to whatever the GM says.",
           },
           {
             kind: "list",
@@ -920,7 +920,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
       },
       {
         name: "Call the Pale Lizard",
-        text: "Cast this spell at night. Hec'tumel (*Slithering One! Death Is Its Eyes!*) manifests in the shadows until sunrise or until dismissed. It has no power unless given a host and no knowledge of the present except that which you give it. It knows much of the ancient past and the arcane arts, and can teach you if you make it worth its while. It cannot lie, but need not answer fully.\n\nWhen **Hec'tumel spends the night teaching you a spell from the Codex**, mark 1.\n\nEach time you **make a mark**, choose one of the Codex Spells (see reverse)—you can now cast it. When you **make the last mark**, you have unlocked the mysteries of the Codex and gain the Darksome Vessel move (see reverse).",
+        text: "Cast this spell at night. Hec'tumel (*Slithering One! Death Is Its Eyes!*) manifests in the shadows until sunrise or until dismissed. It has no power unless given a host and no knowledge of the present except that which you give it. It knows much of the ancient past and the arcane arts, and can teach you if you make it worth its while. It cannot lie, but need not answer fully.\n\nWhen **Hec'tumel spends the night teaching you a spell from the Codex**, mark 1.\n\nEach time you **make a mark**, choose one of the Codex Spells in the Mysteries below—you can now cast it. When you **make the last mark**, you have unlocked the mysteries of the Codex and gain the Darksome Vessel move (in the Mysteries below).",
       },
     ],
     marks: { max: 4, unlockAt: 1 },
@@ -1089,7 +1089,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
       },
       {
         name: "Have used the Ring to summon an obscuring fog and a named creature dies within that fog",
-        text: "The Ring will ask you (silently, in your mind, not so much with words as with a deep longing) *May I take this one?* Should you assent, the creature's body will be gone—vanished into the mists—as soon as no mortal is directly paying it heed. The first time this happens during each fog you summon, mark 1.\n\nWhen you **make the last mark**, you unlock the ring's mysteries and may Call Up the Deep Ones (see reverse) while wearing the ring. The ring itself becomes a follower.\n\n**The Ring** — *deep-wise, greedy, patient, knowledgeable, magical* — Instinct: to give nothing (not even secrets or info) away — ➤ Speak mind-to-mind; ➤ Reveal a secret, for a price; ➤ Know someone's desires — Cost: devouring fallen, named creatures (Loyalty ◻◻◻)",
+        text: "The Ring will ask you (silently, in your mind, not so much with words as with a deep longing) *May I take this one?* Should you assent, the creature's body will be gone—vanished into the mists—as soon as no mortal is directly paying it heed. The first time this happens during each fog you summon, mark 1.\n\nWhen you **make the last mark**, you unlock the ring's mysteries and may Call Up the Deep Ones (in the Mysteries below) while wearing the ring. The ring itself becomes a follower.\n\n**The Ring** — *deep-wise, greedy, patient, knowledgeable, magical* — Instinct: to give nothing (not even secrets or info) away — ➤ Speak mind-to-mind; ➤ Reveal a secret, for a price; ➤ Know someone's desires — Cost: devouring fallen, named creatures (Loyalty ◻◻◻)",
       },
     ],
     marks: { max: 3 },
@@ -1181,7 +1181,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
       consequences: [
         {
           id: "scales-c1",
-          text: "You no longer mark 1 (see reverse) when you simply *defeat* a being that wields chaotic magic; you must destroy it instead.",
+          text: "You no longer mark 1 (per the move above) when you simply *defeat* a being that wields chaotic magic; you must destroy it instead.",
           children: [
             {
               id: "scales-c1a",
@@ -1435,7 +1435,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
       },
       {
         name: "Surrogate Suffering",
-        text: "When you **suffer physical harm while carrying the effigy on your person**, you can spend 1 Conduit. If you do, the effigy suffers that harm in your place. You suffer no more than a passing inconvenience, and the effigy bears faint signs of the trauma it has endured in your stead.\n\nRecord the diverted harm on the image of the effigy above: a brief description of the injury, the HP that would have been lost, and any debilities you would have marked. Write small, in pencil. If the **effigy is destroyed**, you suffer all this harm at once.\n\n**Each time the effigy suffers harm on your behalf**, mark 1. If all 3 marks are already marked, then mark a consequence instead (see reverse).",
+        text: "When you **suffer physical harm while carrying the effigy on your person**, you can spend 1 Conduit. If you do, the effigy suffers that harm in your place. You suffer no more than a passing inconvenience, and the effigy bears faint signs of the trauma it has endured in your stead.\n\nRecord the diverted harm: a brief description of the injury, the HP that would have been lost, and any debilities you would have marked. If the **effigy is destroyed**, you suffer all this harm at once.\n\n**Each time the effigy suffers harm on your behalf**, mark 1. If all 3 marks are already marked, then mark a Consequence instead (in the Mysteries below).",
       },
     ],
     marks: { max: 3 },
@@ -1444,7 +1444,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         {
           id: "suffering-unleashed",
           name: "Suffering Unleashed",
-          text: "When you **feed the effigy the blood of another**, pick one of the harms recorded on the reverse and roll +CON: **on a 10+**, your target suffers that harm fully; **on a 7-9**, your target suffers that harm but pick 1; **on a 6-**, they suffer that harm but all 3 are true:\n\n- They suffer only half the harm's effects/damage\n- You fully suffer the unleashed harm (you can't divert it via Surrogate Suffering)\n- Mark a consequence\n\n**Regardless**, the harm is no longer stored in the effigy—erase it from the reverse.\n\nFor every 2 Consequences you mark, gain one of the following moves:\n\n**Greater Conduit** — When you *perform the secret rite*, hold 3 Conduit instead of 1 (and increase your max Conduit to 3). You no longer need the effigy on your person to use Surrogate Suffering. However, any magic that divines your location or spies on you also targets the effigy.\n\n**The Roots Grow Deep** — When you *use Suffering Unleashed and roll a 12+*, clear a mark from the reverse.\n\n**We Are As One** — You can sense, speak, and even work magic through the effigy as though it were an extension of yourself. (It remains inanimate.)",
+          text: "When you **feed the effigy the blood of another**, pick one of the harms you've recorded via Surrogate Suffering and roll +CON: **on a 10+**, your target suffers that harm fully; **on a 7-9**, your target suffers that harm but pick 1; **on a 6-**, they suffer that harm but all 3 are true:\n\n- They suffer only half the harm's effects/damage\n- You fully suffer the unleashed harm (you can't divert it via Surrogate Suffering)\n- Mark a consequence\n\n**Regardless**, the harm is no longer stored in the effigy—erase it from your records.\n\nFor every 2 Consequences you mark, gain one of the following moves:\n\n**Greater Conduit** — When you *perform the secret rite*, hold 3 Conduit instead of 1 (and increase your max Conduit to 3). You no longer need the effigy on your person to use Surrogate Suffering. However, any magic that divines your location or spies on you also targets the effigy.\n\n**The Roots Grow Deep** — When you *use Suffering Unleashed and roll a 12+*, clear one of your marks above.\n\n**We Are As One** — You can sense, speak, and even work magic through the effigy as though it were an extension of yourself. (It remains inanimate.)",
         },
       ],
       consequences: [
@@ -1565,7 +1565,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
           id: "battery",
           name: "Battery",
           tracker: { label: "Stored Energy", max: 1 },
-          text: "When you **gather elemental power about the Azure Hand**, you can choose to store the energy in the staff itself. It no longer requires your touch or focus to maintain. You cannot do this again until you use up the energy contained within (see reverse).",
+          text: "When you **gather elemental power about the Azure Hand**, you can choose to store the energy in the staff itself. It no longer requires your touch or focus to maintain. You cannot do this again until you use up the energy contained within (via the front-side move above).",
         },
         {
           id: "eye-of-the-storm",

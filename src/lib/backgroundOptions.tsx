@@ -422,7 +422,7 @@ When you ***fight to kill without mercy or hesitation***, you deal +1d4 damage.`
       title: "Storm-Marked",
       content: `You've been touched by Tor (Rain-maker, Thunderhead, Slayer-of-Beasts!) and bear runic markings similar to those etched into the Stone. When did the marks manifest? Are they a symbol of your strength, speed, and courage? Or their source?
 
-You start with the Storm Markings major arcanum. Mark one of the boxes on the front of the Storm Markings sheet, and describe here the time you were struck by lightning and walked away unharmed:`,
+You start with the Storm Markings major arcanum. Mark one of its boxes on the Storm Markings card, and describe here the time you were struck by lightning and walked away unharmed:`,
       freeText: {
         key: "heavy-storm-marked-lightning",
         label: "The time you were struck by lightning",
