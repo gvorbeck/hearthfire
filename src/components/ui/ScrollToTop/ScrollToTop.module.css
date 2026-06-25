@@ -2,7 +2,7 @@
   position: fixed;
   bottom: var(--spacing-8);
   right: var(--spacing-8);
-  z-index: 100;
+  z-index: var(--z-floating);
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -27,7 +27,7 @@
   background-color: color-mix(in srgb, var(--color-gold-400) 12%, transparent);
   border-color: var(--color-gold-300);
   color: var(--text-accent-strong);
-  box-shadow: 0 0 16px rgba(230, 176, 32, 0.15);
+  box-shadow: var(--glow-gold-subtle);
 }
 
 .btn.visible:focus-visible {

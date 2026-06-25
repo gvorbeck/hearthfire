@@ -27,7 +27,7 @@ export const GameGuard = ({
   if (loading) {
     return (
       <main className={styles.centered}>
-        <Text color="muted">{loadingText}</Text>
+        <Text color="muted" role="status" aria-live="polite" aria-busy={true}>{loadingText}</Text>
       </main>
     );
   }

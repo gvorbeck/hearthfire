@@ -40,6 +40,10 @@ export interface MoveDefinition {
   // Major Arcana only: a granted mystery move that stays locked until this many Consequences are
   // marked (e.g. A Flickering Flame unlocks at 3). Gated by MajorArcanaCard, not the character engine.
   requiresConsequences?: number;
+  // Major Arcana only: a granted mystery move that stays locked until this many marks are filled on
+  // the arcanum's marks track (e.g. the Codex's Darksome Vessel, which needs all 4). Gated by
+  // MajorArcanaCard, not the character engine.
+  requiresMarks?: number;
   excludes?: string[];
 }
 

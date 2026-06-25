@@ -73,6 +73,15 @@
   --spacing-12: 48px;
   --spacing-16: 64px;
 
+  /* Z-index scale — global overlay layers, ordered bottom to top.
+     Local stacking contexts (e.g. z-index: 1 within a component) stay raw. */
+  --z-sticky: 100;     /* sticky tab bars */
+  --z-floating: 200;   /* floating buttons (scroll-to-top) */
+  --z-dropdown: 300;   /* popover menus, tag-input dropdowns */
+  --z-overlay: 400;    /* modal backdrop + dialog */
+  --z-tooltip: 500;    /* tooltips, above everything except toasts */
+  --z-toast: 600;      /* transient notifications, always on top */
+
   /* Semantic surface tokens */
   --surface-page: var(--color-forge-900);
   --surface-panel: var(--color-forge-800);
@@ -96,6 +105,11 @@
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.6);
+
+  /* Glows — colored box-shadow halos for hover emphasis on accent/danger controls */
+  --glow-gold: 0 0 16px color-mix(in srgb, var(--color-gold-400) 25%, transparent);
+  --glow-gold-subtle: 0 0 16px color-mix(in srgb, var(--color-gold-400) 15%, transparent);
+  --glow-danger: 0 0 16px color-mix(in srgb, var(--color-danger) 30%, transparent);
 
   /* Breakpoints — reference values only; CSS custom properties cannot be used inside @media conditions.
      Copy the raw px value into each media query and note the token name as a comment. */

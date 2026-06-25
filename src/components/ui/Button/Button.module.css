@@ -25,12 +25,14 @@
 /* Variants */
 .primary {
   background-color: var(--color-gold-400);
+  /* Dark ink on the fixed-gold fill — gold palette tokens don't flip by theme,
+     so this stays dark (not a semantic --text-* token) in both light and dark. */
   color: var(--color-forge-900);
 }
 
 .primary:hover:not(:disabled) {
   background-color: var(--color-gold-300);
-  box-shadow: 0 0 16px rgba(230, 176, 32, 0.25);
+  box-shadow: var(--glow-gold);
 }
 
 .secondary {
@@ -64,22 +66,28 @@
 }
 
 /* Sizes */
+/* min-width keeps short labels ("OK") from collapsing to a cramped pill,
+   so buttons stay visually consistent in a row. Icon-only buttons override
+   this below to stay square. */
 .sm {
   font-size: var(--text-sm);
   padding: var(--spacing-2) var(--spacing-3);
   gap: var(--spacing-1);
+  min-width: 4rem;
 }
 
 .md {
   font-size: var(--text-sm);
   padding: var(--spacing-2) var(--spacing-4);
   gap: var(--spacing-2);
+  min-width: 5rem;
 }
 
 .lg {
   font-size: var(--text-md);
   padding: var(--spacing-3) var(--spacing-6);
   gap: var(--spacing-2);
+  min-width: 6rem;
 }
 
 .xl {
@@ -88,20 +96,26 @@
   text-transform: uppercase;
   padding: var(--spacing-4) var(--spacing-8);
   gap: var(--spacing-3);
+  min-width: 8rem;
 }
 
+/* Icon-only buttons drop the label min-width to stay square. */
 .iconOnly.sm {
   padding: var(--spacing-2);
+  min-width: 0;
 }
 
 .iconOnly.md {
   padding: var(--spacing-2);
+  min-width: 0;
 }
 
 .iconOnly.lg {
   padding: var(--spacing-3);
+  min-width: 0;
 }
 
 .iconOnly.xl {
   padding: var(--spacing-4);
+  min-width: 0;
 }

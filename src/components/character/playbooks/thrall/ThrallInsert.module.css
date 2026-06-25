@@ -96,13 +96,13 @@
 }
 
 .crossOffBtnActive {
-  color: var(--color-danger, #c0392b);
-  border-color: var(--color-danger, #c0392b);
+  color: var(--color-danger);
+  border-color: var(--color-danger);
 }
 
 .crossOffBtnActive:hover {
-  color: var(--color-danger, #c0392b);
-  border-color: var(--color-danger, #c0392b);
+  color: var(--color-danger);
+  border-color: var(--color-danger);
 }
 
 .crossOffBtn:focus-visible {

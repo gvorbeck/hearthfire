@@ -841,7 +841,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     move: {
       name: 'Aetherium Spear',
       subtitle: '◊, close, thrown, magical, +1 damage',
-      text: 'When you **Clash with the aetherium spear and get a 7+**, you can mark a debility to blast your foe with lightning, dealing +1d6 damage (*forceful*, *loud*).\n\nWhen you **point the aetherium spear at your foes and bellow a thunderous warcry**, mark a debility and unleash a blast of lightning (*far*, *area*, *forceful*, *loud*, *dangerous*), rolling +STR to Let Fly instead of +DEX (and you cannot choose to deplete ammo). **On a 6-**, in addition to whatever else the GM says, the spearhead is drained of power and the birchwood shaft is reduced to cinders—clear the last 3 check boxes on the front of this card.',
+      text: 'When you **Clash with the aetherium spear and get a 7+**, you can mark a debility to blast your foe with lightning, dealing +1d6 damage (*forceful*, *loud*).\n\nWhen you **point the aetherium spear at your foes and bellow a thunderous warcry**, mark a debility and unleash a blast of lightning (*far*, *area*, *forceful*, *loud*, *dangerous*), rolling +STR to Let Fly instead of +DEX (and you cannot choose to deplete ammo). **On a 6-**, in addition to whatever else the GM says, the spearhead is drained of power and the birchwood shaft is reduced to cinders—clear the last 3 requirement boxes above.',
     },
   },
   {
@@ -1006,7 +1006,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
       '…fill it with whisky or a similarly potent spirit.',
       '…drink the contents in a single pull (mark *dazed*).',
       '…risk blacking out, acting the fool, or at least marking more debilities.',
-      '…survive the storm you summon as a result (see reverse).',
+      '…survive the storm you summon as a result (per the move below).',
     ],
     move: {
       name: 'Horn of Storms',
@@ -1044,7 +1044,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     ],
     move: {
       name: 'Hand of Aals Sannan',
-      text: 'When you (and only you) **touch the hand and speak the name of Aals Sannan**, all three crystals dim and the power of the long-dead sorcerer infuses you. Reset your HP to max, clear your debilities, and heal any problematic wounds (if you were dying, you no longer are). Also, mark one:\n\n- Part of your look changes, to be more like Aals Sannan.\n- Your instinct changes, to something more cynical/manipulative/ambitious.\n- Your heart hardens towards someone you care about, so that you see them now as only a tool or a threat.\n\nWhen **all three have been marked**, the three crystals crumble to dust. Clear all three marks but their effects remain. Also, clear the last three check boxes on the front of this card. Until you replace all three crystals, you can\'t use this arcanum.',
+      text: 'When you (and only you) **touch the hand and speak the name of Aals Sannan**, all three crystals dim and the power of the long-dead sorcerer infuses you. Reset your HP to max, clear your debilities, and heal any problematic wounds (if you were dying, you no longer are). Also, mark one:\n\n- Part of your look changes, to be more like Aals Sannan.\n- Your instinct changes, to something more cynical/manipulative/ambitious.\n- Your heart hardens towards someone you care about, so that you see them now as only a tool or a threat.\n\nWhen **all three have been marked**, the three crystals crumble to dust. Clear all three marks but their effects remain. Also, clear the last three requirement boxes above. Until you replace all three crystals, you can\'t use this arcanum.',
     },
   },
   {
@@ -1057,7 +1057,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
       '…befriend the spirit of life and vitality that dwells within.',
       '…learn from a Fae how to pour years of your life into the basin.',
       '…fill the basin with a few years of your life.',
-      'When you **mark the last requirement and unlock this arcanum**, mark your current age on the other side. Then trigger the Bittersweet Elixir move.',
+      'When you **mark the last requirement and unlock this arcanum**, mark your current age on the move below. Then trigger the Bittersweet Elixir move.',
     ],
     move: {
       name: 'Bittersweet Elixir',

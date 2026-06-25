@@ -25,14 +25,17 @@ export const usePlaybookChecked = (
   checkedKey: FeatureKey,
 ): UsePlaybookCheckedReturn => {
   const { addToast } = useToast();
-  const pendingRef = useRef(false);
+  // Counter, not a boolean: overlapping saves must each keep the guard raised
+  // until they individually settle, or an early-resolving save would let a
+  // remote echo clobber a still-in-flight optimistic write.
+  const pendingCountRef = useRef(0);
 
   const [checked, setChecked] = useState<Record<string, boolean>>(
     () => (resolvePlaybookFeatures(data)[checkedKey] as Record<string, boolean> | undefined) ?? {},
   );
 
   useEffect(() => {
-    if (pendingRef.current) return;
+    if (pendingCountRef.current > 0) return;
     const val = resolvePlaybookFeatures(data)[checkedKey] as Record<string, boolean> | undefined;
     if (val !== undefined) setChecked(val);
   }, [data, checkedKey]);
@@ -40,11 +43,11 @@ export const usePlaybookChecked = (
   const handleChange = useCallback((id: string, value: boolean) => {
     const prev = checked;
     const next = { ...checked, [id]: value };
-    pendingRef.current = true;
+    pendingCountRef.current += 1;
     setChecked(next);
     onSave(featurePatch(data, { [checkedKey]: next }))
       .catch(() => { setChecked(prev); addToast('Failed to save. Try again.', 'error'); })
-      .finally(() => { pendingRef.current = false; });
+      .finally(() => { pendingCountRef.current -= 1; });
   }, [checked, onSave, data, checkedKey, addToast]);
 
   return { checked, handleChange };
@@ -57,7 +60,8 @@ export const usePlaybookCheckedWithAnswers = (
   answersKey: FeatureKey,
 ): UsePlaybookCheckedWithAnswersReturn => {
   const { addToast } = useToast();
-  const pendingRef = useRef(false);
+  // Counter, not a boolean — see usePlaybookChecked above.
+  const pendingCountRef = useRef(0);
   const dataRef = useRef(data);
   dataRef.current = data;
 
@@ -78,7 +82,7 @@ export const usePlaybookCheckedWithAnswers = (
   const { onChange: debouncedAnswers, flush: flushAnswers, isPendingRef: answersPendingRef } = useDebouncedSave(saveAnswers);
 
   useEffect(() => {
-    if (pendingRef.current) return;
+    if (pendingCountRef.current > 0) return;
     const cv = resolvePlaybookFeatures(data)[checkedKey] as Record<string, boolean> | undefined;
     if (cv !== undefined) setChecked(cv);
   }, [data, checkedKey]);
@@ -102,11 +106,11 @@ export const usePlaybookCheckedWithAnswers = (
   const handleChange = useCallback((id: string, value: boolean) => {
     const prev = checked;
     const next = { ...checked, [id]: value };
-    pendingRef.current = true;
+    pendingCountRef.current += 1;
     setChecked(next);
     onSave(featurePatch(dataRef.current, { [checkedKey]: next }))
       .catch(() => { setChecked(prev); addToast('Failed to save. Try again.', 'error'); })
-      .finally(() => { pendingRef.current = false; });
+      .finally(() => { pendingCountRef.current -= 1; });
   }, [checked, onSave, checkedKey, addToast]);
 
   return { checked, handleChange, answers, handleAnswer, flushAnswers: handleFlushAnswers };

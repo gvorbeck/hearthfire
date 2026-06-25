@@ -45,7 +45,7 @@
   gap: var(--spacing-1);
   padding: 0 var(--spacing-2);
   height: 1.5rem;
-  background: var(--color-stone-700);
+  background: var(--surface-raised);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   font-family: var(--font-sans);
@@ -55,6 +55,7 @@
 }
 
 .tagRemove {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -69,6 +70,17 @@
   line-height: 1;
   border-radius: var(--radius-sm);
   transition: color 0.1s ease;
+}
+
+/* Expand the tap target toward ~44px without enlarging the inline chip. */
+.tagRemove::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2.75rem;
+  height: 2.75rem;
+  transform: translate(-50%, -50%);
 }
 
 .tagRemove:hover {
@@ -92,6 +104,12 @@
   color: var(--text-primary);
 }
 
+.input:focus-visible {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
 .input::placeholder {
   color: var(--text-secondary);
 }
@@ -104,13 +122,13 @@
   left: 0;
   right: 0;
   grid-column: 1 / -1;
-  z-index: 100;
+  z-index: var(--z-dropdown);
   margin: var(--spacing-1) 0 0;
   padding: var(--spacing-1) 0;
   background: var(--surface-overlay);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-md);
   list-style: none;
   max-height: 14rem;
   overflow-y: auto;
@@ -127,6 +145,6 @@
 
 .option:hover,
 .optionActive {
-  background: var(--color-stone-700);
+  background: color-mix(in srgb, var(--color-gold-400) 12%, transparent);
 }
 

@@ -61,6 +61,12 @@
   outline-offset: 2px;
 }
 
+.tabSlot {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
 .tab {
   position: relative;
   display: inline-flex;
@@ -93,8 +99,17 @@
   outline-offset: -2px;
 }
 
+/* Reserve room on the right for the absolutely-positioned remove button so it
+   never overlaps the label or badge. */
+.tabHasRemove {
+  padding-right: calc(var(--spacing-6) + 16px);
+}
+
 .tabRemoveWrapper {
-  position: relative;
+  position: absolute;
+  right: var(--spacing-2);
+  top: 50%;
+  transform: translateY(-50%);
   display: inline-flex;
   align-items: center;
 }
@@ -105,7 +120,6 @@
   justify-content: center;
   width: 16px;
   height: 16px;
-  margin-left: var(--spacing-1);
   padding: 0;
   background: none;
   border: none;
@@ -118,8 +132,8 @@
   transition: opacity 0.15s ease, color 0.15s ease, background-color 0.15s ease;
 }
 
-.tab:hover .tabRemove,
-.tab.active .tabRemove {
+.tabSlot:hover .tabRemove,
+.tabSlotActive .tabRemove {
   opacity: 1;
 }
 
@@ -153,7 +167,7 @@
 
 .tabTooltip {
   position: absolute;
-  z-index: 100;
+  z-index: var(--z-tooltip);
   width: max-content;
   max-width: 220px;
   padding: var(--spacing-2) var(--spacing-3);

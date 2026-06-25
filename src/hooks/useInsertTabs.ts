@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
+import { useToast } from '@/components/app';
 import type { Character, CharacterData, PlaybookType } from '@/types';
 
 const INSERT_OPTIONS = ['Revenant', 'Ghost', 'Thrall', 'Followers'] as const;
@@ -13,6 +14,7 @@ export const useInsertTabs = (
   getPlaybookTabCount: (playbook: PlaybookType, data: CharacterData | undefined) => number,
   setActiveIndex: (i: number) => void,
 ) => {
+  const { addToast } = useToast();
   const [addTabOpen, setAddTabOpen] = useState(false);
   const [removeInsert, setRemoveInsert] = useState<InsertOption | null>(null);
 
@@ -43,8 +45,9 @@ export const useInsertTabs = (
       setRemoveInsert(null);
     } catch {
       setRemoveInsert(null);
+      addToast('Failed to remove insert. Try again.', 'error');
     }
-  }, [removeInsert, character.data, onSave, setActiveIndex]);
+  }, [removeInsert, character.data, onSave, setActiveIndex, addToast]);
 
   const handleAddInsert = useCallback(async (insert: InsertOption) => {
     const current = character.data?.inserts ?? [];
@@ -57,10 +60,12 @@ export const useInsertTabs = (
     try {
       await onSave({ inserts: next });
       setActiveIndex(fixedTabCount + next.length - 1);
-    } finally {
       setAddTabOpen(false);
+    } catch {
+      // Save failed — keep the modal open so the user knows it didn't take.
+      addToast('Failed to add insert. Try again.', 'error');
     }
-  }, [character.data, character.playbook, onSave, getPlaybookTabCount, setActiveIndex]);
+  }, [character.data, character.playbook, onSave, getPlaybookTabCount, setActiveIndex, addToast]);
 
   return {
     addTabOpen,
