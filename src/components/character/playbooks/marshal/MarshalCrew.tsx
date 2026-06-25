@@ -133,6 +133,9 @@ const INVENTORY_ITEMS: InventoryItem[] = [
 
 const INDIVIDUALS_COUNT = 6;
 const CUSTOM_ITEM_INDICES = [0, 1, 2, 3];
+// Two fixed, in-place-edited custom-tag slots. Stable ids (not the iteration
+// index) key the inputs so state never mismatches the wrong slot.
+const CUSTOM_TAG_SLOT_IDS = ["custom-tag-a", "custom-tag-b"] as const;
 
 const normalizeCustomItems = (
   raw: { checked: boolean; text: string }[] | undefined,
@@ -675,7 +678,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
         <div className={styles.customTagsRow}>
           {tagsCustom.map((val, i) => (
             <Input
-              key={`custom-tag-${i}`}
+              key={CUSTOM_TAG_SLOT_IDS[i]}
               data-index={i}
               className={styles.customTagInput}
               type="text"
