@@ -88,6 +88,8 @@
   /* Dimmest text tier — instructions, placeholder labels, drag handles */
   --text-tertiary: var(--color-stone-500);
   --text-accent: var(--color-gold-300);
+  /* Brighter accent for hover/active emphasis on accent-colored controls */
+  --text-accent-strong: var(--color-gold-200);
   --text-heading: var(--color-gold-300);
 
   /* Shadows */
@@ -119,7 +121,12 @@
 
   --text-primary: var(--color-stone-800);
   --text-secondary: var(--color-stone-600);
+  /* One-off between stone-500 and stone-600: keeps a distinct dim tier while still
+     clearing WCAG AA (≈4.8:1) on the overlay surface, where stone-500 fails (≈3.5:1). */
+  --text-tertiary: #5d544b;
   --text-accent: var(--color-gold-600);
+  /* Deeper than gold-600 for hover emphasis; clears AA-large on light surfaces. */
+  --text-accent-strong: #856008;
   --text-heading: var(--color-gold-600);
 
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);

@@ -33,7 +33,7 @@
   background: var(--surface-page);
   border: 1px solid var(--border-accent);
   border-radius: var(--radius-sm);
-  color: var(--color-gold-400);
+  color: var(--text-accent);
   font-family: var(--font-sans);
   font-size: var(--text-xs);
   font-weight: 700;
@@ -70,20 +70,20 @@
 
 .exit {
   font-size: var(--text-sm);
-  color: var(--color-stone-300);
+  color: var(--text-primary);
   line-height: 1.5;
 }
 
 .exitDashed {
   font-size: var(--text-sm);
-  color: var(--color-stone-400);
+  color: var(--text-secondary);
   font-style: italic;
   line-height: 1.5;
 }
 
 /* ── Go-to link ─────────────────────────────────────── */
 .goTo {
-  color: var(--color-gold-300);
+  color: var(--text-accent);
   font-family: var(--font-sans);
   font-size: var(--text-xs);
   font-weight: 700;
@@ -95,6 +95,6 @@
 }
 
 .goTo:hover {
-  color: var(--color-gold-200);
+  color: var(--text-accent-strong);
   border-color: var(--color-gold-400);
 }

@@ -91,7 +91,7 @@
 }
 
 .editBtn:hover {
-  color: var(--color-gold-400);
+  color: var(--text-accent);
   background: none;
   border: none;
 }
@@ -119,7 +119,7 @@
 }
 
 .copyBtn:hover {
-  color: var(--color-gold-400);
+  color: var(--text-accent);
   background: none;
   border: none;
 }

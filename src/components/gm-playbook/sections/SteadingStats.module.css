@@ -99,7 +99,7 @@
 }
 
 .statValuePositive {
-  color: var(--color-gold-400);
+  color: var(--text-accent);
 }
 
 .statValueNegative {

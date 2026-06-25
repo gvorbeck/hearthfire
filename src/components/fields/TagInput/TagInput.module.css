@@ -16,7 +16,7 @@
   font-family: var(--font-sans);
   font-size: var(--text-xs);
   font-weight: 600;
-  color: var(--color-stone-400);
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
@@ -93,7 +93,7 @@
 }
 
 .input::placeholder {
-  color: var(--color-stone-400);
+  color: var(--text-secondary);
 }
 
 /* ── Dropdown ─────────────────────────────────────────────── */

@@ -76,7 +76,7 @@
 
 .optionContent li::before {
   content: '\2609';
-  color: var(--color-gold-500);
+  color: var(--text-accent);
   flex-shrink: 0;
   font-size: var(--text-xs);
   line-height: 1.6;

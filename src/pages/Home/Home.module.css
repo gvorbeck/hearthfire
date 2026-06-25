@@ -28,7 +28,7 @@
   width: 360px;
   height: 360px;
   top: -120px;
-  color: var(--color-gold-400);
+  color: var(--text-accent);
   opacity: 0.35;
   pointer-events: none;
   user-select: none;
@@ -49,7 +49,7 @@
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--color-stone-400);
+  color: var(--text-secondary);
   margin-bottom: var(--spacing-3);
 }
 
@@ -145,7 +145,7 @@
 }
 
 .idHint.idHintAvailable {
-  color: var(--color-gold-300);
+  color: var(--text-accent);
 }
 
 .idHint.idHintTaken {

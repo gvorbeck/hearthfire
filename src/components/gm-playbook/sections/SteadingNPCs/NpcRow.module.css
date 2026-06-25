@@ -61,7 +61,7 @@
   composes: npcPill;
   background: color-mix(in srgb, var(--color-gold-500) 12%, transparent);
   border: 1px solid color-mix(in srgb, var(--color-gold-500) 35%, transparent);
-  color: var(--color-gold-300);
+  color: var(--text-accent);
 }
 
 .npcActions {

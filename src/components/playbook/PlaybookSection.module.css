@@ -31,17 +31,17 @@
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--color-stone-400);
+  color: var(--text-secondary);
 }
 
 .sectionTitleWarn {
   margin-left: auto;
-  color: var(--color-gold-300);
+  color: var(--text-accent);
   flex-shrink: 0;
 }
 
 .collapseToggle {
-  color: var(--color-stone-400);
+  color: var(--text-secondary);
   border: none;
   flex-shrink: 0;
   padding: 0;
