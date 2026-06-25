@@ -32,8 +32,3 @@ jobs:
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_STONETOP_D76FB }}"
           channelId: live
           projectId: stonetop-d76fb
-          # Pin firebase-tools: 15.22.2 regressed with a "Premature close"
-          # error on the OAuth token exchange, which the action reports as an
-          # auth failure. 15.22.1 was the last passing version (deploy run
-          # #206, 2026-06-24); #208/#209 failed on 15.22.2 (2026-06-25).
-          firebaseToolsVersion: "15.22.1"
