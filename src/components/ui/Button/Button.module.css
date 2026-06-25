@@ -25,6 +25,8 @@
 /* Variants */
 .primary {
   background-color: var(--color-gold-400);
+  /* Dark ink on the fixed-gold fill — gold palette tokens don't flip by theme,
+     so this stays dark (not a semantic --text-* token) in both light and dark. */
   color: var(--color-forge-900);
 }
 

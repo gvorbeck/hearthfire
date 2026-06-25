@@ -45,7 +45,7 @@
   gap: var(--spacing-1);
   padding: 0 var(--spacing-2);
   height: 1.5rem;
-  background: var(--color-stone-700);
+  background: var(--surface-raised);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   font-family: var(--font-sans);
@@ -127,6 +127,6 @@
 
 .option:hover,
 .optionActive {
-  background: var(--color-stone-700);
+  background: color-mix(in srgb, var(--color-gold-400) 12%, transparent);
 }
 

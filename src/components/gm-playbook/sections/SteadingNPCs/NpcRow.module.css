@@ -46,7 +46,7 @@
 
 .npcTrait {
   composes: npcPill;
-  background: var(--color-stone-700);
+  background: var(--surface-raised);
   border: 1px solid var(--border-subtle);
   color: var(--text-primary);
 }
