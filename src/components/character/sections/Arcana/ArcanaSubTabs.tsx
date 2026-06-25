@@ -49,7 +49,7 @@ export const ArcanaSubTabs = ({ subTab, onSelect, minorCount, majorCount }: Arca
 
   return (
     <div className={styles.tabRow}>
-      <div className={styles.subTabBar} role="tablist" onKeyDown={handleTabKeyDown}>
+      <div className={styles.subTabBar} role="tablist" aria-label="Arcana" onKeyDown={handleTabKeyDown}>
         <button
           ref={(el) => { tabRefs.current[0] = el; }}
           id="arcana-minor-tab"
