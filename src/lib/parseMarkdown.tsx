@@ -1,4 +1,6 @@
-import { Icon, List, Text } from '@/components/ui';
+import { Icon } from '@/components/ui/Icon/Icon';
+import { List } from '@/components/ui/List/List';
+import { Text } from '@/components/ui/Text/Text';
 import styles from './parseMarkdown.module.css';
 
 const INLINE_RE = /(\*\*\*[^*]+\*\*\*|\*\*[^*]+\*\*|\*[^*]+\*|◊|◈|◻|on a 10\+|on a 7[-–]9|on a 6[-–]|either way)/i;
