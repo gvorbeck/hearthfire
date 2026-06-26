@@ -46,6 +46,24 @@
   letter-spacing: 0.03em;
 }
 
+/*
+ * .navRow — holds the breadcrumb trail and the lateral-navigation "switch"
+ * dropdown on one line, pushing the dropdown to the trailing edge. Wraps so
+ * the dropdown drops below the breadcrumb on narrow viewports.
+ */
+.navRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  flex-wrap: wrap;
+}
+
+/* Compact the select to its content rather than the field's default full width. */
+.navSelect {
+  width: auto;
+}
+
 .titleRow {
   display: flex;
   align-items: center;

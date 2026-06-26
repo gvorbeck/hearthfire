@@ -1,17 +1,26 @@
-import { useRef, useCallback, useMemo } from 'react';
+import { useRef, useCallback, useMemo, lazy, Suspense } from 'react';
 import { useHashTabs } from '@/hooks/useHashTabs';
 import type { ComponentType, ReactNode } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { PLAYBOOKS, DEFAULT_GAME_NAME, getPlaybook } from '@/lib/constants';
-import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Icon, Text, PlaybookColumns, Stack } from '@/components/ui';
+import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Icon, Text, PlaybookColumns, Stack, Spinner } from '@/components/ui';
 import { AddInsertModal } from './modals/AddInsertModal';
 import { RemoveInsertModal } from './modals/RemoveInsertModal';
 import { GameGuard } from '@/components/app/GameGuard/GameGuard';
 import { PageLayout } from '@/components/app/PageLayout/PageLayout';
+import { buildGameNav, type GameNav } from '@/components/app/PageHeader/gameNav';
 import { Background, RadioSelect, Appearance, Stats, Moves, SpecialPossessions, Introductions, Inventory } from '@/components/character/sections';
-import { ArcanaTab } from '@/components/character/sections/Arcana/ArcanaTab';
+// The Arcana tab pulls in ~2,850 lines of card data plus its panel UI. It's
+// only ever shown when the user opens the Arcana tab, so lazy-load it to keep
+// that weight out of the initial CharacterPlaybook bundle. Tabs already gates
+// mounting on first activation, so the chunk is fetched exactly when needed.
+const ArcanaTab = lazy(() =>
+  import('@/components/character/sections/Arcana/ArcanaTab').then((m) => ({
+    default: m.ArcanaTab,
+  })),
+);
 import { BACKGROUND_OPTIONS, FOX_LIFE_OF_CRIME_BACKGROUND } from '@/lib/backgroundOptions';
 import { INSTINCT_OPTIONS } from '@/lib/instinctOptions';
 import { APPEARANCE_OPTIONS } from '@/lib/appearanceOptions';
@@ -127,6 +136,7 @@ interface SheetProps {
   id: string;
   gameName: string;
   prosperity: number;
+  nav: GameNav;
   updateCharacterName: (characterId: string, name: string) => Promise<void>;
   updateCharacterData: (characterId: string, data: Partial<CharacterData>) => Promise<void>;
 }
@@ -156,7 +166,11 @@ const resolveStaticTabContent = (
   onSave: (data: Partial<CharacterData>) => Promise<void>,
 ): ReactNode => {
   if (id === 'inventory') return <Inventory data={data} prosperity={prosperity} onSave={onSave} />;
-  if (id === 'arcana') return <ArcanaTab data={data} onSave={onSave} />;
+  if (id === 'arcana') return (
+    <Suspense fallback={<div className={styles.centered}><Spinner /></div>}>
+      <ArcanaTab data={data} onSave={onSave} />
+    </Suspense>
+  );
   if (id === 'Revenant') return <RevenantInsert data={data} onSave={onSave} />;
   if (id === 'Ghost') return <GhostInsert data={data} onSave={onSave} />;
   if (id === 'Thrall') return <ThrallInsert data={data} onSave={onSave} />;
@@ -165,7 +179,7 @@ const resolveStaticTabContent = (
 };
 
 
-const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, updateCharacterName, updateCharacterData }: SheetProps) => {
+const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, nav, updateCharacterName, updateCharacterData }: SheetProps) => {
   const headerRef = useRef<HTMLDivElement>(null);
 
   const handleSaveCharacterData = useCallback(
@@ -283,6 +297,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, u
       subtitle={characterName ? playbookLabel : undefined}
       icon={<Icon playbookIcon={playbook} />}
       gameId={id}
+      nav={nav}
       onSaveTitle={handleSaveCharacterName}
     >
       <PageMeta
@@ -341,6 +356,8 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
     );
   }
 
+  const nav = buildGameNav(g, id, `/game/${id}/${playbook}`);
+
   return (
     <CharacterSheet
       character={character}
@@ -348,6 +365,7 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
       id={id}
       gameName={g.name || DEFAULT_GAME_NAME}
       prosperity={prosperity}
+      nav={nav}
       updateCharacterName={updateCharacterName}
       updateCharacterData={updateCharacterData}
     />
