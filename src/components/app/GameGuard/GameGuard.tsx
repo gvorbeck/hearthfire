@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Heading, Text, Button } from '@/components/ui';
+import { Heading, Text, Button, Spinner } from '@/components/ui';
 import type { GameSession } from '@/types';
 import styles from './GameGuard.module.css';
 
@@ -26,8 +26,8 @@ export const GameGuard = ({
 }: Props) => {
   if (loading) {
     return (
-      <main className={styles.centered}>
-        <Text color="muted" role="status" aria-live="polite" aria-busy={true}>{loadingText}</Text>
+      <main className={styles.centered} aria-live="polite" aria-busy={true}>
+        <Spinner label={loadingText} />
       </main>
     );
   }

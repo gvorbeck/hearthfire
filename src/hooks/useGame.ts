@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { doc, onSnapshot, runTransaction, updateDoc } from 'firebase/firestore';
+import type { FirestoreError } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useSaveStatusOptional } from '@/components/app/SaveStatus/SaveStatusContext';
 import { useToastOptional } from '@/components/app/Toast/ToastContext';
@@ -21,6 +22,19 @@ interface UseGameResult {
   removeCharacter: (characterId: string) => Promise<void>;
   reorderCharacters: (characters: Character[]) => Promise<void>;
 }
+
+// Map raw Firestore error codes to messages a player can act on — the raw
+// strings (e.g. "Missing or insufficient permissions") are infra noise. Any
+// unmapped code falls through to a generic line, so raw text never reaches the UI.
+const FIRESTORE_ERROR_MESSAGES: Partial<Record<FirestoreError['code'], string>> = {
+  'permission-denied': "You don't have access to this game.",
+  unavailable: "Can't reach the server — check your connection and try again.",
+  'deadline-exceeded': "The server took too long to respond — try again.",
+  unauthenticated: "Your session expired — reload the page and try again.",
+};
+
+const friendlyFirestoreError = (err: FirestoreError): string =>
+  FIRESTORE_ERROR_MESSAGES[err.code] ?? 'Something went wrong loading this game. Please try again.';
 
 const VALID_PLAYBOOKS = new Set<string>([
   'blessed', 'fox', 'heavy', 'judge', 'lightbearer', 'marshal', 'ranger', 'seeker', 'would-be-hero',
@@ -219,14 +233,16 @@ export const useGame = (gameId: string): UseGameResult => {
             const raw = snapshot.data() as Record<string, unknown>;
             setGame(parseGameSession(raw, snapshot.id));
             setError(null);
-          } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to parse game data');
+          } catch {
+            // A parse failure means the stored document is malformed — surface a
+            // player-readable line rather than the raw thrown message.
+            setError("This game's data couldn't be read. Please try again or contact your GM.");
           }
         }
         setLoading(false);
       },
       (err) => {
-        setError(err.message);
+        setError(friendlyFirestoreError(err));
         setLoading(false);
       }
     );

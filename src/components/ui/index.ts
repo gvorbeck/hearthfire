@@ -13,6 +13,7 @@ export { Modal } from './Modal/Modal';
 export { Radio } from './Radio/Radio';
 export { RadioGroup } from './RadioGroup/RadioGroup';
 export { RuleDivider } from './RuleDivider/RuleDivider';
+export { Spinner } from './Spinner/Spinner';
 export { Stack } from './Stack/Stack';
 export { Text } from './Text/Text';
 export { ScrollToTop } from './ScrollToTop/ScrollToTop';

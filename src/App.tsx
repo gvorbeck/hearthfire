@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { ToastProvider, SaveStatusProvider, SaveStatus, ErrorBoundary } from "@/components/app";
+import { Spinner } from "@/components/ui";
 import styles from "./App.module.css";
 
 /*
@@ -62,7 +63,7 @@ export const App = () => {
       <Suspense
         fallback={
           <div className={styles.loading} aria-live="polite" aria-busy="true">
-            <span className={styles.spinner} role="status" aria-label="Loading…" />
+            <Spinner />
           </div>
         }
       >
