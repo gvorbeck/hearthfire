@@ -7,6 +7,15 @@
     <title>Hearthfire — Stonetop Party Tracker</title>
     <meta name="description" content="Track your Stonetop TTRPG campaign — manage characters, GM playbook, and game sessions." />
     <meta property="og:site_name" content="Hearthfire" />
+    <!--
+      preconnect opens the TCP + TLS connection to Firestore eagerly so the
+      first realtime read isn't stalled on connection setup. dns-prefetch is
+      kept as a fallback for browsers that ignore preconnect. The Firebase
+      Installations + Google origins are warmed too, since the SDK hits them
+      on init.
+    -->
+    <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://firebaseinstallations.googleapis.com" crossorigin />
     <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
   </head>
   <body>

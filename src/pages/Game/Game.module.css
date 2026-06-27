@@ -68,6 +68,13 @@
   opacity: 0.4;
 }
 
+.reorderControls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  flex-shrink: 0;
+}
+
 .gripHandle {
   display: flex;
   align-items: center;
@@ -79,6 +86,50 @@
 
 .gripHandle:active {
   cursor: grabbing;
+}
+
+/* Collapsed to zero width so only the grip shows for mouse users. The buttons stay
+   in the DOM and focusable (not display:none), so Tab still reaches them; focus then
+   expands the group. */
+.moveButtons {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-width 0.18s ease, opacity 0.18s ease;
+}
+
+/* max-width caps the slide-in transition; sized with headroom over the two arrow
+   buttons since max-content can't be interpolated. */
+.moveButtons:focus-within {
+  max-width: 8rem;
+  overflow: visible;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .moveButtons {
+    transition: none;
+  }
+}
+
+.moveBtn {
+  flex-shrink: 0;
+  color: var(--text-secondary);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .characterLink {

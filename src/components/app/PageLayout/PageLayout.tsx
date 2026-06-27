@@ -1,5 +1,6 @@
 import { PageFooter } from '@/components/app/PageFooter/PageFooter';
 import { PageHeader } from '@/components/app/PageHeader/PageHeader';
+import type { GameNav } from '@/components/app/PageHeader/gameNav';
 import type { Crumb } from '@/types';
 import styles from './PageLayout.module.css';
 
@@ -45,6 +46,7 @@ type FullProps = {
   subtitle?: string;
   icon?: React.ReactElement<SVGSVGElement>;
   gameId: string;
+  nav?: GameNav;
 } & (
   | { onSaveTitle: (value: string) => Promise<void>; titleLabel: string }
   | { onSaveTitle?: never; titleLabel?: never }
@@ -76,6 +78,7 @@ export const PageLayout = (props: Props) => {
             subtitle={props.subtitle}
             icon={props.icon}
             gameId={props.gameId}
+            nav={props.nav}
             onSaveTitle={props.onSaveTitle}
             titleLabel={props.titleLabel!}
           />
@@ -86,6 +89,7 @@ export const PageLayout = (props: Props) => {
             subtitle={(props as FullProps).subtitle}
             icon={(props as FullProps).icon}
             gameId={(props as FullProps).gameId}
+            nav={(props as FullProps).nav}
           />
         )
       )}

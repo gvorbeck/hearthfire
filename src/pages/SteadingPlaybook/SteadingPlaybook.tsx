@@ -6,6 +6,7 @@ import { useGame } from '@/hooks/useGame';
 import { ScrollToTop, Tabs, Dropdown, Button, PlaybookColumns } from '@/components/ui';
 import type { DropdownGroup } from '@/components/ui';
 import { PageLayout } from '@/components/app/PageLayout/PageLayout';
+import { buildGameNav } from '@/components/app/PageHeader/gameNav';
 import { SteadingImprovementList, RESOURCES_CONFIG, FORTIFICATIONS_CONFIG } from '@/components/gm-playbook/sections/SteadingImprovementList';
 import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import { GameGuard } from '@/components/app/GameGuard/GameGuard';
@@ -207,9 +208,10 @@ const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
   ], [g.characters, steading, updateSteading, npcFilter]);
 
   const { activeIndex, handleActiveChange } = useHashTabs(tabs);
+  const nav = buildGameNav(g, id, `/game/${id}/steading`);
 
   return (
-    <PageLayout crumbs={crumbs} title="Steading Playbook" gameId={id}>
+    <PageLayout crumbs={crumbs} title="Steading Playbook" gameId={id} nav={nav}>
       <PageMeta
         title={`Steading Playbook — ${gameName} — Hearthfire`}
         description={`Stonetop steading playbook for ${gameName}. Track stats, improvements, assets, and NPCs.`}

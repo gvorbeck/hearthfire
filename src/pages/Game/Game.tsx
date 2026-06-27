@@ -28,19 +28,24 @@ interface CharacterRowProps {
   gameId: string;
   showGrip: boolean;
   isDragging: boolean;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
   onRemove: (character: Character) => void;
+  onMove: (id: string, direction: -1 | 1) => void;
   onDragStart: (e: React.DragEvent, id: string) => void;
   onDragOver: (e: React.DragEvent, id: string) => void;
   onDrop: (e: React.DragEvent) => void;
   onDragEnd: () => void;
 }
 
-const CharacterRow = memo(({ character, gameId, showGrip, isDragging, onRemove, onDragStart, onDragOver, onDrop, onDragEnd }: CharacterRowProps) => {
+const CharacterRow = memo(({ character, gameId, showGrip, isDragging, canMoveUp, canMoveDown, onRemove, onMove, onDragStart, onDragOver, onDrop, onDragEnd }: CharacterRowProps) => {
   const playbookOption = getPlaybook(character.playbook);
   const playbookLabel = `${playbookOption?.label ?? character.playbook} Playbook`;
   const characterName = character.name?.trim();
   const buttonLabel = characterName ? `${characterName} — ${playbookLabel}` : playbookLabel;
   const handleRemove = useCallback(() => onRemove(character), [onRemove, character]);
+  const handleMoveUp = useCallback(() => onMove(character.id, -1), [onMove, character.id]);
+  const handleMoveDown = useCallback(() => onMove(character.id, 1), [onMove, character.id]);
   const handleDragStart = useCallback((e: React.DragEvent) => onDragStart(e, character.id), [onDragStart, character.id]);
   const handleDragOver = useCallback((e: React.DragEvent) => onDragOver(e, character.id), [onDragOver, character.id]);
   const rowCx = clsx(styles.characterRow, isDragging && styles.dragging);
@@ -58,8 +63,32 @@ const CharacterRow = memo(({ character, gameId, showGrip, isDragging, onRemove, 
       onDragEnd={onDragEnd}
     >
       {showGrip && (
-        <span className={styles.gripHandle} aria-hidden="true">
-          <Icon name="grip" size="small" />
+        <span className={styles.reorderControls}>
+          <span className={styles.gripHandle} aria-hidden="true">
+            <Icon name="grip" size="small" />
+          </span>
+          {/* Collapsed by default; expands when an arrow gains keyboard focus so the
+              row stays uncluttered for mouse users while keyboard users can still reorder. */}
+          <span className={styles.moveButtons}>
+            <Button
+              variant="ghost"
+              icon="chevron-up"
+              size="sm"
+              className={styles.moveBtn}
+              aria-label={`Move ${buttonLabel} up`}
+              disabled={!canMoveUp}
+              onClick={handleMoveUp}
+            />
+            <Button
+              variant="ghost"
+              icon="chevron-down"
+              size="sm"
+              className={styles.moveBtn}
+              aria-label={`Move ${buttonLabel} down`}
+              disabled={!canMoveDown}
+              onClick={handleMoveDown}
+            />
+          </span>
         </span>
       )}
       <Button as={Link} to={`/game/${gameId}/${character.playbook}`} variant="secondary" size="xl" fullWidth className={linkCx}>
@@ -107,11 +136,15 @@ const GameContent = ({
   const [removingCharacter, setRemovingCharacter] = useState<Character | null>(null);
   const [orderedCharacters, setOrderedCharacters] = useState<Character[]>(g.characters);
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [moveAnnouncement, setMoveAnnouncement] = useState('');
   const draggingIdRef = useRef<string | null>(null);
   const orderedCharactersRef = useRef<Character[]>(g.characters);
 
   useEffect(() => {
-    if (!draggingIdRef.current) setOrderedCharacters(g.characters);
+    if (!draggingIdRef.current) {
+      setOrderedCharacters(g.characters);
+      orderedCharactersRef.current = g.characters;
+    }
   }, [g.characters]);
 
   const handleRemoveCharacter = useCallback((character: Character) => setRemovingCharacter(character), []);
@@ -164,6 +197,22 @@ const GameContent = ({
     onReorderCharacters(orderedCharactersRef.current);
   }, [onReorderCharacters]);
 
+  // Keyboard-accessible reordering: move a character one slot up (-1) or down (1).
+  const handleMoveCharacter = useCallback((id: string, direction: -1 | 1) => {
+    const prev = orderedCharactersRef.current;
+    const from = prev.findIndex((c) => c.id === id);
+    const to = from + direction;
+    if (from === -1 || to < 0 || to >= prev.length) return;
+    const next = [...prev];
+    next.splice(to, 0, next.splice(from, 1)[0]);
+    orderedCharactersRef.current = next;
+    setOrderedCharacters(next);
+    const moved = next[to];
+    const label = moved.name?.trim() || getPlaybook(moved.playbook)?.label || moved.playbook;
+    setMoveAnnouncement(`${label} moved to position ${to + 1} of ${next.length}.`);
+    onReorderCharacters(next);
+  }, [onReorderCharacters]);
+
   const showGrip = orderedCharacters.length > 1;
 
   return (
@@ -195,20 +244,26 @@ const GameContent = ({
         <div className={styles.sections}>
           <div className={styles.sectionCharacters}>
             <Heading as="h2" size="label">Characters</Heading>
+            <div className={styles.srOnly} role="status" aria-live="polite" aria-atomic="true">
+              {moveAnnouncement}
+            </div>
             {orderedCharacters.length === 0 ? (
               <div className={styles.placeholder}>
                 <Text color="muted">Your party roster is empty. Add a character to get started.</Text>
               </div>
             ) : (
               <Stack gap={3} role="list">
-                {orderedCharacters.map((character) => (
+                {orderedCharacters.map((character, index) => (
                   <CharacterRow
                     key={character.id}
                     character={character}
                     gameId={id}
                     showGrip={showGrip}
                     isDragging={draggingId === character.id}
+                    canMoveUp={index > 0}
+                    canMoveDown={index < orderedCharacters.length - 1}
                     onRemove={handleRemoveCharacter}
+                    onMove={handleMoveCharacter}
                     onDragStart={handleDragStart}
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}

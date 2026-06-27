@@ -1,9 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { firestoreMockModule, firestoreStore } from '@/test/firestoreMock';
+import { addToastSpy, toastModuleMock } from '@/test/toastMock';
+import { SAVE_ERROR_MESSAGE } from '@/lib/constants';
 
 vi.mock('firebase/app', () => ({ initializeApp: () => ({}) }));
 vi.mock('firebase/firestore', () => firestoreMockModule());
+vi.mock('@/components/app/Toast/ToastContext', () => toastModuleMock());
 
 import { useGame } from '../useGame';
 import type { Character } from '@/types';
@@ -18,7 +21,7 @@ const char = (id: string, overrides: Partial<Character> = {}): Character => ({
   ...overrides,
 });
 
-beforeEach(() => { firestoreStore.reset(); });
+beforeEach(() => { firestoreStore.reset(); addToastSpy.mockClear(); });
 
 const renderGame = () => renderHook(() => useGame('g1'));
 
@@ -157,6 +160,24 @@ describe('useGame mutations', () => {
     expect(steading.improvements).toEqual({ wall: true });
     expect(steading.residents?.[0]).toEqual({ id: 'n1', name: 'Mara' });
     expect('pronouns' in (steading.residents![0])).toBe(false);
+  });
+
+  it('shows the error toast and rethrows when a write fails (#210)', async () => {
+    firestoreStore.set(GAME_PATH, { name: 'Test', createdAt: 0, characters: [char('a')] });
+    const { result } = renderGame();
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    // The doc vanishes (e.g. concurrent delete) so the next write throws.
+    firestoreStore.delete(GAME_PATH);
+
+    await act(async () => {
+      // Direct save paths only have .finally(); reportSave must surface the
+      // failure itself so it isn't silent. It also rethrows, so callers that
+      // retry (the debounce hook) still see the rejection.
+      await expect(result.current.updateGameName('New Name')).rejects.toThrow();
+    });
+
+    expect(addToastSpy).toHaveBeenCalledWith(SAVE_ERROR_MESSAGE, 'error');
   });
 
   it('updateSteading validates debility booleans pass through as written', async () => {

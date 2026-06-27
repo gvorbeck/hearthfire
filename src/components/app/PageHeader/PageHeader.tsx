@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect, useCallback, useId } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Button,
+  Dropdown,
   Heading,
   Input,
   Text,
@@ -10,6 +12,7 @@ import {
 import { useToast } from "@/components/app";
 import { Breadcrumb } from "./Breadcrumb";
 import { ThemeToggle } from "./ThemeToggle";
+import type { GameNav } from "./gameNav";
 import { SiteBanner } from "@/components/app/SiteBanner/SiteBanner";
 import { SITE_BANNER } from "@/lib/siteBanner";
 import type { Crumb } from "@/types";
@@ -53,6 +56,7 @@ type FullProps = {
   subtitle?: string;
   icon?: React.ReactElement<SVGSVGElement>;
   gameId: string;
+  nav?: GameNav;
 } & (
   | { onSaveTitle: (value: string) => Promise<void>; titleLabel: string }
   | { onSaveTitle?: never; titleLabel?: never }
@@ -69,6 +73,7 @@ export const PageHeader = (props: Props) => {
    * them here even though simple mode never touches them.
    */
   const { addToast } = useToast();
+  const navigate = useNavigate();
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState("");
   const [copied, setCopied] = useState(false);
@@ -76,6 +81,7 @@ export const PageHeader = (props: Props) => {
   const copiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const editTooltipId = useId();
   const copyTooltipId = useId();
+  const navSelectId = useId();
 
   useEffect(() => {
     if (editing) inputRef.current?.select();
@@ -132,6 +138,17 @@ export const PageHeader = (props: Props) => {
       .catch(() => addToast("Failed to copy game ID.", "error"));
   }, [simple, props, addToast]);
 
+  const handleNavChange = useCallback(
+    (path: string) => {
+      if (simple) return;
+      const { nav } = props as FullProps;
+      // Selecting the current page is a no-op — don't push a redundant entry.
+      if (!path || path === nav?.current) return;
+      navigate(path);
+    },
+    [simple, props, navigate],
+  );
+
   const copyLabel = copied ? "Copied!" : "Copy game ID";
 
   /*
@@ -140,13 +157,26 @@ export const PageHeader = (props: Props) => {
    */
   let pageIdentity: React.ReactNode = null;
   if (!simple) {
-    const { crumbs, title, subtitle, icon, gameId } = props as FullProps;
+    const { crumbs, title, subtitle, icon, gameId, nav } = props as FullProps;
     const onSaveTitle = (props as FullProps).onSaveTitle;
     const titleLabel = (props as FullProps).titleLabel;
 
     pageIdentity = (
       <div className={styles.body}>
-        <Breadcrumb crumbs={crumbs} />
+        <div className={styles.navRow}>
+          <Breadcrumb crumbs={crumbs} />
+          {nav && (
+            <Dropdown
+              id={navSelectId}
+              className={styles.navSelect}
+              aria-label="Switch to another page"
+              groups={nav.groups}
+              value={nav.current}
+              placeholder="Switch to…"
+              onChange={handleNavChange}
+            />
+          )}
+        </div>
         <div className={styles.titleRow}>
           {icon && (
             <span className={styles.titleIcon} aria-hidden="true">

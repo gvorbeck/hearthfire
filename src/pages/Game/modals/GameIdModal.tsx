@@ -47,9 +47,9 @@ export const GameIdModal = ({ gameId, open, onClose }: GameIdModalProps) => {
         <Button
           variant="ghost"
           size="sm"
-          icon="copy"
+          icon={copied ? 'check' : 'copy'}
           onClick={handleCopy}
-          aria-label="Copy game ID"
+          aria-label={copied ? 'Copied!' : 'Copy game ID'}
           title={copied ? 'Copied!' : 'Copy game ID'}
         />
       </div>

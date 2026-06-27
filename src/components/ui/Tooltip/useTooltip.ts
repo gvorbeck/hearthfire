@@ -32,6 +32,7 @@ export interface UseTooltipResult {
     onMouseLeave: () => void;
     onFocus: () => void;
     onBlur: () => void;
+    onPointerDown: (e: React.PointerEvent) => void;
   };
 }
 
@@ -124,6 +125,37 @@ export const useTooltip = ({ side = 'top', tooltipId: externalId, portal = false
     timeoutRef.current = setTimeout(() => setVisible(false), 100);
   }, []);
 
+  // Touch devices have no hover or focus-via-tab, so tooltip content would be
+  // unreachable. Tapping the anchor toggles the tooltip; tapping anywhere else
+  // (or pressing Escape) dismisses it. pointerdown lets us branch on
+  // pointerType so we don't fight the synthesized mouse events touch produces.
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    if (e.pointerType !== 'touch') return;
+    if (visible) {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      setVisible(false);
+    } else {
+      show();
+    }
+  }, [visible, show]);
+
+  useEffect(() => {
+    if (!visible) return;
+    const dismiss = (e: Event) => {
+      if (anchorRef.current?.contains(e.target as Node)) return;
+      setVisible(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setVisible(false);
+    };
+    document.addEventListener('pointerdown', dismiss);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('pointerdown', dismiss);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [visible]);
+
   return {
     tooltipId,
     visible,
@@ -138,6 +170,7 @@ export const useTooltip = ({ side = 'top', tooltipId: externalId, portal = false
       onMouseLeave: hide,
       onFocus: show,
       onBlur: hide,
+      onPointerDown: handlePointerDown,
     },
   };
 };

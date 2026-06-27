@@ -5,6 +5,7 @@ import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
 import { ScrollToTop, Tabs, PlaybookColumns } from '@/components/ui';
 import { PageLayout } from '@/components/app/PageLayout/PageLayout';
+import { buildGameNav } from '@/components/app/PageHeader/gameNav';
 import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import { CoreLoop, GmMoves, Principles, DamageAndDebilities, ContentSection, Threats, IWonder, Expeditions, Sites, Discoveries, Hazards, Monsters, NPCs, Followers, Homefront, FlowOfPlay, MoveSearch } from '@/components/gm-playbook/sections';
 import { GameGuard } from '@/components/app/GameGuard/GameGuard';
@@ -126,9 +127,10 @@ const GmPlaybookContent = ({ g, id, updateContent, updateField }: GmPlaybookCont
   ], [g.content, g.iWonder, updateContent, saveIWonder]);
 
   const { activeIndex, handleActiveChange } = useHashTabs(tabs);
+  const nav = buildGameNav(g, id, `/game/${id}/gm`);
 
   return (
-    <PageLayout crumbs={crumbs} title="GM Playbook" gameId={id}>
+    <PageLayout crumbs={crumbs} title="GM Playbook" gameId={id} nav={nav}>
       <PageMeta
         title={`GM Playbook — ${gameName} — Hearthfire`}
         description={`GM playbook for ${gameName}. Core loop, moves, principles, and session tools.`}

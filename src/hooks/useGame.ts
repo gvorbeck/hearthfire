@@ -1,7 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { doc, onSnapshot, runTransaction, updateDoc } from 'firebase/firestore';
+import type { FirestoreError } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { GAMES_COLLECTION } from '@/lib/constants';
+import { useSaveStatusOptional } from '@/components/app/SaveStatus/SaveStatusContext';
+import { useToastOptional } from '@/components/app/Toast/ToastContext';
+import { GAMES_COLLECTION, SAVE_ERROR_MESSAGE } from '@/lib/constants';
 import { filterByType, isBoolean, isNumber, isRecord, isString } from '@/lib/typeGuards';
 import type { Character, CharacterData, ContentLists, GameSession, GmImprovement, NpcRelationship, SteadingData, SteadingNPC } from '@/types';
 
@@ -19,6 +22,19 @@ interface UseGameResult {
   removeCharacter: (characterId: string) => Promise<void>;
   reorderCharacters: (characters: Character[]) => Promise<void>;
 }
+
+// Map raw Firestore error codes to messages a player can act on — the raw
+// strings (e.g. "Missing or insufficient permissions") are infra noise. Any
+// unmapped code falls through to a generic line, so raw text never reaches the UI.
+const FIRESTORE_ERROR_MESSAGES: Partial<Record<FirestoreError['code'], string>> = {
+  'permission-denied': "You don't have access to this game.",
+  unavailable: "Can't reach the server — check your connection and try again.",
+  'deadline-exceeded': "The server took too long to respond — try again.",
+  unauthenticated: "Your session expired — reload the page and try again.",
+};
+
+const friendlyFirestoreError = (err: FirestoreError): string =>
+  FIRESTORE_ERROR_MESSAGES[err.code] ?? 'Something went wrong loading this game. Please try again.';
 
 const VALID_PLAYBOOKS = new Set<string>([
   'blessed', 'fox', 'heavy', 'judge', 'lightbearer', 'marshal', 'ranger', 'seeker', 'would-be-hero',
@@ -171,6 +187,36 @@ export const useGame = (gameId: string): UseGameResult => {
 
   const gameRef = useMemo(() => doc(db, GAMES_COLLECTION, gameId), [gameId]);
 
+  // Report every persisted write to the app-wide save-status indicator and the
+  // error Toast. Held in refs so wrapping a mutation doesn't add the (per-render)
+  // context objects to its dependency array — the callbacks stay stable.
+  const saveStatus = useSaveStatusOptional();
+  const saveStatusRef = useRef(saveStatus);
+  saveStatusRef.current = saveStatus;
+  const addToast = useToastOptional()?.addToast;
+  const addToastRef = useRef(addToast);
+  addToastRef.current = addToast;
+
+  // Wraps a write so the indicator shows "Saving…" while it runs and "Saved"
+  // once it settles. On failure it surfaces SAVE_ERROR_MESSAGE — every save path
+  // funnels through here, so direct callers (radios, checkboxes) fail loud just
+  // like debounced fields — then re-throws so callers' own .catch and the
+  // debounce hook's retry still run. The shared constant keeps this and the
+  // debounce hook on one string, so the Toast dedupe collapses them to one.
+  const reportSave = useCallback(async (write: () => Promise<void>): Promise<void> => {
+    saveStatusRef.current?.reportSaveStart();
+    let succeeded = false;
+    try {
+      await write();
+      succeeded = true;
+    } catch (error) {
+      addToastRef.current?.(SAVE_ERROR_MESSAGE, 'error');
+      throw error;
+    } finally {
+      saveStatusRef.current?.reportSaveSettled(succeeded);
+    }
+  }, []);
+
   useEffect(() => {
     const ref = gameRef;
     setLoading(true);
@@ -187,14 +233,16 @@ export const useGame = (gameId: string): UseGameResult => {
             const raw = snapshot.data() as Record<string, unknown>;
             setGame(parseGameSession(raw, snapshot.id));
             setError(null);
-          } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to parse game data');
+          } catch {
+            // A parse failure means the stored document is malformed — surface a
+            // player-readable line rather than the raw thrown message.
+            setError("This game's data couldn't be read. Please try again or contact your GM.");
           }
         }
         setLoading(false);
       },
       (err) => {
-        setError(err.message);
+        setError(friendlyFirestoreError(err));
         setLoading(false);
       }
     );
@@ -203,16 +251,16 @@ export const useGame = (gameId: string): UseGameResult => {
   }, [gameRef]);
 
   const updateGameName = useCallback(async (name: string) => {
-    await updateDoc(gameRef, { name });
-  }, [gameRef]);
+    await reportSave(() => updateDoc(gameRef, { name }));
+  }, [gameRef, reportSave]);
 
   const updateContent = useCallback(async (field: keyof ContentLists, value: string) => {
-    await updateDoc(gameRef, { [`content.${field}`]: value });
-  }, [gameRef]);
+    await reportSave(() => updateDoc(gameRef, { [`content.${field}`]: value }));
+  }, [gameRef, reportSave]);
 
   const updateField = useCallback(async (field: keyof Pick<GameSession, 'threats' | 'iWonder'>, value: string) => {
-    await updateDoc(gameRef, { [field]: value });
-  }, [gameRef]);
+    await reportSave(() => updateDoc(gameRef, { [field]: value }));
+  }, [gameRef, reportSave]);
 
   const addCharacter = useCallback(async (character: Character) => {
     // Read-modify-write so a double-tap or post-blip retry can't append the
@@ -235,11 +283,11 @@ export const useGame = (gameId: string): UseGameResult => {
   }, [gameRef]);
 
   const updateCharacterName = useCallback(async (characterId: string, name: string) => {
-    await withCharacters(gameRef, (chars) => chars.map((c) => c.id === characterId ? { ...c, name } : c));
-  }, [gameRef]);
+    await reportSave(() => withCharacters(gameRef, (chars) => chars.map((c) => c.id === characterId ? { ...c, name } : c)));
+  }, [gameRef, reportSave]);
 
   const updateCharacterData = useCallback(async (characterId: string, data: Partial<CharacterData>) => {
-    await withCharacters(gameRef, (chars) => chars.map((c) => {
+    await reportSave(() => withCharacters(gameRef, (chars) => chars.map((c) => {
       if (c.id !== characterId) return c;
       // Deep-merge playbookFeatures against the freshly-read doc so concurrent
       // saves to different feature keys don't clobber each other — the incoming
@@ -249,8 +297,8 @@ export const useGame = (gameId: string): UseGameResult => {
         next.playbookFeatures = { ...c.data?.playbookFeatures, ...data.playbookFeatures };
       }
       return { ...c, data: next };
-    }));
-  }, [gameRef]);
+    })));
+  }, [gameRef, reportSave]);
 
   const updateSteading = useCallback(async (patch: Partial<SteadingData>) => {
     const dotted: Record<string, unknown> = {};
@@ -270,8 +318,8 @@ export const useGame = (gameId: string): UseGameResult => {
           : v;
       }
     }
-    await updateDoc(gameRef, dotted);
-  }, [gameRef]);
+    await reportSave(() => updateDoc(gameRef, dotted));
+  }, [gameRef, reportSave]);
 
   return { game, loading, error, updateGameName, updateCharacterName, updateCharacterData, updateContent, updateField, updateSteading, addCharacter, removeCharacter, reorderCharacters };
 };

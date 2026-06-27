@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
-import { ToastProvider, ErrorBoundary } from "@/components/app";
+import { ToastProvider, SaveStatusProvider, SaveStatus, ErrorBoundary } from "@/components/app";
+import { Spinner } from "@/components/ui";
 import styles from "./App.module.css";
 
 /*
@@ -57,11 +58,12 @@ export const App = () => {
   const { pathname } = useLocation();
   return (
   <ToastProvider>
+    <SaveStatusProvider>
     <ErrorBoundary resetKey={pathname}>
       <Suspense
         fallback={
           <div className={styles.loading} aria-live="polite" aria-busy="true">
-            <span className={styles.spinner} role="status" aria-label="Loading…" />
+            <Spinner />
           </div>
         }
       >
@@ -75,6 +77,10 @@ export const App = () => {
         </Routes>
       </Suspense>
     </ErrorBoundary>
+    {/* Fixed-position save indicator — outside the route boundary so a page
+        crash doesn't remove it, inside the provider so it can read status. */}
+    <SaveStatus />
+    </SaveStatusProvider>
   </ToastProvider>
   );
 };

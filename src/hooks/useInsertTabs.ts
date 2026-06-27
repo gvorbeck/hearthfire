@@ -32,6 +32,7 @@ export const useInsertTabs = (
 
   const handleCloseRemoveInsert = useCallback(() => setRemoveInsert(null), []);
 
+  // Error/close/in-flight lifecycle is owned by RemoveInsertModal; let errors propagate.
   const handleConfirmRemoveInsert = useCallback(async () => {
     if (!removeInsert) return;
     const next = (character.data?.inserts ?? []).filter((i) => i !== removeInsert);
@@ -39,15 +40,9 @@ export const useInsertTabs = (
     const { followers, ...restFeatures } = resolved;
     void followers;
     const playbookFeatures = removeInsert === 'Followers' ? restFeatures : resolved;
-    try {
-      await onSave({ inserts: next, playbookFeatures });
-      setActiveIndex(0);
-      setRemoveInsert(null);
-    } catch {
-      setRemoveInsert(null);
-      addToast('Failed to remove insert. Try again.', 'error');
-    }
-  }, [removeInsert, character.data, onSave, setActiveIndex, addToast]);
+    await onSave({ inserts: next, playbookFeatures });
+    setActiveIndex(0);
+  }, [removeInsert, character.data, onSave, setActiveIndex]);
 
   const handleAddInsert = useCallback(async (insert: InsertOption) => {
     const current = character.data?.inserts ?? [];
