@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { Button } from '@/components/ui';
 import { Icon } from '@/components/ui';
 import { Text } from '@/components/ui';
+import { generateId } from '@/lib/id';
 import { ToastContext, type ToastVariant } from './ToastContext';
 import styles from './Toast.module.css';
 
@@ -90,7 +91,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
     }
-    const id = crypto.randomUUID();
+    const id = generateId();
     visibleKeys.current.set(id, dedupeKey);
     setToasts((prev) => [...prev, { id, message, variant, exiting: false }]);
     const timer = setTimeout(() => startExit(id), AUTO_DISMISS_MS);

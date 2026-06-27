@@ -2,8 +2,6 @@ import type { DropdownGroup } from '@/components/ui';
 import { getPlaybook } from '@/lib/constants';
 import type { NpcRelationship, GameSession } from '@/types';
 
-export const generateId = () => crypto.randomUUID();
-
 export const NPC_TRAITS = [
   'all thumbs', 'ambitious', 'beloved by everyone', 'beautiful singing voice', 'best cook',
   'best weaver', 'blind', 'braved the Ruined Tower', 'cautious', 'cheery', 'chronic cough',

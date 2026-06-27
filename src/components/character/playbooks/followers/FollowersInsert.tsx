@@ -14,6 +14,7 @@ import {
 import { useToast } from "@/components/app";
 import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import { resolvePlaybookFeatures } from "@/lib/resolvePlaybookFeatures";
+import { generateId } from "@/lib/id";
 import { useCrewSave } from "../shared/useCrewSave";
 import { StatBox, LoyaltyRow, CustomItemsGrid } from "../shared/CrewWidgets";
 import type { FollowerData, FollowerGearItem, PlaybookSectionProps } from "@/types";
@@ -59,9 +60,6 @@ const normalizeFollower = (
   ),
   notes: raw?.notes ?? "",
 });
-
-const generateId = () => crypto.randomUUID();
-
 
 interface MoveRowProps {
   followerIndex: number;

@@ -60,48 +60,6 @@
   }
 }
 
-.radioList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-}
-
-.radioCustomRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-3);
-}
-
-.radioLabel {
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-}
-
-.inlineTextInput {
-  flex: 1;
-  padding: var(--spacing-1) var(--spacing-2);
-  background-color: var(--surface-raised);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-sm);
-  color: var(--text-primary);
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  outline: none;
-  transition: border-color 0.15s ease;
-}
-
-.inlineTextInput::placeholder {
-  color: var(--text-tertiary);
-  font-style: italic;
-}
-
-.inlineTextInput:focus-visible {
-  border-color: var(--border-accent);
-  outline: 2px solid var(--color-gold-400);
-  outline-offset: 2px;
-}
-
 .loyaltyLabel {
   font-family: var(--font-serif);
   font-size: var(--text-sm);

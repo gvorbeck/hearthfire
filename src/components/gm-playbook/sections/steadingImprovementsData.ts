@@ -1,4 +1,5 @@
 import type { GmImprovement } from '@/types';
+import { generateId } from '@/lib/id';
 
 export interface CheckItem {
   label: string;
@@ -448,7 +449,7 @@ export const IMPROVEMENTS: Improvement[] = [
 ];
 
 export const makeEmptyGmImprovement = (): GmImprovement => ({
-  id: crypto.randomUUID(),
+  id: generateId(),
   title: '',
   summary: '',
   requirements: '',

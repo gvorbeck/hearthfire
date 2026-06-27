@@ -8,6 +8,7 @@ import {
 } from '@/components/ui';
 import { useToast } from '@/components/app';
 import { PLAYBOOKS, getPlaybook } from '@/lib/constants';
+import { generateId } from '@/lib/id';
 import type { Character, PlaybookType } from '@/types';
 import styles from './AddCharacterModal.module.css';
 
@@ -43,7 +44,7 @@ export const AddCharacterModal = ({
   const handleAdd = useCallback(async () => {
     if (!playbook) return;
     const selectedLabel = getPlaybook(playbook)?.label ?? playbook;
-    const character = { id: crypto.randomUUID(), name: selectedLabel, playbook, level: 1, data: { statLevel: '1' } };
+    const character = { id: generateId(), name: selectedLabel, playbook, level: 1, data: { statLevel: '1' } };
     setAdding(true);
     try {
       await onAdd(character);
