@@ -1,6 +1,5 @@
-import { MINOR_ARCANA } from '@/lib/arcanaMinor';
-import { MAJOR_ARCANA } from '@/lib/arcanaMajor';
 import type { CharacterData } from '@/types';
+import type { ArcanaWeights } from './useArcanaWeights';
 
 export interface MainItem {
   id: string;
@@ -82,7 +81,14 @@ export const PROSPERITY_NOTES: Record<number, string> = { [-1]: 'Gear is crude',
 export const getShieldWeight = (data: CharacterData | undefined): 1 | 2 =>
   data?.typeMoves?.['heavy-armored'] ? 1 : 2;
 
-export const computeTotalLoad = (data: CharacterData | undefined): number => {
+// Arcana weights live in the lazily-loaded datasets, so they're passed in as already-loaded
+// maps (see useArcanaWeights). Until they arrive, callers should treat the total as pending
+// rather than rendering a value that omits carried arcana.
+export const computeTotalLoad = (
+  data: CharacterData | undefined,
+  minorWeights: ArcanaWeights,
+  majorWeights: ArcanaWeights,
+): number => {
   const checked = data?.inventoryChecked ?? {};
   const namedLoad = MAIN_ITEMS.reduce((sum, item) => {
     if (!checked[item.id]) return sum;
@@ -92,13 +98,13 @@ export const computeTotalLoad = (data: CharacterData | undefined): number => {
   const possessionLoad = (data?.inventoryPossessions ?? []).reduce((sum, item) => item.checked ? sum + item.weight : sum, 0);
   const arcanaMinorLoad = (data?.arcanaMinor ?? []).reduce((sum, entry) => {
     if (!entry.carried) return sum;
-    const arcanum = MINOR_ARCANA.find((a) => a.id === entry.id);
-    return arcanum?.weight ? sum + arcanum.weight : sum;
+    const weight = minorWeights[entry.id]?.weight;
+    return weight ? sum + weight : sum;
   }, 0);
   const arcanaMajorLoad = (data?.arcanaMajor ?? []).reduce((sum, entry) => {
     if (!entry.carried) return sum;
-    const arcanum = MAJOR_ARCANA.find((a) => a.id === entry.id);
-    return arcanum?.weight ? sum + arcanum.weight : sum;
+    const weight = majorWeights[entry.id]?.weight;
+    return weight ? sum + weight : sum;
   }, 0);
   return namedLoad + possessionLoad + arcanaMinorLoad + arcanaMajorLoad + (data?.inventoryUndefined ?? 0);
 };

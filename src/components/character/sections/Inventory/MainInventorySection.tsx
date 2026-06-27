@@ -4,20 +4,20 @@ import {
   Checkbox,
   Divider,
   Heading,
+  Icon,
   List,
   Stack,
   Text,
   UseDots,
 } from "@/components/ui";
 import { RepeaterField } from "@/components/fields";
-import { MINOR_ARCANA } from "@/lib/arcanaMinor";
-import { MAJOR_ARCANA } from "@/lib/arcanaMajor";
 import type { ArcanaMinorEntry, ArcanaMajorEntry } from "@/types";
 import {
   MAIN_ITEMS,
   UNDEFINED_MAIN_COUNT,
   type MainItem,
 } from "./inventoryData";
+import type { ArcanaWeights } from "./useArcanaWeights";
 import { UndefinedProvisions } from "./UndefinedProvisions";
 import shared from "./inventoryItem.module.css";
 import styles from "./MainInventorySection.module.css";
@@ -116,7 +116,8 @@ const ArcanaItemRow = memo(
 );
 
 interface MainInventorySectionProps {
-  totalLoad: number;
+  // null while the lazily-loaded arcana weights are still in flight (see useArcanaWeights).
+  totalLoad: number | null;
   prosperity: number;
   shieldWeight: 1 | 2;
   inventoryChecked: Record<string, boolean>;
@@ -124,6 +125,8 @@ interface MainInventorySectionProps {
   undefinedMain: number;
   arcanaMinor: ArcanaMinorEntry[];
   arcanaMajor: ArcanaMajorEntry[];
+  // null while loading; the arcana rows render once the weight maps arrive.
+  arcanaWeights: { minor: ArcanaWeights; major: ArcanaWeights } | null;
   possessions: { checked: boolean; text: string; weight: 1 | 2 }[];
   onMainChecked: (id: string, checked: boolean) => void;
   onMainUses: (id: string, n: number) => void;
@@ -144,6 +147,7 @@ export const MainInventorySection = ({
   undefinedMain,
   arcanaMinor,
   arcanaMajor,
+  arcanaWeights,
   possessions,
   onMainChecked,
   onMainUses,
@@ -152,17 +156,21 @@ export const MainInventorySection = ({
   onArcanaMajorCarried,
   onSavePossessions,
 }: MainInventorySectionProps) => {
-  const loadLabel =
-    totalLoad <= 3
+  // totalLoad is null until the lazily-loaded arcana weights arrive; show a neutral pending
+  // badge meanwhile so we never flash a total that omits a carried arcanum's weight.
+  const isLoading = totalLoad === null;
+  const loadLabel = isLoading
+    ? "calculating load…"
+    : totalLoad <= 3
       ? "light load"
       : totalLoad <= 6
         ? "normal load"
         : "heavy load";
   const loadCx = clsx(
     styles.loadBadge,
-    totalLoad <= 3 && styles.loadLight,
-    totalLoad > 3 && totalLoad <= 6 && styles.loadNormal,
-    totalLoad > 6 && styles.loadHeavy,
+    !isLoading && totalLoad <= 3 && styles.loadLight,
+    !isLoading && totalLoad > 3 && totalLoad <= 6 && styles.loadNormal,
+    !isLoading && totalLoad > 6 && styles.loadHeavy,
   );
 
   return (
@@ -184,7 +192,22 @@ export const MainInventorySection = ({
         <Text
           as="span"
           className={loadCx}
-        >{`${totalLoad} ◈ — ${loadLabel}`}</Text>
+          aria-live="polite"
+          aria-label={isLoading ? "Calculating load" : `${totalLoad} load — ${loadLabel}`}
+        >
+          {isLoading ? (
+            <>
+              <Icon name="hourglass" size="small" className={styles.loadIcon} />
+              {loadLabel}
+            </>
+          ) : (
+            <>
+              {totalLoad}
+              <Icon name="filled-provisions" size="small" />
+              {`— ${loadLabel}`}
+            </>
+          )}
+        </Text>
       </div>
 
       <Divider />
@@ -229,7 +252,7 @@ export const MainInventorySection = ({
           Possessions, items, loot
         </Heading>
         {arcanaMinor.map((entry) => {
-          const arcanum = MINOR_ARCANA.find((a) => a.id === entry.id);
+          const arcanum = arcanaWeights?.minor[entry.id];
           if (!arcanum?.weight) return null;
           return (
             <ArcanaItemRow
@@ -243,7 +266,7 @@ export const MainInventorySection = ({
           );
         })}
         {arcanaMajor.map((entry) => {
-          const arcanum = MAJOR_ARCANA.find((a) => a.id === entry.id);
+          const arcanum = arcanaWeights?.major[entry.id];
           if (!arcanum?.weight) return null;
           return (
             <ArcanaItemRow

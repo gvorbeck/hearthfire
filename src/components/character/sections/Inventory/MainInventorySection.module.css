@@ -4,13 +4,20 @@
 }
 
 .loadBadge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
   padding: var(--spacing-1) var(--spacing-3);
   border-radius: var(--radius-sm);
   font-family: var(--font-serif);
   font-size: var(--text-xs);
   font-weight: 600;
   letter-spacing: 0.02em;
+}
+
+/* Hourglass shown while arcana weights load; muted since no load level is known yet. */
+.loadIcon {
+  color: var(--text-tertiary);
 }
 
 .loadLight {
