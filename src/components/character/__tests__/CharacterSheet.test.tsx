@@ -30,8 +30,9 @@ vi.mock('@/hooks/useGame', () => ({
 }));
 
 describe('CharacterSheet — playbook-specific sections', () => {
-  it('renders Blessed-specific "Sacred Pouch" section for a blessed character', () => {
+  it('renders Blessed-specific "Sacred Pouch" section for a blessed character', async () => {
     renderRoute(<CharacterPlaybook />, '/game/game-1/blessed', '/game/:id/:playbook');
-    expect(screen.getByText('Sacred Pouch')).toBeInTheDocument();
+    // Playbook sections are lazy-loaded, so the section resolves asynchronously.
+    expect(await screen.findByText('Sacred Pouch')).toBeInTheDocument();
   });
 });

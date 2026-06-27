@@ -31,18 +31,29 @@ import { featurePatch, resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeat
 import { useAutoFollowers } from '@/hooks/useAutoFollowers';
 import { useInsertTabs, INSERT_OPTIONS, type InsertOption } from '@/hooks/useInsertTabs';
 import { computeInvocationBadge } from '@/hooks/useInvocationBadge';
-import {
-  BlessedInitiatesOfDanu, BlessedSacredPouch, BlessedEarthMother,
-  FoxTallTales,
-  HeavyViolence,
-  JudgeChronicle, JudgeLawkeeper,
-  LightbearerPraiseTheDay, LightbearerInvocations,
-  MarshalWarStories, MarshalCrew,
-  RangerSomethingWicked, RangerAnimalCompanion,
-  SeekerCollection,
-  WouldBeHeroFearAnger,
-  RevenantInsert, GhostInsert, ThrallInsert, FollowersInsert,
-} from '@/components/character/playbooks';
+// Each playbook's panel + insert components are lazy-loaded so a character page
+// only downloads the active playbook's chunk, not all nine. Lazy calls that
+// import from the same per-playbook barrel share a single Rollup chunk, so e.g.
+// BlessedSacredPouch and BlessedEarthMother land together in the blessed chunk.
+const BlessedInitiatesOfDanu = lazy(() => import('@/components/character/playbooks/blessed').then((m) => ({ default: m.BlessedInitiatesOfDanu })));
+const BlessedSacredPouch = lazy(() => import('@/components/character/playbooks/blessed').then((m) => ({ default: m.BlessedSacredPouch })));
+const BlessedEarthMother = lazy(() => import('@/components/character/playbooks/blessed').then((m) => ({ default: m.BlessedEarthMother })));
+const FoxTallTales = lazy(() => import('@/components/character/playbooks/fox').then((m) => ({ default: m.FoxTallTales })));
+const HeavyViolence = lazy(() => import('@/components/character/playbooks/heavy').then((m) => ({ default: m.HeavyViolence })));
+const JudgeChronicle = lazy(() => import('@/components/character/playbooks/judge').then((m) => ({ default: m.JudgeChronicle })));
+const JudgeLawkeeper = lazy(() => import('@/components/character/playbooks/judge').then((m) => ({ default: m.JudgeLawkeeper })));
+const LightbearerPraiseTheDay = lazy(() => import('@/components/character/playbooks/lightbearer').then((m) => ({ default: m.LightbearerPraiseTheDay })));
+const LightbearerInvocations = lazy(() => import('@/components/character/playbooks/lightbearer').then((m) => ({ default: m.LightbearerInvocations })));
+const MarshalWarStories = lazy(() => import('@/components/character/playbooks/marshal').then((m) => ({ default: m.MarshalWarStories })));
+const MarshalCrew = lazy(() => import('@/components/character/playbooks/marshal').then((m) => ({ default: m.MarshalCrew })));
+const RangerSomethingWicked = lazy(() => import('@/components/character/playbooks/ranger').then((m) => ({ default: m.RangerSomethingWicked })));
+const RangerAnimalCompanion = lazy(() => import('@/components/character/playbooks/ranger').then((m) => ({ default: m.RangerAnimalCompanion })));
+const SeekerCollection = lazy(() => import('@/components/character/playbooks/seeker').then((m) => ({ default: m.SeekerCollection })));
+const WouldBeHeroFearAnger = lazy(() => import('@/components/character/playbooks/would-be-hero').then((m) => ({ default: m.WouldBeHeroFearAnger })));
+const RevenantInsert = lazy(() => import('@/components/character/playbooks/revenant/RevenantInsert').then((m) => ({ default: m.RevenantInsert })));
+const GhostInsert = lazy(() => import('@/components/character/playbooks/ghost/GhostInsert').then((m) => ({ default: m.GhostInsert })));
+const ThrallInsert = lazy(() => import('@/components/character/playbooks/thrall/ThrallInsert').then((m) => ({ default: m.ThrallInsert })));
+const FollowersInsert = lazy(() => import('@/components/character/playbooks/followers/FollowersInsert').then((m) => ({ default: m.FollowersInsert })));
 import type { Character, CharacterData, GameSession, PlaybookType, PlaybookFeatures } from '@/types';
 import styles from './CharacterPlaybook.module.css';
 
@@ -118,11 +129,13 @@ const PCPlaybookTab = ({ playbook, data, level, playbookOption, onSave, insertIn
       <PlaybookColumns full={<SpecialPossessions config={SPECIAL_POSSESSIONS_OPTIONS[playbook]} data={data} onSave={onSave} level={level} chooseOverride={foxChooseOverride} />} />
       <PlaybookColumns
         left={PLAYBOOK_SECTIONS[playbook] ? (
-          <Stack gap={6}>
-            {PLAYBOOK_SECTIONS[playbook]!.map(({ key, Component }) => (
-              <Component key={key} data={data} onSave={onSave} />
-            ))}
-          </Stack>
+          <Suspense fallback={<div className={styles.centered}><Spinner /></div>}>
+            <Stack gap={6}>
+              {PLAYBOOK_SECTIONS[playbook]!.map(({ key, Component }) => (
+                <Component key={key} data={data} onSave={onSave} />
+              ))}
+            </Stack>
+          </Suspense>
         ) : undefined}
         right={<Introductions config={INTRODUCTIONS_OPTIONS[playbook]} data={data} onSave={onSave} />}
       />
@@ -148,11 +161,15 @@ type PlaybookTabConfig = {
   when?: (data: CharacterData | undefined) => boolean;
 };
 
+const lazyTab = (node: ReactNode): ReactNode => (
+  <Suspense fallback={<div className={styles.centered}><Spinner /></div>}>{node}</Suspense>
+);
+
 const PLAYBOOK_TAB_CONFIGS: Partial<Record<PlaybookType, PlaybookTabConfig[]>> = {
-  lightbearer: [{ id: 'invocations', label: 'Invocations', render: (data, onSave) => <LightbearerInvocations data={data} onSave={onSave} /> }],
-  ranger: [{ id: 'animal-companion', label: 'Animal Companion', render: (data, onSave) => <RangerAnimalCompanion data={data} onSave={onSave} /> }],
-  marshal: [{ id: 'crew', label: 'Crew', render: (data, onSave, prosperity) => <MarshalCrew data={data} prosperity={prosperity} onSave={onSave} /> }],
-  blessed: [{ id: 'initiates-of-danu', label: 'Initiates of Danu', render: (data, onSave) => <BlessedInitiatesOfDanu data={data} onSave={onSave} />, when: (data) => data?.background === 'initiate' }],
+  lightbearer: [{ id: 'invocations', label: 'Invocations', render: (data, onSave) => lazyTab(<LightbearerInvocations data={data} onSave={onSave} />) }],
+  ranger: [{ id: 'animal-companion', label: 'Animal Companion', render: (data, onSave) => lazyTab(<RangerAnimalCompanion data={data} onSave={onSave} />) }],
+  marshal: [{ id: 'crew', label: 'Crew', render: (data, onSave, prosperity) => lazyTab(<MarshalCrew data={data} prosperity={prosperity} onSave={onSave} />) }],
+  blessed: [{ id: 'initiates-of-danu', label: 'Initiates of Danu', render: (data, onSave) => lazyTab(<BlessedInitiatesOfDanu data={data} onSave={onSave} />), when: (data) => data?.background === 'initiate' }],
 };
 
 const getPlaybookTabs = (playbook: PlaybookType, data: CharacterData | undefined) =>
@@ -166,15 +183,11 @@ const resolveStaticTabContent = (
   onSave: (data: Partial<CharacterData>) => Promise<void>,
 ): ReactNode => {
   if (id === 'inventory') return <Inventory data={data} prosperity={prosperity} onSave={onSave} />;
-  if (id === 'arcana') return (
-    <Suspense fallback={<div className={styles.centered}><Spinner /></div>}>
-      <ArcanaTab data={data} onSave={onSave} />
-    </Suspense>
-  );
-  if (id === 'Revenant') return <RevenantInsert data={data} onSave={onSave} />;
-  if (id === 'Ghost') return <GhostInsert data={data} onSave={onSave} />;
-  if (id === 'Thrall') return <ThrallInsert data={data} onSave={onSave} />;
-  if (id === 'Followers') return <FollowersInsert data={data} onSave={onSave} />;
+  if (id === 'arcana') return lazyTab(<ArcanaTab data={data} onSave={onSave} />);
+  if (id === 'Revenant') return lazyTab(<RevenantInsert data={data} onSave={onSave} />);
+  if (id === 'Ghost') return lazyTab(<GhostInsert data={data} onSave={onSave} />);
+  if (id === 'Thrall') return lazyTab(<ThrallInsert data={data} onSave={onSave} />);
+  if (id === 'Followers') return lazyTab(<FollowersInsert data={data} onSave={onSave} />);
   return null;
 };
 

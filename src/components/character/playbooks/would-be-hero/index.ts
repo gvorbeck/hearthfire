@@ -1,0 +1,1 @@
+export { WouldBeHeroFearAnger } from './WouldBeHeroFearAnger';

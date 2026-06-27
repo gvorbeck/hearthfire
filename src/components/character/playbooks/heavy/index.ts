@@ -1,0 +1,1 @@
+export { HeavyViolence } from './HeavyViolence';
