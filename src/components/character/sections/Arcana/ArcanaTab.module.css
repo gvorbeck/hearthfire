@@ -4,3 +4,9 @@
   gap: var(--spacing-4);
   padding: var(--spacing-4);
 }
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-4);
+}
