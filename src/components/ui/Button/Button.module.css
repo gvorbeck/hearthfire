@@ -10,6 +10,10 @@
   transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
   white-space: nowrap;
   letter-spacing: 0.02em;
+  /* Pair with white-space: nowrap above — as a flex child the label can't wrap,
+     so without this a sibling would shrink the button below its content width
+     and the label would overflow into the padding/border. */
+  flex-shrink: 0;
 }
 
 .base:focus-visible {
