@@ -163,6 +163,13 @@ const icons = {
       <path strokeLinecap="round" strokeLinejoin="round" d="M10 15h4" />
     </>
   ),
+  hourglass: (
+    <>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 3h12M6 21h12" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 3c0 4 3 6 6 9 3-3 6-5 6-9" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 21c0-4 3-6 6-9 3 3 6 5 6 9" />
+    </>
+  ),
 };
 
 export type IconName = keyof typeof icons;

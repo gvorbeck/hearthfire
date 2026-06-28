@@ -2,7 +2,8 @@ import { useCallback, useId } from 'react';
 import { Button, Input, Dropdown } from '@/components/ui';
 import type { DropdownGroup } from '@/components/ui';
 import type { NpcRelationship } from '@/types';
-import { generateId, encodeTarget, decodeTarget } from './npcData';
+import { generateId } from '@/lib/id';
+import { encodeTarget, decodeTarget } from './npcData';
 import type { RelTarget } from './npcData';
 import styles from './RelationshipRepeater.module.css';
 

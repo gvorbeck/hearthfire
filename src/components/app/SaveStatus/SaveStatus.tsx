@@ -39,6 +39,9 @@ export const SaveStatus = () => {
   // save lands (lastSavedAt changes) so the label resets to "just now", and on a
   // 15s timer so it then rolls forward to "1m ago" on its own.
   const [now, setNow] = useState(() => Date.now());
+  // The lastSavedAt value the user dismissed. The pill stays hidden until the
+  // next save lands (lastSavedAt changes) or a save is in flight again.
+  const [dismissedAt, setDismissedAt] = useState<number | null>(null);
 
   useEffect(() => {
     if (status !== 'saved') return;
@@ -53,7 +56,8 @@ export const SaveStatus = () => {
     : lastSavedAt !== null
       ? `Saved · ${formatRelative(lastSavedAt, now)}`
       : 'Saved';
-  const isIdle = !ctx || status === 'idle';
+  const isDismissed = status === 'saved' && lastSavedAt === dismissedAt;
+  const isIdle = !ctx || status === 'idle' || isDismissed;
   const cx = clsx(styles.root, !isIdle && styles.visible);
 
   // The role="status" live region is always mounted so screen readers announce
@@ -71,6 +75,16 @@ export const SaveStatus = () => {
           <Text as="span" size="xs" color={isSaving ? 'default' : 'muted'}>
             {label}
           </Text>
+          {!isSaving && (
+            <button
+              type="button"
+              className={styles.dismiss}
+              onClick={() => setDismissedAt(lastSavedAt)}
+              aria-label="Dismiss saved indicator"
+            >
+              <Icon name="close" size="small" aria-hidden="true" />
+            </button>
+          )}
         </>
       )}
     </span>

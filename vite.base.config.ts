@@ -41,10 +41,12 @@ export default defineConfig({
         manualChunks: {
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
           'vendor-firebase': ['firebase/app', 'firebase/firestore'],
-          // The Arcana card data is large (~2,850 lines) and shared between the
-          // Arcana tab and the Inventory section. Isolating it keeps it out of
-          // the main CharacterPlaybook chunk and lets it cache independently.
-          'arcana-data': ['@/lib/arcanaMajor', '@/lib/arcanaMinor'],
+          // The Arcana card data is large (~2,850 lines total). Major and Minor
+          // are split into separate chunks so each loads only when its sub-tab
+          // panel is viewed (the panels are lazy-loaded in ArcanaTab), and so
+          // each caches independently of the main CharacterPlaybook chunk.
+          'arcana-major-data': ['@/lib/arcanaMajor'],
+          'arcana-minor-data': ['@/lib/arcanaMinor'],
         },
       },
     },

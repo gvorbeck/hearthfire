@@ -1,10 +1,19 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { useOptimisticField } from '@/hooks/useOptimisticField';
 import type { PlaybookSectionProps } from '@/types';
+import { Spinner } from '@/components/ui';
 import { ArcanaSubTabs, type ArcanaSubTab } from './ArcanaSubTabs';
-import { MinorArcanaPanel } from './MinorArcanaPanel';
-import { MajorArcanaPanel } from './MajorArcanaPanel';
 import styles from './ArcanaTab.module.css';
+
+// Each panel statically imports its (large) arcana dataset, so lazy-loading the
+// panels splits MAJOR_ARCANA and MINOR_ARCANA into separate chunks that load
+// only when their sub-tab is viewed.
+const MinorArcanaPanel = lazy(() =>
+  import('./MinorArcanaPanel').then((m) => ({ default: m.MinorArcanaPanel })),
+);
+const MajorArcanaPanel = lazy(() =>
+  import('./MajorArcanaPanel').then((m) => ({ default: m.MajorArcanaPanel })),
+);
 
 type ArcanaTabProps = PlaybookSectionProps;
 
@@ -38,23 +47,25 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
         majorCount={arcanaMajor.length}
       />
 
-      {subTab === 'minor' && (
-        <MinorArcanaPanel
-          arcanaMinor={arcanaMinor}
-          arcanaMinorRef={arcanaMinorRef}
-          saveMinor={saveMinor}
-        />
-      )}
+      <Suspense fallback={<div className={styles.loading}><Spinner /></div>}>
+        {subTab === 'minor' && (
+          <MinorArcanaPanel
+            arcanaMinor={arcanaMinor}
+            arcanaMinorRef={arcanaMinorRef}
+            saveMinor={saveMinor}
+          />
+        )}
 
-      {subTab === 'major' && (
-        <MajorArcanaPanel
-          arcanaMajor={arcanaMajor}
-          arcanaMajorRef={arcanaMajorRef}
-          saveMajor={saveMajor}
-          instinctRef={instinctRef}
-          saveInstinct={saveInstinct}
-        />
-      )}
+        {subTab === 'major' && (
+          <MajorArcanaPanel
+            arcanaMajor={arcanaMajor}
+            arcanaMajorRef={arcanaMajorRef}
+            saveMajor={saveMajor}
+            instinctRef={instinctRef}
+            saveInstinct={saveInstinct}
+          />
+        )}
+      </Suspense>
     </div>
   );
 };

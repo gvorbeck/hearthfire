@@ -5,6 +5,7 @@ import { Divider, PlaybookColumns } from '@/components/ui';
 import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import type { PlaybookSectionProps } from '@/types';
 import { computeTotalLoad, getShieldWeight } from './inventoryData';
+import { useArcanaWeights } from './useArcanaWeights';
 import { MainInventorySection } from './MainInventorySection';
 import { SmallInventorySection } from './SmallInventorySection';
 import { ProsperitySection } from './ProsperitySection';
@@ -61,9 +62,15 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
     saveArcanaMajor(arcanaMajorRef.current.map((e) => e.id === id ? { ...e, carried } : e));
   }, [saveArcanaMajor]);
 
+  // Arcana weights load lazily (see useArcanaWeights); null means the carried-arcana weights
+  // aren't in yet, so the load total stays pending rather than showing a value missing them.
+  const arcanaWeights = useArcanaWeights(arcanaMinor, arcanaMajor);
+
   const totalLoad = useMemo(
-    () => computeTotalLoad({ ...data, inventoryChecked, inventoryUndefined: undefinedMain, arcanaMinor, arcanaMajor }),
-    [inventoryChecked, data, undefinedMain, arcanaMinor, arcanaMajor],
+    () => arcanaWeights === null
+      ? null
+      : computeTotalLoad({ ...data, inventoryChecked, inventoryUndefined: undefinedMain, arcanaMinor, arcanaMajor }, arcanaWeights.minor, arcanaWeights.major),
+    [inventoryChecked, data, undefinedMain, arcanaMinor, arcanaMajor, arcanaWeights],
   );
 
   return (
@@ -79,6 +86,7 @@ export const Inventory = ({ data, prosperity, onSave }: InventoryProps) => {
             undefinedMain={undefinedMain}
             arcanaMinor={arcanaMinor}
             arcanaMajor={arcanaMajor}
+            arcanaWeights={arcanaWeights}
             possessions={data?.inventoryPossessions ?? []}
             onMainChecked={handleMainChecked}
             onMainUses={handleMainUses}
