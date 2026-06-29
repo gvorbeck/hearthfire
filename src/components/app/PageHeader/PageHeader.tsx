@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect, useCallback, useId } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   Button,
-  Dropdown,
   Heading,
   Input,
   Text,
@@ -10,12 +9,11 @@ import {
   Tooltip,
 } from "@/components/ui";
 import { useToast } from "@/components/app";
-import { Breadcrumb } from "./Breadcrumb";
+import { PageNav } from "./PageNav";
 import { ThemeToggle } from "./ThemeToggle";
 import type { GameNav } from "./gameNav";
 import { SiteBanner } from "@/components/app/SiteBanner/SiteBanner";
 import { SITE_BANNER } from "@/lib/siteBanner";
-import type { Crumb } from "@/types";
 import styles from "./PageHeader.module.css";
 
 /*
@@ -31,14 +29,14 @@ import styles from "./PageHeader.module.css";
  *                   every full page. Not shown in simple mode (Home, NotFound)
  *                   where the page has its own hero treatment.
  *
- *   3. Page identity — breadcrumb trail, page title (optionally inline-editable),
+ *   3. Page identity — page switcher, page title (optionally inline-editable),
  *                   optional subtitle, game ID with copy button, and a decorative
  *                   rule divider. Only shown in full mode.
  *
  * Props come in two shapes (TypeScript discriminated union):
  *
  *   simple={true}  — Home and NotFound. Renders SiteBanner only.
- *                    No wordmark, no breadcrumbs, no title, no game ID.
+ *                    No wordmark, no switcher, no title, no game ID.
  *
  *   simple={false} (default) — All inner pages. Renders all three layers.
  *                    Title is read-only unless onSaveTitle + titleLabel are
@@ -51,7 +49,6 @@ type SimpleProps = {
 
 type FullProps = {
   simple?: false;
-  crumbs: Crumb[];
   title: string;
   subtitle?: string;
   icon?: React.ReactElement<SVGSVGElement>;
@@ -73,7 +70,6 @@ export const PageHeader = (props: Props) => {
    * them here even though simple mode never touches them.
    */
   const { addToast } = useToast();
-  const navigate = useNavigate();
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState("");
   const [copied, setCopied] = useState(false);
@@ -81,7 +77,7 @@ export const PageHeader = (props: Props) => {
   const copiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const editTooltipId = useId();
   const copyTooltipId = useId();
-  const navSelectId = useId();
+  const navDropdownId = useId();
 
   useEffect(() => {
     if (editing) inputRef.current?.select();
@@ -138,17 +134,6 @@ export const PageHeader = (props: Props) => {
       .catch(() => addToast("Failed to copy game ID.", "error"));
   }, [simple, props, addToast]);
 
-  const handleNavChange = useCallback(
-    (path: string) => {
-      if (simple) return;
-      const { nav } = props as FullProps;
-      // Selecting the current page is a no-op — don't push a redundant entry.
-      if (!path || path === nav?.current) return;
-      navigate(path);
-    },
-    [simple, props, navigate],
-  );
-
   const copyLabel = copied ? "Copied!" : "Copy game ID";
 
   /*
@@ -157,26 +142,17 @@ export const PageHeader = (props: Props) => {
    */
   let pageIdentity: React.ReactNode = null;
   if (!simple) {
-    const { crumbs, title, subtitle, icon, gameId, nav } = props as FullProps;
+    const { title, subtitle, icon, gameId, nav } = props as FullProps;
     const onSaveTitle = (props as FullProps).onSaveTitle;
     const titleLabel = (props as FullProps).titleLabel;
 
     pageIdentity = (
       <div className={styles.body}>
-        <div className={styles.navRow}>
-          <Breadcrumb crumbs={crumbs} />
-          {nav && (
-            <Dropdown
-              id={navSelectId}
-              className={styles.navSelect}
-              aria-label="Switch to another page"
-              groups={nav.groups}
-              value={nav.current}
-              placeholder="Switch to…"
-              onChange={handleNavChange}
-            />
-          )}
-        </div>
+        {nav && (
+          <div className={styles.navRow}>
+            <PageNav nav={nav} dropdownId={navDropdownId} />
+          </div>
+        )}
         <div className={styles.titleRow}>
           {icon && (
             <span className={styles.titleIcon} aria-hidden="true">
@@ -269,13 +245,15 @@ export const PageHeader = (props: Props) => {
        */}
       {!simple && (
         <div className={styles.topBar}>
-          <Heading as="h1" size="md" className={styles.wordmark}>Hearthfire</Heading>
+          <Heading as="h1" size="md" className={styles.wordmark}>
+            <Link to="/" className={styles.wordmarkLink}>Hearthfire</Link>
+          </Heading>
           <ThemeToggle />
         </div>
       )}
 
       {/*
-       * Page identity — breadcrumbs, title, game ID, rule divider.
+       * Page identity — page switcher, title, game ID, rule divider.
        * Only rendered in full mode.
        */}
       {pageIdentity}
