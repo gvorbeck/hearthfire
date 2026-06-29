@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
-import { Text } from '@/components/ui';
+import { Button, Text } from '@/components/ui';
 import type { GameSession } from '@/types';
+import { useLatest } from '@/hooks/useLatest';
 import { buildRelationshipGraph } from './relationshipGraphData';
 import type { GraphNode } from './relationshipGraphData';
 import styles from './RelationshipGraph.module.css';
@@ -16,6 +17,20 @@ const NODE_RADIUS = 8;
 // right-side room for node labels, which render to the right of each dot.
 const PAD = 24;
 const LABEL_PAD = 120;
+// Zoom bounds and the multiplier applied per button press / wheel notch.
+const MIN_ZOOM = 0.4;
+const MAX_ZOOM = 4;
+const ZOOM_STEP = 1.25;
+
+interface ViewTransform {
+  x: number;
+  y: number;
+  k: number;
+}
+
+const IDENTITY_VIEW: ViewTransform = { x: 0, y: 0, k: 1 };
+
+const clampZoom = (k: number): number => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, k));
 // Roughly the number of characters that fit in the reserved label gutter at the
 // label font size; longer names are clipped with an ellipsis (full name stays in
 // the node's <title> for hover/screen readers).
@@ -62,10 +77,20 @@ interface DragState {
 
 export const RelationshipGraph = ({ game, focusId }: RelationshipGraphProps) => {
   const svgRef = useRef<SVGSVGElement>(null);
+  // The pan/zoom transform is applied to this inner group. Node-drag math reads
+  // its CTM, so dragging stays accurate at any zoom or pan without extra math.
+  const contentRef = useRef<SVGGElement>(null);
   const [drag, setDrag] = useState<DragState | null>(null);
   // Per-node position overrides applied on top of the simulated layout once the
   // user drags a node.
   const [overrides, setOverrides] = useState<Record<string, { x: number; y: number }>>({});
+  // Pan offset (x, y) and zoom factor (k) layered on top of the fitted viewBox.
+  const [view, setView] = useState<ViewTransform>(IDENTITY_VIEW);
+  // Live mirrors so pointer-down handlers can read current state without listing
+  // it as a dependency (which would re-create the handler every pan frame).
+  const viewRef = useLatest(view);
+  // Active background pan, tracked in client pixels so a moving pointer maps 1:1.
+  const panRef = useRef<{ pointerId: number; startX: number; startY: number; origin: ViewTransform } | null>(null);
 
   const mobile = useIsMobile();
 
@@ -82,6 +107,7 @@ export const RelationshipGraph = ({ game, focusId }: RelationshipGraphProps) => 
   const nodeKey = graph.nodes.map((n) => n.id).join('|');
   useEffect(() => {
     setOverrides({});
+    setView(IDENTITY_VIEW);
   }, [nodeKey]);
 
   // Resolve each node's rendered position: a drag override wins, else the layout.
@@ -98,13 +124,14 @@ export const RelationshipGraph = ({ game, focusId }: RelationshipGraphProps) => 
     return map;
   }, [nodes]);
 
-  // Fit the viewBox to the actual spread of nodes rather than the full layout
-  // canvas, so a small focused (ego) graph fills its frame instead of floating
-  // zoomed-out in empty space.
+  // Fit the viewBox to the simulated layout (graph.nodes), NOT the drag-adjusted
+  // positions — otherwise dragging a node to the edge would grow the frame and
+  // shrink the whole graph each frame, runaway-zooming it to microscopic. The
+  // frame stays fixed; nodes move within it, and pan/zoom handle the rest.
   const viewBox = useMemo(() => {
-    if (nodes.length === 0) return `0 0 ${VIEW_WIDTH} ${VIEW_HEIGHT}`;
-    const xs = nodes.map((n) => n.x);
-    const ys = nodes.map((n) => n.y);
+    if (graph.nodes.length === 0) return `0 0 ${VIEW_WIDTH} ${VIEW_HEIGHT}`;
+    const xs = graph.nodes.map((n) => n.x);
+    const ys = graph.nodes.map((n) => n.y);
     const minX = Math.min(...xs) - NODE_RADIUS - PAD;
     const minY = Math.min(...ys) - NODE_RADIUS - PAD;
     // Labels render to the right of each dot, so reserve room there. Half that
@@ -115,26 +142,46 @@ export const RelationshipGraph = ({ game, focusId }: RelationshipGraphProps) => 
     const minXAdjusted = minX - LABEL_PAD / 2;
     const maxY = Math.max(...ys) + NODE_RADIUS + PAD;
     return `${minXAdjusted} ${minY} ${maxX - minXAdjusted} ${maxY - minY}`;
-  }, [nodes]);
+  }, [graph.nodes]);
 
-  // Convert a pointer event to view coordinates via the SVG's CTM.
-  const toViewCoords = useCallback((clientX: number, clientY: number) => {
+  // Map a client point into the coordinate space of `target` via its CTM.
+  const toLocalCoords = useCallback((target: SVGGraphicsElement | null, clientX: number, clientY: number) => {
     const svg = svgRef.current;
-    if (!svg) return { x: 0, y: 0 };
+    if (!svg || !target) return { x: 0, y: 0 };
+    const ctm = target.getScreenCTM();
+    if (!ctm) return { x: 0, y: 0 };
     const pt = svg.createSVGPoint();
     pt.x = clientX;
     pt.y = clientY;
-    const ctm = svg.getScreenCTM();
-    if (!ctm) return { x: 0, y: 0 };
     const local = pt.matrixTransform(ctm.inverse());
     return { x: local.x, y: local.y };
   }, []);
 
-  const handlePointerDown = useCallback(
+  // Content-group space (pan/zoom baked in) — for node-drag, so a node lands
+  // under the cursor at any view.
+  const toViewCoords = useCallback(
+    (clientX: number, clientY: number) => toLocalCoords(contentRef.current, clientX, clientY),
+    [toLocalCoords],
+  );
+
+  // Root SVG space (viewBox units, before the pan/zoom transform) — pan and zoom
+  // must work here, since that's the space the transform lives in; raw CSS pixels
+  // would mismatch the letterboxed viewBox scale and make the graph drift.
+  const toRootCoords = useCallback(
+    (clientX: number, clientY: number) => toLocalCoords(svgRef.current, clientX, clientY),
+    [toLocalCoords],
+  );
+
+  // A node owns its whole drag gesture: it captures the pointer on down and
+  // handles its own move/up, so the capture target and the listeners are the
+  // same element rather than relying on events bubbling up to the SVG.
+  const handleNodePointerDown = useCallback(
     (e: React.PointerEvent<SVGGElement>) => {
       const id = e.currentTarget.dataset.id;
       const node = id ? nodeById.get(id) : undefined;
       if (!id || !node) return;
+      // Claim the gesture so the background doesn't also start panning.
+      e.stopPropagation();
       const { x, y } = toViewCoords(e.clientX, e.clientY);
       e.currentTarget.setPointerCapture(e.pointerId);
       setDrag({ id, offsetX: x - node.x, offsetY: y - node.y });
@@ -142,7 +189,7 @@ export const RelationshipGraph = ({ game, focusId }: RelationshipGraphProps) => 
     [nodeById, toViewCoords],
   );
 
-  const handlePointerMove = useCallback(
+  const handleNodePointerMove = useCallback(
     (e: React.PointerEvent<SVGGElement>) => {
       if (!drag) return;
       const { x, y } = toViewCoords(e.clientX, e.clientY);
@@ -151,7 +198,78 @@ export const RelationshipGraph = ({ game, focusId }: RelationshipGraphProps) => 
     [drag, toViewCoords],
   );
 
-  const handlePointerUp = useCallback(() => setDrag(null), []);
+  const handleNodePointerUp = useCallback(() => setDrag(null), []);
+
+  // Pointer-down on empty canvas arms a background pan (the pan only actually
+  // moves once the pointer does). A node drag calls stopPropagation, so this
+  // never fires for a node.
+  const handleBackgroundPointerDown = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
+    // Record the start point in viewBox units so the pan delta matches the space
+    // the transform lives in (not raw CSS pixels, which are letterbox-scaled).
+    const start = toRootCoords(e.clientX, e.clientY);
+    panRef.current = { pointerId: e.pointerId, startX: start.x, startY: start.y, origin: viewRef.current };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }, [toRootCoords, viewRef]);
+
+  const handleBackgroundPointerMove = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
+    const pan = panRef.current;
+    if (!pan) return;
+    // Pan moves the content 1:1 with the cursor, in viewBox units.
+    const p = toRootCoords(e.clientX, e.clientY);
+    setView({ ...pan.origin, x: pan.origin.x + (p.x - pan.startX), y: pan.origin.y + (p.y - pan.startY) });
+  }, [toRootCoords]);
+
+  const handleBackgroundPointerUp = useCallback(() => {
+    panRef.current = null;
+  }, []);
+
+  // Zoom around a focal point given in viewBox units (the space the transform
+  // lives in) so the content under that point stays put as the scale changes.
+  const zoomAt = useCallback((factor: number, focalX: number, focalY: number) => {
+    setView((v) => {
+      const k = clampZoom(v.k * factor);
+      const ratio = k / v.k;
+      // Keep the focal point fixed: new offset = focal - ratio * (focal - old offset).
+      return { k, x: focalX - ratio * (focalX - v.x), y: focalY - ratio * (focalY - v.y) };
+    });
+  }, []);
+
+  // Zoom buttons pivot around the center of the visible frame, in viewBox units.
+  const zoomAtFrameCenter = useCallback((factor: number) => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const rect = svg.getBoundingClientRect();
+    const center = toRootCoords(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    zoomAt(factor, center.x, center.y);
+  }, [toRootCoords, zoomAt]);
+
+  const handleZoomIn = useCallback(() => zoomAtFrameCenter(ZOOM_STEP), [zoomAtFrameCenter]);
+  const handleZoomOut = useCallback(() => zoomAtFrameCenter(1 / ZOOM_STEP), [zoomAtFrameCenter]);
+
+  const handleResetView = useCallback(() => setView(IDENTITY_VIEW), []);
+
+  // Snap any hand-dragged nodes back to their computed layout positions, without
+  // touching the current pan/zoom.
+  const handleResetNodes = useCallback(() => setOverrides({}), []);
+  const hasMovedNodes = Object.keys(overrides).length > 0;
+
+  // Whether the interactive SVG (vs. an empty/prompt placeholder) is rendered.
+  const graphShown = graph.nodes.length > 0 && !(mobile && !focusId);
+
+  // Wheel-zoom must be a non-passive native listener so preventDefault can stop
+  // the page from scrolling; React's onWheel is passive and would reject it.
+  // Re-runs when the SVG mounts (graphShown) so the listener attaches to it.
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const focal = toRootCoords(e.clientX, e.clientY);
+      zoomAt(e.deltaY < 0 ? ZOOM_STEP : 1 / ZOOM_STEP, focal.x, focal.y);
+    };
+    svg.addEventListener('wheel', onWheel, { passive: false });
+    return () => svg.removeEventListener('wheel', onWheel);
+  }, [zoomAt, toRootCoords, graphShown]);
 
   if (graph.nodes.length === 0) {
     return (
@@ -184,9 +302,10 @@ export const RelationshipGraph = ({ game, focusId }: RelationshipGraphProps) => 
         viewBox={viewBox}
         role="img"
         aria-label={`Relationship map: ${graph.nodes.length} characters, ${graph.edges.length} relationships`}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerLeave={handlePointerUp}
+        onPointerDown={handleBackgroundPointerDown}
+        onPointerMove={handleBackgroundPointerMove}
+        onPointerUp={handleBackgroundPointerUp}
+        onLostPointerCapture={handleBackgroundPointerUp}
       >
         <defs>
           <marker
@@ -202,6 +321,7 @@ export const RelationshipGraph = ({ game, focusId }: RelationshipGraphProps) => 
           </marker>
         </defs>
 
+        <g ref={contentRef} transform={`translate(${view.x} ${view.y}) scale(${view.k})`}>
         <g>
           {graph.edges.map((edge) => {
             const a = nodeById.get(edge.sourceId);
@@ -247,7 +367,10 @@ export const RelationshipGraph = ({ game, focusId }: RelationshipGraphProps) => 
                 data-id={node.id}
                 className={groupCx}
                 transform={`translate(${node.x} ${node.y})`}
-                onPointerDown={handlePointerDown}
+                onPointerDown={handleNodePointerDown}
+                onPointerMove={handleNodePointerMove}
+                onPointerUp={handleNodePointerUp}
+                onLostPointerCapture={handleNodePointerUp}
               >
                 <title>{node.label}</title>
                 <circle r={NODE_RADIUS} className={styles.nodeCircle} />
@@ -258,7 +381,15 @@ export const RelationshipGraph = ({ game, focusId }: RelationshipGraphProps) => 
             );
           })}
         </g>
+        </g>
       </svg>
+
+      <div className={styles.controls}>
+        <Button variant="secondary" size="sm" icon="undo" onClick={handleResetNodes} disabled={!hasMovedNodes} aria-label="Reset node positions" />
+        <Button variant="secondary" size="sm" icon="plus" onClick={handleZoomIn} aria-label="Zoom in" />
+        <Button variant="secondary" size="sm" icon="minus" onClick={handleZoomOut} aria-label="Zoom out" />
+        <Button variant="secondary" size="sm" icon="recenter" onClick={handleResetView} aria-label="Reset view" />
+      </div>
     </div>
   );
 };
