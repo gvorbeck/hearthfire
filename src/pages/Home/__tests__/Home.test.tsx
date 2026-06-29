@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '@/test/renderWithProviders';
 import { gameIdExists } from '@/lib/game';
@@ -34,21 +34,23 @@ describe('Home', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/game/abc123', { state: { isNew: true } });
   });
 
-  it('submitting an existing game ID navigates to /game/:id', async () => {
+  it('shows "Game found" once the live check resolves, then submitting navigates to /game/:id', async () => {
     mockGameIdExists.mockResolvedValue(true);
     renderWithProviders(<Home />);
     await userEvent.type(screen.getByLabelText(/game id/i), 'xyz789');
+    expect(await screen.findByText(/game found/i, {}, { timeout: 2000 })).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByRole('button', { name: /join/i })).toBeEnabled());
     await userEvent.click(screen.getByRole('button', { name: /join/i }));
     expect(mockGameIdExists).toHaveBeenCalledWith('xyz789');
     expect(mockNavigate).toHaveBeenCalledWith('/game/xyz789');
   });
 
-  it('submitting a non-existent game ID shows an inline error and does not navigate', async () => {
+  it('shows an inline "no game found" hint and keeps the Join button disabled for a non-existent ID', async () => {
     mockGameIdExists.mockResolvedValue(false);
     renderWithProviders(<Home />);
     await userEvent.type(screen.getByLabelText(/game id/i), 'nope');
-    await userEvent.click(screen.getByRole('button', { name: /join/i }));
-    expect(await screen.findByText(/no game found with that id/i)).toBeInTheDocument();
+    expect(await screen.findByText(/no game found with that id/i, {}, { timeout: 2000 })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /join/i })).toBeDisabled();
     expect(mockNavigate).not.toHaveBeenCalled();
   });
 });

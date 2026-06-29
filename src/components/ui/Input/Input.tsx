@@ -17,12 +17,13 @@ type TextareaProps = BaseProps & { multiline: true } & TextareaHTMLAttributes<HT
 type Props = InputProps | TextareaProps;
 
 export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, Props>(
-  ({ label, note, id, error, className, multiline, ...props }, ref) => {
+  ({ label, note, id, error, className, multiline, 'aria-describedby': ariaDescribedBy, ...props }, ref) => {
     const generatedId = useId();
     const resolvedId = id ?? generatedId;
     const errorId = error ? `${generatedId}-error` : undefined;
     const noteId = note ? `${generatedId}-note` : undefined;
-    const describedBy = [noteId, errorId].filter((x): x is string => Boolean(x)).join(' ') || undefined;
+    // Merge any caller-supplied aria-describedby with the note/error ids we own.
+    const describedBy = [ariaDescribedBy, noteId, errorId].filter((x): x is string => Boolean(x)).join(' ') || undefined;
     const cx = clsx(styles.input, error && styles.hasError, className);
 
     const el = multiline

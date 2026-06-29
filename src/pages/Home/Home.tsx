@@ -3,8 +3,9 @@ import clsx from 'clsx';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { PageLayout } from '@/components/app/PageLayout/PageLayout';
-import { createGame, createGameWithId, gameIdExists } from '@/lib/game';
+import { createGame, createGameWithId } from '@/lib/game';
 import { useGameIdCheck } from '@/hooks/useGameIdCheck';
+import { useJoinIdCheck } from '@/hooks/useJoinIdCheck';
 import { Button, Heading, Icon, Input, RuleDivider, Stack, Text } from '@/components/ui';
 import styles from './Home.module.css';
 
@@ -16,19 +17,27 @@ const STATUS_MESSAGES = {
   invalid: 'Must be at least 3 characters.',
 } as const;
 
+const JOIN_STATUS_MESSAGES = {
+  idle: '',
+  checking: 'Checking…',
+  found: 'Game found ✓',
+  notfound: 'No game found with that ID.',
+  error: 'Could not check that ID. Please try again.',
+} as const;
+
 export const Home = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const customIdHintId = useId();
+  const joinHintId = useId();
 
   const [joinId, setJoinId] = useState('');
-  const [joinError, setJoinError] = useState('');
-  const [joining, setJoining] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState('');
   const [customIdRaw, setCustomIdRaw] = useState('');
 
   const { slug, status } = useGameIdCheck(customIdRaw);
+  const { status: joinStatus } = useJoinIdCheck(joinId);
 
   const handleCreate = useCallback(async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -57,32 +66,15 @@ export const Home = () => {
     setCreateError('');
   }, []);
 
-  const handleJoin = useCallback(async (e: React.FormEvent) => {
+  // The Join button is enabled only once the live check confirms the game
+  // exists, so submit can trust joinStatus and navigate without re-checking.
+  const handleJoin = useCallback((e: React.FormEvent) => {
     e.preventDefault();
-    const trimmed = joinId.trim();
-    if (!trimmed) {
-      setJoinError('Please enter a game ID.');
-      return;
-    }
-    setJoining(true);
-    setJoinError('');
-    try {
-      const exists = await gameIdExists(trimmed);
-      if (exists) {
-        navigate(`/game/${trimmed}`);
-      } else {
-        setJoinError('No game found with that ID.');
-      }
-    } catch {
-      setJoinError('Could not check that ID. Please try again.');
-    } finally {
-      setJoining(false);
-    }
-  }, [joinId, navigate]);
+    if (joinStatus === 'found') navigate(`/game/${joinId.trim()}`);
+  }, [joinId, joinStatus, navigate]);
 
   const handleJoinIdChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setJoinId(e.target.value);
-    setJoinError('');
   }, []);
 
   const isCreateDisabled = creating || status === 'taken' || status === 'invalid' || status === 'checking';
@@ -93,6 +85,15 @@ export const Home = () => {
     status === 'available' && styles.idHintAvailable,
     (status === 'taken' || status === 'invalid') && styles.idHintTaken,
     status === 'checking' && styles.idHintChecking,
+  );
+
+  const isJoinDisabled = joinStatus !== 'found';
+
+  const joinHintCx = clsx(
+    styles.idHint,
+    joinStatus === 'found' && styles.idHintAvailable,
+    (joinStatus === 'notfound' || joinStatus === 'error') && styles.idHintTaken,
+    joinStatus === 'checking' && styles.idHintChecking,
   );
 
   return (
@@ -162,19 +163,27 @@ export const Home = () => {
         <div className={styles.card}>
           <Heading as="h2" size="label">Join Game</Heading>
           <form onSubmit={handleJoin} className={styles.cardBody}>
-            <Stack gap={4}>
+            <Stack gap={2}>
               <Input
                 id="join-id"
                 label="Game ID"
                 placeholder="Paste your ID"
                 value={joinId}
                 onChange={handleJoinIdChange}
-                error={joinError}
+                aria-describedby={joinStatus !== 'idle' ? joinHintId : undefined}
+                autoComplete="off"
+                autoCapitalize="none"
+                spellCheck={false}
               />
-              <Button type="submit" variant="secondary" size="lg" fullWidth disabled={joining}>
-                {joining ? 'Joining…' : 'Join'}
-              </Button>
+              <div id={joinHintId} aria-live="polite" aria-atomic="true">
+                {joinStatus !== 'idle' && (
+                  <Text as="span" size="xs" className={joinHintCx}>{JOIN_STATUS_MESSAGES[joinStatus]}</Text>
+                )}
+              </div>
             </Stack>
+            <Button type="submit" variant="secondary" size="lg" fullWidth disabled={isJoinDisabled}>
+              Join
+            </Button>
           </form>
         </div>
       </div>
