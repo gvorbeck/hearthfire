@@ -62,11 +62,6 @@ export interface CheckboxGroupItem {
   disabled?: boolean;
 }
 
-export interface Crumb {
-  label: string;
-  to?: string;
-}
-
 export interface IntroductionQuestion {
   id: string;
   text: string;

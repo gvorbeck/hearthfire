@@ -1,0 +1,69 @@
+/*
+ * Mobile-first: the grouped <Dropdown> is the default affordance, and the pill
+ * bar is hidden. At the 768px breakpoint they swap — the pills become the
+ * primary, always-visible page switcher and the dropdown is hidden.
+ */
+
+.pills {
+  display: none;
+}
+
+.dropdown {
+  /* Compact the select to its content rather than the field's full width. */
+  width: auto;
+}
+
+.pillList {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  row-gap: var(--spacing-2);
+}
+
+.pillItem {
+  display: flex;
+}
+
+.pill {
+  display: inline-block;
+  padding: var(--spacing-1) var(--spacing-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  text-decoration: none;
+  background: var(--surface-raised);
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+
+a.pill:hover {
+  color: var(--text-accent);
+  border-color: var(--border-accent);
+}
+
+a.pill:focus-visible {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: 2px;
+}
+
+/* The current page reads as a static, emphasized marker rather than a link. */
+.pillCurrent {
+  color: var(--text-accent);
+  border-color: var(--border-accent);
+  cursor: default;
+}
+
+@media (min-width: 768px) {
+  .pills {
+    display: block;
+  }
+
+  .dropdown {
+    display: none;
+  }
+}

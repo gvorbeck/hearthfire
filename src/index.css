@@ -61,6 +61,7 @@
   --radius-sm: 1px;
   --radius-md: 3px;
   --radius-lg: 6px;
+  --radius-pill: 999px; /* fully rounded — pill/chip shapes */
 
   --spacing-1: 4px;
   --spacing-2: 8px;

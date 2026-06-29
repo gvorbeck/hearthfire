@@ -217,11 +217,6 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, n
     ? `${characterName} — ${playbookLabel} — Hearthfire`
     : `${playbookLabel} — Hearthfire`;
 
-  const crumbs = useMemo(() => [
-    { label: gameName, to: `/game/${id}` },
-    { label: playbookLabel },
-  ], [gameName, id, playbookLabel]);
-
   const playbookTabs = getPlaybookTabs(playbook, characterData);
 
   const level = getCharacterLevel(character);
@@ -304,7 +299,6 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, n
 
   return (
     <PageLayout
-      crumbs={crumbs}
       title={characterName || playbookLabel}
       titleLabel="Edit character name"
       subtitle={characterName ? playbookLabel : undefined}

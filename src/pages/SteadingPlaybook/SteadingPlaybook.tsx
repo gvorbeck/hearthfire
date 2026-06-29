@@ -185,11 +185,6 @@ const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
   const steading = g.steading ?? {};
   const [npcFilter, setNpcFilter] = useState('');
 
-  const crumbs = useMemo(() => [
-    { label: gameName, to: `/game/${id}` },
-    { label: 'Steading Playbook' },
-  ], [gameName, id]);
-
   const tabs = useMemo(() => [
     {
       id: 'steading',
@@ -217,7 +212,7 @@ const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
   const nav = buildGameNav(g, id, `/game/${id}/steading`);
 
   return (
-    <PageLayout crumbs={crumbs} title="Steading Playbook" gameId={id} nav={nav}>
+    <PageLayout title="Steading Playbook" gameId={id} nav={nav}>
       <PageMeta
         title={`Steading Playbook — ${gameName} — Hearthfire`}
         description={`Stonetop steading playbook for ${gameName}. Track stats, improvements, assets, and NPCs.`}

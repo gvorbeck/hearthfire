@@ -47,21 +47,36 @@
 }
 
 /*
- * .navRow — holds the breadcrumb trail and the lateral-navigation "switch"
- * dropdown on one line, pushing the dropdown to the trailing edge. Wraps so
- * the dropdown drops below the breadcrumb on narrow viewports.
+ * The wordmark links home. It inherits the heading's font and color so it reads
+ * as the brand mark, not a default link, and only shifts to the accent color on
+ * hover/focus to signal it's clickable.
+ */
+.wordmarkLink {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.wordmarkLink:hover {
+  color: var(--text-accent);
+}
+
+.wordmarkLink:focus-visible {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/*
+ * .navRow — holds the lateral-navigation page switcher on its own line above
+ * the page title. align-items keeps the switcher (pill bar, or the dropdown at
+ * narrow widths) hugging the leading edge; the bottom margin separates it from
+ * the title below.
  */
 .navRow {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-3);
-  flex-wrap: wrap;
-}
-
-/* Compact the select to its content rather than the field's default full width. */
-.navSelect {
-  width: auto;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-6);
 }
 
 .titleRow {

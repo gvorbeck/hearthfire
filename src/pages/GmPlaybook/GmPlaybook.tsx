@@ -79,11 +79,6 @@ const GmPlaybookContent = ({ g, id, updateContent, updateField }: GmPlaybookCont
   const gameName = g.name || DEFAULT_GAME_NAME;
   const saveIWonder = useCallback((value: string) => updateField('iWonder', value), [updateField]);
 
-  const crumbs = useMemo(() => [
-    { label: gameName, to: `/game/${id}` },
-    { label: 'GM Playbook' },
-  ], [gameName, id]);
-
   const tabs = useMemo(() => [
     {
       id: 'reference',
@@ -130,7 +125,7 @@ const GmPlaybookContent = ({ g, id, updateContent, updateField }: GmPlaybookCont
   const nav = buildGameNav(g, id, `/game/${id}/gm`);
 
   return (
-    <PageLayout crumbs={crumbs} title="GM Playbook" gameId={id} nav={nav}>
+    <PageLayout title="GM Playbook" gameId={id} nav={nav}>
       <PageMeta
         title={`GM Playbook — ${gameName} — Hearthfire`}
         description={`GM playbook for ${gameName}. Core loop, moves, principles, and session tools.`}

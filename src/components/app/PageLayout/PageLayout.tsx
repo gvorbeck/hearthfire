@@ -1,7 +1,6 @@
 import { PageFooter } from '@/components/app/PageFooter/PageFooter';
 import { PageHeader } from '@/components/app/PageHeader/PageHeader';
 import type { GameNav } from '@/components/app/PageHeader/gameNav';
-import type { Crumb } from '@/types';
 import styles from './PageLayout.module.css';
 
 /*
@@ -13,7 +12,7 @@ import styles from './PageLayout.module.css';
  *
  *   PageHeader   — always rendered. In simple mode it shows only the
  *                  SiteBanner (if one is active). In full mode it also
- *                  shows the wordmark, breadcrumbs, page title, and game ID.
+ *                  shows the wordmark, page switcher, page title, and game ID.
  *
  *   <main>       — the scrollable content area. Page content goes here.
  *
@@ -22,7 +21,7 @@ import styles from './PageLayout.module.css';
  * There are two prop shapes:
  *
  *   simple={true}  — Home and NotFound. PageHeader renders SiteBanner only.
- *                    No wordmark, no breadcrumbs, no title, no game ID.
+ *                    No wordmark, no title, no game ID.
  *
  *   simple={false} (default) — All inner pages (Game, GM Playbook, Steading,
  *                    Character Playbook). PageHeader renders all layers.
@@ -41,7 +40,6 @@ type SimpleProps = {
 type FullProps = {
   simple?: false;
   children: React.ReactNode;
-  crumbs: Crumb[];
   title: string;
   subtitle?: string;
   icon?: React.ReactElement<SVGSVGElement>;
@@ -73,7 +71,6 @@ export const PageLayout = (props: Props) => {
       ) : (
         'onSaveTitle' in props && props.onSaveTitle ? (
           <PageHeader
-            crumbs={props.crumbs}
             title={props.title}
             subtitle={props.subtitle}
             icon={props.icon}
@@ -84,7 +81,6 @@ export const PageLayout = (props: Props) => {
           />
         ) : (
           <PageHeader
-            crumbs={(props as FullProps).crumbs}
             title={(props as FullProps).title}
             subtitle={(props as FullProps).subtitle}
             icon={(props as FullProps).icon}

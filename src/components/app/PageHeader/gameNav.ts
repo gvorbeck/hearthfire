@@ -14,11 +14,12 @@ export interface GameNav {
 
 /*
  * buildGameNav — turn a loaded GameSession into the lateral-navigation option
- * list shown in the header. Groups the party characters together, then the
- * GM and Steading playbooks, so a GM can jump to any sibling page in one hop.
+ * list shown in the header. Leads with the party overview, then the GM and
+ * Steading playbooks, then the party characters, so a GM can jump to any
+ * sibling page — including back up to the overview — in one hop.
  *
  * `current` is the route path of the page being rendered; it must match one of
- * the option values for the select to reflect the active destination.
+ * the option values for the switcher to reflect the active destination.
  */
 export const buildGameNav = (game: GameSession, id: string, current: string): GameNav => {
   const base = `/game/${id}`;
@@ -32,17 +33,22 @@ export const buildGameNav = (game: GameSession, id: string, current: string): Ga
     };
   });
 
-  const groups: DropdownGroup<string>[] = [];
+  // The overview is the page that used to be the breadcrumb's "up" link; it now
+  // lives in the switcher so every lateral destination is in one place. GM and
+  // Steading lead, then the party characters.
+  const groups: DropdownGroup<string>[] = [
+    { label: 'Overview', options: [{ value: base, label: 'Party Overview' }] },
+    {
+      label: 'Playbooks',
+      options: [
+        { value: `${base}/gm`, label: 'GM Playbook' },
+        { value: `${base}/steading`, label: 'Steading Playbook' },
+      ],
+    },
+  ];
   if (characterOptions.length > 0) {
     groups.push({ label: 'Characters', options: characterOptions });
   }
-  groups.push({
-    label: 'Playbooks',
-    options: [
-      { value: `${base}/gm`, label: 'GM Playbook' },
-      { value: `${base}/steading`, label: 'Steading Playbook' },
-    ],
-  });
 
   return { groups, current };
 };
