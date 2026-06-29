@@ -7,7 +7,7 @@
   font-family: var(--font-sans);
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
   white-space: nowrap;
   letter-spacing: 0.02em;
   /* Pair with white-space: nowrap above — as a flex child the label can't wrap,
@@ -39,6 +39,12 @@
   box-shadow: var(--glow-gold);
 }
 
+.primary:active:not(:disabled) {
+  background-color: var(--color-gold-500);
+  box-shadow: none;
+  transform: translateY(1px);
+}
+
 .secondary {
   background-color: transparent;
   color: var(--text-accent);
@@ -51,6 +57,12 @@
   color: var(--text-accent-strong);
 }
 
+.secondary:active:not(:disabled) {
+  background-color: color-mix(in srgb, var(--color-gold-400) 22%, transparent);
+  border-color: var(--color-gold-400);
+  transform: translateY(1px);
+}
+
 .ghost {
   background-color: transparent;
   color: var(--text-secondary);
@@ -61,6 +73,13 @@
   background-color: var(--surface-raised);
   color: var(--text-primary);
   border-color: var(--border-strong);
+}
+
+.ghost:active:not(:disabled) {
+  background-color: var(--surface-overlay);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+  transform: translateY(1px);
 }
 
 /* Layout */
@@ -122,4 +141,12 @@
 .iconOnly.xl {
   padding: var(--spacing-4);
   min-width: 0;
+}
+
+/* The pressed-state color shift carries the feedback on its own, so drop the
+   nudge for users who'd rather not see motion. */
+@media (prefers-reduced-motion: reduce) {
+  .base:active:not(:disabled) {
+    transform: none;
+  }
 }
