@@ -15,6 +15,7 @@ import { SteadingStats } from '@/components/gm-playbook/sections/SteadingStats';
 import { SteadingImprovements } from '@/components/gm-playbook/sections/SteadingImprovements';
 import { SteadingAssets } from '@/components/gm-playbook/sections/SteadingAssets';
 import { SteadingNPCs } from '@/components/gm-playbook/sections/SteadingNPCs/SteadingNPCs';
+import { RelationshipGraph } from '@/components/gm-playbook/sections/SteadingNPCs/RelationshipGraph';
 import { PlacesOfInterest, ReferenceNames, NpcTraits } from '@/components/gm-playbook/sections/SteadingReference';
 import type { GameSession, SteadingData, SteadingNPC } from '@/types';
 import styles from './SteadingPlaybook.module.css';
@@ -155,6 +156,11 @@ const NpcsTab = ({ g, steading, updateSteading, npcFilter, onFilterChange }: Npc
         </PlaybookSection>
       }
     />
+    <PlaybookColumns full={
+      <PlaybookSection title="Relationship map">
+        <RelationshipGraph game={g} focusId={npcFilter || undefined} />
+      </PlaybookSection>
+    } />
   </div>
 );
 
