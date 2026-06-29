@@ -12,7 +12,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "22"
+          # Match deploy.yml's pinned version so CI and deploy run on identical Node.
+          node-version: "22.20.0"
           cache: "npm"
       - name: Upgrade npm
         run: npm install -g npm@latest
