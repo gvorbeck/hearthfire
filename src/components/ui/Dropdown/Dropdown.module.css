@@ -29,6 +29,11 @@
   color: var(--text-secondary);
 }
 
+.select:hover {
+  border-color: var(--border-strong);
+  background-color: var(--surface-overlay);
+}
+
 .select:focus {
   border-color: var(--color-gold-500);
   background-color: var(--surface-overlay);
