@@ -10,7 +10,6 @@ import { AddCharacterModal } from './modals/AddCharacterModal';
 import { RemoveCharacterModal } from './modals/RemoveCharacterModal';
 import { GameGuard } from '@/components/app/GameGuard/GameGuard';
 import { PageLayout } from '@/components/app/PageLayout/PageLayout';
-import { buildGameNav } from '@/components/app/PageHeader/gameNav';
 import type { Character, GameSession } from '@/types';
 import styles from './Game.module.css';
 
@@ -134,7 +133,6 @@ const GameContent = ({
   onReorderCharacters,
 }: GameContentProps) => {
   const gameName = g.name || DEFAULT_GAME_NAME;
-  const nav = useMemo(() => buildGameNav(g, id, `/game/${id}`), [g, id]);
   const [removingCharacter, setRemovingCharacter] = useState<Character | null>(null);
   const [orderedCharacters, setOrderedCharacters] = useState<Character[]>(g.characters);
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -240,7 +238,6 @@ const GameContent = ({
         title={gameName}
         titleLabel="Edit game name"
         gameId={id}
-        nav={nav}
         onSaveTitle={onSaveTitle}
       >
         <div className={styles.sections}>
