@@ -1,0 +1,111 @@
+.wrap {
+  position: relative;
+  width: 100%;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-panel);
+  overflow: hidden;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  /* Fixed height band; the fitted viewBox scales to fit inside it (the SVG's
+     default preserveAspectRatio centers and letterboxes), so the whole graph
+     always shows — never cropped — and never collapses to a sliver or dominates
+     the page. */
+  height: clamp(320px, 50vh, 560px);
+  touch-action: none; /* let pointer drag work without the page panning */
+  cursor: grab; /* empty canvas pans; nodes set their own grab cursor */
+}
+
+.svg:active {
+  cursor: grabbing;
+}
+
+/* Floating zoom/reset cluster, top-right over the canvas. */
+.controls {
+  position: absolute;
+  top: var(--spacing-2);
+  right: var(--spacing-2);
+  display: flex;
+  gap: var(--spacing-1);
+}
+
+.empty {
+  padding: var(--spacing-6);
+  border: 1px dashed var(--border-subtle);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+/* ---- Edges ---- */
+
+.edgeLine {
+  stroke: var(--border-strong);
+  stroke-width: 1.5;
+}
+
+.arrowHead {
+  fill: var(--border-strong);
+}
+
+.edgeLabel {
+  fill: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--text-2xs);
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+/* ---- Nodes ----
+ * The graph is a read-only visualization: the whole SVG is exposed as a single
+ * labeled image, and the keyboard-accessible source of truth is the NPC editor
+ * lists below it. Dragging a node is a pointer-only enhancement, so nodes are
+ * intentionally not focusable and carry no focus ring. */
+
+.node {
+  cursor: grab;
+}
+
+.dragging {
+  cursor: grabbing;
+}
+
+.nodeCircle {
+  stroke: var(--surface-panel);
+  stroke-width: 2;
+}
+
+.nodeLabel {
+  fill: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-2xs);
+  pointer-events: none;
+  paint-order: stroke;
+  stroke: var(--surface-panel);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+/* PCs read as the accent (the party); residents and neighbors as cooler tiers. */
+.pc .nodeCircle {
+  fill: var(--color-gold-400);
+}
+
+.resident .nodeCircle {
+  fill: var(--color-navy-700);
+}
+
+.neighbor .nodeCircle {
+  fill: var(--color-stone-500);
+}
+
+.dead .nodeCircle {
+  fill: var(--color-stone-600);
+  opacity: 0.55;
+}
+
+.dead .nodeLabel {
+  fill: var(--text-tertiary);
+}

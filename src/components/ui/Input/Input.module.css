@@ -31,6 +31,11 @@
   color: var(--text-secondary);
 }
 
+.input:hover {
+  border-color: var(--border-strong);
+  background-color: var(--surface-overlay);
+}
+
 .input:focus {
   border-color: var(--color-gold-500);
   background-color: var(--surface-overlay);
