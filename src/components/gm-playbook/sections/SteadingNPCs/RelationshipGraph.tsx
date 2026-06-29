@@ -12,6 +12,10 @@ import styles from './RelationshipGraph.module.css';
 const VIEW_WIDTH = 960;
 const VIEW_HEIGHT = 600;
 const NODE_RADIUS = 8;
+// Breathing room around the fitted graph, in layout units. LABEL_PAD is extra
+// right-side room for node labels, which render to the right of each dot.
+const PAD = 24;
+const LABEL_PAD = 120;
 // Roughly the number of characters that fit in the reserved label gutter at the
 // label font size; longer names are clipped with an ellipsis (full name stays in
 // the node's <title> for hover/screen readers).
@@ -94,6 +98,25 @@ export const RelationshipGraph = ({ game, focusId }: RelationshipGraphProps) => 
     return map;
   }, [nodes]);
 
+  // Fit the viewBox to the actual spread of nodes rather than the full layout
+  // canvas, so a small focused (ego) graph fills its frame instead of floating
+  // zoomed-out in empty space.
+  const viewBox = useMemo(() => {
+    if (nodes.length === 0) return `0 0 ${VIEW_WIDTH} ${VIEW_HEIGHT}`;
+    const xs = nodes.map((n) => n.x);
+    const ys = nodes.map((n) => n.y);
+    const minX = Math.min(...xs) - NODE_RADIUS - PAD;
+    const minY = Math.min(...ys) - NODE_RADIUS - PAD;
+    // Labels render to the right of each dot, so reserve room there. Half that
+    // amount is added on the left too, so the dot cluster — whose own extent
+    // ends at the rightmost dot — stays visually centered rather than crammed
+    // against the left edge by the right-side label gutter.
+    const maxX = Math.max(...xs) + NODE_RADIUS + PAD + LABEL_PAD;
+    const minXAdjusted = minX - LABEL_PAD / 2;
+    const maxY = Math.max(...ys) + NODE_RADIUS + PAD;
+    return `${minXAdjusted} ${minY} ${maxX - minXAdjusted} ${maxY - minY}`;
+  }, [nodes]);
+
   // Convert a pointer event to view coordinates via the SVG's CTM.
   const toViewCoords = useCallback((clientX: number, clientY: number) => {
     const svg = svgRef.current;
@@ -158,7 +181,7 @@ export const RelationshipGraph = ({ game, focusId }: RelationshipGraphProps) => 
       <svg
         ref={svgRef}
         className={styles.svg}
-        viewBox={`0 0 ${VIEW_WIDTH} ${VIEW_HEIGHT}`}
+        viewBox={viewBox}
         role="img"
         aria-label={`Relationship map: ${graph.nodes.length} characters, ${graph.edges.length} relationships`}
         onPointerMove={handlePointerMove}

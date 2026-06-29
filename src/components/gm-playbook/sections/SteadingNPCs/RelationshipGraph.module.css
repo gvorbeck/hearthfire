@@ -9,7 +9,11 @@
 .svg {
   display: block;
   width: 100%;
-  height: auto;
+  /* Fixed height band; the fitted viewBox scales to fit inside it (the SVG's
+     default preserveAspectRatio centers and letterboxes), so the whole graph
+     always shows — never cropped — and never collapses to a sliver or dominates
+     the page. */
+  height: clamp(320px, 50vh, 560px);
   touch-action: none; /* let pointer drag work without the page panning */
 }
 
