@@ -126,26 +126,30 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     tags: "reach, magical",
     weight: 2,
     description:
-      "A knobby length of wood, pale as death and hard as steel, tapering to a needle point. The shaft is scored and notched, the tip stained with blood and soot.\n\nThe Spear is a potent weapon against spirits and demons. They cannot bear its touch and its presence makes them deeply ill at ease.\n\n---\n\nWhen you **wield the Twisted Spear as a weapon**, you ignore magical protections and can harm spirits, demons, and insubstantial creatures.\n\nWhen you first plunge the Spear into a spirit or demon, your mind reels with strange visions. These tasks become known to you:\n\n[ ] Impale a foul spirit with the Spear, and keep it skewered until it burns away to nothing.\n[ ] Visit the elder tree from which the Spear was carved, and water its roots with your blood.\n[ ] Face the Pale Hunter and survive the encounter.\n[ ] Spend a fortnight in the wild, eating nothing, naked and unarmed except for the Spear.\n[ ] Pierce your own hand through with the Spear, giving it a shard of your soul and reducing your max HP by 1d4+1.",
-    frontMoves: [
-      {
-        name: "Wield the Twisted Spear as a weapon",
-        text: "You ignore magical protections and can harm spirits, demons, and insubstantial creatures.",
-      },
-      {
-        name: "First plunge the Spear into a spirit or demon",
-        text: "Your mind reels with strange visions. These tasks become known to you. When you **complete a task**, mark it off.\n\nWhen you **have marked 3 tasks**, you unlock the mysteries of the Twisted Spear. Choose one of the Mystery moves below; you can use that move as long as you wield the Spear. Each time you mark a task thereafter, gain another Mystery move.",
-      },
-    ],
+      "A knobby length of wood, pale as death and hard as steel, tapering to a needle point. The shaft is scored and notched, the tip stained with blood and soot.\n\nThe Spear is a potent weapon against spirits and demons. They cannot bear its touch and its presence makes them deeply ill at ease.\n\n---\n\nWhen you **wield the Twisted Spear as a weapon**, you ignore magical protections and can harm spirits, demons, and insubstantial creatures.\n\nWhen you **first plunge the Spear into a spirit or demon**, your mind reels with strange visions. These tasks become known to you:\n\n[ ] Impale a foul spirit with the Spear, and keep it skewered until it burns away to nothing.\n[ ] Visit the elder tree from which the Spear was carved, and water its roots with your blood.\n[ ] Face the Pale Hunter and survive the encounter.\n[ ] Spend a fortnight in the wild, eating nothing, naked and unarmed except for the Spear.\n[ ] Pierce your own hand through with the Spear, giving it a shard of your soul and reducing your max HP by 1d4+1.\n\nWhen you **complete a task**, mark it off.\n\nWhen you **have marked 3 tasks**, you unlock the mysteries of the Twisted Spear. Choose one of the moves on the reverse; you can use that move as long as you wield the Spear. Each time you mark a task thereafter, gain another move from the reverse.",
     marks: {
       max: 5,
       unlockAt: 3,
-      tasks: [
-        "Impale a foul spirit with the Spear, and keep it skewered until it burns away to nothing.",
-        "Visit the elder tree from which the Spear was carved, and water its roots with your blood.",
-        "Face the Pale Hunter and survive the encounter.",
-        "Spend a fortnight in the wild, eating nothing, naked and unarmed except for the Spear.",
-        "Pierce your own hand through with the Spear, giving it a shard of your soul and reducing your max HP by 1d4+1.",
+    },
+    back: {
+      label: "Mysteries of the Twisted Spear",
+      sections: [
+        {
+          label: "Moves",
+          content: [
+            {
+              id: "whispers",
+              name: "Whispers",
+              selectable: true,
+              body: [
+                {
+                  kind: "para",
+                  text: 'When you **grip the shaft of the Twisted Spear**, you can ask the GM, "What spirits are active here?" and get an honest answer.',
+                },
+              ],
+            },
+          ],
+        },
       ],
     },
     mystery: {

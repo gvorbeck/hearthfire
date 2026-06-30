@@ -129,8 +129,11 @@ export const MajorArcanaPanel = ({ arcanaMajor, arcanaMajorRef, saveMajor, actio
           return { ...a, consequencesMarked };
         }
         if (!consequenceId.startsWith('task-')) return { ...a, consequencesMarked };
-        const taskCount = arcanum?.marks.tasks?.length ?? 0;
-        const marksValue = Array.from({ length: taskCount }, (_, i) => !!consequencesMarked[`task-${i}`]).filter(Boolean).length;
+        // Tasks are authored in the description now (not a fixed marks.tasks array), so count the
+        // checked task-* keys directly rather than iterating a known length.
+        const marksValue = Object.entries(consequencesMarked).filter(
+          ([key, checked]) => key.startsWith('task-') && checked,
+        ).length;
         return { ...a, consequencesMarked, marksValue };
       }));
       if (actionChange && Object.keys(actionChange.dataPatch).length > 0) {

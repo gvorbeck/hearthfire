@@ -33,6 +33,10 @@ export interface MoveDefinition {
   // taken). Omit entirely for display-only moves. Replaces the former selectable + takes pair.
   leftControl?: number;
   rightControl?: RightControlSpec[];
+  // Major Arcana back moves only: show a select checkbox even with no prerequisite, so a move the
+  // player activates by choice (not one granted outright on unlock) gets a box. Moves with `requires`
+  // are selectable regardless; this opts in the ones that are selectable without a prerequisite.
+  selectable?: boolean;
   // Constraint engine — consumed by getLockReason in the parent, unchanged.
   startingMove?: boolean;
   requires?: string[];
