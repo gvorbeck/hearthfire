@@ -154,6 +154,51 @@ export interface MinorArcanum {
   move: ArcanaMove;
 }
 
+// The three PC debilities, keyed by the stat pair they impair. Used by consequence actions that
+// mark a debility and by the Stats section.
+export type DebilityType = "weakened" | "dazed" | "miserable";
+
+// A side effect a consequence checkbox fires when checked (and reverses when unchecked). This is the
+// extensible heart of the back-section consequence system: every cross-section thing a consequence
+// can do is one member of this union, dispatched centrally in lib/consequenceActions.ts. Add a new
+// member plus one dispatch case to teach consequences a new trick.
+export type ConsequenceAction =
+  // Mark a PC debility and lock its Stats box for as long as the consequence is marked (e.g. the
+  // Lidless Orb's withered eye → permanent miserable).
+  | { type: "permanentDebility"; debility: DebilityType }
+  // Overwrite the PC's Instinct while marked, restoring the prior text on unmark (e.g. the
+  // Blood-quenched Sword's "Paranoia").
+  | { type: "setInstinct"; text: string }
+  // Adjust the PC's Armor stat by `amount` while marked (e.g. the Lidless Orb's scales → +1 armor),
+  // undoing the same delta on unmark. Additive, so it composes with manual edits and other armor grants.
+  | { type: "armor"; amount: number };
+
+// A checkbox consequence on an arcanum's back. Marking it can fire `actions` (see ConsequenceAction)
+// and reveal `children`. The prose lives in `value`; `id` is the persistence key for its checked state.
+export interface ArcanaConsequence {
+  id: string;
+  value: string;
+  // How many mark boxes this consequence has; defaults to 1. Replaces the legacy ◻-glyph prefix used by
+  // mystery consequences (e.g. El'rash-Orra's three boxes). Each box persists under its own mark id.
+  checkboxes?: number;
+  actions?: ConsequenceAction[];
+  children?: ArcanaConsequence[];
+}
+
+// One labeled section of an arcanum's back. Its `content` is the section's typed entries — Move
+// definitions in a "Moves" section, ArcanaConsequences in a "Consequences" section.
+export interface ArcanaSection {
+  label: string;
+  content: (MoveDefinition | ArcanaConsequence)[];
+}
+
+// The back side of an arcanum: a labeled wrapper around its sections. Replacing `mystery`; both
+// coexist during the migration, with the card preferring `back` when present.
+export interface ArcanaBack {
+  label: string;
+  sections: ArcanaSection[];
+}
+
 export interface MajorArcanaMysteryMove {
   id: string;
   name: string;
@@ -221,6 +266,9 @@ export interface MajorArcanum {
   // favor of folding the front-side prose into `description`; optional during that migration.
   frontMoves?: (ArcanaMove | MoveDefinition)[];
   marks: { label?: string; max: number; unlockAt?: number; tasks?: string[] };
+  // The card prefers `back` when present and falls back to `mystery` otherwise, so arcana can be
+  // converted to the new section-based shape one at a time. `mystery` is being phased out.
+  back?: ArcanaBack;
   mystery: MajorArcanaMystery;
 }
 
@@ -440,10 +488,6 @@ export interface ArcanaMajorEntry {
   // Player's working copy of an arcanum's granted creature (e.g. the Mindgem's Mighty Servant),
   // seeded from mystery.mysteryCreature and editable via CreatureCard.
   mysteryCreature?: Creature;
-  // The character's Instinct captured just before an instinct-altering consequence (e.g. the
-  // Blood-quenched Sword's "Paranoia") overwrote it, so unmarking can restore it. Keyed by the child
-  // consequence's id.
-  instinctBeforeConsequence?: Record<string, string>;
   carried?: boolean;
 }
 
@@ -474,6 +518,11 @@ export interface CharacterData {
   debilityWeakened?: boolean;
   debilityDazed?: boolean;
   debilityMiserable?: boolean;
+  // Set by a consequence's permanentDebility action: the matching debility box is force-checked and
+  // disabled in Stats while marked. Cleared (and the debility unmarked) when the consequence is unchecked.
+  debilityWeakenedLocked?: boolean;
+  debilityDazedLocked?: boolean;
+  debilityMiserableLocked?: boolean;
   statHp?: string;
   statArmor?: string;
   statXp?: string;

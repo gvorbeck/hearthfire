@@ -1,18 +1,48 @@
 import { useMemo } from "react";
 import { projectCreature } from "@/lib/creatureMutations";
 import type {
+  ArcanaConsequence,
   Creature,
   MajorArcanum,
   ArcanaMajorEntry,
+  MoveDefinition,
   RightControlSpec,
 } from "@/types";
-import { markIdsFor } from "./arcanaParsing";
+import { consequenceMarkId, markIdsFor } from "./arcanaParsing";
 
 type MysteryMove = MajorArcanum["mystery"]["moves"][number];
 
+// A consequence flattened to what the gating math needs: an id and its mark-box ids. Mystery
+// consequences derive box ids from the ◻-glyph prefix in their text; back consequences from `checkboxes`.
+interface FlatConsequence {
+  id: string;
+  markIds: string[];
+}
+
+// Back sections mix MoveDefinitions and ArcanaConsequences; these split a section's content by kind so
+// back moves can be gated and back consequences counted alongside the legacy mystery ones.
+const isBackConsequence = (
+  entry: MoveDefinition | ArcanaConsequence,
+): entry is ArcanaConsequence => "value" in entry;
+
+// Every back consequence (and its nested children, recursively), each with its mark-box ids derived
+// from its `checkboxes` count (default 1).
+const flattenBackConsequences = (
+  consequences: ArcanaConsequence[],
+): FlatConsequence[] =>
+  consequences.flatMap((c) => [
+    {
+      id: c.id,
+      markIds: Array.from({ length: c.checkboxes ?? 1 }, (_, i) =>
+        consequenceMarkId(c.id, i),
+      ),
+    },
+    ...flattenBackConsequences(c.children ?? []),
+  ]);
+
 // The gated state of one mystery move: its lock reasons (empty when available) and any dot-control
 // widening. Computed together so each move's pair of props comes from one stable object.
-interface MoveGating {
+export interface MoveGating {
   requirement: string[];
   dotOverride: RightControlSpec[] | undefined;
 }
@@ -26,8 +56,9 @@ export interface ArcanumGating {
   // The creature's book data projected from its seed plus every marked consequence, with the
   // player's saved HP/armor/loyalty merged in. Undefined when the arcanum has no mystery creature.
   projectedCreature: Creature | undefined;
-  // The checked state of each mark box of a consequence, in box order, for ConsequenceRow.
-  getConsequenceCheckedMarks: (id: string, text: string) => boolean[];
+  // The checked state of each mark box of a consequence, in box order, for ConsequenceRow. `count`
+  // overrides the box count (back consequences); omitted falls back to the text's ◻-glyph prefix.
+  getConsequenceCheckedMarks: (id: string, text: string, count?: number) => boolean[];
   // The lock reasons and dot override for a mystery move, looked up by id from a memoized map so the
   // arrays stay referentially stable across unrelated re-renders (keeping MysteryMoveBlock's memo).
   getMoveGating: (move: MysteryMove) => MoveGating;
@@ -41,11 +72,47 @@ export const useArcanumGating = (
   arcanum: MajorArcanum,
   entry: ArcanaMajorEntry,
 ): ArcanumGating => {
-  const { marks, mystery } = arcanum;
+  const { marks, mystery, back } = arcanum;
   const unlocked = entry.marksValue >= (marks.unlockAt ?? marks.max);
 
-  const getConsequenceCheckedMarks = (id: string, text: string): boolean[] =>
-    markIdsFor(id, text).map((markId) => !!entry.consequencesMarked[markId]);
+  // Gating runs over both shapes during the migration: a move or consequence is subject to the same
+  // lock rules whether it was authored under `mystery` or in a `back` section.
+  const allMoves: MysteryMove[] = useMemo(() => {
+    const backMoves = (back?.sections ?? []).flatMap((s) =>
+      s.content.filter((e): e is MoveDefinition => !isBackConsequence(e)),
+    );
+    return [...mystery.moves, ...backMoves];
+  }, [mystery.moves, back]);
+
+  const allConsequences: FlatConsequence[] = useMemo(() => {
+    const mysteryFlat = mystery.consequences.flatMap((c) => [
+      { id: c.id, markIds: markIdsFor(c.id, c.text) },
+      ...(c.children?.map((child) => ({
+        id: child.id,
+        markIds: markIdsFor(child.id, child.text),
+      })) ?? []),
+    ]);
+    const backFlat = (back?.sections ?? []).flatMap((s) =>
+      flattenBackConsequences(
+        s.content.filter(isBackConsequence),
+      ),
+    );
+    return [...mysteryFlat, ...backFlat];
+  }, [mystery.consequences, back]);
+
+  // The checked state of each mark box, in order. Box count comes from `count` when given (back
+  // consequences, via their `checkboxes`), else from the legacy ◻-glyph prefix in the text (mystery).
+  const getConsequenceCheckedMarks = (
+    id: string,
+    text: string,
+    count?: number,
+  ): boolean[] => {
+    const markIds =
+      count !== undefined
+        ? Array.from({ length: count }, (_, i) => consequenceMarkId(id, i))
+        : markIdsFor(id, text);
+    return markIds.map((markId) => !!entry.consequencesMarked[markId]);
+  };
 
   // The lock reasons and dot override for every mystery move, computed once per relevant state change
   // into a map. Memoizing here keeps each move's arrays referentially stable across re-renders that
@@ -57,15 +124,12 @@ export const useArcanumGating = (
     // floor(markedConsequences / 2), and a sub-move is locked while its parent is unselected or once
     // the grant budget is spent. Each box of a multi-mark consequence is its own markable id, so a
     // 3-box consequence contributes up to 3 toward that budget.
-    const consequenceIds = mystery.consequences.flatMap((c) => [
-      ...markIdsFor(c.id, c.text),
-      ...(c.children?.flatMap((child) => markIdsFor(child.id, child.text)) ?? []),
-    ]);
+    const consequenceIds = allConsequences.flatMap((c) => c.markIds);
     const markedConsequenceCount = consequenceIds.filter(
       (id) => entry.consequencesMarked[id],
     ).length;
     const consequenceGrants = Math.floor(markedConsequenceCount / 2);
-    const selectedSubMoves = mystery.moves.filter(
+    const selectedSubMoves = allMoves.filter(
       (m) =>
         "requires" in m && m.requires?.length && entry.mysteryMovesChecked[m.id],
     ).length;
@@ -93,7 +157,7 @@ export const useArcanumGating = (
       if (entry.mysteryMovesChecked[move.id]) return [];
       const unmetParents = move.requires
         .filter((id) => !entry.mysteryMovesChecked[id])
-        .map((id) => mystery.moves.find((m) => m.id === id)?.name ?? id);
+        .map((id) => allMoves.find((m) => m.id === id)?.name ?? id);
       if (unmetParents.length > 0) return [`Requires ${unmetParents.join(", ")}`];
       if (selectedSubMoves >= consequenceGrants) return ["Mark 2 more Consequences"];
       return [];
@@ -114,14 +178,14 @@ export const useArcanumGating = (
     };
 
     return new Map<string, MoveGating>(
-      mystery.moves.map((move) => [
+      allMoves.map((move) => [
         move.id,
         { requirement: requirementFor(move), dotOverride: dotOverrideFor(move) },
       ]),
     );
   }, [
-    mystery.moves,
-    mystery.consequences,
+    allMoves,
+    allConsequences,
     mystery.dotBonuses,
     entry.marksValue,
     entry.consequencesMarked,

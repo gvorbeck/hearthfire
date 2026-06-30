@@ -6,6 +6,7 @@ import type { MajorArcanum, ArcanaMajorEntry, Creature } from "@/types";
 import { ArcanaCardHeader } from "./ArcanaCardHeader";
 import { useArcanumGating } from "./useArcanumGating";
 import {
+  ArcanaBackSection,
   ConsequenceRow,
   ConsequenceTableBlock,
   MysteryCreatureCard,
@@ -41,7 +42,7 @@ export const MajorArcanaCard = ({
   onMysteryCreatureSave,
   onRemove,
 }: MajorArcanaCardProps) => {
-  const { marks, mystery } = arcanum;
+  const { marks, mystery, back } = arcanum;
   const {
     unlocked,
     projectedCreature,
@@ -109,7 +110,35 @@ export const MajorArcanaCard = ({
         </div>
       )}
 
+      {unlocked && back && (
+        <div className={styles.mysteries}>
+          <Text
+            font="serif"
+            size="xs"
+            weight="bold"
+            className={styles.mysteriesLabel}
+          >
+            {back.label}
+          </Text>
+          {back.sections.map((section) => (
+            <ArcanaBackSection
+              key={section.label}
+              section={section}
+              entry={entry}
+              getConsequenceCheckedMarks={getConsequenceCheckedMarks}
+              getMoveGating={getMoveGating}
+              onMysteryMoveToggle={onMysteryMoveToggle}
+              onConsequenceToggle={onConsequenceToggle}
+              onTrackerChange={onTrackerChange}
+              onFollowerHpChange={onFollowerHpChange}
+              onBodyCheckChange={onBodyCheckChange}
+            />
+          ))}
+        </div>
+      )}
+
       {unlocked &&
+        !back &&
         (mystery.moves.length > 0 ||
           mystery.mysteryCreature !== undefined ||
           mystery.consequences.length > 0) && (

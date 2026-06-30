@@ -7,95 +7,126 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     tags: "close, magical, awkward",
     weight: 1,
     description:
-      "A sphere of greenish glass, etched with a cat's-eye design and set atop a staff of rough, pitted black iron. The orb catches the light and seems to glow, and the pupil seems to widen in the dark and narrow to a slit in daylight.\n\nAnd sometimes, you could swear, it seems to look about on its own.\n\nBut that's preposterous.\n\n---\n\nWhen you **grip the staff, close your eyes, and see through the Lidless Orb**, roll +CON: **on a 10+**, choose 3 from the list below; **on a 7-9**, choose 1.\n\n- The orb sees through darkness, natural or magical\n- The orb sees through illusion, glamour, and invisibility\n- The orb can see strong emotions as auras radiating from people and lingering on places\n- You can move about and operate effectively while seeing through the orb (otherwise, not so much)\n\nWhatever you choose, the effect lasts until you open your eyes or let go of the staff.\n\n**On a 6-**, the orb shows you a terrible vision of some distant time or place. Mark 1 (or see below) and ask the GM what you see. While the vision lasts, you are oblivious to the world around you and have disadvantage on your first roll after coming to.\n\nWhen you **make the last mark**, you unlock the mysteries of the Staff and can use Power of the Lidless Orb. Mark one of the four effects (your choice); you can produce that effect.\n\nWhen you would mark a circle but have already marked all three, mark a new effect for Power of the Lidless Orb. You can now produce that effect.",
+      "A sphere of greenish glass, etched with a cat's-eye design and set atop a staff of rough, pitted black iron. The orb catches the light and seems to glow, and the pupil seems to widen in the dark and narrow to a slit in daylight.\n\nAnd sometimes, you could swear, it seems to look about on its own.\n\nBut that's preposterous.\n\n---\n\nWhen you **grip the staff, close your eyes, and see through the Lidless Orb**, roll +CON: **on a 10+**, choose 3 from the list below; **on a 7-9**, choose 1.\n\n- The orb sees through darkness, natural or magical\n- The orb sees through illusion, glamour, and invisibility\n- The orb can see strong emotions as auras radiating from people and lingering on places\n- You can move about and operate effectively while seeing through the orb (otherwise, not so much)\n\nWhatever you choose, the effect lasts until you open your eyes or let go of the staff.\n\n**On a 6-**, the orb shows you a terrible vision of some distant time or place. Mark 1 (or see below) and ask the GM what you see. While the vision lasts, you are oblivious to the world around you and have disadvantage on your first roll after coming to.\n\nWhen you **make the last mark**, you unlock the mysteries of the Staff and can use Power of the Lidless Orb. Mark one of the four effects (your choice); you can produce that effect.\n\nWhen you **would mark a circle but have already marked all three**, mark a new effect for Power of the Lidless Orb. You can now produce that effect.",
     marks: { max: 3 },
-    mystery: {
-      sectionLabel: "Mysteries of the Staff of the Lidless Orb",
-      moves: [
+    back: {
+      label: "Mysteries of the Staff of the Lidless Orb",
+      sections: [
         {
-          id: "power-of-the-lidless-orb",
-          name: "Power of the Lidless Orb",
-          body: [
+          label: "Moves",
+          content: [
             {
-              kind: "para",
-              text: "When you **bear the staff and call upon the power of the Orb**, choose one of the effects that you have marked:",
+              id: "power-of-the-lidless-orb",
+              name: "Power of the Lidless Orb",
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **bear the staff and call upon the power of the Orb**, choose one of the effects that you have marked:",
+                },
+                {
+                  kind: "checkbox",
+                  items: [
+                    {
+                      id: "orb-effect-sight-afar",
+                      label:
+                        "Cast your sight afar, seeing either a time in the past of your current locale or the present of a distant place which you have previously visited. While you maintain the effect, you are blind to the world around you.",
+                    },
+                    {
+                      id: "orb-effect-steal-sight",
+                      label:
+                        "Hold the Orb before another creature's gaze and steal its sense of sight, blinding them until you use this effect again. When you see through the Lidless Orb, you can choose to see using the currently stolen sense of sight.",
+                    },
+                    {
+                      id: "orb-effect-mesmerize",
+                      label:
+                        "Hold the Orb before a mortal being's gaze, keeping it transfixed, mesmerized, and receptive to your suggestions. A weak-willed creature will obey outright; a strong-willed one might require convincing.",
+                    },
+                    {
+                      id: "orb-effect-nausea",
+                      label:
+                        "Point the Orb at a living victim and roll 2d4. If you roll higher than the victim's current HP, it's debilitated with nausea and vertigo while you remain in its presence (and possibly for some time thereafter). Otherwise, the victim reels momentarily but soon recovers.",
+                    },
+                  ],
+                },
+                {
+                  kind: "para",
+                  text: "After you've chosen the effect, roll +CON: **on a 10+**, the effect occurs as described; **on a 7-9**, you decide either to mark a Consequence and have the effect occur, or to have the effect fail; **on a 6-**, ask the GM what happens (which may or may not involve marking a Consequence).",
+                },
+              ],
+              citation: "Book 2, p. 541",
             },
+          ],
+        },
+        {
+          label: "Consequences",
+          content: [
             {
-              kind: "checkbox",
-              items: [
+              id: "orb-eye-1",
+              value:
+                "One of your eyes becomes strange, bulging, painful, and discolored. Your vision is more-or-less unaffected.",
+              children: [
                 {
-                  id: "orb-effect-sight-afar",
-                  label:
-                    "Cast your sight afar, seeing either a time in the past of your current locale or the present of a distant place which you have previously visited. While you maintain the effect, you are blind to the world around you.",
-                },
-                {
-                  id: "orb-effect-steal-sight",
-                  label:
-                    "Hold the Orb before another creature's gaze and steal its sense of sight, blinding them until you use this effect again. When you see through the Lidless Orb, you can choose to see using the currently stolen sense of sight.",
-                },
-                {
-                  id: "orb-effect-mesmerize",
-                  label:
-                    "Hold the Orb before a mortal being's gaze, keeping it transfixed, mesmerized, and receptive to your suggestions. A weak-willed creature will obey outright; a strong-willed one might require convincing.",
-                },
-                {
-                  id: "orb-effect-nausea",
-                  label:
-                    "Point the Orb at a living victim and roll 2d4. If you roll higher than the victim's current HP, it's debilitated with nausea and vertigo while you remain in its presence (and possibly for some time thereafter). Otherwise, the victim reels momentarily but soon recovers.",
+                  id: "orb-eye-1a",
+                  value:
+                    "Your other eye withers, atrophies, and goes pale and empty. Painful warts sprout all around the socket. Permanently mark the miserable debility.",
+                  actions: [
+                    { type: "permanentDebility", debility: "miserable" },
+                  ],
                 },
               ],
             },
             {
-              kind: "para",
-              text: "After you've chosen the effect, roll +CON: **on a 10+**, the effect occurs as described; **on a 7-9**, you decide either to mark a Consequence and have the effect occur, or to have the effect fail; **on a 6-**, ask the GM what happens (which may or may not involve marking a Consequence).",
+              id: "orb-scales",
+              value:
+                "You begin to sprout warty, scale-like protrusions all over. These continue to grow until you gain +1 armor, but mortals who see these growths tend to be repulsed.",
+              actions: [{ type: "armor", amount: 1 }],
+            },
+            {
+              id: "orb-beauty",
+              value:
+                "You become incapable of seeing beauty. Your senses are unaltered, but nothing strikes you as beautiful. Grotesque and horrific sights still move you and you hold a strange fascination.",
+              children: [
+                {
+                  id: "orb-beauty-a",
+                  value:
+                    'Replace your instinct with "Disgust: To marvel at things horrific and grotesque."',
+                  actions: [
+                    {
+                      type: "setInstinct",
+                      text: "Disgust: To marvel at things horrific and grotesque.",
+                    },
+                  ],
+                },
+                {
+                  id: "orb-beauty-b",
+                  value:
+                    'You can clearly see the ugliness in other people. When you first meet an NPC, you can ask the GM "What secret shame or guilt do they bear?" and get an honest answer.',
+                },
+              ],
+            },
+            {
+              id: "orb-elrash",
+              value:
+                "You become aware of El'rash-Orra, the Many Eyes, gazing up at you from Below. It whispers to you a task; refuse it—now or later—and the Lidless Orb goes dark, useless to you.",
+              checkboxes: 3,
             },
           ],
-          citation: "Book 2, p. 541",
         },
       ],
-      consequences: [
-        {
-          id: "orb-eye-1",
-          text: "One of your eyes becomes strange, bulging, painful, and discolored. Your vision is more-or-less unaffected.",
-          children: [
-            {
-              id: "orb-eye-1a",
-              text: "Your other eye withers, atrophies, and goes pale and empty. Painful warts sprout all around the socket. Permanently mark the *miserable* debility.",
-            },
-          ],
-        },
-        {
-          id: "orb-scales",
-          text: "You begin to sprout warty, scale-like protrusions all over. These continue to grow until you gain +1 armor, but mortals who see these growths tend to be repulsed.",
-        },
-        {
-          id: "orb-beauty",
-          text: "You become incapable of seeing beauty. Your senses are unaltered, but nothing strikes you as beautiful. Grotesque and horrific sights still move you and you hold a strange fascination.",
-          children: [
-            {
-              id: "orb-beauty-a",
-              text: 'Replace your instinct with "Disgust: To marvel at things horrific and grotesque."',
-            },
-            {
-              id: "orb-beauty-b",
-              text: 'You can clearly see the ugliness in other people. When you first meet an NPC, you can ask the GM "What secret shame or guilt do they bear?" and get an honest answer.',
-            },
-          ],
-        },
-        {
-          id: "orb-elrash",
-          text: "◻◻◻ You become aware of El'rash-Orra, the Many Eyes, gazing up at you from Below. It whispers to you a task; refuse it—now or later—and the Lidless Orb goes dark, useless to you.",
-        },
-      ],
+    },
+    mystery: {
+      sectionLabel: "",
+      moves: [],
+      consequences: [],
     },
   },
   {
     id: "twisted-spear",
     name: "Twisted Spear",
-    tags: "◊◊, reach, magical",
+    tags: "reach, magical",
     weight: 2,
     description:
-      "A knobby length of wood, pale as death and hard as steel, tapering to a needle point. The shaft is scored and notched, the tip stained with blood and soot.\n\nThe Spear is a potent weapon against spirits and demons. They cannot bear its touch and its presence makes them deeply ill at ease.",
+      "A knobby length of wood, pale as death and hard as steel, tapering to a needle point. The shaft is scored and notched, the tip stained with blood and soot.\n\nThe Spear is a potent weapon against spirits and demons. They cannot bear its touch and its presence makes them deeply ill at ease.\n\n---\n\nWhen you **wield the Twisted Spear as a weapon**, you ignore magical protections and can harm spirits, demons, and insubstantial creatures.\n\nWhen you first plunge the Spear into a spirit or demon, your mind reels with strange visions. These tasks become known to you:\n\n[ ] Impale a foul spirit with the Spear, and keep it skewered until it burns away to nothing.\n[ ] Visit the elder tree from which the Spear was carved, and water its roots with your blood.\n[ ] Face the Pale Hunter and survive the encounter.\n[ ] Spend a fortnight in the wild, eating nothing, naked and unarmed except for the Spear.\n[ ] Pierce your own hand through with the Spear, giving it a shard of your soul and reducing your max HP by 1d4+1.",
     frontMoves: [
       {
         name: "Wield the Twisted Spear as a weapon",

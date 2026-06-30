@@ -98,7 +98,7 @@
 
 .sectionOverrideNote {
   margin-left: auto;
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   font-weight: 400;
   letter-spacing: 0.03em;
   text-transform: none;

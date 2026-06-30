@@ -9,6 +9,11 @@ interface ConsequenceRowProps {
   text: string;
   // Checked state for each mark box, in order; its length is the number of boxes to render.
   checkedMarks: boolean[];
+  // Number of mark boxes, overriding the count parsed from the text's ◻-glyph prefix. Used by back
+  // consequences, which carry an explicit `checkboxes` count instead of glyphs.
+  markCount?: number;
+  // Locks the mark boxes — e.g. a child consequence whose parent isn't marked yet.
+  disabled?: boolean;
   onToggle: (id: string, checked: boolean) => void;
   // A "hold up to max" dot tracker shown after the prose (e.g. Sustenance), interactive only while the
   // consequence's first box is marked.
@@ -23,12 +28,15 @@ export const ConsequenceRow = ({
   id,
   text,
   checkedMarks,
+  markCount: markCountOverride,
+  disabled,
   onToggle,
   tracker,
   trackerValue,
   onTrackerChange,
 }: ConsequenceRowProps) => {
-  const { markCount, text: prose } = parseConsequenceMarks(text);
+  const { markCount: parsedCount, text: prose } = parseConsequenceMarks(text);
+  const markCount = markCountOverride ?? parsedCount;
   const proseId = useId();
   const handleTracker = useCallback(
     (v: number) => onTrackerChange?.(id, v),
@@ -48,6 +56,7 @@ export const ConsequenceRow = ({
             <Checkbox
               key={markId}
               checked={!!checkedMarks[i]}
+              disabled={disabled}
               onChange={(e) => onToggle(markId, e.target.checked)}
               aria-labelledby={markCount > 1 ? `${proseId} ${posId}` : proseId}
             />
