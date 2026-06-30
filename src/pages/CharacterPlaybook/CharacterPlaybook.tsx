@@ -28,6 +28,7 @@ import { PLACE_OF_ORIGIN_OPTIONS } from '@/lib/placeOfOriginOptions';
 import { SPECIAL_POSSESSIONS_OPTIONS } from '@/lib/specialPossessionsOptions';
 import { INTRODUCTIONS_OPTIONS } from '@/lib/introductionsOptions';
 import { featurePatch, resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
+import { getMarkedInstinctOverride } from '@/lib/consequenceActions';
 import { useAutoFollowers } from '@/hooks/useAutoFollowers';
 import { useInsertTabs, INSERT_OPTIONS, type InsertOption } from '@/hooks/useInsertTabs';
 import { computeInvocationBadge } from '@/hooks/useInvocationBadge';
@@ -222,7 +223,14 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, n
   const level = getCharacterLevel(character);
   const features = resolvePlaybookFeatures(characterData);
   const insertInstinctMatch = INSERT_INSTINCT_KEYS.find(({ feature }) => !!features[feature]);
-  const insertInstinctNote = insertInstinctMatch ? `Replaced by your ${insertInstinctMatch.label} instinct` : undefined;
+  // A marked arcana consequence can replace the Instinct (e.g. the Lidless Orb's "Disgust"); show its
+  // text. Falls back to the insert-instinct note. Either way the Instinct section renders read-only.
+  const consequenceInstinct = getMarkedInstinctOverride(characterData);
+  const insertInstinctNote = consequenceInstinct
+    ? `Replaced: ${consequenceInstinct}`
+    : insertInstinctMatch
+      ? `Replaced by your ${insertInstinctMatch.label} instinct`
+      : undefined;
 
   const showInvocationsBadge = computeInvocationBadge(playbook, level, features);
 

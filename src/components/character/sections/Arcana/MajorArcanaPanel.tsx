@@ -1,8 +1,8 @@
 import { useState, useCallback, useMemo, memo, type MutableRefObject } from 'react';
 import { Button, Text } from '@/components/ui';
 import { MAJOR_ARCANA } from '@/lib/arcanaMajor';
-import { applyInstinctOverride, isInstinctConsequence } from '@/lib/arcanaInstinct';
-import type { MajorArcanum, ArcanaMajorEntry, Creature } from '@/types';
+import { applyConsequenceActions, hasConsequenceActions, type ConsequenceActionContext } from '@/lib/consequenceActions';
+import type { MajorArcanum, ArcanaMajorEntry, Creature, CharacterData } from '@/types';
 import { MajorArcanaCard } from './MajorArcanaCard';
 import { AddArcanaModal } from './AddArcanaModal';
 import styles from './ArcanaPanel.module.css';
@@ -52,13 +52,14 @@ interface MajorArcanaPanelProps {
   arcanaMajor: ArcanaMajorEntry[];
   arcanaMajorRef: MutableRefObject<ArcanaMajorEntry[]>;
   saveMajor: (next: ArcanaMajorEntry[]) => void;
-  // The character's current Instinct plus its latest ref and setter, so an instinct-altering
-  // consequence (e.g. the Sword's "Paranoia") can overwrite it on mark and restore it on unmark.
-  instinctRef: MutableRefObject<string>;
-  saveInstinct: (next: string) => void;
+  // The live character fields a consequence action reads (Instinct to capture/restore, Armor to add to),
+  // as a ref so the handler always sees the freshest values; plus a writer for the field patch the
+  // action produces.
+  actionContextRef: MutableRefObject<ConsequenceActionContext>;
+  saveCharacterData: (patch: Partial<CharacterData>) => void;
 }
 
-export const MajorArcanaPanel = ({ arcanaMajor, arcanaMajorRef, saveMajor, instinctRef, saveInstinct }: MajorArcanaPanelProps) => {
+export const MajorArcanaPanel = ({ arcanaMajor, arcanaMajorRef, saveMajor, actionContextRef, saveCharacterData }: MajorArcanaPanelProps) => {
   const [majorModalOpen, setMajorModalOpen] = useState(false);
 
   const existingMajorIds = useMemo(() => arcanaMajor.map((a) => a.id), [arcanaMajor]);
@@ -105,34 +106,38 @@ export const MajorArcanaPanel = ({ arcanaMajor, arcanaMajorRef, saveMajor, insti
   const handleConsequenceToggle = useCallback(
     (id: string, consequenceId: string, checked: boolean) => {
       const arcanum = MAJOR_ARCANA.find((m) => m.id === id);
-      // A consequence that rewrites the character's Instinct (e.g. the Sword's "Paranoia"): compute
-      // the new Instinct and the entry's stash bookkeeping up front, then persist the Instinct once —
-      // not inside the map below, which React may run twice under StrictMode.
-      const instinctChange =
-        arcanum && isInstinctConsequence(arcanum, consequenceId)
-          ? applyInstinctOverride(
-              arcanum,
-              arcanaMajorRef.current.find((a) => a.id === id) ??
-                ({ id } as ArcanaMajorEntry),
-              consequenceId,
-              checked,
-              instinctRef.current,
-            )
+      // A consequence whose actions touch character fields (a debility, Armor): compute the field patch
+      // and any cascade-cleared descendant ids up front, then persist the patch once — not inside the
+      // map below, which React may run twice under StrictMode.
+      const actionChange =
+        arcanum && hasConsequenceActions(arcanum, consequenceId)
+          ? applyConsequenceActions(arcanum, consequenceId, checked, actionContextRef.current)
           : undefined;
       saveMajor(arcanaMajorRef.current.map((a) => {
         if (a.id !== id) return a;
         const consequencesMarked = { ...a.consequencesMarked, [consequenceId]: checked };
-        if (instinctChange) {
-          return { ...instinctChange.entry, consequencesMarked };
+        // Unchecking a parent cascades down: clear every descendant's mark boxes (its own id plus any
+        // multi-box `id#n` keys) so a child can't stay marked once its parent is gone.
+        for (const clearedId of actionChange?.clearedConsequenceIds ?? []) {
+          for (const key of Object.keys(consequencesMarked)) {
+            if (key === clearedId || key.startsWith(`${clearedId}#`)) {
+              consequencesMarked[key] = false;
+            }
+          }
+        }
+        if (actionChange) {
+          return { ...a, consequencesMarked };
         }
         if (!consequenceId.startsWith('task-')) return { ...a, consequencesMarked };
         const taskCount = arcanum?.marks.tasks?.length ?? 0;
         const marksValue = Array.from({ length: taskCount }, (_, i) => !!consequencesMarked[`task-${i}`]).filter(Boolean).length;
         return { ...a, consequencesMarked, marksValue };
       }));
-      if (instinctChange?.instinct !== undefined) saveInstinct(instinctChange.instinct);
+      if (actionChange && Object.keys(actionChange.dataPatch).length > 0) {
+        saveCharacterData(actionChange.dataPatch);
+      }
     },
-    [saveMajor, instinctRef, saveInstinct],
+    [saveMajor, actionContextRef, saveCharacterData],
   );
 
   const handleConsequenceTableChoice = useCallback(

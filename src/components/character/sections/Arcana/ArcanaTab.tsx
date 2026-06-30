@@ -1,5 +1,6 @@
 import { useState, lazy, Suspense } from 'react';
 import { useOptimisticField } from '@/hooks/useOptimisticField';
+import { useLatest } from '@/hooks/useLatest';
 import type { PlaybookSectionProps } from '@/types';
 import { Spinner } from '@/components/ui';
 import { ArcanaSubTabs, type ArcanaSubTab } from './ArcanaSubTabs';
@@ -30,13 +31,10 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
     (next) => onSave({ arcanaMajor: next }),
     'Failed to save.',
   );
-  // An instinct-altering consequence (e.g. the Sword's "Paranoia") rewrites this field, so the major
-  // panel needs the latest value (ref) and a way to persist it.
-  const { ref: instinctRef, save: saveInstinct } = useOptimisticField(
-    data?.instinct ?? '',
-    (next) => onSave({ instinct: next }),
-    'Failed to save.',
-  );
+  // A consequence's armor action adds to the PC's Armor relative to its current value; the major panel
+  // reads it on toggle and persists the new value via onSave (Stats reconciles from the snapshot). Armor
+  // is edited in another tab, so the snapshot value is current.
+  const actionContextRef = useLatest({ armor: data?.statArmor ?? '0' });
 
   return (
     <div className={styles.root}>
@@ -61,8 +59,8 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
             arcanaMajor={arcanaMajor}
             arcanaMajorRef={arcanaMajorRef}
             saveMajor={saveMajor}
-            instinctRef={instinctRef}
-            saveInstinct={saveInstinct}
+            actionContextRef={actionContextRef}
+            saveCharacterData={onSave}
           />
         )}
       </Suspense>

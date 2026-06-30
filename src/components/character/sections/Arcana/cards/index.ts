@@ -1,3 +1,4 @@
+export { ArcanaBackSection } from "./ArcanaBackSection";
 export { TaskRow } from "./TaskRow";
 export { ConsequenceRow } from "./ConsequenceRow";
 export { ConsequenceTableBlock } from "./ConsequenceTableBlock";
