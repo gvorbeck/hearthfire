@@ -32,17 +32,18 @@ export const ArcanaFollowerBlock = memo(({
       </div>
       <div className={styles.followerStats}>
         <div className={styles.followerHpRow}>
-          {Array.from({ length: follower.hpCount ?? 1 }).map((_, i) => (
-            <HpInput
-              key={`hp-${arcanaId}-${i}`}
-              index={i}
-              followerName={follower.name}
-              isMultiHp={isMultiHp}
-              value={followerHp?.[i] ?? follower.hp}
-              max={follower.hp}
-              onFollowerHpChange={onFollowerHpChange}
-            />
-          ))}
+          {follower.hp !== undefined &&
+            Array.from({ length: follower.hpCount ?? 1 }).map((_, i) => (
+              <HpInput
+                key={`hp-${arcanaId}-${i}`}
+                index={i}
+                followerName={follower.name}
+                isMultiHp={isMultiHp}
+                value={followerHp?.[i] ?? follower.hp!}
+                max={follower.hp!}
+                onFollowerHpChange={onFollowerHpChange}
+              />
+            ))}
           {follower.armor !== undefined && (
             <span className={styles.followerStat}>
               <Text as="span" font="serif" size="xs" color="muted">Armor</Text>

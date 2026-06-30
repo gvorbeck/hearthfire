@@ -1,3 +1,4 @@
+import { Divider } from '@/components/ui/Divider/Divider';
 import { Icon } from '@/components/ui/Icon/Icon';
 import { List } from '@/components/ui/List/List';
 import { Text } from '@/components/ui/Text/Text';
@@ -22,6 +23,10 @@ export const parseInlineMarkdown = (text: string): React.ReactNode[] =>
 export const parseMarkdown = (markdown: string): React.ReactNode[] => {
   const blocks = markdown.trim().split(/\n\n+/);
   return blocks.map((block, blockIndex) => {
+    // A block of only dashes (---) is a horizontal rule, rendered as a Divider like in markdown.
+    if (/^-{3,}$/.test(block)) {
+      return <Divider key={`block-${blockIndex}-hr`} />;
+    }
     const lines = block.split('\n');
     const isList = lines.every((l) => l.startsWith('- '));
     if (isList) {

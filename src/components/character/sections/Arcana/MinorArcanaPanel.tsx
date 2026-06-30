@@ -51,7 +51,7 @@ export const MinorArcanaPanel = ({ arcanaMinor, arcanaMinorRef, saveMinor }: Min
       if (arcanum.move.tracker) entry.trackerValue = 0;
       if (arcanum.move.follower) {
         const count = arcanum.move.follower.hpCount ?? 1;
-        entry.followerHp = Array.from({ length: count }, () => arcanum.move.follower!.hp);
+        entry.followerHp = Array.from({ length: count }, () => arcanum.move.follower!.hp ?? 0);
       }
       saveMinor([...arcanaMinorRef.current, entry]);
       setMinorModalOpen(false);
