@@ -4,6 +4,7 @@ import { UseDots } from "@/components/ui/UseDots/UseDots";
 import { parseMarkdown } from "@/lib/parseMarkdown";
 import type { MajorArcanum, ArcanaMajorEntry, Creature } from "@/types";
 import { ArcanaCardHeader } from "./ArcanaCardHeader";
+import { parseDescriptionTasks } from "./arcanaParsing";
 import { useArcanumGating } from "./useArcanumGating";
 import {
   ArcanaBackSection,
@@ -56,6 +57,15 @@ export const MajorArcanaCard = ({
   // leading ◊ markers and their separator out of the tags string to avoid showing them twice.
   const tags = arcanum.tags?.replace(/^(?:◊\s*,?\s*)+/, "") || undefined;
 
+  // Task checkboxes are authored inline as a "[ ] …" block within the description, so the prose and
+  // its tasks read as one passage. Split the description around that block: the prose halves render as
+  // markdown, the task labels feed the interactive list between them. Arcana not yet migrated carry
+  // their tasks in `marks.tasks`, in which case the whole description is `proseBefore`.
+  const { proseBefore, tasks: descriptionTasks, proseAfter } = arcanum.description
+    ? parseDescriptionTasks(arcanum.description)
+    : { proseBefore: "", tasks: [], proseAfter: "" };
+  const tasks = descriptionTasks.length > 0 ? descriptionTasks : marks.tasks;
+
   return (
     <div className={cx}>
       <ArcanaCardHeader
@@ -66,15 +76,15 @@ export const MajorArcanaCard = ({
         onRemove={onRemove}
       />
 
-      {arcanum.description && (
+      {proseBefore && (
         <div className={styles.description}>
-          {parseMarkdown(arcanum.description)}
+          {parseMarkdown(proseBefore)}
         </div>
       )}
 
-      {marks.tasks ? (
+      {tasks ? (
         <div className={styles.taskList}>
-          {marks.tasks.map((task, i) => {
+          {tasks.map((task, i) => {
             const key = `task-${i}`;
             return (
               <TaskRow
@@ -107,6 +117,12 @@ export const MajorArcanaCard = ({
           <Text as="span" font="serif" size="xs" color="muted">
             {entry.marksValue} / {marks.max} marks
           </Text>
+        </div>
+      )}
+
+      {proseAfter && (
+        <div className={styles.description}>
+          {parseMarkdown(proseAfter)}
         </div>
       )}
 

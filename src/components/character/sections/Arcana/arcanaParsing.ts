@@ -30,3 +30,34 @@ export const markIdsFor = (id: string, text: string): string[] =>
   Array.from({ length: parseConsequenceMarks(text).markCount }, (_, i) =>
     consequenceMarkId(id, i),
   );
+
+// A line authored as a task checkbox in description prose: "[ ] Impale a foul spirit…". The bracket
+// marker is the author's signal that this line is an interactive mark, not a paragraph.
+const TASK_LINE_RE = /^\[\s?\]\s+(.*)$/;
+
+// Splits an arcanum's description around its block of task-checkbox lines. The task list is authored
+// as one paragraph of "[ ] …" lines somewhere in the prose (the player tracks tasks right where the
+// text introduces them), with prose that may come before and after it. `proseBefore`/`proseAfter` are
+// the surrounding text (either may be empty); `tasks` is each task's label, in order. When no task
+// block is found, the whole description is `proseBefore` and `tasks` is empty.
+// Only the first all-"[ ]" block is treated as tasks; a second such block would render as literal
+// "[ ]" prose. Today's data has one task list per arcanum, so this is fine — revisit if that changes.
+export const parseDescriptionTasks = (
+  description: string,
+): { proseBefore: string; tasks: string[]; proseAfter: string } => {
+  const blocks = description.trim().split(/\n\n+/);
+  const taskBlockIndex = blocks.findIndex((block) => {
+    const lines = block.split("\n");
+    return lines.length > 0 && lines.every((l) => TASK_LINE_RE.test(l));
+  });
+  if (taskBlockIndex === -1) {
+    return { proseBefore: description, tasks: [], proseAfter: "" };
+  }
+  return {
+    proseBefore: blocks.slice(0, taskBlockIndex).join("\n\n"),
+    tasks: blocks[taskBlockIndex]
+      .split("\n")
+      .map((l) => l.replace(TASK_LINE_RE, "$1")),
+    proseAfter: blocks.slice(taskBlockIndex + 1).join("\n\n"),
+  };
+};
