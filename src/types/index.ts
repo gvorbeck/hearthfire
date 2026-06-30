@@ -87,7 +87,8 @@ export interface AnimalTypeConfig {
 export interface ArcanaFollower {
   name: string;
   tags: string;
-  hp: number;
+  // Most followers have an HP box; a few (e.g. the Ring of Daagon's knowledge-follower) have none.
+  hp?: number;
   hpCount?: number;
   armor?: number;
   damage?: string;
@@ -116,6 +117,9 @@ export interface Creature {
   armorNote?: string;
   qualities?: CreatureQuality[];
   loyalty?: number;
+  // Some creatures don't track their own Loyalty (e.g. the Servants of Daagon share the Ring's pool);
+  // hide the dot control for them rather than show a stat the player isn't meant to fill.
+  hideLoyalty?: boolean;
   moves?: string[];
   notes?: string;
 }
@@ -213,8 +217,9 @@ export interface MajorArcanum {
   description: string;
   // Most front moves are terse ArcanaMoves (a name + a string of prose). A few (e.g. the Hec'tumel
   // Codex's "Cast a Codex Spell") are full moves with typed body blocks and persistent dot controls,
-  // authored as a MoveDefinition and rendered through the shared Move component.
-  frontMoves: (ArcanaMove | MoveDefinition)[];
+  // authored as a MoveDefinition and rendered through the shared Move component. Being phased out in
+  // favor of folding the front-side prose into `description`; optional during that migration.
+  frontMoves?: (ArcanaMove | MoveDefinition)[];
   marks: { label?: string; max: number; unlockAt?: number; tasks?: string[] };
   mystery: MajorArcanaMystery;
 }

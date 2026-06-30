@@ -1,16 +1,13 @@
-import { Fragment } from "react";
 import clsx from "clsx";
-import { Divider, Text } from "@/components/ui";
+import { Text } from "@/components/ui";
 import { UseDots } from "@/components/ui/UseDots/UseDots";
 import { parseMarkdown } from "@/lib/parseMarkdown";
 import type { MajorArcanum, ArcanaMajorEntry, Creature } from "@/types";
 import { ArcanaCardHeader } from "./ArcanaCardHeader";
-import { isMoveDefinition } from "./arcanaParsing";
 import { useArcanumGating } from "./useArcanumGating";
 import {
   ConsequenceRow,
   ConsequenceTableBlock,
-  FrontMoveRow,
   MysteryCreatureCard,
   MysteryMoveBlock,
   TaskRow,
@@ -54,40 +51,23 @@ export const MajorArcanaCard = ({
 
   const cx = clsx(styles.card, unlocked && styles.cardUnlocked);
 
+  // The provisions weight is rendered as ◊ diamonds by the header (from `weight`), so strip any
+  // leading ◊ markers and their separator out of the tags string to avoid showing them twice.
+  const tags = arcanum.tags?.replace(/^(?:◊\s*,?\s*)+/, "") || undefined;
+
   return (
     <div className={cx}>
       <ArcanaCardHeader
         id={arcanum.id}
         name={arcanum.name}
-        tags={arcanum.tags}
+        tags={tags}
+        weight={arcanum.weight}
         onRemove={onRemove}
       />
 
       {arcanum.description && (
         <div className={styles.description}>
           {parseMarkdown(arcanum.description)}
-        </div>
-      )}
-
-      {arcanum.description && arcanum.frontMoves.length > 0 && <Divider />}
-
-      {arcanum.frontMoves.length > 0 && (
-        <div className={styles.frontMoves}>
-          {arcanum.frontMoves.map((move, i) => {
-            const trackerKey = isMoveDefinition(move) ? move.id : move.name;
-            return (
-              <Fragment key={move.name}>
-                {/* The rulebook rules off each front-side section from the next; mirror that with a
-                    divider before every entry after the first. */}
-                {i > 0 && <Divider />}
-                <FrontMoveRow
-                  move={move}
-                  trackerValue={entry.trackerValues?.[trackerKey] ?? 0}
-                  onTrackerChange={onTrackerChange}
-                />
-              </Fragment>
-            );
-          })}
         </div>
       )}
 

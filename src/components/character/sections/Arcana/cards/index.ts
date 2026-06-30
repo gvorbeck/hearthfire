@@ -1,4 +1,3 @@
-export { FrontMoveRow } from "./FrontMoveRow";
 export { TaskRow } from "./TaskRow";
 export { ConsequenceRow } from "./ConsequenceRow";
 export { ConsequenceTableBlock } from "./ConsequenceTableBlock";

@@ -4,17 +4,10 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
   {
     id: "staff-of-the-lidless-orb",
     name: "Staff of the Lidless Orb",
-    tags: "◊, close, magical, awkward",
+    tags: "close, magical, awkward",
     weight: 1,
     description:
-      "A sphere of greenish glass, etched with a cat's-eye design and set atop a staff of rough, pitted black iron. The orb catches the light and seems to glow, and the pupil seems to widen in the dark and narrow to a slit in daylight.\n\nAnd sometimes, you could swear, it seems to look about on its own.\n\nBut that's preposterous.",
-    frontMoves: [
-      {
-        name: "Grip the Staff",
-        subtitle: "close your eyes, and see through the Lidless Orb",
-        text: "Roll +CON: **on a 10+**, choose 3 from the list below; **on a 7-9**, choose 1.\n\n- The orb sees through darkness, natural or magical\n- The orb sees through illusion, glamour, and invisibility\n- The orb can see strong emotions as auras radiating from people and lingering on places\n- You can move about and operate effectively while seeing through the orb (otherwise, not so much)\n\nWhatever you choose, the effect lasts until you open your eyes or let go of the staff.\n\n**On a 6-**, the orb shows you a terrible vision of some distant time or place. Mark 1 (or see below) and ask the GM what you see. While the vision lasts, you are oblivious to the world around you and have disadvantage on your first roll after coming to.",
-      },
-    ],
+      "A sphere of greenish glass, etched with a cat's-eye design and set atop a staff of rough, pitted black iron. The orb catches the light and seems to glow, and the pupil seems to widen in the dark and narrow to a slit in daylight.\n\nAnd sometimes, you could swear, it seems to look about on its own.\n\nBut that's preposterous.\n\n---\n\nWhen you **grip the staff, close your eyes, and see through the Lidless Orb**, roll +CON: **on a 10+**, choose 3 from the list below; **on a 7-9**, choose 1.\n\n- The orb sees through darkness, natural or magical\n- The orb sees through illusion, glamour, and invisibility\n- The orb can see strong emotions as auras radiating from people and lingering on places\n- You can move about and operate effectively while seeing through the orb (otherwise, not so much)\n\nWhatever you choose, the effect lasts until you open your eyes or let go of the staff.\n\n**On a 6-**, the orb shows you a terrible vision of some distant time or place. Mark 1 (or see below) and ask the GM what you see. While the vision lasts, you are oblivious to the world around you and have disadvantage on your first roll after coming to.\n\nWhen you **make the last mark**, you unlock the mysteries of the Staff and can use Power of the Lidless Orb. Mark one of the four effects (your choice); you can produce that effect.\n\nWhen you would mark a circle but have already marked all three, mark a new effect for Power of the Lidless Orb. You can now produce that effect.",
     marks: { max: 3 },
     mystery: {
       sectionLabel: "Mysteries of the Staff of the Lidless Orb",
@@ -1139,7 +1132,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
       },
       {
         name: "Have used the Ring to summon an obscuring fog and a named creature dies within that fog",
-        text: "The Ring will ask you (silently, in your mind, not so much with words as with a deep longing) *May I take this one?* Should you assent, the creature's body will be gone—vanished into the mists—as soon as no mortal is directly paying it heed. The first time this happens during each fog you summon, mark 1.\n\nWhen you **make the last mark**, you unlock the ring's mysteries and may Call Up the Deep Ones (in the Mysteries below) while wearing the ring. The ring itself becomes a follower.",
+        text: "The Ring will ask you (silently, in your mind, not so much with words as with a deep longing) *May I take this one?* Should you assent, the creature's body will be gone—vanished into the mists—as soon as no mortal is directly paying it heed. The first time this happens during each fog you summon, mark 1.\n\nWhen you **make the last mark**, you unlock the ring's mysteries and may Call Up the Deep Ones (in the Mysteries below) while wearing the ring. The ring itself becomes a follower:",
         follower: {
           name: "The Ring",
           tags: "deep-wise, greedy, patient, knowledgeable, magical",
@@ -1166,9 +1159,8 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         id: "servant-of-daagon",
         name: "Servant of Daagon",
         tags: "terrifying, violent, wretched",
-        qualities: [
-          { label: "Instinct", value: "to devour" },
-        ],
+        hideLoyalty: true,
+        qualities: [{ label: "Instinct", value: "to devour" }],
         moves: [
           "Wriggle free of danger/restraint",
           "Smother/constrict/engulf them",

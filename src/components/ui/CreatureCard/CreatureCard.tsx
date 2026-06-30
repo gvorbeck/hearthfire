@@ -151,21 +151,23 @@ export const CreatureCard = memo(
                 ))}
               </div>
             )}
-            <div className={styles.loyalty}>
-              <Text
-                as="span"
-                font="serif"
-                weight="bold"
-                className={styles.fieldLabel}
-              >
-                Loyalty
-              </Text>
-              <UseDots
-                total={3}
-                checked={creature.loyalty ?? 0}
-                onChange={handleLoyalty}
-              />
-            </div>
+            {!creature.hideLoyalty && (
+              <div className={styles.loyalty}>
+                <Text
+                  as="span"
+                  font="serif"
+                  weight="bold"
+                  className={styles.fieldLabel}
+                >
+                  Loyalty
+                </Text>
+                <UseDots
+                  total={3}
+                  checked={creature.loyalty ?? 0}
+                  onChange={handleLoyalty}
+                />
+              </div>
+            )}
             {(creature.moves ?? []).length > 0 && (
               <div className={styles.moves}>
                 <Text
