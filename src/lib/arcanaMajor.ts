@@ -1139,7 +1139,18 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
       },
       {
         name: "Have used the Ring to summon an obscuring fog and a named creature dies within that fog",
-        text: "The Ring will ask you (silently, in your mind, not so much with words as with a deep longing) *May I take this one?* Should you assent, the creature's body will be gone—vanished into the mists—as soon as no mortal is directly paying it heed. The first time this happens during each fog you summon, mark 1.\n\nWhen you **make the last mark**, you unlock the ring's mysteries and may Call Up the Deep Ones (in the Mysteries below) while wearing the ring. The ring itself becomes a follower.\n\n**The Ring** — *deep-wise, greedy, patient, knowledgeable, magical* — Instinct: to give nothing (not even secrets or info) away — ➤ Speak mind-to-mind; ➤ Reveal a secret, for a price; ➤ Know someone's desires — Cost: devouring fallen, named creatures (Loyalty ◻◻◻)",
+        text: "The Ring will ask you (silently, in your mind, not so much with words as with a deep longing) *May I take this one?* Should you assent, the creature's body will be gone—vanished into the mists—as soon as no mortal is directly paying it heed. The first time this happens during each fog you summon, mark 1.\n\nWhen you **make the last mark**, you unlock the ring's mysteries and may Call Up the Deep Ones (in the Mysteries below) while wearing the ring. The ring itself becomes a follower.",
+        follower: {
+          name: "The Ring",
+          tags: "deep-wise, greedy, patient, knowledgeable, magical",
+          instinct: "to give nothing (not even secrets or info) away",
+          qualities: [
+            "Speak mind-to-mind",
+            "Reveal a secret, for a price",
+            "Know someone's desires",
+          ],
+          cost: "devouring fallen, named creatures (Loyalty ◻◻◻)",
+        },
       },
     ],
     marks: { max: 3 },
@@ -1148,9 +1159,27 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         {
           id: "call-up-the-deep-ones",
           name: "Call Up the Deep Ones",
-          text: "When you **stand in heavy fog or before deep water and call on the servants of Daagon to serve you**, spend 1 Loyalty or mark a consequence and they appear. Treat them as followers, sharing a pool of Loyalty with the Ring itself. You can always choose to mark a consequence in lieu of spending their Loyalty.\n\n**Servant of Daagon** — *terrifying, violent, wretched* — Instinct to devour\n\nEach time you Call Up the Deep Ones, roll five d4s and assign each to a different aspect:\n\n**Tags:** 1 = +craven; 2 = +ravenous; 3 = +cunning; 4 = +exceptional (roll +2 for moves instead of +1)\n\n**No. Appearing:** 1 = horde (quantity 2d6, HP 3, damage 1d6); 2-3 = group (quantity 1d6+1, HP 6, damage 1d8); 4 = solitary (HP 12, damage 1d10)\n\n**Size:** 1 = small (-2 HP, -2 damage, hand); 2-3 = medium (close); 4 = large (+4 HP, +1 damage, close, reach)\n\n**Traits:** choose a number equal to the assigned die — blubbery/scaly hide (2 armor); +stealthy and +cautious; powerful (+2 damage, forceful); tentacles/pincers, etc. (reach, grabby); big claws/fangs (1 piercing, messy); projectiles (+near)\n\n**Moves:** choose a number equal to the assigned die — Wriggle free of danger/restraint; Smother/constrict/engulf them; Mesmerize the weak-willed; Heal at a prodigious rate; Dissolve organic material; Paralyze them with venom\n\nWhen you **send them back whence they came**, roll +CHA: **on a 10+**, they go, now; **on a 7-9**, they go, but take their time and likely do some harm on their way; **on a 6-**, spend their Loyalty or mark a consequence and they eventually go (as on a 7-9); otherwise, this batch breaks free of your control and are no longer followers.",
+          text: "When you **stand in heavy fog or before deep water and call on the servants of Daagon to serve you**, spend 1 Loyalty or mark a consequence and they appear. Treat them as followers, sharing a pool of Loyalty with the Ring itself. You can always choose to mark a consequence in lieu of spending their Loyalty.\n\nEach time you Call Up the Deep Ones, roll five d4s and assign each to a different aspect of the Servant of Daagon (below):\n\n**Tags:** 1 = +craven; 2 = +ravenous; 3 = +cunning; 4 = +exceptional (roll +2 for moves instead of +1)\n\n**No. Appearing:** 1 = horde (quantity 2d6, HP 3, damage 1d6); 2-3 = group (quantity 1d6+1, HP 6, damage 1d8); 4 = solitary (HP 12, damage 1d10)\n\n**Size:** 1 = small (-2 HP, -2 damage, *hand*); 2-3 = medium (*close*); 4 = large (+4 HP, +1 damage, *close, reach*)\n\n**Traits:** choose a number equal to the assigned die — blubbery/scaly hide (2 armor); *+stealthy* and *+cautious*; powerful (+2 damage, *forceful*); tentacles/pincers, etc. (*reach, grabby*); big claws/fangs (1 piercing, *messy*); projectiles (*+near*)\n\n**Moves:** choose a number equal to the assigned die — Wriggle free of danger/restraint; Smother/constrict/engulf them; Mesmerize the weak-willed; Heal at a prodigious rate; Dissolve organic material; Paralyze them with venom\n\nWhen you **send them back whence they came**, roll +CHA: **on a 10+**, they go, now; **on a 7-9**, they go, but take their time and likely do some harm on their way; **on a 6-**, spend their Loyalty or mark a consequence and they eventually go (as on a 7-9); otherwise, this batch breaks free of your control and are no longer followers.",
         },
       ],
+      mysteryCreature: {
+        id: "servant-of-daagon",
+        name: "Servant of Daagon",
+        tags: "terrifying, violent, wretched",
+        qualities: [
+          { label: "Instinct", value: "to devour" },
+        ],
+        moves: [
+          "Wriggle free of danger/restraint",
+          "Smother/constrict/engulf them",
+          "Mesmerize the weak-willed",
+          "Heal at a prodigious rate",
+          "Dissolve organic material",
+          "Paralyze them with venom",
+        ],
+        notes:
+          "Fill in HP, Armor, damage, size, and traits from the five d4 rolls (see Call Up the Deep Ones). The Servants share a pool of Loyalty with the Ring.",
+      },
       consequences: [
         {
           id: "daagon-c1",
