@@ -94,6 +94,7 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--text-secondary);
+  text-align: center;
 }
 
 .mysteryMoves {

@@ -4,13 +4,14 @@ import type {
   ArcanaConsequence,
   Creature,
   MajorArcanum,
+  MajorArcanaMystery,
   ArcanaMajorEntry,
   MoveDefinition,
   RightControlSpec,
 } from "@/types";
 import { consequenceMarkId, markIdsFor } from "./arcanaParsing";
 
-type MysteryMove = MajorArcanum["mystery"]["moves"][number];
+type MysteryMove = MajorArcanaMystery["moves"][number];
 
 // A consequence flattened to what the gating math needs: an id and its mark-box ids. Mystery
 // consequences derive box ids from the ◻-glyph prefix in their text; back consequences from `checkboxes`.
@@ -81,11 +82,11 @@ export const useArcanumGating = (
     const backMoves = (back?.sections ?? []).flatMap((s) =>
       s.content.filter((e): e is MoveDefinition => !isBackConsequence(e)),
     );
-    return [...mystery.moves, ...backMoves];
-  }, [mystery.moves, back]);
+    return [...(mystery?.moves ?? []), ...backMoves];
+  }, [mystery?.moves, back]);
 
   const allConsequences: FlatConsequence[] = useMemo(() => {
-    const mysteryFlat = mystery.consequences.flatMap((c) => [
+    const mysteryFlat = (mystery?.consequences ?? []).flatMap((c) => [
       { id: c.id, markIds: markIdsFor(c.id, c.text) },
       ...(c.children?.map((child) => ({
         id: child.id,
@@ -98,7 +99,7 @@ export const useArcanumGating = (
       ),
     );
     return [...mysteryFlat, ...backFlat];
-  }, [mystery.consequences, back]);
+  }, [mystery?.consequences, back]);
 
   // The checked state of each mark box, in order. Box count comes from `count` when given (back
   // consequences, via their `checkboxes`), else from the legacy ◻-glyph prefix in the text (mystery).
@@ -170,7 +171,7 @@ export const useArcanumGating = (
     ): RightControlSpec[] | undefined => {
       const base = "rightControl" in move ? move.rightControl : undefined;
       if (!base) return undefined;
-      const hasBonus = (mystery.dotBonuses ?? []).some(
+      const hasBonus = (mystery?.dotBonuses ?? []).some(
         (b) => b.targetId === move.id && entry.mysteryMovesChecked[b.sourceId],
       );
       if (!hasBonus) return undefined;
@@ -186,7 +187,7 @@ export const useArcanumGating = (
   }, [
     allMoves,
     allConsequences,
-    mystery.dotBonuses,
+    mystery?.dotBonuses,
     entry.marksValue,
     entry.consequencesMarked,
     entry.mysteryMovesChecked,
@@ -200,7 +201,7 @@ export const useArcanumGating = (
   // only when the seed or marked state changes so the memo on MysteryCreatureCard holds.
   const projectedCreature = useMemo(
     () =>
-      mystery.mysteryCreature
+      mystery?.mysteryCreature
         ? projectCreature(
             mystery.mysteryCreature,
             entry.mysteryCreature,
@@ -210,8 +211,8 @@ export const useArcanumGating = (
           )
         : undefined,
     [
-      mystery.mysteryCreature,
-      mystery.consequences,
+      mystery?.mysteryCreature,
+      mystery?.consequences,
       entry.mysteryCreature,
       entry.consequencesMarked,
       entry.consequenceTableChoice,

@@ -39,6 +39,10 @@ Design system: atoms in `src/components/ui/` (Button, Checkbox, Heading, Icon, I
 - State mutations (modifying arrays/objects directly instead of spreading/replacing)
 - Optimistic UI updates not rolled back on Firestore write failure
 - Interactive controls that write to Firestore reading their value directly from props instead of local optimistic state with a pending ref (the project pattern — see `useCharacterField`); prop-driven controls flicker when the snapshot echoes back
+- Swallowed errors — empty `catch {}`, or a Firestore write whose rejection is never surfaced to the user. With no backend validation, a silent write failure means the user's edit vanishes with no warning
+- Debounced or timeout-based writes not cancelled on unmount (`useDebouncedSave`, `setTimeout`) — a pending save can fire after the component is gone or against a since-changed character
+- Debounced write capturing a stale value or the wrong character — the payload must reflect the value at flush time, not at the moment the timer was scheduled
+- Non-exhaustive `switch` / map over a union (especially `PlaybookType`, 9 members) with no `never`-typed default — a missed case slips through TypeScript-strict silently
 
 ### Firestore Efficiency & Cost
 
@@ -46,6 +50,8 @@ Design system: atoms in `src/components/ui/` (Button, Checkbox, Heading, Icon, I
 - `onSnapshot` listeners not cleaned up on component unmount (leaked listeners = ongoing billing)
 - Overly broad reads (fetching full collection when a single doc suffices)
 - Writing entire document when only one field changed — use `updateDoc` with targeted field paths
+- Dot-notation field path used to write a single array element (e.g. `updateDoc(ref, { 'characters.0.hp': x })`) — Firestore reads `characters.0` as a literal field name, silently corrupting the doc; array elements must be updated by rewriting the array. Treat as a [Standards Violation] or higher, since it destroys user data
+- Whole-`characters[]` read-modify-write races — two clients editing different characters each rewrite the full array under `onSnapshot` and clobber each other's changes; guard the write scope
 - Redundant writes (writing data that hasn't changed)
 - Missing or unnecessary Firestore indexes that would cause extra reads or rejected queries
 - `collection().where()` chains that download more documents than needed client-side filtering would produce
@@ -125,6 +131,7 @@ Design system: atoms in `src/components/ui/` (Button, Checkbox, Heading, Icon, I
 - Error handling or validation added for scenarios that cannot actually happen
 - Backwards-compatibility shims, re-exports, or renamed `_unused` variables for removed code — delete cleanly
 - Features, fallbacks, or flags not required by the current task
+- New non-trivial logic (utilities, hooks, reducers) shipped without a test, when a sibling test file already exists for that area — flag as a [Suggestion]
 
 ## Confidence Bar
 
@@ -134,7 +141,7 @@ Only report findings you would defend in person. If you are not sure a finding i
 
 No emojis. The reader wants to scan this in under a minute.
 
-Write dead simple, not technical. Every finding must pass this test: someone who has never programmed could read it and know what goes wrong for the person using the app. Use everyday words ("the page freezes", "the user's typing gets erased", "screen-reader users can't find this button"). Technical terms are allowed only in the Fix, and only the minimum needed to act (a hook name, a prop name). Simple never means longer — if plain words push past one line, cut detail, not clarity.
+Write dead simple, not technical. Every finding must pass this test: someone who has never programmed could read it and know what goes wrong for the person using the app. Use everyday words ("the page freezes", "the user's typing gets erased", "screen-reader users can't find this button"). Technical terms are allowed only in the Fix, and only the minimum needed to act (a hook name, a prop name).
 
 Example of the level wanted:
 - Bad: "Unstable lambda reference in onChange prop invalidates memoization of child component."

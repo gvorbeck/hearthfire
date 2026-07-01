@@ -114,11 +114,6 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         },
       ],
     },
-    mystery: {
-      sectionLabel: "",
-      moves: [],
-      consequences: [],
-    },
   },
   {
     id: "twisted-spear",
@@ -141,6 +136,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
               id: "whispers",
               name: "Whispers",
               selectable: true,
+              citation: "Book 2, p. 543",
               body: [
                 {
                   kind: "para",
@@ -148,96 +144,95 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
                 },
               ],
             },
-          ],
-        },
-      ],
-    },
-    mystery: {
-      moves: [
-        {
-          id: "whispers",
-          name: "Whispers",
-          body: [
             {
-              kind: "para",
-              text: 'When you **grip the shaft of the Twisted Spear**, you can ask the GM, "What spirits are active here?" and get an honest answer.',
-            },
-          ],
-          citation: "Book 2, p. 543",
-        },
-        {
-          id: "promise-of-doom",
-          name: "Promise of Doom",
-          body: [
-            {
-              kind: "para",
-              text: "When you **hold the Twisted Spear and speak aloud an oath to destroy a spirit or demon**, you do +2d4 damage against them and -4 damage to everything else. This lasts until you destroy them or forsake your oath. If you forsake your oath, mark a consequence.",
-            },
-          ],
-          citation: "Book 2, p. 543",
-        },
-        {
-          id: "roots-of-the-elder-tree",
-          name: "Roots of the Elder Tree",
-          body: [
-            {
-              kind: "para",
-              text: "When you **stand with your feet firmly on the ground and strike a spirit, ghost, or demon**, you can mark a consequence to send your target coursing through you and into the depths of the earth, where it is bound fast.",
-            },
-          ],
-          citation: "Book 2, p. 543",
-        },
-        {
-          id: "darkness-lingers",
-          name: "Darkness Lingers",
-          body: [
-            {
-              kind: "para",
-              text: "When you **strike down a spirit or demon**, ask the GM for one of its moves and write it down; it is held in the Twisted Spear. When you **use the stolen move**, roll +CON: **on a 10+**, you do it, just like that; **on a 7-9**, you do it, but choose 1:",
+              id: "promise-of-doom",
+              name: "Promise of Doom",
+              selectable: true,
+              citation: "Book 2, p. 543",
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **hold the Twisted Spear and speak aloud an oath to destroy a spirit or demon**, you do +2d4 damage against them and -4 damage to everything else. This lasts until you destroy them or forsake your oath. If you forsake your oath, mark a consequence.",
+                },
+              ],
             },
             {
-              kind: "list",
-              items: [
-                "The move is lost, bleeding away from the Spear",
-                "Mark a consequence",
+              id: "roots-of-the-elder-tree",
+              name: "Roots of the Elder Tree",
+              selectable: true,
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **stand with your feet firmly on the ground and strike a spirit, ghost, or demon**, you can mark a consequence to send your target coursing through you and into the depths of the earth, where it is bound fast.",
+                },
+              ],
+              citation: "Book 2, p. 543",
+            },
+            {
+              id: "darkness-lingers",
+              name: "Darkness Lingers",
+              citation: "Book 2, p. 543",
+              selectable: true,
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **strike down a spirit or demon**, ask the GM for one of its moves and write it down; it is held in the Twisted Spear. When you **use the stolen move**, roll +CON: **on a 10+**, you do it, just like that; **on a 7-9**, you do it, but choose 1:",
+                },
+                {
+                  kind: "list",
+                  items: [
+                    "The move is lost, bleeding away from the Spear",
+                    "Mark a consequence",
+                  ],
+                },
               ],
             },
           ],
-          citation: "Book 2, p. 543",
-        },
-      ],
-      consequences: [
-        {
-          id: "spear-c1",
-          text: "Deep beneath the elder tree from which the Spear was carved, something dark and terrible shifts and strains at the roots that bind it.",
         },
         {
-          id: "spear-c2",
-          text: "From now on, the first time you Make Camp each session, roll +WIS: **on a 10+**, your dreams are unpleasant and claustrophobic, but your sleep is restful; **on a 7-9**, you dream of that which is bound by the elder tree from which the Spear was carved—take disadvantage on your next roll, but ask the GM what you learn; **on a 6-**, the thing bound by the tree sees you, too. You awake, unrested, and will get no rest this night.",
-        },
-        {
-          id: "spear-c3",
-          text: "You are overwhelmed by a vision of the thing bound by the Spear's tree, its past and its terrible desires.",
-        },
-        {
-          id: "spear-c4",
-          text: "The elder tree from which the Spear was carved shudders and cracks, still whole but wounded and weakened.",
-          children: [
+          label: "Consequences",
+          content: [
             {
-              id: "spear-c4a",
-              text: "A lesser evil escapes from the roots of the tree. Ask the GM what is now loose in the world.",
+              id: "spear-c1",
+              value:
+                "Deep beneath the elder tree from which the Spear was carved, something dark and terrible shifts and strains at the roots that bind it.",
             },
             {
-              id: "spear-c4b",
-              text: "The tree grows sick and weak, losing its leaves and sprouting only a few in spring.",
+              id: "spear-c2",
+              value:
+                "From now on, the first time you Make Camp each session, roll +WIS: **on a 10+**, your dreams are unpleasant and claustrophobic, but your sleep is restful; **on a 7-9**, you dream of that which is bound by the elder tree from which the Spear was carved—take disadvantage on your next roll, but ask the GM what you learn; **on a 6-**, the thing bound by the tree sees you, too. You awake, unrested, and will get no rest this night.",
             },
             {
-              id: "spear-c4c",
-              text: "Some natural thing is tainted by the dark power beneath the tree, and goes forth to wreak evil.",
+              id: "spear-c3",
+              value:
+                "You are overwhelmed by a vision of the thing bound by the Spear's tree, its past and its terrible desires.",
             },
             {
-              id: "spear-c4d",
-              text: "The tree dies. Its prisoners escape. And the Spear loses all power.",
+              id: "spear-c4",
+              value:
+                "The elder tree from which the Spear was carved shudders and cracks, still whole but wounded and weakened.",
+              children: [
+                {
+                  id: "spear-c4a",
+                  value:
+                    "A lesser evil escapes from the roots of the tree. Ask the GM what is now loose in the world.",
+                },
+                {
+                  id: "spear-c4b",
+                  value:
+                    "The tree grows sick and weak, losing its leaves and sprouting only a few in spring.",
+                },
+                {
+                  id: "spear-c4c",
+                  value:
+                    "Some natural thing is tainted by the dark power beneath the tree, and goes forth to wreak evil.",
+                },
+                {
+                  id: "spear-c4d",
+                  value:
+                    "The tree dies. Its prisoners escape. And the Spear loses all power.",
+                },
+              ],
             },
           ],
         },
