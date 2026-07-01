@@ -6,9 +6,10 @@ Perform an in-depth code review of all currently modified files (staged + unstag
 
 ## Steps
 
-1. Run `git diff HEAD --name-only` and `git diff --cached --name-only` to get the list of modified files.
-2. Read each modified file in full.
-3. Review each file against every category below. For each finding, note the file path and line number.
+1. Run `npm run lint`, `npx tsc --noEmit`, and `npm run build` to confirm the branch has no existing lint, type, or build errors. (`npm run build` chains all three — `eslint . && tsc && vite build` — but run the first two separately as well so a lint or type failure is reported distinctly from a bundler failure.) Report any failures at the top of the review under a **Build & Type Check** heading, quoting the failing file, line, and message. These are must-fix and take precedence over any style findings below.
+2. Run `git diff HEAD --name-only` and `git diff --cached --name-only` to get the list of modified files.
+3. Read each modified file in full.
+4. Review each file against every category below. For each finding, note the file path and line number.
 
 ## Project Context
 
@@ -147,11 +148,20 @@ Example of the level wanted:
 - Bad: "Unstable lambda reference in onChange prop invalidates memoization of child component."
 - Good: "This list redraws every item on every keystroke, so typing feels slow. Fix: wrap `handleChange` in `useCallback`."
 
-Start with the verdict — one line:
+Start with the verdict — one line. If lint, type check, or build failed, the verdict is at least Needs Work (Major Issues if the build is broken):
 
 ```
 Verdict: Ready | Needs Work | Major Issues — N must-fix, N should-fix, N suggestions
 ```
+
+If lint, type check, or build failed, list those first:
+
+```
+### Build & Type Check
+1. `file-path:line` — the error message in plain words. Fix: the concrete change.
+```
+
+If all three passed, note it in one line (`Build, lint, and type check pass.`) and continue to the findings.
 
 Then findings grouped by severity (worst first), numbered sequentially. **One line each:**
 
