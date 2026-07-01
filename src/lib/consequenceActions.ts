@@ -48,7 +48,7 @@ const buildIndex = (arcanum: MajorArcanum): Map<string, ArcanaConsequence> => {
   const addIfAbsent = (consequence: ArcanaConsequence): void => {
     if (!index.has(consequence.id)) index.set(consequence.id, consequence);
   };
-  for (const c of arcanum.mystery.consequences) {
+  for (const c of arcanum.mystery?.consequences ?? []) {
     addIfAbsent({ id: c.id, value: c.text });
     for (const child of c.children ?? []) {
       addIfAbsent({

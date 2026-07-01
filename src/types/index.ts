@@ -271,9 +271,10 @@ export interface MajorArcanum {
   frontMoves?: (ArcanaMove | MoveDefinition)[];
   marks: { label?: string; max: number; unlockAt?: number; tasks?: string[] };
   // The card prefers `back` when present and falls back to `mystery` otherwise, so arcana can be
-  // converted to the new section-based shape one at a time. `mystery` is being phased out.
+  // converted to the new section-based shape one at a time. `mystery` is being phased out — arcana
+  // fully migrated to `back` (e.g. the Twisted Spear) omit it entirely.
   back?: ArcanaBack;
-  mystery: MajorArcanaMystery;
+  mystery?: MajorArcanaMystery;
 }
 
 export interface ChoiceConfig {

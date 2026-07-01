@@ -155,6 +155,7 @@ export const MajorArcanaCard = ({
 
       {unlocked &&
         !back &&
+        mystery &&
         (mystery.moves.length > 0 ||
           mystery.mysteryCreature !== undefined ||
           mystery.consequences.length > 0) && (
