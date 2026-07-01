@@ -9,6 +9,10 @@ export interface UseTooltipOptions {
   side?: TooltipSide;
   tooltipId?: string;
   portal?: boolean;
+  // Called with the anchor element whenever it mounts/unmounts, so a consumer can
+  // also collect the node (e.g. into a parent ref array) without reaching in and
+  // mutating the hook's own anchor ref.
+  externalRef?: (el: HTMLElement | null) => void;
 }
 
 interface PositionState {
@@ -25,7 +29,10 @@ export interface UseTooltipResult {
   nudgeX: number;
   arrowOffset: string;
   fixedCoords: { top: number; left: number } | null;
-  anchorRef: React.MutableRefObject<HTMLElement | null>;
+  // A callback ref: attach via ref={anchorRef}. The hook owns the write to its
+  // internal anchor storage (and forwards to any externalRef), so consumers never
+  // mutate a hook-owned ref directly.
+  anchorRef: (el: HTMLElement | null) => void;
   tooltipRef: React.RefObject<HTMLSpanElement>;
   anchorProps: {
     onMouseEnter: () => void;
@@ -36,7 +43,7 @@ export interface UseTooltipResult {
   };
 }
 
-export const useTooltip = ({ side = 'top', tooltipId: externalId, portal = false }: UseTooltipOptions = {}): UseTooltipResult => {
+export const useTooltip = ({ side = 'top', tooltipId: externalId, portal = false, externalRef }: UseTooltipOptions = {}): UseTooltipResult => {
   const [visible, setVisible] = useState(false);
   const [position, setPosition] = useState<PositionState>({
     resolvedSide: side,
@@ -45,10 +52,17 @@ export const useTooltip = ({ side = 'top', tooltipId: externalId, portal = false
     fixedCoords: null,
   });
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Private anchor storage, owned entirely by this hook. Consumers attach it via
+  // the `setAnchor` callback ref below rather than touching this directly.
   const anchorRef = useRef<HTMLElement | null>(null);
   const tooltipRef = useRef<HTMLSpanElement>(null);
   const generatedId = useId();
   const tooltipId = externalId ?? generatedId;
+
+  const setAnchor = useCallback((el: HTMLElement | null) => {
+    anchorRef.current = el;
+    externalRef?.(el);
+  }, [externalRef]);
 
   useEffect(() => () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }, []);
 
@@ -163,7 +177,7 @@ export const useTooltip = ({ side = 'top', tooltipId: externalId, portal = false
     nudgeX: position.nudgeX,
     arrowOffset: position.arrowOffset,
     fixedCoords: position.fixedCoords,
-    anchorRef,
+    anchorRef: setAnchor,
     tooltipRef,
     anchorProps: {
       onMouseEnter: show,

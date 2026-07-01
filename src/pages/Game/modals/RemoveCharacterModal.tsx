@@ -1,4 +1,4 @@
-import { useState, useId, useCallback, useEffect } from 'react';
+import { useState, useId, useCallback } from 'react';
 import { Button, Heading, Modal, Text } from '@/components/ui';
 import { useToast } from '@/components/app';
 import { getPlaybook } from '@/lib/constants';
@@ -15,11 +15,9 @@ interface RemoveCharacterModalProps {
 export const RemoveCharacterModal = ({ open, character, onClose, onConfirm }: RemoveCharacterModalProps) => {
   const headingId = useId();
   const { addToast } = useToast();
+  // The parent mounts this modal only while open, so `removing` resets naturally
+  // on each open — no reset effect needed.
   const [removing, setRemoving] = useState(false);
-
-  useEffect(() => {
-    if (!open) setRemoving(false);
-  }, [open]);
 
   const handleConfirm = useCallback(async () => {
     setRemoving(true);

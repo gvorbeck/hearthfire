@@ -203,20 +203,25 @@ export const useArcanumGating = (
 
   // The creature's book data is a projection of the seed plus every marked consequence; recompute it
   // only when the seed or marked state changes so the memo on MysteryCreatureCard holds.
+  // Sub-paths hoisted into consts so the memo deps match what the React Compiler
+  // infers (bare bindings, not two `mystery?.x` optional-chains it collapses to
+  // `mystery`), letting it optimize this component instead of skipping it.
+  const mysteryCreature = mystery?.mysteryCreature;
+  const mysteryConsequences = mystery?.consequences;
   const projectedCreature = useMemo(
     () =>
-      mystery?.mysteryCreature
+      mysteryCreature
         ? projectCreature(
-            mystery.mysteryCreature,
+            mysteryCreature,
             entry.mysteryCreature,
-            mystery.consequences,
+            mysteryConsequences ?? [],
             entry.consequencesMarked,
             entry.consequenceTableChoice ?? {},
           )
         : undefined,
     [
-      mystery?.mysteryCreature,
-      mystery?.consequences,
+      mysteryCreature,
+      mysteryConsequences,
       entry.mysteryCreature,
       entry.consequencesMarked,
       entry.consequenceTableChoice,

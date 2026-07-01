@@ -1,4 +1,4 @@
-import { useRef, useCallback, useMemo, lazy, Suspense } from 'react';
+import { useRef, useCallback, useMemo, useInsertionEffect, lazy, Suspense } from 'react';
 import { useHashTabs } from '@/hooks/useHashTabs';
 import type { ComponentType, ReactNode } from 'react';
 import { useParams, Link } from 'react-router-dom';
@@ -292,7 +292,11 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, n
   ], [characterData, playbook, level, playbookOption, handleSaveCharacterData, insertInstinctNote, playbookTabs, showInvocationsBadge, prosperity, removeInsertHandlers]);
 
   const { activeIndex, setActiveIndex: setActiveIndexFn, handleActiveChange: hashHandleActiveChange } = useHashTabs(tabs);
-  setActiveIndexRef.current = setActiveIndexFn;
+  // Mirror the latest tab setter into a ref (written post-commit, not during
+  // render) so the stable badge-dismiss callback at line ~253 can call it.
+  useInsertionEffect(() => {
+    setActiveIndexRef.current = setActiveIndexFn;
+  });
 
   const handleActiveChange = useCallback((i: number) => {
     hashHandleActiveChange(i);
@@ -332,8 +336,13 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, n
         onActiveChange={handleActiveChange}
         onAdd={canAddInsert ? handleOpenAddTab : undefined}
       />
-      <AddInsertModal open={addTabOpen} onClose={handleCloseAddTab} onAdd={handleAddInsert} existingInserts={characterData?.inserts ?? []} />
-      <RemoveInsertModal open={removeInsert !== null} insert={removeInsert} onClose={handleCloseRemoveInsert} onConfirm={handleConfirmRemoveInsert} />
+      {/* Mounted only while open so per-open UI state resets on each open. */}
+      {addTabOpen && (
+        <AddInsertModal open={addTabOpen} onClose={handleCloseAddTab} onAdd={handleAddInsert} existingInserts={characterData?.inserts ?? []} />
+      )}
+      {removeInsert !== null && (
+        <RemoveInsertModal open={removeInsert !== null} insert={removeInsert} onClose={handleCloseRemoveInsert} onConfirm={handleConfirmRemoveInsert} />
+      )}
     </PageLayout>
   );
 };

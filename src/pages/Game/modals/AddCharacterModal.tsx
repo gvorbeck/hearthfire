@@ -1,4 +1,4 @@
-import { useState, useCallback, useId, useMemo, useEffect } from 'react';
+import { useState, useCallback, useId, useMemo } from 'react';
 import {
   Button,
   Dropdown,
@@ -28,11 +28,9 @@ export const AddCharacterModal = ({
   const headingId = useId();
   const { addToast } = useToast();
   const [playbook, setPlaybook] = useState<PlaybookType | ''>('');
+  // The parent mounts this modal only while open, so `adding` resets naturally on
+  // each open — no reset effect needed.
   const [adding, setAdding] = useState(false);
-
-  useEffect(() => {
-    if (!open) setAdding(false);
-  }, [open]);
 
   const handleClose = useCallback(() => {
     setPlaybook('');

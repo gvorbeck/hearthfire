@@ -221,19 +221,27 @@ const GameContent = ({
         title={`${gameName} — Hearthfire`}
         description={`Party tracker for ${gameName}. Manage characters and GM playbook.`}
       />
-      <GameIdModal gameId={id} open={showIdModal} onClose={onCloseIdModal} />
-      <AddCharacterModal
-        open={showAddCharacter}
-        onClose={onCloseAddCharacter}
-        existingPlaybooks={existingPlaybooks}
-        onAdd={onAddCharacter}
-      />
-      <RemoveCharacterModal
-        open={!!removingCharacter}
-        character={removingCharacter}
-        onClose={handleCloseRemoveModal}
-        onConfirm={handleConfirmRemove}
-      />
+      {/* Mounted only while open so per-open UI state (spinners, copy feedback)
+          resets on each open without a reset effect. */}
+      {showIdModal && (
+        <GameIdModal gameId={id} open={showIdModal} onClose={onCloseIdModal} />
+      )}
+      {showAddCharacter && (
+        <AddCharacterModal
+          open={showAddCharacter}
+          onClose={onCloseAddCharacter}
+          existingPlaybooks={existingPlaybooks}
+          onAdd={onAddCharacter}
+        />
+      )}
+      {!!removingCharacter && (
+        <RemoveCharacterModal
+          open={!!removingCharacter}
+          character={removingCharacter}
+          onClose={handleCloseRemoveModal}
+          onConfirm={handleConfirmRemove}
+        />
+      )}
       <PageLayout
         title={gameName}
         titleLabel="Edit game name"

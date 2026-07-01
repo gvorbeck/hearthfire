@@ -368,18 +368,18 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     tags: "◊, magical, awkward",
     weight: 1,
     description:
-      "A perfect sphere of dark ice, the size of a fist, never melting, hard as stone, and set like a gaudy gem at the end of a finely wrought torc. Or not a torc, perhaps, but maybe a ring that once sat upon some giant's finger?\n\nStaring into the icy sphere brings a sense of calm, serenity, and detachment. Indeed, a lesser mind might find itself staring into its depths for hours on end.",
-    frontMoves: [
-      {
-        name: "Peer into the Ice Sphere",
-        text: "Your mind is cleared of strong emotions.",
-      },
-      {
-        name: "Gaze deeply into the Ice Sphere and ponder a situation, puzzle, or mystery",
-        text: "Ask the GM one of the questions below. The GM will answer honestly.\n\n- Who benefits (or would benefit) from ___?\n- What about ___ isn't what it seems to be?\n- How could I learn more about ___?\n- What's the most likely outcome if ___?\n- What am I overlooking?\n\nAfter the GM answers, roll +INT: **on a 10+**, hold 2 Acumen; **on a 7-9**, hold 1. While acting on the GM's answer, you can spend Acumen 1-for-1 to:\n\n- Ask another question from the list above, and get an honest answer\n- Treat a 6- that you rolled as a 7-9, or a 7-9 as a 10+\n\n**On a 6-**, your connection to your body weakens—mark a debility and mark 1 circle. The debility lasts until you spend a few days living wholly in your body and averting your gaze from the Ice Sphere.",
-        tracker: { label: "Acumen", max: 2 },
-      },
-    ],
+      "A perfect sphere of dark ice, the size of a fist, never melting, hard as stone, and set like a gaudy gem at the end of a finely wrought torc. Or not a torc, perhaps, but maybe a ring that once sat upon some giant's finger?\n\nStaring into the icy sphere brings a sense of calm, serenity, and detachment. Indeed, a lesser mind might find itself staring into its depths for hours on end.\n\n---\n\nWhen you **peer into the Ice Sphere**, your mind is cleared of strong emotions.\n\nWhen you **gaze deeply into the Ice Sphere and ponder a situation, puzzle, or mystery**, ask the GM one of the questions below. The GM will answer honestly.\n\n- Who benefits (or would benefit) from __?\n- What about __ isn’t what it seems to be?\n- How could I learn more about __?\n- What’s the most likely outcome if __?\n- What am I overlooking?\n\nAfter the GM answers, roll +INT: **on a 10+**, hold 2 Acumen; **on a 7-9**, hold 1.\nWhile acting on the GM’s answer, you can spend Acumen 1-for-1 to:\n\n- Ask another question from the list above, and get an honest answer\n- Treat a 6- that you rolled as a 7-9, or a 7-9 as a 10+\n\n**On a 6-**, your connection to your body weakens—mark a debility and mark 1 circle. The debility lasts until you spend a few days living wholly in your body and averting your gaze from the Ice Sphere.\n\nWhen you **make the last mark**, you unlock the mysteries of the Ice Sphere and can use Mindwalking.",
+    // frontMoves: [
+    //   {
+    //     name: "Peer into the Ice Sphere",
+    //     text: "Your mind is cleared of strong emotions.",
+    //   },
+    //   {
+    //     name: "Gaze deeply into the Ice Sphere and ponder a situation, puzzle, or mystery",
+    //     text: "Ask the GM one of the questions below. The GM will answer honestly.\n\n- Who benefits (or would benefit) from ___?\n- What about ___ isn't what it seems to be?\n- How could I learn more about ___?\n- What's the most likely outcome if ___?\n- What am I overlooking?\n\nAfter the GM answers, roll +INT: **on a 10+**, hold 2 Acumen; **on a 7-9**, hold 1. While acting on the GM's answer, you can spend Acumen 1-for-1 to:\n\n- Ask another question from the list above, and get an honest answer\n- Treat a 6- that you rolled as a 7-9, or a 7-9 as a 10+\n\n**On a 6-**, your connection to your body weakens—mark a debility and mark 1 circle. The debility lasts until you spend a few days living wholly in your body and averting your gaze from the Ice Sphere.",
+    //     tracker: { label: "Acumen", max: 2 },
+    //   },
+    // ],
     marks: { max: 3 },
     mystery: {
       moves: [

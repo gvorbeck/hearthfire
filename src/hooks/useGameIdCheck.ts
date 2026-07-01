@@ -18,6 +18,9 @@ export const useGameIdCheck = (raw: string) => {
     if (abortRef.current) abortRef.current.abort();
 
     if (!raw.trim()) {
+      // Empty-input branch of a debounced async existence check; fires only on the
+      // input transitioning to empty, not a per-render cascade.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStatus('idle');
       return;
     }
