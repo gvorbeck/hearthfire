@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { projectCreature } from "@/lib/creatureMutations";
 import type {
   ArcanaConsequence,
+  ArcanaSection,
   Creature,
   MajorArcanum,
   MajorArcanaMystery,
@@ -20,11 +21,14 @@ interface FlatConsequence {
   markIds: string[];
 }
 
-// Back sections mix MoveDefinitions and ArcanaConsequences; these split a section's content by kind so
-// back moves can be gated and back consequences counted alongside the legacy mystery ones.
-const isBackConsequence = (
-  entry: MoveDefinition | ArcanaConsequence,
-): entry is ArcanaConsequence => "value" in entry;
+// Back sections mix MoveDefinitions, ArcanaConsequences, and follower entries; these split a section's
+// content by kind so back moves can be gated and back consequences counted alongside the legacy mystery
+// ones. Followers carry `follower`, moves carry `body`, consequences carry `value`.
+type BackEntry = ArcanaSection["content"][number];
+const isBackConsequence = (entry: BackEntry): entry is ArcanaConsequence =>
+  "value" in entry;
+const isBackMove = (entry: BackEntry): entry is MoveDefinition =>
+  "body" in entry;
 
 // Every back consequence (and its nested children, recursively), each with its mark-box ids derived
 // from its `checkboxes` count (default 1).
@@ -80,7 +84,7 @@ export const useArcanumGating = (
   // lock rules whether it was authored under `mystery` or in a `back` section.
   const allMoves: MysteryMove[] = useMemo(() => {
     const backMoves = (back?.sections ?? []).flatMap((s) =>
-      s.content.filter((e): e is MoveDefinition => !isBackConsequence(e)),
+      s.content.filter(isBackMove),
     );
     return [...(mystery?.moves ?? []), ...backMoves];
   }, [mystery?.moves, back]);

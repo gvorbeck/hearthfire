@@ -99,6 +99,9 @@ export interface ArcanaFollower {
   instinct: string;
   qualities?: string[];
   cost?: string;
+  // A follower tracked by Loyalty rather than HP (e.g. the Demonhide Cloak) renders an interactive
+  // dot tracker with this many dots; its value persists on the entry under trackerValues[entry id].
+  loyalty?: number;
 }
 
 // A presented stat line on a creature card — a bold label (e.g. "Damage") and its value.
@@ -189,11 +192,23 @@ export interface ArcanaConsequence {
   children?: ArcanaConsequence[];
 }
 
+// A standalone follower in a back "Followers" section (e.g. the Demonhide Cloak). Unlike a follower
+// attached to a move, it stands on its own; `id` keys its persisted tracker state (HP or Loyalty).
+export interface ArcanaFollowerEntry {
+  id: string;
+  follower: ArcanaFollower;
+  // A follower gained only when a specific back consequence is marked (e.g. the Demonhide Cloak becomes
+  // a follower via cloak-c5). Until that box is marked the follower renders inactive (dimmed, tracker
+  // disabled). Omitted for followers granted outright on unlock.
+  requiresConsequence?: string;
+}
+
 // One labeled section of an arcanum's back. Its `content` is the section's typed entries — Move
-// definitions in a "Moves" section, ArcanaConsequences in a "Consequences" section.
+// definitions in a "Moves" section, ArcanaConsequences in a "Consequences" section, follower entries
+// in a "Followers" section. The three are distinguished by shape: `body` / `value` / `follower`.
 export interface ArcanaSection {
   label: string;
-  content: (MoveDefinition | ArcanaConsequence)[];
+  content: (MoveDefinition | ArcanaConsequence | ArcanaFollowerEntry)[];
 }
 
 // The back side of an arcanum: a labeled wrapper around its sections. Replacing `mystery`; both

@@ -8,6 +8,16 @@
   border-radius: var(--radius-md);
 }
 
+/* A follower not yet gained (its activating consequence is unmarked): dimmed and read as pending. The
+   tracker is separately disabled, so this is purely the visual cue. */
+.followerInactive {
+  opacity: 0.55;
+}
+
+.followerActivation {
+  margin-top: var(--spacing-1);
+}
+
 .followerHeader {
   display: flex;
   flex-direction: column;

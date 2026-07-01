@@ -349,6 +349,9 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
     if (f.crewSuppliesUses !== undefined) setSuppliesUses(f.crewSuppliesUses);
     if (f.crewIndividuals !== undefined)
       setIndividuals(parseIndividuals(f.crewIndividuals));
+  // Keyed on the specific feature subfields, not the whole `data` object: syncing
+  // on every unrelated data change would clobber pending optimistic local edits.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.playbookFeatures, data?.typeMoves, data?.typeMoveCheckList]);
 
   const { saveDebounced, saveImmediate, flushDebounce, dataRef, onSaveRef } =

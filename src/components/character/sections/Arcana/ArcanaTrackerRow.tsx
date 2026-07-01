@@ -7,6 +7,7 @@ interface ArcanaTrackerRowProps {
   total: number;
   checked: number;
   onChange: (value: number) => void;
+  disabled?: boolean;
 }
 
 // The labelled dot tracker shared by every arcana move (front moves, mystery moves, the minor-card
@@ -16,6 +17,7 @@ export const ArcanaTrackerRow = ({
   total,
   checked,
   onChange,
+  disabled,
 }: ArcanaTrackerRowProps) => (
   <div className={styles.tracker}>
     <Text
@@ -27,6 +29,6 @@ export const ArcanaTrackerRow = ({
     >
       {label}
     </Text>
-    <UseDots total={total} checked={checked} onChange={onChange} />
+    <UseDots total={total} checked={checked} onChange={onChange} disabled={disabled} />
   </div>
 );

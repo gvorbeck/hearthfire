@@ -1,6 +1,8 @@
 import { useCallback, memo } from 'react';
+import clsx from 'clsx';
 import { List, Text } from '@/components/ui';
 import type { ArcanaFollower } from '@/types';
+import { ArcanaTrackerRow } from './ArcanaTrackerRow';
 import styles from './ArcanaFollowerBlock.module.css';
 
 interface ArcanaFollowerBlockProps {
@@ -8,6 +10,14 @@ interface ArcanaFollowerBlockProps {
   follower: ArcanaFollower;
   followerHp?: number[];
   onFollowerHpChange: (index: number, value: number) => void;
+  // A Loyalty-tracked follower (follower.loyalty set) renders an interactive dot tracker; its value and
+  // setter come from the same trackerValues path moves use. Absent for HP-tracked followers.
+  loyaltyValue?: number;
+  onLoyaltyChange?: (value: number) => void;
+  // A follower gained only once a consequence is marked renders inactive until then: dimmed, its tracker
+  // disabled, with `activationNote` explaining what unlocks it.
+  inactive?: boolean;
+  activationNote?: string;
 }
 
 export const ArcanaFollowerBlock = memo(({
@@ -15,11 +25,16 @@ export const ArcanaFollowerBlock = memo(({
   follower,
   followerHp,
   onFollowerHpChange,
+  loyaltyValue,
+  onLoyaltyChange,
+  inactive = false,
+  activationNote,
 }: ArcanaFollowerBlockProps) => {
   const isMultiHp = !!(follower.hpCount && follower.hpCount > 1);
+  const cx = clsx(styles.follower, inactive && styles.followerInactive);
 
   return (
-    <div className={styles.follower}>
+    <div className={cx} aria-disabled={inactive || undefined}>
       <div className={styles.followerHeader}>
         <Text font="serif" weight="bold">
           {follower.name}
@@ -57,6 +72,15 @@ export const ArcanaFollowerBlock = memo(({
             </span>
           )}
         </div>
+        {follower.loyalty !== undefined && onLoyaltyChange && (
+          <ArcanaTrackerRow
+            label="Loyalty"
+            total={follower.loyalty}
+            checked={loyaltyValue ?? 0}
+            onChange={onLoyaltyChange}
+            disabled={inactive}
+          />
+        )}
         <div className={styles.followerInstinct}>
           <Text as="span" font="serif" size="xs" color="muted">Instinct: </Text>
           <Text as="span" font="serif" size="xs" italic>{follower.instinct}</Text>
@@ -76,6 +100,11 @@ export const ArcanaFollowerBlock = memo(({
           </div>
         )}
       </div>
+      {inactive && activationNote && (
+        <Text as="span" font="serif" size="xs" italic color="muted" className={styles.followerActivation}>
+          {activationNote}
+        </Text>
+      )}
     </div>
   );
 });

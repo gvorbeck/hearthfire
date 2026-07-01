@@ -206,6 +206,9 @@ const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
       label: 'Reference',
       content: <ReferenceTab />,
     },
+  // Keyed on g.characters, not the whole `g` object, matching the game.*
+  // subfield-narrowing pattern used elsewhere in the steading views.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   ], [g.characters, steading, updateSteading, npcFilter]);
 
   const { activeIndex, handleActiveChange } = useHashTabs(tabs);
