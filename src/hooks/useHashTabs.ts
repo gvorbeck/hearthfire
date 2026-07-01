@@ -19,6 +19,9 @@ export const useHashTabs = (tabs: TabWithId[]) => {
     const hash = tabSegment();
     if (hash) {
       const idx = tabs.findIndex((t) => t.id === hash);
+      // One-shot mount resolution of the initial URL hash (an external read via
+      // window.location); guarded by hashResolved so it fires exactly once.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (idx !== -1) setActiveIndex(idx);
     }
     hashResolved.current = true;

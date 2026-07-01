@@ -298,10 +298,16 @@ export const BlessedInitiatesOfDanu = ({ data, onSave }: BlessedInitiatesOfDanuP
     if (incoming === lastFirestoreRef.current) return;
     lastFirestoreRef.current = incoming;
     const f = resolvePlaybookFeatures(data);
+    // Mirror the remote Firestore snapshot into optimistic local state. This is a
+    // store-subscription sync (guarded by lastFirestoreRef), not a derivable
+    // value — deriving in render would drop the user's in-flight edits during the
+    // save→echo window, so the effect is necessary.
+    /* eslint-disable react-hooks/set-state-in-effect */
     if (f.initiateHp !== undefined) setHp(f.initiateHp);
     if (f.initiateLoyalty !== undefined) setLoyalty(f.initiateLoyalty);
     if (f.initiatePicks !== undefined) setPicks(f.initiatePicks);
     if (f.initiateRites !== undefined) setRites(f.initiateRites);
+    /* eslint-enable react-hooks/set-state-in-effect */
   // Keyed on the specific feature subfield, not the whole `data` object: syncing
   // on every unrelated data change would clobber pending optimistic local edits.
   // eslint-disable-next-line react-hooks/exhaustive-deps

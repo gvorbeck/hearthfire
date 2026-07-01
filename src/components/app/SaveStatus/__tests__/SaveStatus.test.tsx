@@ -7,6 +7,10 @@ import { useSaveStatus } from '../SaveStatusContext';
 // A tiny consumer that lets the test drive the provider the way useGame does.
 let api: ReturnType<typeof useSaveStatus>;
 const Capture = () => {
+  // Test harness: capture the hook's return into a module variable so the test
+  // can drive the provider. Assigning an outer variable from render is fine here
+  // because this component exists only to expose the context to the test.
+  // eslint-disable-next-line react-hooks/globals
   api = useSaveStatus();
   return null;
 };

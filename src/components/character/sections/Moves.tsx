@@ -81,13 +81,16 @@ interface MovesProps extends PlaybookSectionProps {
 
 export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
   const typeMoves = useMemo(() => PLAYBOOK_MOVES[playbook] ?? [], [playbook]);
+  // Hoisted so the memo deps match what the React Compiler infers (a bare
+  // `background`, not `data?.background`), letting it optimize instead of skip.
+  const background = data?.background;
   const forcedMoveIds = useMemo(
-    () => new Set(data?.background ? (BACKGROUND_FORCED_MOVES[playbook]?.[data.background] ?? []) : []),
-    [playbook, data?.background]
+    () => new Set(background ? (BACKGROUND_FORCED_MOVES[playbook]?.[background] ?? []) : []),
+    [playbook, background]
   );
   const forcedCheckList = useMemo(
-    () => data?.background ? (BACKGROUND_FORCED_CHECKLIST[playbook]?.[data.background] ?? {}) : {},
-    [playbook, data?.background]
+    () => background ? (BACKGROUND_FORCED_CHECKLIST[playbook]?.[background] ?? {}) : {},
+    [playbook, background]
   );
 
   const { value: selected, ref: selectedRef, save: saveSelected } = useCharacterField('typeMoves', data?.typeMoves ?? {}, onSave, 'Failed to save move selection.');
@@ -206,11 +209,16 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
       else if (block.kind === 'tracked') hasTracked = true;
     }
     // Index 0 → typeMoveUses, index 1 → typeMoveUses2; sliced to the controls this move declares.
+    // boundHandlers only carries stable handler fns; the Compiler treats it as
+    // ref-tainted because those fns close over useLatest refs, but we only read a
+    // handler here (never a ref's .current), so the render-phase access is safe.
+    /* eslint-disable react-hooks/refs */
     const rightControlState = move.rightControl?.map((_, i) =>
       i === 0
         ? { checked: uses[move.id] ?? 0, onChange: boundHandlers.usesMap[move.id] }
         : { checked: uses2[move.id] ?? 0, onChange: boundHandlers.uses2Map[move.id] }
     );
+    /* eslint-enable react-hooks/refs */
     return (
       <Move
         key={move.id}

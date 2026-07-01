@@ -45,6 +45,10 @@ export const SaveStatus = () => {
 
   useEffect(() => {
     if (status !== 'saved') return;
+    // Seed the clock when a save lands, then let the interval roll it forward.
+    // `now` is wall-clock time — not derivable from props — and this fires once
+    // per save transition (user-paced), not a per-render cascade.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setNow(Date.now());
     const id = setInterval(() => setNow(Date.now()), 15_000);
     return () => clearInterval(id);

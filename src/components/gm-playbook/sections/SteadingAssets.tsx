@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Heading, Text, Input } from '@/components/ui';
 import { useOptimisticField } from '@/hooks/useOptimisticField';
+import { useLatest } from '@/hooks/useLatest';
 import { ImprovementList } from './ImprovementList';
 import type { SteadingData } from '@/types';
 import styles from './SteadingAssets.module.css';
@@ -28,8 +29,7 @@ const CurrencyField = ({ label, fieldKey, savedValue, onSave }: CurrencyFieldPro
   const [local, setLocal] = useState(String(savedValue));
   const isFocusedRef = useRef(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const onSaveRef = useRef(onSave);
-  onSaveRef.current = onSave;
+  const onSaveRef = useLatest(onSave);
 
   useEffect(() => {
     if (!isFocusedRef.current) setLocal(String(savedValue));

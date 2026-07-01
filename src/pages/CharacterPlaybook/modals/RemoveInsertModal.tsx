@@ -1,4 +1,4 @@
-import { useId, useState, useCallback, useEffect } from 'react';
+import { useId, useState, useCallback } from 'react';
 import { Button, Heading, Modal, Text } from '@/components/ui';
 import { useToast } from '@/components/app';
 import type { InsertOption } from '@/hooks/useInsertTabs';
@@ -18,12 +18,10 @@ interface RemoveInsertModalProps {
 export const RemoveInsertModal = ({ open, insert, onClose, onConfirm }: RemoveInsertModalProps) => {
   const headingId = useId();
   const { addToast } = useToast();
+  // The parent mounts this modal only while open, so `removing` resets naturally
+  // on each open — no reset effect needed.
   const [removing, setRemoving] = useState(false);
   const warning = insert ? REMOVE_INSERT_WARNINGS[insert] : undefined;
-
-  useEffect(() => {
-    if (!open) setRemoving(false);
-  }, [open]);
 
   const handleConfirm = useCallback(async () => {
     setRemoving(true);

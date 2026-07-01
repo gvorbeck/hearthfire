@@ -105,10 +105,21 @@ export const RelationshipGraph = ({ game, focusId }: RelationshipGraphProps) => 
   // so any dragged positions are stale and must be dropped. Dragging only updates
   // `overrides`, not the node set, so it never trips this reset.
   const nodeKey = graph.nodes.map((n) => n.id).join('|');
-  useEffect(() => {
+  // When the node set changes, dragged positions and the pan/zoom view are stale
+  // and must be dropped. Done as a render-phase adjustment (React's sanctioned
+  // alternative to a setState-in-effect) keyed on nodeKey, so it resets before
+  // paint instead of cascading a second render after it.
+  // React's documented "adjust state while rendering" pattern compares a ref to
+  // the current value during render; react-hooks/refs flags that render-phase ref
+  // access, but this is exactly the sanctioned form, so the rule is disabled here.
+  /* eslint-disable react-hooks/refs */
+  const lastNodeKeyRef = useRef(nodeKey);
+  if (lastNodeKeyRef.current !== nodeKey) {
+    lastNodeKeyRef.current = nodeKey;
     setOverrides({});
     setView(IDENTITY_VIEW);
-  }, [nodeKey]);
+  }
+  /* eslint-enable react-hooks/refs */
 
   // Resolve each node's rendered position: a drag override wins, else the layout.
   const nodes = useMemo(

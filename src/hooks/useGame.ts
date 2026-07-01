@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLatest } from './useLatest';
 import { doc, onSnapshot, runTransaction, updateDoc } from 'firebase/firestore';
 import type { FirestoreError } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -191,11 +192,9 @@ export const useGame = (gameId: string): UseGameResult => {
   // error Toast. Held in refs so wrapping a mutation doesn't add the (per-render)
   // context objects to its dependency array — the callbacks stay stable.
   const saveStatus = useSaveStatusOptional();
-  const saveStatusRef = useRef(saveStatus);
-  saveStatusRef.current = saveStatus;
+  const saveStatusRef = useLatest(saveStatus);
   const addToast = useToastOptional()?.addToast;
-  const addToastRef = useRef(addToast);
-  addToastRef.current = addToast;
+  const addToastRef = useLatest(addToast);
 
   // Wraps a write so the indicator shows "Saving…" while it runs and "Saved"
   // once it settles. On failure it surfaces SAVE_ERROR_MESSAGE — every save path
@@ -219,6 +218,11 @@ export const useGame = (gameId: string): UseGameResult => {
 
   useEffect(() => {
     const ref = gameRef;
+    // Reset to the loading state before (re)subscribing to a new game's snapshot
+    // stream. This is a store-subscription effect keyed on gameRef, not a
+    // derived-state cascade — the reset must happen so stale data from the prior
+    // game doesn't show while the new snapshot is in flight.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setGame(null);
 

@@ -22,7 +22,7 @@ export const Tooltip = ({ text, side = 'top', className, noTabStop = false, tool
 
   return (
     <span
-      ref={anchorRef as React.MutableRefObject<HTMLSpanElement | null>}
+      ref={anchorRef}
       className={wrapperCx}
       aria-describedby={tooltipId}
       tabIndex={noTabStop ? undefined : 0}

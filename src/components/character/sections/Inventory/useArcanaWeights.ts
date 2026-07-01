@@ -40,6 +40,9 @@ export const useArcanaWeights = (
 
   useEffect(() => {
     if (!hasArcana) {
+      // Early branch of an effect whose main job is a dynamic import(); fires only
+      // when arcana is removed after mount, not a per-render cascade.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setWeights({ minor: {}, major: {} });
       return;
     }

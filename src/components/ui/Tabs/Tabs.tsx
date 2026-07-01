@@ -3,7 +3,6 @@ import {
   useId,
   useRef,
   useCallback,
-  useEffect,
   useMemo,
   type ReactNode,
   type KeyboardEvent,
@@ -99,7 +98,7 @@ const TabRemoveButton = ({
   baseId: string;
   onRemove: () => void;
 }) => {
-  const removeTooltip = useTooltip({
+  const { anchorRef, tooltipId, anchorProps, tooltipRef, visible, fixedCoords, arrowOffset, resolvedSide } = useTooltip({
     side: "bottom",
     tooltipId: `${baseId}-tab-${slotId}-remove-tooltip`,
     portal: true,
@@ -110,23 +109,23 @@ const TabRemoveButton = ({
   return (
     <span className={styles.tabRemoveWrapper}>
       <button
-        ref={removeTooltip.anchorRef as React.MutableRefObject<HTMLButtonElement | null>}
+        ref={anchorRef}
         type="button"
         className={styles.tabRemove}
         aria-label={tab.removeTooltip ?? `Remove ${tab.label} tab`}
-        aria-describedby={removeTooltip.tooltipId}
+        aria-describedby={tooltipId}
         onClick={handleClick}
-        {...removeTooltip.anchorProps}
+        {...anchorProps}
       >
         <Icon name="close" aria-hidden size="small" />
       </button>
       <PortalTooltip
-        tooltipRef={removeTooltip.tooltipRef}
-        tooltipId={removeTooltip.tooltipId}
-        visible={removeTooltip.visible}
-        fixedCoords={removeTooltip.fixedCoords}
-        arrowOffset={removeTooltip.arrowOffset}
-        resolvedSide={removeTooltip.resolvedSide}
+        tooltipRef={tooltipRef}
+        tooltipId={tooltipId}
+        visible={visible}
+        fixedCoords={fixedCoords}
+        arrowOffset={arrowOffset}
+        resolvedSide={resolvedSide}
       >
         {tab.removeTooltip ?? `Remove ${tab.label}`}
       </PortalTooltip>
@@ -141,7 +140,7 @@ const AddTabButton = ({
   baseId: string;
   onAdd: () => void;
 }) => {
-  const addTooltip = useTooltip({
+  const { anchorRef, tooltipId, anchorProps, tooltipRef, visible, fixedCoords, arrowOffset, resolvedSide } = useTooltip({
     side: "bottom",
     tooltipId: `${baseId}-add-tooltip`,
     portal: true,
@@ -150,9 +149,9 @@ const AddTabButton = ({
   return (
     <>
       <span
-        ref={addTooltip.anchorRef as React.MutableRefObject<HTMLSpanElement | null>}
+        ref={anchorRef}
         className={styles.addTabWrapper}
-        {...addTooltip.anchorProps}
+        {...anchorProps}
       >
         <Button
           variant="ghost"
@@ -160,17 +159,17 @@ const AddTabButton = ({
           icon="plus"
           onClick={onAdd}
           aria-label="Add an insert"
-          aria-describedby={addTooltip.tooltipId}
+          aria-describedby={tooltipId}
           className={styles.addTab}
         />
       </span>
       <PortalTooltip
-        tooltipRef={addTooltip.tooltipRef}
-        tooltipId={addTooltip.tooltipId}
-        visible={addTooltip.visible}
-        fixedCoords={addTooltip.fixedCoords}
-        arrowOffset={addTooltip.arrowOffset}
-        resolvedSide={addTooltip.resolvedSide}
+        tooltipRef={tooltipRef}
+        tooltipId={tooltipId}
+        visible={visible}
+        fixedCoords={fixedCoords}
+        arrowOffset={arrowOffset}
+        resolvedSide={resolvedSide}
       >
         Add an Insert
       </PortalTooltip>
@@ -199,22 +198,29 @@ const TabButton = ({
   tabRefs: React.MutableRefObject<(HTMLDivElement | null)[]>;
   onRemove?: () => void;
 }) => {
-  const tooltip = useTooltip({
+  // Collect this tab's DOM node into the parent's ref array as the anchor mounts.
+  // The tooltip hook owns the write to its own anchor storage and forwards here,
+  // so we never mutate a hook-owned ref by hand.
+  const collectTabNode = useCallback((el: HTMLElement | null) => {
+    // Collecting child DOM nodes into the parent's ref array is the standard
+    // callback-ref pattern; `tabRefs` is owned by the parent Tabs and passed down
+    // precisely as mutable collection storage. The Compiler can't see that intent
+    // from here, so it flags the write — safe to allow.
+    // eslint-disable-next-line react-hooks/immutability
+    tabRefs.current[index] = el as HTMLDivElement | null;
+  }, [tabRefs, index]);
+  const { anchorRef, tooltipId, anchorProps, tooltipRef, visible, nudgeX, arrowOffset, resolvedSide } = useTooltip({
     side: "bottom",
     tooltipId: tab.badgeTooltip ? `${baseId}-tab-${slotId}-tooltip` : undefined,
+    externalRef: collectTabNode,
   });
   const cx = clsx(styles.tab, isActive && styles.active, onRemove && styles.tabHasRemove);
   const slotCx = clsx(styles.tabSlot, isActive && styles.tabSlotActive);
   const tipCx = clsx(
     styles.tabTooltip,
-    styles[tooltip.resolvedSide],
-    tooltip.visible && styles.tabTooltipVisible,
+    styles[resolvedSide],
+    visible && styles.tabTooltipVisible,
   );
-
-  const handleRef = useCallback((el: HTMLDivElement | null) => {
-    tabRefs.current[index] = el;
-    tooltip.anchorRef.current = el;
-  }, [tabRefs, index, tooltip.anchorRef]);
 
   const handleClick = useCallback(() => onActivate(index), [onActivate, index]);
   const handleKeyDown = useCallback((e: KeyboardEvent<HTMLDivElement>) => {
@@ -230,15 +236,15 @@ const TabButton = ({
 
   const badgeTooltipEl = tab.badgeTooltip ? (
     <span
-      ref={tooltip.tooltipRef}
+      ref={tooltipRef}
       role="tooltip"
-      id={tooltip.tooltipId}
-      aria-hidden={!tooltip.visible}
+      id={tooltipId}
+      aria-hidden={!visible}
       className={tipCx}
       style={
         {
-          "--nudge-x": `${tooltip.nudgeX}px`,
-          "--arrow-offset": tooltip.arrowOffset,
+          "--nudge-x": `${nudgeX}px`,
+          "--arrow-offset": arrowOffset,
         } as React.CSSProperties
       }
     >
@@ -253,17 +259,17 @@ const TabButton = ({
   return (
     <div className={slotCx}>
       <div
-        ref={handleRef}
+        ref={anchorRef}
         role="tab"
         id={`${baseId}-tab-${slotId}`}
         aria-controls={`${baseId}-panel-${slotId}`}
         aria-selected={isActive}
-        aria-describedby={tab.badgeTooltip ? tooltip.tooltipId : undefined}
+        aria-describedby={tab.badgeTooltip ? tooltipId : undefined}
         tabIndex={isActive ? 0 : -1}
         className={cx}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
-        {...(tab.badgeTooltip ? tooltip.anchorProps : {})}
+        {...(tab.badgeTooltip ? anchorProps : {})}
       >
         {tab.label}
         {tab.badge}
@@ -323,12 +329,14 @@ export const Tabs = ({
     [onActiveChange, resolvedTabs],
   );
 
-  useEffect(() => {
-    const id = resolvedTabs[active]?.id;
-    if (id !== undefined) {
-      setEverActiveIds((prev) => (prev.has(id) ? prev : new Set([...prev, id])));
-    }
-  }, [active, resolvedTabs]);
+  // Record the active panel's id as "ever active" during render rather than in an
+  // effect. This is React's sanctioned adjust-state-while-rendering pattern (no
+  // post-paint cascade), and it also covers a controlled `active` prop changing
+  // externally — a case the setActive click handler above wouldn't see.
+  const activeId = resolvedTabs[active]?.id;
+  if (activeId !== undefined && !everActiveIds.has(activeId)) {
+    setEverActiveIds((prev) => (prev.has(activeId) ? prev : new Set([...prev, activeId])));
+  }
 
   const cx = clsx(styles.root, className);
 

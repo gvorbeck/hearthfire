@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useLatest } from './useLatest';
 import { resolvePlaybookFeatures, featurePatch } from '@/lib/resolvePlaybookFeatures';
 import { useDebouncedSave } from './useDebouncedSave';
 import { useToast } from '@/components/app';
@@ -37,6 +38,8 @@ export const usePlaybookChecked = (
   useEffect(() => {
     if (pendingCountRef.current > 0) return;
     const val = resolvePlaybookFeatures(data)[checkedKey] as Record<string, boolean> | undefined;
+    // Optimistic store-sync guarded by pendingCountRef; necessary, not derivable.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (val !== undefined) setChecked(val);
   }, [data, checkedKey]);
 
@@ -62,8 +65,7 @@ export const usePlaybookCheckedWithAnswers = (
   const { addToast } = useToast();
   // Counter, not a boolean — see usePlaybookChecked above.
   const pendingCountRef = useRef(0);
-  const dataRef = useRef(data);
-  dataRef.current = data;
+  const dataRef = useLatest(data);
 
   const [checked, setChecked] = useState<Record<string, boolean>>(
     () => (resolvePlaybookFeatures(data)[checkedKey] as Record<string, boolean> | undefined) ?? {},
@@ -72,8 +74,7 @@ export const usePlaybookCheckedWithAnswers = (
   const [answers, setAnswers] = useState<Record<string, string>>(
     () => (resolvePlaybookFeatures(data)[answersKey] as Record<string, string> | undefined) ?? {},
   );
-  const answersRef = useRef(answers);
-  answersRef.current = answers;
+  const answersRef = useLatest(answers);
 
   const saveAnswers = useCallback(
     (a: Record<string, string>) => onSave(featurePatch(dataRef.current, { [answersKey]: a })),
@@ -84,14 +85,20 @@ export const usePlaybookCheckedWithAnswers = (
   useEffect(() => {
     if (pendingCountRef.current > 0) return;
     const cv = resolvePlaybookFeatures(data)[checkedKey] as Record<string, boolean> | undefined;
+    // Optimistic store-sync guarded by pendingCountRef; necessary, not derivable.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (cv !== undefined) setChecked(cv);
   }, [data, checkedKey]);
 
   useEffect(() => {
     if (answersPendingRef.current) return;
     const av = resolvePlaybookFeatures(data)[answersKey] as Record<string, string> | undefined;
+    // Optimistic store-sync guarded by answersPendingRef; necessary, not derivable.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (av !== undefined) setAnswers(av);
-  }, [data, answersKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Keyed on data + answersKey only; answersPendingRef is a stable ref.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, answersKey]);
 
   const handleAnswer = useCallback((key: string, value: string) => {
     const next = { ...answersRef.current, [key]: value };

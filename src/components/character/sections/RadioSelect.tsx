@@ -59,11 +59,16 @@ export const RadioSelect = ({
 
   useEffect(() => {
     if (selectPendingRef.current) return;
+    // Mirror the remote value into optimistic local state (guarded by the pending
+    // ref); a necessary store-sync, not a derivable value.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (data?.[dataKey] !== undefined) setSelected(data[dataKey] as string);
   }, [data, dataKey]);
 
   useEffect(() => {
     if (customPendingRef.current) return;
+    // Same optimistic store-sync, guarded by customPendingRef.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (data?.[customKey] !== undefined) setCustomText(data[customKey] as string);
   }, [data, customKey, customPendingRef]);
 
