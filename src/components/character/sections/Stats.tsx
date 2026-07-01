@@ -188,12 +188,18 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
   // field we never touched.
   const dirtyRef = useRef(new Set<keyof StatsState | keyof DebilitiesState>());
 
+  // Deps intentionally list the specific stat subfields, not the whole `data`
+  // object, so unrelated data changes don't re-derive the stats snapshot.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const syncedStats = useMemo(() => statsFromData(data, hpMax), [
     data?.statStr, data?.statDex, data?.statInt, data?.statWis, data?.statCon, data?.statCha,
     data?.statHp, data?.statArmor, data?.statXp, data?.statLevel,
     hpMax,
   ]);
 
+  // Deps intentionally list the specific debility subfields, not the whole
+  // `data` object.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const syncedDebilities = useMemo(() => debilitiesFromData(data), [
     data?.debilityWeakened, data?.debilityDazed, data?.debilityMiserable,
   ]);

@@ -302,6 +302,9 @@ export const BlessedInitiatesOfDanu = ({ data, onSave }: BlessedInitiatesOfDanuP
     if (f.initiateLoyalty !== undefined) setLoyalty(f.initiateLoyalty);
     if (f.initiatePicks !== undefined) setPicks(f.initiatePicks);
     if (f.initiateRites !== undefined) setRites(f.initiateRites);
+  // Keyed on the specific feature subfield, not the whole `data` object: syncing
+  // on every unrelated data change would clobber pending optimistic local edits.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.playbookFeatures]);
 
   const { saveDebounced, saveImmediate, flushDebounce } = useCrewSave(data, onSave);

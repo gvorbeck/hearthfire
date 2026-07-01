@@ -242,95 +242,122 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
   {
     id: "demonhide-cloak",
     name: "Demonhide Cloak",
-    tags: "◊, 1 armor, warm, magical",
+    tags: "1 armor, warm, magical",
     weight: 1,
     description:
-      "A tattered cloak, stitched from a motley patchwork of unfamiliar hides and leather. Shifting odors waft from it: damp earth, ozone, musk, sulfur, rust, rot.\n\nIt is not a glamorous garment. Anything but.",
-    frontMoves: [
-      {
-        name: "Wear the Cloak",
-        text: "Its armor applies against demons in all cases, even if their attacks are piercing or ignore armor.",
-      },
-      {
-        name: "Draw up the hood of the Cloak",
-        text: "You see clearly in darkness.",
-      },
-      {
-        name: "Wrap the Cloak tightly about your person",
-        text: "You pass unnoticed by all so long as you move calmly and carefully and keep out of direct, harsh light. In retrospect, those you pass may recall a strange smell.",
-      },
-      {
-        name: "Flay the hide from a demon, tan it, and sew it onto the cloak",
-        text: "Mark 1.",
-      },
-    ],
+      "A tattered cloak, stitched from a motley patchwork of unfamiliar hides and leather. Shifting odors waft from it: damp earth, ozone, musk, sulfur, rust, rot.\n\nIt is not a glamorous garment. Anything but.\n\n---\n\nWhen you **wear the Cloak**, its armor applies against demons in all cases, even if their attacks are piercing or ignore armor.\n\nWhen you **draw up the hood of the Cloak**, you see clearly in darkness.\n\nWhen you **wrap the Cloak tightly about your person**, you pass unnoticed by all so long as you move calmly and carefully and keep out of direct, harsh light. In retrospect, those you pass may recall a strange smell.\n\nWhen you **flay the hide from a demon, tan it, and sew it onto the cloak**, make a mark.\n\nWhen you **make the last mark**, you unlock the mysteries of the Cloak and can use The Flesh Remembers.",
     marks: { max: 3 },
-    mystery: {
-      moves: [
+    back: {
+      label: "Mysteries of the Demonhide Cloak",
+      sections: [
         {
-          id: "the-flesh-remembers",
-          name: "The Flesh Remembers",
-          body: [
+          label: "Moves",
+          content: [
             {
-              kind: "para",
-              text: "When you **first encounter a demon and search the Cloak’s memories for its like**, roll +nothing: **on a 10+**, the flesh of such a creature is present in the Cloak—you receive a vision of how it was defeated; **on a 7-9**, choose 1 from the list below.",
+              id: "the-flesh-remembers",
+              name: "The Flesh Remembers",
+              selectable: true,
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **first encounter a demon and search the Cloak’s memories for its like**, roll +nothing: **on a 10+**, the flesh of such a creature is present in the Cloak—you receive a vision of how it was defeated; **on a 7-9**, choose 1 from the list below.",
+                },
+                {
+                  kind: "list",
+                  items: [
+                    "The flesh of such a creature is present in the Cloak—you receive a vision of how it was defeated, but mark a Consequence",
+                    "The flesh of such a creature is not present in the cloak; you learn nothing",
+                  ],
+                },
+                {
+                  kind: "para",
+                  text: "When you **have marked 3 Consequences**, you gain Unholy Visage.",
+                },
+              ],
+              citation: "Book 2, p. 545",
             },
             {
-              kind: "list",
-              items: [
-                "The flesh of such a creature is present in the Cloak—you receive a vision of how it was defeated, but mark a Consequence",
-                "The flesh of such a creature is not present in the cloak; you learn nothing",
+              id: "unholy-visage",
+              name: "Unholy Visage",
+              requiresConsequences: 3,
+              rightControl: [{ type: "dot", number: 3, label: "Guise" }],
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **take the appearance of a demon**, roll +CON: **on a 10+**, hold 3 Guise; **on a 7-9**, hold 1 Guise; **on a 6-**, hold 1 Guise and mark a Consequence. While you hold Guise, all perceive you as a demon, and magic that affects demons affects you, too. Spend Guise, 1-for-1 to:",
+                },
+                {
+                  kind: "list",
+                  items: [
+                    "Maintain your appearance in the face of divination or revealing light",
+                    "Understand any language you hear, and reply in kind",
+                    "Shrug off harm that your demonic form could ignore",
+                    "Maneuver in a way consistent with your demonic form: flying, leaping, oozing, flitting as a shadow, etc.",
+                  ],
+                },
+              ],
+              citation: "Book 2, p. 545",
+            },
+          ],
+        },
+        {
+          label: "Consequences",
+          content: [
+            {
+              id: "cloak-c1",
+              checkboxes: 2,
+              value:
+                "You experience an overwhelming vision, from the point of view of a demon sewn into the Cloak. Ask the GM what you see and when you come to.",
+            },
+            {
+              id: "cloak-c2",
+              checkboxes: 2,
+              value:
+                "A number of seams fray and tear. The Cloak loses its powers until you sew a new piece of demon flesh into it.",
+            },
+            {
+              id: "cloak-c3",
+              value:
+                "The Cloak's stench grows stronger, noticeable even when you go unseen and unheard. You smell faintly of the Cloak even when you aren't wearing it.",
+            },
+            {
+              id: "cloak-c4",
+              value:
+                'You become incapable of fear while wearing the Cloak. If you **wear the Cloak during a session**, your instinct becomes "Recklessness: To act with no regard to danger or consequence."',
+              actions: [
+                {
+                  type: "setInstinct",
+                  text: "Recklessness: To act with no regard to danger or consequence.",
+                },
               ],
             },
             {
-              kind: "para",
-              text: "When you **have marked 3 Consequences**, you gain the following move:",
+              id: "cloak-c5",
+              value:
+                "You begin to hear the voices of the dark creatures sewn into the Cloak. The Cloak becomes a follower. When you would mark a Consequence, you can choose to spend 1 of the Cloak's Loyalty instead.",
             },
           ],
-          citation: "Book 2, p. 545",
         },
         {
-          id: "unholy-visage",
-          name: "Unholy Visage",
-          rightControl: [{ type: "dot", number: 3, label: "Guise" }],
-          body: [
+          label: "Followers",
+          content: [
             {
-              kind: "para",
-              text: "When you **take the appearance of a demon**, roll +CON: **on a 10+**, hold 3 Guise; **on a 7-9**, hold 1 Guise; **on a 6-**, hold 1 Guise and mark a Consequence. While you hold Guise, all perceive you as a demon, and magic that affects demons affects you, too. Spend Guise, 1-for-1 to:",
-            },
-            {
-              kind: "list",
-              items: [
-                "Maintain your appearance in the face of divination or revealing light",
-                "Understand any language you hear, and reply in kind",
-                "Shrug off harm that your demonic form could ignore",
-                "Maneuver in a way consistent with your demonic form: flying, leaping, oozing, flitting as a shadow, etc.",
-              ],
+              id: "cloak-follower",
+              requiresConsequence: "cloak-c5",
+              follower: {
+                name: "The Cloak",
+                tags: "bloodthirsty, demon-wise, extraordinary, magical",
+                instinct: "to bicker and argue (with you, with itself)",
+                loyalty: 3,
+                qualities: [
+                  "Reveal a dark and terrible secret, or part of one",
+                  "Manifest a minor demonic effect",
+                  "Possess you in your sleep",
+                ],
+                cost: "chaos and wanton destruction",
+              },
             },
           ],
-          citation: "Book 2, p. 545",
-        },
-      ],
-      consequences: [
-        {
-          id: "cloak-c1",
-          text: "◻◻ You experience an overwhelming vision, from the point of view of a demon sewn into the Cloak. Ask the GM what you see and when you come to.",
-        },
-        {
-          id: "cloak-c2",
-          text: "◻◻ A number of seams fray and tear. The Cloak loses its powers until you sew a new piece of demon flesh into it.",
-        },
-        {
-          id: "cloak-c3",
-          text: "The Cloak's stench grows stronger, noticeable even when you go unseen and unheard. You smell faintly of the Cloak even when you aren't wearing it.",
-        },
-        {
-          id: "cloak-c4",
-          text: 'You become incapable of fear while wearing the Cloak. If you **wear the Cloak during a session**, your instinct becomes "Recklessness: To act with no regard to danger or consequence."',
-        },
-        {
-          id: "cloak-c5",
-          text: "You begin to hear the voices of the dark creatures sewn into the Cloak. The Cloak becomes a follower. When you would mark a Consequence, you can choose to spend 1 of the Cloak's Loyalty instead.\n\n**The Cloak** — *bloodthirsty, demon-wise, extraordinary, magical* — Instinct: to bicker and argue (with you, with itself) — ➤ Reveal a dark and terrible secret, or part of one; ➤ Manifest a minor demonic effect; ➤ Possess you in your sleep — Cost: chaos and wanton destruction (Loyalty ◻◻◻)",
         },
       ],
     },

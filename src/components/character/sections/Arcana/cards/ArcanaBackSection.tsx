@@ -1,7 +1,9 @@
+import { useCallback } from "react";
 import { Text } from "@/components/ui";
-import type { ArcanaConsequence, ArcanaMajorEntry, ArcanaSection, MoveDefinition } from "@/types";
+import type { ArcanaConsequence, ArcanaFollowerEntry, ArcanaMajorEntry, ArcanaSection, MoveDefinition } from "@/types";
 import { isMoveDefinition } from "../arcanaParsing";
 import type { MoveGating } from "../useArcanumGating";
+import { ArcanaFollowerBlock } from "../ArcanaFollowerBlock";
 import { ConsequenceRow } from "./ConsequenceRow";
 import { MysteryMoveBlock } from "./MysteryMoveBlock";
 import styles from "../arcanaCard.module.css";
@@ -12,9 +14,17 @@ const isConsequence = (
   entry: ArcanaSection["content"][number],
 ): entry is ArcanaConsequence => "value" in entry;
 
+// True when a section entry is a standalone follower (a "Followers" section entry) rather than a move or
+// consequence. Follower entries carry a `follower`; the other two carry `body` / `value`.
+const isFollowerEntry = (
+  entry: ArcanaSection["content"][number],
+): entry is ArcanaFollowerEntry => "follower" in entry;
+
 interface ArcanaBackSectionProps {
   section: ArcanaSection;
   entry: ArcanaMajorEntry;
+  // Each back consequence id → its prose, so a consequence-gated follower can name what activates it.
+  consequenceTextById: Record<string, string>;
   getConsequenceCheckedMarks: (id: string, text: string, count?: number) => boolean[];
   // Lock reasons + dot override for a back move, computed the same way as for mystery moves.
   getMoveGating: (move: MoveDefinition) => MoveGating;
@@ -32,6 +42,7 @@ interface ArcanaBackSectionProps {
 export const ArcanaBackSection = ({
   section,
   entry,
+  consequenceTextById,
   getConsequenceCheckedMarks,
   getMoveGating,
   onMysteryMoveToggle,
@@ -51,6 +62,15 @@ export const ArcanaBackSection = ({
           consequence={item}
           getConsequenceCheckedMarks={getConsequenceCheckedMarks}
           onConsequenceToggle={onConsequenceToggle}
+        />
+      ) : isFollowerEntry(item) ? (
+        <BackFollower
+          key={item.id}
+          followerEntry={item}
+          entry={entry}
+          consequenceTextById={consequenceTextById}
+          onTrackerChange={onTrackerChange}
+          onFollowerHpChange={onFollowerHpChange}
         />
       ) : isMoveDefinition(item) ? (
         <BackMove
@@ -104,6 +124,52 @@ const BackMove = ({
     onBodyCheckChange={onBodyCheckChange}
   />
 );
+
+interface BackFollowerProps {
+  followerEntry: ArcanaFollowerEntry;
+  entry: ArcanaMajorEntry;
+  consequenceTextById: Record<string, string>;
+  onTrackerChange: (moveId: string, value: number) => void;
+  onFollowerHpChange: (moveId: string, index: number, value: number) => void;
+}
+
+// A standalone follower in a "Followers" section. Its saved state is keyed by the entry's id: HP under
+// followerHp[id], Loyalty under trackerValues[id] (reusing the same tracker path moves use for dots). A
+// follower gated on a consequence (requiresConsequence) renders inactive until that box is marked.
+const BackFollower = ({
+  followerEntry,
+  entry,
+  consequenceTextById,
+  onTrackerChange,
+  onFollowerHpChange,
+}: BackFollowerProps) => {
+  const { id, follower, requiresConsequence } = followerEntry;
+  const inactive = !!requiresConsequence && !entry.consequencesMarked[requiresConsequence];
+  const gateText = requiresConsequence ? consequenceTextById[requiresConsequence] : undefined;
+  const activationNote = gateText ? `Gained when you mark: “${gateText}”` : undefined;
+  // Stable per-follower callbacks so the memoized ArcanaFollowerBlock skips re-rendering when the card
+  // re-renders for unrelated reasons (another card's edit echoing back through the snapshot).
+  const handleFollowerHp = useCallback(
+    (index: number, value: number) => onFollowerHpChange(id, index, value),
+    [id, onFollowerHpChange],
+  );
+  const handleLoyalty = useCallback(
+    (value: number) => onTrackerChange(id, value),
+    [id, onTrackerChange],
+  );
+  return (
+    <ArcanaFollowerBlock
+      arcanaId={id}
+      follower={follower}
+      followerHp={entry.followerHp?.[id]}
+      onFollowerHpChange={handleFollowerHp}
+      loyaltyValue={entry.trackerValues?.[id]}
+      onLoyaltyChange={handleLoyalty}
+      inactive={inactive}
+      activationNote={activationNote}
+    />
+  );
+};
 
 interface ConsequenceConsequenceProps {
   consequence: ArcanaConsequence;

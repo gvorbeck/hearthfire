@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import clsx from "clsx";
 import { Text } from "@/components/ui";
 import { UseDots } from "@/components/ui/UseDots/UseDots";
@@ -52,6 +53,18 @@ export const MajorArcanaCard = ({
   } = useArcanumGating(arcanum, entry);
 
   const cx = clsx(styles.card, unlocked && styles.cardUnlocked);
+
+  // A follower gained via a consequence shows a note naming that consequence's prose; map each back
+  // consequence id to its text so a follower can look up its activating consequence across sections.
+  const backConsequenceTextById = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const section of back?.sections ?? []) {
+      for (const item of section.content) {
+        if ("value" in item) map[item.id] = item.value;
+      }
+    }
+    return map;
+  }, [back]);
 
   // The provisions weight is rendered as ◊ diamonds by the header (from `weight`), so strip any
   // leading ◊ markers and their separator out of the tags string to avoid showing them twice.
@@ -141,6 +154,7 @@ export const MajorArcanaCard = ({
               key={section.label}
               section={section}
               entry={entry}
+              consequenceTextById={backConsequenceTextById}
               getConsequenceCheckedMarks={getConsequenceCheckedMarks}
               getMoveGating={getMoveGating}
               onMysteryMoveToggle={onMysteryMoveToggle}
