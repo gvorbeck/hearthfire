@@ -44,7 +44,7 @@ export const MajorArcanaCard = ({
   onMysteryCreatureSave,
   onRemove,
 }: MajorArcanaCardProps) => {
-  const { marks, mystery, back } = arcanum;
+  const { marks, frontTrackers, mystery, back } = arcanum;
   const {
     unlocked,
     projectedCreature,
@@ -120,18 +120,25 @@ export const MajorArcanaCard = ({
           </Text>
         </div>
       ) : (
-        <div className={styles.marksRow}>
-          <UseDots
-            total={marks.max}
-            checked={entry.marksValue}
-            onChange={onMarksChange}
-            aria-label={`${arcanum.name} marks`}
-          />
-          <Text as="span" font="serif" size="xs" color="muted">
-            {entry.marksValue} / {marks.max} marks
-          </Text>
-        </div>
+        <DotRow
+          total={marks.max}
+          value={entry.marksValue}
+          label="marks"
+          ariaLabel={`${arcanum.name} marks`}
+          onChange={onMarksChange}
+        />
       )}
+
+      {frontTrackers?.map((tracker) => (
+        <DotRow
+          key={tracker.id}
+          total={tracker.max}
+          value={entry.trackerValues?.[tracker.id] ?? 0}
+          label={tracker.label}
+          ariaLabel={tracker.label}
+          onChange={(next) => onTrackerChange(tracker.id, next)}
+        />
+      ))}
 
       {proseAfter && (
         <div className={styles.description}>
@@ -269,3 +276,23 @@ export const MajorArcanaCard = ({
     </div>
   );
 };
+
+interface DotRowProps {
+  total: number;
+  value: number;
+  // Suffix after the "N / max" counter (e.g. "marks", "Acumen").
+  label: string;
+  ariaLabel: string;
+  onChange: (value: number) => void;
+}
+
+// The dot-tracker row shared by the front Marks tracker and any extra front pools (frontTrackers, e.g.
+// Acumen): dots on the left, a "N / max label" counter on the right.
+const DotRow = ({ total, value, label, ariaLabel, onChange }: DotRowProps) => (
+  <div className={styles.marksRow}>
+    <UseDots total={total} checked={value} onChange={onChange} aria-label={ariaLabel} />
+    <Text as="span" font="serif" size="xs" color="muted">
+      {value} / {total} {label}
+    </Text>
+  </div>
+);

@@ -381,6 +381,9 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     //   },
     // ],
     marks: { max: 3 },
+    frontTrackers: [
+      { id: "norubas-ice-sphere-acumen", label: "Acumen", max: 2 },
+    ],
     mystery: {
       moves: [
         {
