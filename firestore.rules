@@ -3,10 +3,34 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // No auth: games are gated by a hard-to-guess shared ID in the URL.
-    // Anyone with the ID can read/write that game. No expiry — the previous
-    // test-mode rules expired on 2026-06-13 and denied all access.
-    match /{document=**} {
-      allow read, write: if true;
+    // Anyone with the ID can read/write that game — but only ONE game at a
+    // time. The wildcard `read, write: if true` we had before also granted
+    // `list` (enumerate every game ID in one query) and `delete` (wipe any
+    // campaign), which defeats the by-ID model. Scope to /games, deny list
+    // and delete, and validate the write shape.
+
+    // A write must leave the doc looking like a game: core fields well-typed
+    // and the party size bounded (rules can't measure byte size, so cap the
+    // one unbounded list instead). There's one PC per playbook, so 9 today;
+    // 20 leaves generous room for future playbook expansions while still
+    // blocking runaway inflation. New top-level keys are allowed on purpose —
+    // the schema is intentionally flat and grows over time (see the note in
+    // src/types/index.ts).
+    function isValidGame(data) {
+      return data.name is string
+        && data.createdAt is number
+        && data.characters is list
+        && data.characters.size() <= 20;
     }
+
+    match /games/{id} {
+      allow get:    if true;
+      allow list:   if false;
+      allow create: if isValidGame(request.resource.data);
+      allow update: if isValidGame(request.resource.data);
+      allow delete: if false;
+    }
+
+    // Everything outside /games is denied by default (no matching rule).
   }
 }
