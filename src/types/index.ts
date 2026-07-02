@@ -285,6 +285,10 @@ export interface MajorArcanum {
   // favor of folding the front-side prose into `description`; optional during that migration.
   frontMoves?: (ArcanaMove | MoveDefinition)[];
   marks: { label?: string; max: number; unlockAt?: number; tasks?: string[] };
+  // Extra front-side dot pools independent of Marks (which drives the unlock). E.g. Noruba's Ice Sphere
+  // holds Acumen (2 dots) alongside its 3 Marks. Each renders below the marks row and persists under
+  // entry.trackerValues[id], reusing the same tracker path moves use.
+  frontTrackers?: { id: string; label: string; max: number }[];
   // The card prefers `back` when present and falls back to `mystery` otherwise, so arcana can be
   // converted to the new section-based shape one at a time. `mystery` is being phased out — arcana
   // fully migrated to `back` (e.g. the Twisted Spear) omit it entirely.
