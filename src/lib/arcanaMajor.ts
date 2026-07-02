@@ -8,7 +8,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     weight: 1,
     description:
       "A sphere of greenish glass, etched with a cat's-eye design and set atop a staff of rough, pitted black iron. The orb catches the light and seems to glow, and the pupil seems to widen in the dark and narrow to a slit in daylight.\n\nAnd sometimes, you could swear, it seems to look about on its own.\n\nBut that's preposterous.\n\n---\n\nWhen you **grip the staff, close your eyes, and see through the Lidless Orb**, roll +CON: **on a 10+**, choose 3 from the list below; **on a 7-9**, choose 1.\n\n- The orb sees through darkness, natural or magical\n- The orb sees through illusion, glamour, and invisibility\n- The orb can see strong emotions as auras radiating from people and lingering on places\n- You can move about and operate effectively while seeing through the orb (otherwise, not so much)\n\nWhatever you choose, the effect lasts until you open your eyes or let go of the staff.\n\n**On a 6-**, the orb shows you a terrible vision of some distant time or place. Mark 1 (or see below) and ask the GM what you see. While the vision lasts, you are oblivious to the world around you and have disadvantage on your first roll after coming to.\n\nWhen you **make the last mark**, you unlock the mysteries of the Staff and can use Power of the Lidless Orb. Mark one of the four effects (your choice); you can produce that effect.\n\nWhen you **would mark a circle but have already marked all three**, mark a new effect for Power of the Lidless Orb. You can now produce that effect.",
-    marks: { max: 3 },
+    frontTrackers: [{ id: "marks", label: "marks", max: 3, role: "marks" }],
     back: {
       label: "Mysteries of the Staff of the Lidless Orb",
       sections: [
@@ -122,10 +122,9 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     weight: 2,
     description:
       "A knobby length of wood, pale as death and hard as steel, tapering to a needle point. The shaft is scored and notched, the tip stained with blood and soot.\n\nThe Spear is a potent weapon against spirits and demons. They cannot bear its touch and its presence makes them deeply ill at ease.\n\n---\n\nWhen you **wield the Twisted Spear as a weapon**, you ignore magical protections and can harm spirits, demons, and insubstantial creatures.\n\nWhen you **first plunge the Spear into a spirit or demon**, your mind reels with strange visions. These tasks become known to you:\n\n[ ] Impale a foul spirit with the Spear, and keep it skewered until it burns away to nothing.\n[ ] Visit the elder tree from which the Spear was carved, and water its roots with your blood.\n[ ] Face the Pale Hunter and survive the encounter.\n[ ] Spend a fortnight in the wild, eating nothing, naked and unarmed except for the Spear.\n[ ] Pierce your own hand through with the Spear, giving it a shard of your soul and reducing your max HP by 1d4+1.\n\nWhen you **complete a task**, mark it off.\n\nWhen you **have marked 3 tasks**, you unlock the mysteries of the Twisted Spear. Choose one of the moves on the reverse; you can use that move as long as you wield the Spear. Each time you mark a task thereafter, gain another move from the reverse.",
-    marks: {
-      max: 5,
-      unlockAt: 3,
-    },
+    frontTrackers: [
+      { id: "marks", label: "marks", max: 5, role: "marks", unlockAt: 3 },
+    ],
     back: {
       label: "Mysteries of the Twisted Spear",
       sections: [
@@ -246,7 +245,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     weight: 1,
     description:
       "A tattered cloak, stitched from a motley patchwork of unfamiliar hides and leather. Shifting odors waft from it: damp earth, ozone, musk, sulfur, rust, rot.\n\nIt is not a glamorous garment. Anything but.\n\n---\n\nWhen you **wear the Cloak**, its armor applies against demons in all cases, even if their attacks are piercing or ignore armor.\n\nWhen you **draw up the hood of the Cloak**, you see clearly in darkness.\n\nWhen you **wrap the Cloak tightly about your person**, you pass unnoticed by all so long as you move calmly and carefully and keep out of direct, harsh light. In retrospect, those you pass may recall a strange smell.\n\nWhen you **flay the hide from a demon, tan it, and sew it onto the cloak**, make a mark.\n\nWhen you **make the last mark**, you unlock the mysteries of the Cloak and can use The Flesh Remembers.",
-    marks: { max: 3 },
+    frontTrackers: [{ id: "marks", label: "marks", max: 3, role: "marks" }],
     back: {
       label: "Mysteries of the Demonhide Cloak",
       sections: [
@@ -380,123 +379,163 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     //     tracker: { label: "Acumen", max: 2 },
     //   },
     // ],
-    marks: { max: 3 },
     frontTrackers: [
+      { id: "marks", label: "marks", max: 3, role: "marks" },
       { id: "norubas-ice-sphere-acumen", label: "Acumen", max: 2 },
     ],
-    mystery: {
-      moves: [
+    back: {
+      label: "Mysteries of Noruba's Ice Sphere",
+      sections: [
         {
-          id: "mindwalking",
-          name: "Mindwalking",
-          // The book grants +1 Power dot once "A Mighty Will" is selected; MajorArcanaCard widens
-          // this control to 4 dots dynamically, so the base spec stays at 3.
-          rightControl: [{ type: "dot", number: 3, label: "Power" }],
-          body: [
+          label: "Moves",
+          content: [
             {
-              kind: "para",
-              text: "When you **use the Ice Sphere as a psychic anchor**, your consciousness leaves your body and walks the world as a spirit, invisible and insubstantial. Roll +INT: **on a 10+**, hold 3 Power; **on a 7-9**, hold 2 Power; **on a 6-**, hold 2 Power and mark a Consequence. While mindwalking, you may spend your Power, 1-for-1 to:",
-            },
-            {
-              kind: "list",
-              items: [
-                "Manifest as a ghostly voice and/or presence",
-                "Manipulate an unattended item (small or ◊, no bigger)",
-                "Return instantly to the Ice Sphere from any distance",
+              id: "mindwalking",
+              name: "Mindwalking",
+              // The book grants +1 Power dot once "A Mighty Will" is selected; MajorArcanaCard widens
+              // this control to 4 dots dynamically, so the base spec stays at 3.
+              rightControl: [{ type: "dot", number: 3, label: "Power" }],
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **use the Ice Sphere as a psychic anchor**, your consciousness leaves your body and walks the world as a spirit, invisible and insubstantial. Roll +INT: **on a 10+**, hold 3 Power; **on a 7-9**, hold 2 Power; **on a 6-**, hold 2 Power and mark a Consequence. While mindwalking, you may spend your Power, 1-for-1 to:",
+                },
+                {
+                  kind: "list",
+                  items: [
+                    "Manifest as a ghostly voice and/or presence",
+                    "Manipulate an unattended item (small or ◊, no bigger)",
+                    "Return instantly to the Ice Sphere from any distance",
+                  ],
+                },
+                {
+                  kind: "para",
+                  text: "For every 2 Consequences you mark, gain one of the following moves:",
+                },
               ],
-            },
-            {
-              kind: "para",
-              text: "For every 2 Consequences you mark, gain one of the following moves:",
+              citation: "Book 2, p. 547",
             },
           ],
-          citation: "Book 2, p. 547",
         },
         {
-          id: "a-mighty-will",
-          name: "A Mighty Will",
-          requires: ["mindwalking"],
-          body: [
-            {
-              kind: "para",
-              text: "When you *mindwalk*, hold +1 Power.",
-            },
-          ],
-          citation: "Book 2, p. 547",
-        },
-        {
-          id: "farwalker",
-          name: "Farwalker",
-          requires: ["mindwalking"],
-          body: [
-            {
-              kind: "para",
-              text: "When you *mindwalk*, you may spend 1 Power to instantly send your mind to any place you have ever visited, physically or mentally.",
-            },
-          ],
-          citation: "Book 2, p. 547",
-        },
-        {
-          id: "telepathy",
-          name: "Telepathy",
-          requires: ["mindwalking"],
-          body: [
-            {
-              kind: "para",
-              text: "When you *mindwalk*, you may spend 1 Power to become able to communicate mentally with someone nearby, as long as you remain in their presence. They can choose whether to respond, and can attempt to ignore you, but cannot shut you out completely without magic of their own.",
-            },
-          ],
-          citation: "Book 2, p. 547",
-        },
-        {
-          id: "thoughtcrafter",
-          name: "Thoughtcrafter",
-          requires: ["mindwalking"],
-          body: [
-            {
-              kind: "para",
-              text: "When you *mindwalk*, you may spend 1 Power to animate a mass of loose material (gravel, snow, leaves, etc.) into a body no larger than your own. When you would roll STR, DEX, or CON in this form, use INT instead. This form has 10 HP. When reduced to 0 HP, it dissipates and you return to your physical body.",
-            },
-          ],
-          citation: "Book 2, p. 547",
+          label: "Consequences",
+          content: [],
         },
       ],
-      consequences: [
-        {
-          id: "sphere-c1",
-          text: "You draw the attention of some powerful, hungry entity of the spirit world. It has your scent.",
-        },
-        {
-          id: "sphere-c2",
-          text: "Your physical body withers and fades—permanently mark the *weakened* debility.",
-        },
-        {
-          id: "sphere-c3",
-          text: "Your emotions dull. You can no longer be affected by fear, hate, passion, or other powerful emotions (for good or ill).",
-          children: [
-            {
-              id: "sphere-c3a",
-              text: 'Replace your instinct with "Detachment: To distance yourself from human connections and emotions."',
-            },
-          ],
-        },
-        {
-          id: "sphere-c4",
-          text: "Your skin tinges bluish; your body becomes cold to the touch. You are unaffected by even the bitterest cold, but find heat and warmth unbearable.",
-          children: [
-            {
-              id: "sphere-c4a",
-              text: "When you take damage from fire, roll twice and take the higher result.",
-            },
-          ],
-        },
-        {
-          id: "sphere-c5",
-          text: "When you **roll 6- at Death's Door**, you have no choice: gain the Ghost insert (with the Ice Sphere as your tether).",
-        },
-      ],
-      dotBonuses: [{ targetId: "mindwalking", sourceId: "a-mighty-will" }],
     },
+    // mystery: {
+    //   moves: [
+    //     {
+    //       id: "mindwalking",
+    //       name: "Mindwalking",
+    //       // The book grants +1 Power dot once "A Mighty Will" is selected; MajorArcanaCard widens
+    //       // this control to 4 dots dynamically, so the base spec stays at 3.
+    //       rightControl: [{ type: "dot", number: 3, label: "Power" }],
+    //       body: [
+    //         {
+    //           kind: "para",
+    //           text: "When you **use the Ice Sphere as a psychic anchor**, your consciousness leaves your body and walks the world as a spirit, invisible and insubstantial. Roll +INT: **on a 10+**, hold 3 Power; **on a 7-9**, hold 2 Power; **on a 6-**, hold 2 Power and mark a Consequence. While mindwalking, you may spend your Power, 1-for-1 to:",
+    //         },
+    //         {
+    //           kind: "list",
+    //           items: [
+    //             "Manifest as a ghostly voice and/or presence",
+    //             "Manipulate an unattended item (small or ◊, no bigger)",
+    //             "Return instantly to the Ice Sphere from any distance",
+    //           ],
+    //         },
+    //         {
+    //           kind: "para",
+    //           text: "For every 2 Consequences you mark, gain one of the following moves:",
+    //         },
+    //       ],
+    //       citation: "Book 2, p. 547",
+    //     },
+    //     {
+    //       id: "a-mighty-will",
+    //       name: "A Mighty Will",
+    //       requires: ["mindwalking"],
+    //       body: [
+    //         {
+    //           kind: "para",
+    //           text: "When you *mindwalk*, hold +1 Power.",
+    //         },
+    //       ],
+    //       citation: "Book 2, p. 547",
+    //     },
+    //     {
+    //       id: "farwalker",
+    //       name: "Farwalker",
+    //       requires: ["mindwalking"],
+    //       body: [
+    //         {
+    //           kind: "para",
+    //           text: "When you *mindwalk*, you may spend 1 Power to instantly send your mind to any place you have ever visited, physically or mentally.",
+    //         },
+    //       ],
+    //       citation: "Book 2, p. 547",
+    //     },
+    //     {
+    //       id: "telepathy",
+    //       name: "Telepathy",
+    //       requires: ["mindwalking"],
+    //       body: [
+    //         {
+    //           kind: "para",
+    //           text: "When you *mindwalk*, you may spend 1 Power to become able to communicate mentally with someone nearby, as long as you remain in their presence. They can choose whether to respond, and can attempt to ignore you, but cannot shut you out completely without magic of their own.",
+    //         },
+    //       ],
+    //       citation: "Book 2, p. 547",
+    //     },
+    //     {
+    //       id: "thoughtcrafter",
+    //       name: "Thoughtcrafter",
+    //       requires: ["mindwalking"],
+    //       body: [
+    //         {
+    //           kind: "para",
+    //           text: "When you *mindwalk*, you may spend 1 Power to animate a mass of loose material (gravel, snow, leaves, etc.) into a body no larger than your own. When you would roll STR, DEX, or CON in this form, use INT instead. This form has 10 HP. When reduced to 0 HP, it dissipates and you return to your physical body.",
+    //         },
+    //       ],
+    //       citation: "Book 2, p. 547",
+    //     },
+    //   ],
+    //   consequences: [
+    //     {
+    //       id: "sphere-c1",
+    //       text: "You draw the attention of some powerful, hungry entity of the spirit world. It has your scent.",
+    //     },
+    //     {
+    //       id: "sphere-c2",
+    //       text: "Your physical body withers and fades—permanently mark the *weakened* debility.",
+    //     },
+    //     {
+    //       id: "sphere-c3",
+    //       text: "Your emotions dull. You can no longer be affected by fear, hate, passion, or other powerful emotions (for good or ill).",
+    //       children: [
+    //         {
+    //           id: "sphere-c3a",
+    //           text: 'Replace your instinct with "Detachment: To distance yourself from human connections and emotions."',
+    //         },
+    //       ],
+    //     },
+    //     {
+    //       id: "sphere-c4",
+    //       text: "Your skin tinges bluish; your body becomes cold to the touch. You are unaffected by even the bitterest cold, but find heat and warmth unbearable.",
+    //       children: [
+    //         {
+    //           id: "sphere-c4a",
+    //           text: "When you take damage from fire, roll twice and take the higher result.",
+    //         },
+    //       ],
+    //     },
+    //     {
+    //       id: "sphere-c5",
+    //       text: "When you **roll 6- at Death's Door**, you have no choice: gain the Ghost insert (with the Ice Sphere as your tether).",
+    //     },
+    //   ],
+    //   dotBonuses: [{ targetId: "mindwalking", sourceId: "a-mighty-will" }],
+    // },
   },
   {
     id: "mindgem",
@@ -511,16 +550,21 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         text: "Ask a question and roll +INT: **on a 7+**, it answers but **on a 10+**, pick 1; **on a 7-9**, pick 2:\n\n- The answer is cryptic, vague, or lacking crucial context\n- It takes a long time—hours or even days—to get the answer\n- Your mind is left reeling; take disadvantage on your next roll\n\n**On a 6-**, choose 1:\n\n- It wastes your time with irrelevant histories and data\n- It answers now, but refuses to answer further questions until you make progress towards restoring its body (or, if its body is assembled, until you pay its Cost).\n\nThe Mindgem knows that a body was crafted for it, and that it has likely survived—at least in part. It longs for the body to be whole, and to interact with the world. To assemble the Mindgem's body and unlock its mysteries, complete the tasks below.",
       },
     ],
-    marks: {
-      max: 4,
-      unlockAt: 4,
-      tasks: [
-        "Recover its chassis of white granite, which weighs well over a ton",
-        'Recover its ◊ "heart," a chunk of makerglass that forever burns with terrible heat (*indestructible, dangerous*)',
-        "Recover and repair the intricate ◊◊ bronze helm (*awkward, big*) that serves as a casing for the Mindgem",
-        "Puzzle out how to assemble all the pieces",
-      ],
-    },
+    frontTrackers: [
+      {
+        id: "marks",
+        label: "marks",
+        max: 4,
+        role: "marks",
+        unlockAt: 4,
+        tasks: [
+          "Recover its chassis of white granite, which weighs well over a ton",
+          'Recover its ◊ "heart," a chunk of makerglass that forever burns with terrible heat (*indestructible, dangerous*)',
+          "Recover and repair the intricate ◊◊ bronze helm (*awkward, big*) that serves as a casing for the Mindgem",
+          "Puzzle out how to assemble all the pieces",
+        ],
+      },
+    ],
     mystery: {
       moves: [],
       mysteryCreature: {
@@ -685,7 +729,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         text: "Name someone you know but on whom you have never used this power before. Then, roll +INT: **on a 10+**, the stones reveal a secret about them; **on a 7-9**, the stones reveal a secret, but you must first reveal a secret to the stones (about your hopes, fears, regrets, desires); **on a 6-**, the stones pry a secret from you.\n\nWhen you **reveal a secret to the stones**, or they pry one from your mind, mark 1.\n\nWhen you **make the last mark**, you unlock the mysteries of the rocks, and are able to use Shadow Magic (in the Mysteries below).\n\nWhen **one of the rocks is shattered**, cross off one of the Shadow Magic options; it is no longer available.",
       },
     ],
-    marks: { max: 5 },
+    frontTrackers: [{ id: "marks", label: "marks", max: 5, role: "marks" }],
     mystery: {
       moves: [
         {
@@ -764,7 +808,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         text: "When you **sheathe the Sword after using it to kill a living, bleeding foe**, mark 1 unless you have already done so since the last sunset.\n\nWhen you **make the last mark**, you unlock the Sword's mysteries; gain Unquenched (in the Mysteries below).",
       },
     ],
-    marks: { max: 5 },
+    frontTrackers: [{ id: "marks", label: "marks", max: 5, role: "marks" }],
     mystery: {
       moves: [
         {
@@ -869,7 +913,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         text: "When you **make the last mark**, you unlock the shield's mysteries, and can use Spirits of the Herd (in the Mysteries below).",
       },
     ],
-    marks: { max: 5 },
+    frontTrackers: [{ id: "marks", label: "marks", max: 5, role: "marks" }],
     mystery: {
       moves: [
         {
@@ -976,7 +1020,9 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         text: "Cast this spell at night. Hec'tumel (*Slithering One! Death Is Its Eyes!*) manifests in the shadows until sunrise or until dismissed. It has no power unless given a host and no knowledge of the present except that which you give it. It knows much of the ancient past and the arcane arts, and can teach you if you make it worth its while. It cannot lie, but need not answer fully.\n\nWhen **Hec'tumel spends the night teaching you a spell from the Codex**, mark 1.\n\nEach time you **make a mark**, choose one of the Codex Spells in the Mysteries below—you can now cast it. When you **make the last mark**, you have unlocked the mysteries of the Codex and gain the Darksome Vessel move (in the Mysteries below).",
       },
     ],
-    marks: { max: 4, unlockAt: 1 },
+    frontTrackers: [
+      { id: "marks", label: "marks", max: 4, role: "marks", unlockAt: 1 },
+    ],
     mystery: {
       sectionLabel: "Spells of the Codex",
       moves: [
@@ -1089,7 +1135,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         text: "When you **Inflame someone and they kill one or more living beings as a result**, mark 1.\n\nWhen you **make the last mark**, you unlock the Scepter's mysteries and gain Burning Hatred (in the Mysteries below).",
       },
     ],
-    marks: { max: 4 },
+    frontTrackers: [{ id: "marks", label: "marks", max: 4, role: "marks" }],
     mystery: {
       moves: [
         {
@@ -1206,7 +1252,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         },
       },
     ],
-    marks: { max: 3 },
+    frontTrackers: [{ id: "marks", label: "marks", max: 3, role: "marks" }],
     mystery: {
       moves: [
         {
@@ -1285,7 +1331,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         text: "Mark 1.",
       },
     ],
-    marks: { max: 5 },
+    frontTrackers: [{ id: "marks", label: "marks", max: 5, role: "marks" }],
     mystery: {
       moves: [
         {
@@ -1367,7 +1413,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         text: "Mark 1.",
       },
     ],
-    marks: { max: 3 },
+    frontTrackers: [{ id: "marks", label: "marks", max: 3, role: "marks" }],
     mystery: {
       moves: [
         {
@@ -1430,7 +1476,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         text: "Mark 1, take no damage, and suffer no ill effects (your gear, alas, has no such protection).",
       },
     ],
-    marks: { max: 3 },
+    frontTrackers: [{ id: "marks", label: "marks", max: 3, role: "marks" }],
     mystery: {
       moves: [
         {
@@ -1496,7 +1542,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         text: "Roll +WIS: **on a 10+**, you gain insight into the power within you—mark 1 below; **on a 7-9**, gain advantage on your next attempt to contemplate the words.",
       },
     ],
-    marks: { max: 3 },
+    frontTrackers: [{ id: "marks", label: "marks", max: 3, role: "marks" }],
     mystery: {
       sectionLabel: "Mastered Words",
       moves: [
@@ -1569,7 +1615,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         text: "When you **suffer physical harm while carrying the effigy on your person**, you can spend 1 Conduit. If you do, the effigy suffers that harm in your place. You suffer no more than a passing inconvenience, and the effigy bears faint signs of the trauma it has endured in your stead.\n\nRecord the diverted harm: a brief description of the injury, the HP that would have been lost, and any debilities you would have marked. If the **effigy is destroyed**, you suffer all this harm at once.\n\n**Each time the effigy suffers harm on your behalf**, mark 1. If all 3 marks are already marked, then mark a Consequence instead (in the Mysteries below).",
       },
     ],
-    marks: { max: 3 },
+    frontTrackers: [{ id: "marks", label: "marks", max: 3, role: "marks" }],
     mystery: {
       moves: [
         {
@@ -1618,7 +1664,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         text: "The ring draws the life-force from your victim. If your victim is helpless or unable to struggle, they are reduced to 0 HP (see below).\n\nIf **your victim struggles**, roll +CON: **on a 10+**, deal 1d10 damage (ignores armor) and they are left reeling (a PC or follower marks a debility, an NPC or monster grants advantage on any moves made against it until it recovers); **on a 7-9**, deal 1d10 damage (ignores armor) but you suffer whatever counterattack they dish out; **on a 6-**, ask the GM what happens (which may or may not involve marking a consequence).\n\nWhen you **use the ring to reduce an intelligent victim to 0 HP**, roll 1d6:\n\n- 1-2: Their soul is wounded but they'll live, suffering from unnatural, compulsive hungers; should they die in this state, they become a wraith.\n- 3-4: Their soul is wounded and their body gives up; they become a wraith.\n- 5-6: Their soul is consumed and utterly destroyed by the ring—mark 1 below.",
       },
     ],
-    marks: { max: 3 },
+    frontTrackers: [{ id: "marks", label: "marks", max: 3, role: "marks" }],
     mystery: {
       moves: [
         {
@@ -1689,7 +1735,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         text: "Roll +CON: **on a 10+**, you gather the energy about the Hand in a swirling vortex for as long as you grip the staff or until you choose 1 from the list below; **on a 7-9**, as a 10+, but the vortex is unstable and maintaining it requires all your focus.\n\n- Direct the energy into a vessel able to contain it\n- Discharge the energy harmlessly into the earth\n- Fling the energy, rolling +INT to Let Fly (*thrown, dangerous*), inflicting damage and other effects of the GM's choosing\n- Use the energy to fuel or empower some other magic.\n\n**On a 6-**, instead of marking XP, mark 1.\n\nEach time you mark 1, ask the GM how the power goes out of control.",
       },
     ],
-    marks: { max: 4 },
+    frontTrackers: [{ id: "marks", label: "marks", max: 4, role: "marks" }],
     mystery: {
       moves: [
         {

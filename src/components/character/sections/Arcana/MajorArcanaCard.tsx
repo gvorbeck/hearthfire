@@ -44,7 +44,11 @@ export const MajorArcanaCard = ({
   onMysteryCreatureSave,
   onRemove,
 }: MajorArcanaCardProps) => {
-  const { marks, frontTrackers, mystery, back } = arcanum;
+  const { frontTrackers, mystery, back } = arcanum;
+  // Exactly one front tracker is the unlock track (role "marks"); its value lives on entry.marksValue.
+  // The rest are resource pools persisting under entry.trackerValues[id].
+  const marksTracker = frontTrackers.find((t) => t.role === "marks");
+  const poolTrackers = frontTrackers.filter((t) => t.role !== "marks");
   const {
     unlocked,
     projectedCreature,
@@ -73,11 +77,11 @@ export const MajorArcanaCard = ({
   // Task checkboxes are authored inline as a "[ ] …" block within the description, so the prose and
   // its tasks read as one passage. Split the description around that block: the prose halves render as
   // markdown, the task labels feed the interactive list between them. Arcana not yet migrated carry
-  // their tasks in `marks.tasks`, in which case the whole description is `proseBefore`.
+  // their tasks on the marks tracker's `tasks`, in which case the whole description is `proseBefore`.
   const { proseBefore, tasks: descriptionTasks, proseAfter } = arcanum.description
     ? parseDescriptionTasks(arcanum.description)
     : { proseBefore: "", tasks: [], proseAfter: "" };
-  const tasks = descriptionTasks.length > 0 ? descriptionTasks : marks.tasks;
+  const tasks = descriptionTasks.length > 0 ? descriptionTasks : marksTracker?.tasks;
 
   return (
     <div className={cx}>
@@ -116,20 +120,22 @@ export const MajorArcanaCard = ({
             color="muted"
             className={styles.taskCount}
           >
-            {entry.marksValue} / {marks.max} tasks completed
+            {entry.marksValue} / {marksTracker?.max} tasks completed
           </Text>
         </div>
       ) : (
-        <DotRow
-          total={marks.max}
-          value={entry.marksValue}
-          label="marks"
-          ariaLabel={`${arcanum.name} marks`}
-          onChange={onMarksChange}
-        />
+        marksTracker && (
+          <DotRow
+            total={marksTracker.max}
+            value={entry.marksValue}
+            label={marksTracker.label}
+            ariaLabel={`${arcanum.name} ${marksTracker.label}`}
+            onChange={onMarksChange}
+          />
+        )
       )}
 
-      {frontTrackers?.map((tracker) => (
+      {poolTrackers.map((tracker) => (
         <DotRow
           key={tracker.id}
           total={tracker.max}

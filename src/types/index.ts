@@ -273,6 +273,19 @@ export interface MajorArcanaMystery {
   mysteryCreature?: Creature;
 }
 
+// A front-side dot tracker on a major arcanum. The one with `role: "marks"` is the unlock track (its
+// value lives on entry.marksValue, gated by `unlockAt`); any others are resource pools persisting under
+// entry.trackerValues[id]. `tasks` is the legacy fixed task list, only read on the marks tracker as a
+// fallback when the description carries no inline "[ ]" task block.
+export interface FrontTracker {
+  id: string;
+  label: string;
+  max: number;
+  role?: "marks";
+  unlockAt?: number;
+  tasks?: string[];
+}
+
 export interface MajorArcanum {
   id: string;
   name: string;
@@ -284,11 +297,11 @@ export interface MajorArcanum {
   // authored as a MoveDefinition and rendered through the shared Move component. Being phased out in
   // favor of folding the front-side prose into `description`; optional during that migration.
   frontMoves?: (ArcanaMove | MoveDefinition)[];
-  marks: { label?: string; max: number; unlockAt?: number; tasks?: string[] };
-  // Extra front-side dot pools independent of Marks (which drives the unlock). E.g. Noruba's Ice Sphere
-  // holds Acumen (2 dots) alongside its 3 Marks. Each renders below the marks row and persists under
-  // entry.trackerValues[id], reusing the same tracker path moves use.
-  frontTrackers?: { id: string; label: string; max: number }[];
+  // Every front-side dot tracker, in render order. Exactly one carries `role: "marks"` — the unlock
+  // tracker, whose value drives the mysteries reveal and move prerequisites and persists under
+  // entry.marksValue. The rest are free resource pools (e.g. Noruba's Ice Sphere's Acumen) persisting
+  // under entry.trackerValues[id].
+  frontTrackers: FrontTracker[];
   // The card prefers `back` when present and falls back to `mystery` otherwise, so arcana can be
   // converted to the new section-based shape one at a time. `mystery` is being phased out — arcana
   // fully migrated to `back` (e.g. the Twisted Spear) omit it entirely.

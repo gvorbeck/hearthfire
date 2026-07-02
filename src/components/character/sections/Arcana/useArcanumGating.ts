@@ -77,8 +77,11 @@ export const useArcanumGating = (
   arcanum: MajorArcanum,
   entry: ArcanaMajorEntry,
 ): ArcanumGating => {
-  const { marks, mystery, back } = arcanum;
-  const unlocked = entry.marksValue >= (marks.unlockAt ?? marks.max);
+  const { frontTrackers, mystery, back } = arcanum;
+  // The unlock track is the front tracker with role "marks"; its value lives on entry.marksValue.
+  const marksTracker = frontTrackers.find((t) => t.role === "marks");
+  const marksMax = marksTracker?.max ?? 0;
+  const unlocked = entry.marksValue >= (marksTracker?.unlockAt ?? marksMax);
 
   // Gating runs over both shapes during the migration: a move or consequence is subject to the same
   // lock rules whether it was authored under `mystery` or in a `back` section.
@@ -145,7 +148,7 @@ export const useArcanumGating = (
       if ("requiresMarks" in move && move.requiresMarks) {
         if (entry.marksValue < move.requiresMarks) {
           return [
-            `Make ${move.requiresMarks === marks.max ? "the last mark" : `${move.requiresMarks} marks`}`,
+            `Make ${move.requiresMarks === marksMax ? "the last mark" : `${move.requiresMarks} marks`}`,
           ];
         }
         return [];
@@ -195,7 +198,7 @@ export const useArcanumGating = (
     entry.marksValue,
     entry.consequencesMarked,
     entry.mysteryMovesChecked,
-    marks.max,
+    marksMax,
   ]);
 
   const getMoveGating = (move: MysteryMove): MoveGating =>
