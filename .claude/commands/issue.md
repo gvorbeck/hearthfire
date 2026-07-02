@@ -1,14 +1,19 @@
+---
+description: Fix a GitHub issue end-to-end — fetch, validate, implement, then code-review
+argument-hint: <issue number or URL>
+---
+
 # Issue Fixer
 
 Fix a GitHub issue end-to-end: fetch it, validate it, implement a fix, then run a code review.
 
-Usage: `/issue <github-issue-number>`
+Usage: `/issue <github-issue-number-or-url>`
 
 ## Steps
 
 ### 1. Fetch the issue
 
-Use `gh issue view <issue-number> --repo <owner>/<repo> --json title,body,state,labels,comments` to read the issue. Parse the URL to extract `owner`, `repo`, and `issue-number`.
+The argument is `$ARGUMENTS` — either a bare issue number or a full GitHub issue URL. For a URL, parse out `owner`, `repo`, and `issue-number` and pass `--repo <owner>/<repo>`; for a bare number, omit `--repo` so `gh` uses the current repo. Then read the issue with `gh issue view <issue-number> [--repo <owner>/<repo>] --json title,body,state,labels,comments`.
 
 ### 2. Validate the issue
 
@@ -46,3 +51,5 @@ Output a short summary:
 - **Root cause:** one sentence
 - **Fix:** what was changed and in which file(s)
 - **Code review:** findings count by severity, or "No findings"
+
+Do not commit, push, or open a PR unless the user asks. Once the fix is confirmed, suggest `/issue-close <issue-url>` to wrap up.

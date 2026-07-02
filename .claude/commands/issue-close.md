@@ -1,3 +1,8 @@
+---
+description: Comment the completed work on a GitHub issue and close it
+argument-hint: <issue URL>
+---
+
 # Issue Close
 
 Update a GitHub issue with the work completed in this conversation and close it.
@@ -39,8 +44,10 @@ Use a heredoc or quoted multiline string so formatting is preserved.
 Run:
 
 ```
-gh issue close <issue-number> --repo <owner>/<repo>
+gh issue close <issue-number> --repo <owner>/<repo> --reason completed
 ```
+
+Use `--reason "not planned"` instead if the conversation shows the work was abandoned or the issue was rejected rather than done.
 
 ### 6. Confirm
 
