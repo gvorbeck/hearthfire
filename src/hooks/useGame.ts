@@ -5,7 +5,7 @@ import type { FirestoreError } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useSaveStatusOptional } from '@/components/app/SaveStatus/SaveStatusContext';
 import { useToastOptional } from '@/components/app/Toast/ToastContext';
-import { GAMES_COLLECTION, SAVE_ERROR_MESSAGE } from '@/lib/constants';
+import { GAMES_COLLECTION, PLAYBOOKS, SAVE_ERROR_MESSAGE } from '@/lib/constants';
 import { filterByType, isBoolean, isNumber, isRecord, isString } from '@/lib/typeGuards';
 import type { Character, CharacterData, ContentLists, GameSession, GmImprovement, NpcRelationship, SteadingData, SteadingNPC } from '@/types';
 
@@ -37,19 +37,28 @@ const FIRESTORE_ERROR_MESSAGES: Partial<Record<FirestoreError['code'], string>> 
 const friendlyFirestoreError = (err: FirestoreError): string =>
   FIRESTORE_ERROR_MESSAGES[err.code] ?? 'Something went wrong loading this game. Please try again.';
 
-const VALID_PLAYBOOKS = new Set<string>([
-  'blessed', 'fox', 'heavy', 'judge', 'lightbearer', 'marshal', 'ranger', 'seeker', 'would-be-hero',
-]);
+// Derived from the canonical PLAYBOOKS list, not hand-copied: a character whose
+// playbook isn't recognized gets filtered out of the array we write back (see
+// withCharacters), so a set that drifted behind a newly-added playbook would
+// silently delete every character of that playbook. Sourcing it here keeps them
+// in lockstep.
+const VALID_PLAYBOOKS = new Set<string>(PLAYBOOKS.map((p) => p.value));
 
-const isCharacter = (v: unknown): v is Character =>
+// `level` is deliberately not checked here: a character with a non-numeric level is repaired (see
+// parseCharacters), not dropped. `withCharacters` writes the parsed array back, so anything filtered out
+// here is permanently deleted on the next edit — we only filter on fields with no safe default (id, name,
+// an unrenderable playbook).
+const isCharacter = (v: unknown): v is Omit<Character, 'level'> & { level?: unknown } =>
   isRecord(v) &&
   isString(v.id) &&
   isString(v.name) &&
-  VALID_PLAYBOOKS.has(v.playbook as string) &&
-  isNumber(v.level);
+  VALID_PLAYBOOKS.has(v.playbook as string);
 
 export const parseCharacters = (raw: { characters?: unknown }): Character[] =>
-  filterByType(raw?.characters, isCharacter) ?? [];
+  (filterByType(raw?.characters, isCharacter) ?? []).map((c) => ({
+    ...c,
+    level: isNumber(c.level) ? c.level : 1,
+  }));
 
 export const parseContent = (raw: unknown): ContentLists | undefined => {
   if (!isRecord(raw)) return undefined;
