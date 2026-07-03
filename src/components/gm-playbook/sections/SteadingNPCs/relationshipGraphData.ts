@@ -24,10 +24,14 @@ export interface GraphData {
   edges: GraphEdge[];
 }
 
-// How far, in layout units, to push each label of a reciprocal pair off the line
-// so the two don't overlap at the shared midpoint. The two labels move in
-// opposite directions, so the gap between them is twice this.
-export const RECIPROCAL_LABEL_OFFSET = 12;
+// Vertical half-gap, in layout units, between the two labels of a reciprocal
+// pair. Labels are horizontal text, so only VERTICAL separation reliably keeps
+// them apart at any line orientation — a perpendicular offset fails when the
+// line itself is vertical (the two labels just shift sideways and still overlap).
+// One label goes up by this, the other down, so the gap between them is twice
+// this plus the font's line height (the label font is ~10 layout units tall, so
+// this keeps a clear gap between the two lines of text).
+export const RECIPROCAL_LABEL_OFFSET = 10;
 
 /*
  * Unordered key for a pair of nodes, so an A→B edge and a B→A edge collapse to
@@ -51,15 +55,16 @@ export const reciprocalPairKeys = (edges: GraphEdge[]): Set<string> => {
 };
 
 /*
- * Perpendicular offset for a reciprocal edge's label, given the edge's unit
- * direction (ux, uy) from source to target. The perpendicular is (-uy, ux); the
- * reverse edge has the opposite direction, so its perpendicular is the opposite
- * vector — that difference alone puts the two labels on opposite sides of the
- * line, so no per-edge sign is applied (one would flip them back and re-overlap).
+ * Vertical offset for a reciprocal edge's label so the pair's two labels don't
+ * overlap. The label of the id-sorted (canonical) edge goes up, its counterpart
+ * goes down — decided by endpoint id order, not the edge's own direction, so the
+ * two are always split regardless of which way each arrow points. Purely vertical
+ * because the labels are horizontal text: sideways separation would have to
+ * exceed the label's width to clear it, but a fixed vertical gap always does.
  */
-export const reciprocalLabelOffset = (ux: number, uy: number): { dx: number; dy: number } => ({
-  dx: -uy * RECIPROCAL_LABEL_OFFSET,
-  dy: ux * RECIPROCAL_LABEL_OFFSET,
+export const reciprocalLabelOffset = (sourceId: string, targetId: string): { dx: number; dy: number } => ({
+  dx: 0,
+  dy: sourceId < targetId ? -RECIPROCAL_LABEL_OFFSET : RECIPROCAL_LABEL_OFFSET,
 });
 
 interface RawNode {

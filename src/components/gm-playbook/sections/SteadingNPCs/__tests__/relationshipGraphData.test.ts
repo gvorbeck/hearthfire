@@ -202,23 +202,27 @@ describe('reciprocalPairKeys', () => {
 });
 
 describe('reciprocalLabelOffset', () => {
-  // The bug this guards against: the two edges of a reciprocal pair point
-  // opposite ways, so their offsets must come out opposite too. If they ever
-  // collapse to the same vector, both labels stack and overlap again (#235).
-  it('gives the two directions of a pair opposite offsets', () => {
-    // A horizontal pair: A→B points +x, B→A points −x.
-    const forward = reciprocalLabelOffset(1, 0);
-    const reverse = reciprocalLabelOffset(-1, 0);
-    expect(forward.dx).toBeCloseTo(-reverse.dx);
-    expect(forward.dy).toBeCloseTo(-reverse.dy);
-    // For a horizontal line the labels separate vertically.
-    expect(forward.dy).toBe(RECIPROCAL_LABEL_OFFSET);
-    expect(reverse.dy).toBe(-RECIPROCAL_LABEL_OFFSET);
+  // The bug this guards against: the two labels of a reciprocal pair share a
+  // midpoint. They must be pushed to opposite VERTICAL offsets so they never
+  // overlap — at any line orientation, since the labels are horizontal text (#235).
+  it('gives the two directions of a pair opposite vertical offsets', () => {
+    const forward = reciprocalLabelOffset('a', 'b');
+    const reverse = reciprocalLabelOffset('b', 'a');
+    expect(forward.dy).toBe(-reverse.dy);
+    expect(Math.abs(forward.dy)).toBe(RECIPROCAL_LABEL_OFFSET);
   });
 
-  it('offsets perpendicular to the line', () => {
-    // Offset · direction must be zero (perpendicular) for any direction.
-    const { dx, dy } = reciprocalLabelOffset(0.6, 0.8);
-    expect(dx * 0.6 + dy * 0.8).toBeCloseTo(0);
+  it('splits by id order, not edge direction, so it is stable', () => {
+    // The id-sorted edge always goes up; its reverse always goes down —
+    // independent of the geometric direction of the arrow.
+    expect(reciprocalLabelOffset('a', 'b').dy).toBeLessThan(0);
+    expect(reciprocalLabelOffset('b', 'a').dy).toBeGreaterThan(0);
+  });
+
+  it('offsets vertically only, so the separation holds even for a vertical line', () => {
+    // A horizontal offset can't separate two horizontal labels on a vertical
+    // line — this must stay purely vertical.
+    expect(reciprocalLabelOffset('a', 'b').dx).toBe(0);
+    expect(reciprocalLabelOffset('b', 'a').dx).toBe(0);
   });
 });

@@ -353,7 +353,7 @@ export const RelationshipGraph = ({ game, focusId }: RelationshipGraphProps) => 
             // For a reciprocal pair both labels land on the same midpoint, so
             // offset each off the line to opposite sides (see reciprocalLabelOffset).
             if (reciprocalPairs.has(pairKey(edge.sourceId, edge.targetId))) {
-              const { dx: offX, dy: offY } = reciprocalLabelOffset(ux, uy);
+              const { dx: offX, dy: offY } = reciprocalLabelOffset(edge.sourceId, edge.targetId);
               midX += offX;
               midY += offY;
             }
