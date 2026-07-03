@@ -38,7 +38,9 @@
       "Bash(gh label *)",
       "Bash(npm test *)",
       "Bash(sed -n *)",
-      "Bash(gh repo view *)"
+      "Bash(gh repo view *)",
+      "Skill(code-review)",
+      "Skill(code-review:*)"
     ]
   },
   "hooks": {
