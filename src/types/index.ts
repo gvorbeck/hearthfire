@@ -48,6 +48,16 @@ export interface MoveDefinition {
   // the arcanum's marks track (e.g. the Codex's Darksome Vessel, which needs all 4). Gated by
   // MajorArcanaCard, not the character engine.
   requiresMarks?: number;
+  // Major Arcana only: a base move (e.g. Noruba's Ice Sphere's Mindwalking) that grants its
+  // `requires`-children one at a time — one child unlocked "for every N Consequences you mark". The
+  // per-arcanum ratio the book states; without it, requiring-children aren't budget-gated.
+  grantsPerConsequences?: number;
+  // Major Arcana only: a granted (non-selectable) base move that counts as active the moment the
+  // arcanum unlocks, so children that `require` it aren't blocked waiting for a checkbox it never shows.
+  autoActivateOnUnlock?: boolean;
+  // Major Arcana only: while this move is selected, widen another move's dot control by `amount` (e.g.
+  // A Mighty Will grants Mindwalking +1 Power dot). Read by MajorArcanaCard's gating.
+  grantsDotBonus?: { targetId: string; amount: number };
   excludes?: string[];
 }
 

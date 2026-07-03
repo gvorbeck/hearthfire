@@ -128,19 +128,35 @@ export const useArcanumGating = (
   // memo holds. The map only rebuilds when marks or the checked maps actually change.
   const moveGatingById = useMemo(() => {
     // Budget gate for sub-moves that require a parent move (e.g. Noruba's Ice Sphere): the book grants
-    // one such move "for every 2 Consequences you mark", so the number of selectable sub-moves is
-    // floor(markedConsequences / 2), and a sub-move is locked while its parent is unselected or once
-    // the grant budget is spent. Each box of a multi-mark consequence is its own markable id, so a
-    // 3-box consequence contributes up to 3 toward that budget.
+    // one such move "for every N Consequences you mark", where N is the parent's `grantsPerConsequences`.
+    // The number of selectable sub-moves is floor(markedConsequences / N), and a sub-move is locked while
+    // its parent is inactive or once the grant budget is spent. Each box of a multi-mark consequence is
+    // its own markable id, so a 3-box consequence contributes up to 3 toward that budget.
     const consequenceIds = allConsequences.flatMap((c) => c.markIds);
     const markedConsequenceCount = consequenceIds.filter(
       (id) => entry.consequencesMarked[id],
     ).length;
-    const consequenceGrants = Math.floor(markedConsequenceCount / 2);
+    const grantEvery = allMoves.reduce<number | undefined>(
+      (found, m) =>
+        found ?? ("grantsPerConsequences" in m ? m.grantsPerConsequences : undefined),
+      undefined,
+    );
+    const consequenceGrants = grantEvery
+      ? Math.floor(markedConsequenceCount / grantEvery)
+      : 0;
     const selectedSubMoves = allMoves.filter(
       (m) =>
         "requires" in m && m.requires?.length && entry.mysteryMovesChecked[m.id],
     ).length;
+
+    // A parent named in a child's `requires` counts as met when the player has checked it, or when it's
+    // a base move flagged `autoActivateOnUnlock` and the arcanum is unlocked (it's already active and
+    // shows no checkbox, so it would otherwise block its children forever).
+    const isParentMet = (parentId: string): boolean => {
+      if (entry.mysteryMovesChecked[parentId]) return true;
+      const parent = allMoves.find((m) => m.id === parentId);
+      return !!(parent && "autoActivateOnUnlock" in parent && parent.autoActivateOnUnlock && unlocked);
+    };
 
     const requirementFor = (move: MysteryMove): string[] => {
       // A move granted at a marks threshold (e.g. the Codex's Darksome Vessel at all 4) stays locked
@@ -164,25 +180,36 @@ export const useArcanumGating = (
       if (!("requires" in move) || !move.requires?.length) return [];
       if (entry.mysteryMovesChecked[move.id]) return [];
       const unmetParents = move.requires
-        .filter((id) => !entry.mysteryMovesChecked[id])
+        .filter((id) => !isParentMet(id))
         .map((id) => allMoves.find((m) => m.id === id)?.name ?? id);
       if (unmetParents.length > 0) return [`Requires ${unmetParents.join(", ")}`];
-      if (selectedSubMoves >= consequenceGrants) return ["Mark 2 more Consequences"];
+      if (selectedSubMoves >= consequenceGrants) {
+        // The next grant unlocks once the marked count reaches the next multiple of the ratio, so name
+        // the exact remaining count (1..grantEvery), not the full ratio.
+        const needed = (selectedSubMoves + 1) * (grantEvery ?? 2) - markedConsequenceCount;
+        return [`Mark ${needed} more ${needed === 1 ? "Consequence" : "Consequences"}`];
+      }
       return [];
     };
 
-    // A sub-move listed in mystery.dotBonuses widens its target's dot control by 1 once selected
-    // (e.g. A Mighty Will → Mindwalking's Power). Undefined when no active bonus applies.
+    // A move declaring `grantsDotBonus` widens its target's dot control while it's selected (e.g. A
+    // Mighty Will → Mindwalking's Power +1). Sum the amount across every selected granting move, so a
+    // target with two active bonuses widens by both. Undefined when no active bonus applies.
+    const dotBonusFor = (targetId: string): number =>
+      allMoves.reduce((sum, m) => {
+        if (!("grantsDotBonus" in m) || !m.grantsDotBonus) return sum;
+        if (m.grantsDotBonus.targetId !== targetId) return sum;
+        return entry.mysteryMovesChecked[m.id] ? sum + m.grantsDotBonus.amount : sum;
+      }, 0);
+
     const dotOverrideFor = (
       move: MysteryMove,
     ): RightControlSpec[] | undefined => {
       const base = "rightControl" in move ? move.rightControl : undefined;
       if (!base) return undefined;
-      const hasBonus = (mystery?.dotBonuses ?? []).some(
-        (b) => b.targetId === move.id && entry.mysteryMovesChecked[b.sourceId],
-      );
-      if (!hasBonus) return undefined;
-      return base.map((spec) => ({ ...spec, number: (spec.number ?? 1) + 1 }));
+      const bonus = dotBonusFor(move.id);
+      if (bonus === 0) return undefined;
+      return base.map((spec) => ({ ...spec, number: (spec.number ?? 1) + bonus }));
     };
 
     return new Map<string, MoveGating>(
@@ -194,11 +221,11 @@ export const useArcanumGating = (
   }, [
     allMoves,
     allConsequences,
-    mystery?.dotBonuses,
     entry.marksValue,
     entry.consequencesMarked,
     entry.mysteryMovesChecked,
     marksMax,
+    unlocked,
   ]);
 
   const getMoveGating = (move: MysteryMove): MoveGating =>
