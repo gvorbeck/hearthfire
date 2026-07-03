@@ -43,8 +43,9 @@ const truncateLabel = (label: string): string =>
 // same key regardless of direction.
 const pairKey = (a: string, b: string): string => (a < b ? `${a}|${b}` : `${b}|${a}`);
 // How far, in layout units, to push each label of a reciprocal pair off the line
-// so the two don't overlap at the shared midpoint.
-const RECIPROCAL_LABEL_OFFSET = 8;
+// so the two don't overlap at the shared midpoint. The two labels move in
+// opposite directions, so the gap between them is twice this.
+const RECIPROCAL_LABEL_OFFSET = 12;
 
 // --bp-md (768px): below this we default to the focused ego view, since a full
 // web is unreadable on a phone. CSS custom properties can't be read in JS, so
@@ -361,14 +362,16 @@ export const RelationshipGraph = ({ game, focusId }: RelationshipGraphProps) => 
             const y2 = b.y - uy * NODE_RADIUS;
             let midX = (x1 + x2) / 2;
             let midY = (y1 + y2) / 2;
-            // For a reciprocal pair both labels land here, so push each along the
-            // line's perpendicular (-uy, ux) — one edge one way, its counterpart
-            // the other, chosen deterministically by endpoint id order so the two
-            // never end up on the same side.
+            // For a reciprocal pair both labels land on the same midpoint, so push
+            // each off the line so they don't overlap. Each edge's perpendicular
+            // (-uy, ux) is built from its own a→b direction, and the two edges
+            // point opposite ways — so their perpendiculars are already opposite
+            // vectors. That difference alone puts the labels on opposite sides; no
+            // extra sign is needed (adding one would flip them back onto the same
+            // side and re-overlap).
             if (reciprocalPairs.has(pairKey(edge.sourceId, edge.targetId))) {
-              const sign = edge.sourceId < edge.targetId ? 1 : -1;
-              midX += -uy * RECIPROCAL_LABEL_OFFSET * sign;
-              midY += ux * RECIPROCAL_LABEL_OFFSET * sign;
+              midX += -uy * RECIPROCAL_LABEL_OFFSET;
+              midY += ux * RECIPROCAL_LABEL_OFFSET;
             }
             return (
               <g key={edge.id} className={styles.edge}>
