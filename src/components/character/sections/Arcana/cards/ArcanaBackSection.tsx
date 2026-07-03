@@ -50,43 +50,53 @@ export const ArcanaBackSection = ({
   onTrackerChange,
   onFollowerHpChange,
   onBodyCheckChange,
-}: ArcanaBackSectionProps) => (
-  <div className={styles.consequences}>
-    <Text font="serif" size="xs" weight="bold" className={styles.consequencesLabel}>
-      {section.label}
-    </Text>
-    {section.content.map((item) =>
-      isConsequence(item) ? (
-        <ConsequenceConsequence
-          key={item.id}
-          consequence={item}
-          getConsequenceCheckedMarks={getConsequenceCheckedMarks}
-          onConsequenceToggle={onConsequenceToggle}
-        />
-      ) : isFollowerEntry(item) ? (
-        <BackFollower
-          key={item.id}
-          followerEntry={item}
-          entry={entry}
-          consequenceTextById={consequenceTextById}
-          onTrackerChange={onTrackerChange}
-          onFollowerHpChange={onFollowerHpChange}
-        />
-      ) : isMoveDefinition(item) ? (
-        <BackMove
-          key={item.id}
-          move={item}
-          entry={entry}
-          gating={getMoveGating(item)}
-          onMysteryMoveToggle={onMysteryMoveToggle}
-          onTrackerChange={onTrackerChange}
-          onFollowerHpChange={onFollowerHpChange}
-          onBodyCheckChange={onBodyCheckChange}
-        />
-      ) : null,
-    )}
-  </div>
-);
+}: ArcanaBackSectionProps) => {
+  // A section whose entries are all moves lays them out masonry-style (two columns on desktop, one
+  // below); a section that mixes in consequences or followers stays a single stacked column.
+  const isMovesOnly = section.content.every(
+    (item) => !isConsequence(item) && !isFollowerEntry(item),
+  );
+  const itemsClassName = isMovesOnly ? styles.moveGrid : styles.consequences;
+  return (
+    <div className={styles.consequences}>
+      <Text font="serif" size="xs" weight="bold" className={styles.consequencesLabel}>
+        {section.label}
+      </Text>
+      <div className={itemsClassName}>
+        {section.content.map((item) =>
+          isConsequence(item) ? (
+            <ConsequenceConsequence
+              key={item.id}
+              consequence={item}
+              getConsequenceCheckedMarks={getConsequenceCheckedMarks}
+              onConsequenceToggle={onConsequenceToggle}
+            />
+          ) : isFollowerEntry(item) ? (
+            <BackFollower
+              key={item.id}
+              followerEntry={item}
+              entry={entry}
+              consequenceTextById={consequenceTextById}
+              onTrackerChange={onTrackerChange}
+              onFollowerHpChange={onFollowerHpChange}
+            />
+          ) : isMoveDefinition(item) ? (
+            <BackMove
+              key={item.id}
+              move={item}
+              entry={entry}
+              gating={getMoveGating(item)}
+              onMysteryMoveToggle={onMysteryMoveToggle}
+              onTrackerChange={onTrackerChange}
+              onFollowerHpChange={onFollowerHpChange}
+              onBodyCheckChange={onBodyCheckChange}
+            />
+          ) : null,
+        )}
+      </div>
+    </div>
+  );
+};
 
 interface BackMoveProps {
   move: MoveDefinition;

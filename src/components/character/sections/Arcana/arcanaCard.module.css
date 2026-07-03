@@ -132,6 +132,22 @@ label.mysteryMoveHeader {
   color: var(--text-secondary);
 }
 
+/* A moves-only section lays its moves out masonry-style — two columns on desktop, one below —
+   matching the PC Playbook's move grid (columns: 2 280px + break-inside: avoid on children). */
+.moveGrid {
+  columns: 2 280px;
+  column-gap: var(--spacing-3);
+}
+
+.moveGrid > * {
+  break-inside: avoid;
+  margin-bottom: var(--spacing-3);
+}
+
+.moveGrid > *:last-child {
+  margin-bottom: 0;
+}
+
 .consequenceGroup {
   display: flex;
   flex-direction: column;
