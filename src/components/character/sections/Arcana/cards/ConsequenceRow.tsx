@@ -1,4 +1,5 @@
 import { useCallback, useId } from "react";
+import clsx from "clsx";
 import { Checkbox, Text } from "@/components/ui";
 import { UseDots } from "@/components/ui/UseDots/UseDots";
 import { consequenceMarkId, parseConsequenceMarks } from "../arcanaParsing";
@@ -42,12 +43,15 @@ export const ConsequenceRow = ({
     (v: number) => onTrackerChange?.(id, v),
     [id, onTrackerChange],
   );
+  // The first box marked means the consequence is in effect: its left spine goes solid and the row
+  // takes a faint danger wash.
+  const rowCx = clsx(styles.consequenceRow, checkedMarks[0] && styles.consequenceRowMarked);
   // Not a <label>: each box is its own labelable control, so wrapping the shared prose in one label
   // would bind every click to only the first box. Each box is named by the prose instead (via
   // aria-labelledby, so the rendered text—not its markdown markers—is read), plus a hidden position
   // when there is more than one box.
   return (
-    <div className={styles.consequenceRow}>
+    <div className={rowCx}>
       <span className={styles.consequenceMarks}>
         {Array.from({ length: markCount }, (_, i) => {
           const markId = consequenceMarkId(id, i);
