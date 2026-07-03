@@ -100,6 +100,27 @@ describe('buildRelationshipGraph', () => {
     expect(graph.edges[0]).toMatchObject({ sourceId: 'r1', targetId: 'r2' });
   });
 
+  it('collapses duplicate links in the same direction to one edge', () => {
+    // Legacy data can have an NPC linked to the same target twice; keep only one
+    // edge per direction so the two labels don't stack. The reverse stays.
+    const game = makeGame({
+      steading: {
+        residents: [
+          npc('r1', {
+            relationships: [
+              { id: 'a', type: 'fart', targetId: 'r2', targetKind: 'resident' },
+              { id: 'b', type: 'burp', targetId: 'r2', targetKind: 'resident' },
+            ],
+          }),
+          npc('r2', { relationships: [rel({ targetId: 'r1', targetKind: 'resident' })] }),
+        ],
+      },
+    });
+    const graph = buildRelationshipGraph(game, W, H);
+    const dirs = graph.edges.map((e) => `${e.sourceId}->${e.targetId}`).sort();
+    expect(dirs).toEqual(['r1->r2', 'r2->r1']);
+  });
+
   it('restricts to the ego network when a focus id is given', () => {
     const game = makeGame({
       steading: {
@@ -198,6 +219,13 @@ describe('reciprocalPairKeys', () => {
     expect(both.has(pairKey('c', 'd'))).toBe(true);
     expect(both.has(pairKey('a', 'b'))).toBe(false);
     expect(both.size).toBe(1);
+  });
+
+  it('does not flag two edges pointing the SAME way (duplicate link in legacy data)', () => {
+    // Both edges are Bram→Ada. They'd share the same label offset, so treating
+    // the pair as reciprocal would just re-overlap the labels — it must not.
+    const both = reciprocalPairKeys([edge('bram', 'ada'), edge('bram', 'ada')]);
+    expect(both.size).toBe(0);
   });
 });
 

@@ -107,7 +107,10 @@ export const RelationshipRepeater = ({ relationships, groups, onChange }: Relati
     () => groups.reduce((sum, g) => sum + g.options.length, 0),
     [groups],
   );
-  const canAdd = allTaken.size < totalTargets;
+  // Also block adding while a row is still blank, so unlinked placeholder rows
+  // can't pile up — fill the empty one first.
+  const hasBlankRow = takenByRow.size < relationships.length;
+  const canAdd = allTaken.size < totalTargets && !hasBlankRow;
 
   return (
     <div className={styles.relRepeater}>
