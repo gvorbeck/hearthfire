@@ -151,13 +151,26 @@ label.mysteryMoveHeader {
 .consequenceGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-1);
+  gap: var(--spacing-2);
 }
 
 .consequenceRow {
   display: flex;
   align-items: flex-start;
   gap: var(--spacing-2);
+  /* A transparent spine holds the padding steady so a row doesn't shift when it gains its border on
+     marking; only a marked consequence shows the danger-tinted spine + wash. */
+  padding: var(--spacing-1) var(--spacing-2);
+  border-left: 2px solid transparent;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.consequenceRowMarked {
+  border-left-color: var(--color-danger);
+  background-color: color-mix(in srgb, var(--color-danger) 8%, transparent);
 }
 
 .consequenceRow > span {
@@ -188,7 +201,7 @@ label.mysteryMoveHeader {
 .consequenceChildren {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-1);
+  gap: var(--spacing-2);
   padding-left: var(--spacing-6);
 }
 
