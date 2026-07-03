@@ -417,7 +417,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
               body: [
                 {
                   kind: "para",
-                  text: "When you *mindwalk*, hold +1 Power.",
+                  text: "When you **mindwalk**, hold +1 Power.",
                 },
               ],
               citation: "Book 2, p. 547",
@@ -430,6 +430,30 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
                 {
                   kind: "para",
                   text: "When you **mindwalk**, you may spend 1 Power to instantly send your mind to any place you have ever visited, physically or mentally.",
+                },
+              ],
+              citation: "Book 2, p. 547",
+            },
+            {
+              id: "telepathy",
+              name: "Telepathy",
+              requires: ["mindwalking"],
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **mindwalk**, you may spend 1 Power to become able to communicate mentally with someone nearby, as long as you remain in their presence. They can choose whether to respond, and can attempt to ignore you, but cannot shut you out completely without magic of their own.",
+                },
+              ],
+              citation: "Book 2, p. 547",
+            },
+            {
+              id: "thoughtcrafter",
+              name: "Thoughtcrafter",
+              requires: ["mindwalking"],
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **mindwalk**, you may spend 1 Power to animate a mass of loose material (gravel, snow, leaves, etc.) into a body no larger than your own. When you would roll STR, DEX, or CON in this form, use INT instead. This form has 10 HP. When reduced to 0 HP, it dissipates and you return to your physical body.",
                 },
               ],
               citation: "Book 2, p. 547",
@@ -448,6 +472,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
               id: "sphere-c2",
               value:
                 "Your physical body withers and fades—permanently mark the *weakened* debility.",
+              actions: [{ type: "permanentDebility", debility: "weakened" }],
             },
             {
               id: "sphere-c3",
@@ -458,8 +483,31 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
                   id: "sphere-c3a",
                   value:
                     'Replace your instinct with "Detachment: To distance yourself from human connections and emotions."',
+                  actions: [
+                    {
+                      type: "setInstinct",
+                      text: "Detachment: To distance yourself from human connections and emotions.",
+                    },
+                  ],
                 },
               ],
+            },
+            {
+              id: "sphere-c4",
+              value:
+                "Your skin tinges bluish; your body becomes cold to the touch. You are unaffected by even the bitterest cold, but find heat and warmth unbearable.",
+              children: [
+                {
+                  id: "sphere-c4a",
+                  value:
+                    "When you take damage from fire, roll twice and take the higher result.",
+                },
+              ],
+            },
+            {
+              id: "sphere-c5",
+              value:
+                "When you **roll 6- at Death's Door**, you have no choice: gain the Ghost insert (with the Ice Sphere as your tether).",
             },
           ],
         },
@@ -470,46 +518,8 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     //
     //
 
-    //     {
-    //       id: "telepathy",
-    //       name: "Telepathy",
-    //       requires: ["mindwalking"],
-    //       body: [
-    //         {
-    //           kind: "para",
-    //           text: "When you *mindwalk*, you may spend 1 Power to become able to communicate mentally with someone nearby, as long as you remain in their presence. They can choose whether to respond, and can attempt to ignore you, but cannot shut you out completely without magic of their own.",
-    //         },
-    //       ],
-    //       citation: "Book 2, p. 547",
-    //     },
-    //     {
-    //       id: "thoughtcrafter",
-    //       name: "Thoughtcrafter",
-    //       requires: ["mindwalking"],
-    //       body: [
-    //         {
-    //           kind: "para",
-    //           text: "When you *mindwalk*, you may spend 1 Power to animate a mass of loose material (gravel, snow, leaves, etc.) into a body no larger than your own. When you would roll STR, DEX, or CON in this form, use INT instead. This form has 10 HP. When reduced to 0 HP, it dissipates and you return to your physical body.",
-    //         },
-    //       ],
-    //       citation: "Book 2, p. 547",
-    //     },
     //   ],
     //   consequences: [
-    //     {
-    //       id: "sphere-c4",
-    //       text: "Your skin tinges bluish; your body becomes cold to the touch. You are unaffected by even the bitterest cold, but find heat and warmth unbearable.",
-    //       children: [
-    //         {
-    //           id: "sphere-c4a",
-    //           text: "When you take damage from fire, roll twice and take the higher result.",
-    //         },
-    //       ],
-    //     },
-    //     {
-    //       id: "sphere-c5",
-    //       text: "When you **roll 6- at Death's Door**, you have no choice: gain the Ghost insert (with the Ice Sphere as your tether).",
-    //     },
     //   ],
     //   dotBonuses: [{ targetId: "mindwalking", sourceId: "a-mighty-will" }],
     // },
