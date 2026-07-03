@@ -368,17 +368,6 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     weight: 1,
     description:
       "A perfect sphere of dark ice, the size of a fist, never melting, hard as stone, and set like a gaudy gem at the end of a finely wrought torc. Or not a torc, perhaps, but maybe a ring that once sat upon some giant's finger?\n\nStaring into the icy sphere brings a sense of calm, serenity, and detachment. Indeed, a lesser mind might find itself staring into its depths for hours on end.\n\n---\n\nWhen you **peer into the Ice Sphere**, your mind is cleared of strong emotions.\n\nWhen you **gaze deeply into the Ice Sphere and ponder a situation, puzzle, or mystery**, ask the GM one of the questions below. The GM will answer honestly.\n\n- Who benefits (or would benefit) from __?\n- What about __ isn’t what it seems to be?\n- How could I learn more about __?\n- What’s the most likely outcome if __?\n- What am I overlooking?\n\nAfter the GM answers, roll +INT: **on a 10+**, hold 2 Acumen; **on a 7-9**, hold 1.\nWhile acting on the GM’s answer, you can spend Acumen 1-for-1 to:\n\n- Ask another question from the list above, and get an honest answer\n- Treat a 6- that you rolled as a 7-9, or a 7-9 as a 10+\n\n**On a 6-**, your connection to your body weakens—mark a debility and mark 1 circle. The debility lasts until you spend a few days living wholly in your body and averting your gaze from the Ice Sphere.\n\nWhen you **make the last mark**, you unlock the mysteries of the Ice Sphere and can use Mindwalking.",
-    // frontMoves: [
-    //   {
-    //     name: "Peer into the Ice Sphere",
-    //     text: "Your mind is cleared of strong emotions.",
-    //   },
-    //   {
-    //     name: "Gaze deeply into the Ice Sphere and ponder a situation, puzzle, or mystery",
-    //     text: "Ask the GM one of the questions below. The GM will answer honestly.\n\n- Who benefits (or would benefit) from ___?\n- What about ___ isn't what it seems to be?\n- How could I learn more about ___?\n- What's the most likely outcome if ___?\n- What am I overlooking?\n\nAfter the GM answers, roll +INT: **on a 10+**, hold 2 Acumen; **on a 7-9**, hold 1. While acting on the GM's answer, you can spend Acumen 1-for-1 to:\n\n- Ask another question from the list above, and get an honest answer\n- Treat a 6- that you rolled as a 7-9, or a 7-9 as a 10+\n\n**On a 6-**, your connection to your body weakens—mark a debility and mark 1 circle. The debility lasts until you spend a few days living wholly in your body and averting your gaze from the Ice Sphere.",
-    //     tracker: { label: "Acumen", max: 2 },
-    //   },
-    // ],
     frontTrackers: [
       { id: "marks", label: "marks", max: 3, role: "marks" },
       { id: "norubas-ice-sphere-acumen", label: "Acumen", max: 2 },
@@ -392,6 +381,10 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
             {
               id: "mindwalking",
               name: "Mindwalking",
+              // The base move: active the moment the Ice Sphere unlocks (no checkbox of its own), and it
+              // grants one of the moves below for every 2 Consequences marked.
+              autoActivateOnUnlock: true,
+              grantsPerConsequences: 2,
               // The book grants +1 Power dot once "A Mighty Will" is selected; MajorArcanaCard widens
               // this control to 4 dots dynamically, so the base spec stays at 3.
               rightControl: [{ type: "dot", number: 3, label: "Power" }],
@@ -415,66 +408,68 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
               ],
               citation: "Book 2, p. 547",
             },
+            {
+              id: "a-mighty-will",
+              name: "A Mighty Will",
+              requires: ["mindwalking"],
+              // "hold +1 Power" — widens Mindwalking's Power dots (3 → 4) while selected.
+              grantsDotBonus: { targetId: "mindwalking", amount: 1 },
+              body: [
+                {
+                  kind: "para",
+                  text: "When you *mindwalk*, hold +1 Power.",
+                },
+              ],
+              citation: "Book 2, p. 547",
+            },
+            {
+              id: "farwalker",
+              name: "Farwalker",
+              requires: ["mindwalking"],
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **mindwalk**, you may spend 1 Power to instantly send your mind to any place you have ever visited, physically or mentally.",
+                },
+              ],
+              citation: "Book 2, p. 547",
+            },
           ],
         },
         {
           label: "Consequences",
-          content: [],
+          content: [
+            {
+              id: "sphere-c1",
+              value:
+                "You draw the attention of some powerful, hungry entity of the spirit world. It has your scent.",
+            },
+            {
+              id: "sphere-c2",
+              value:
+                "Your physical body withers and fades—permanently mark the *weakened* debility.",
+            },
+            {
+              id: "sphere-c3",
+              value:
+                "Your emotions dull. You can no longer be affected by fear, hate, passion, or other powerful emotions (for good or ill).",
+              children: [
+                {
+                  id: "sphere-c3a",
+                  value:
+                    'Replace your instinct with "Detachment: To distance yourself from human connections and emotions."',
+                },
+              ],
+            },
+          ],
         },
       ],
     },
     // mystery: {
     //   moves: [
-    //     {
-    //       id: "mindwalking",
-    //       name: "Mindwalking",
-    //       // The book grants +1 Power dot once "A Mighty Will" is selected; MajorArcanaCard widens
-    //       // this control to 4 dots dynamically, so the base spec stays at 3.
-    //       rightControl: [{ type: "dot", number: 3, label: "Power" }],
-    //       body: [
-    //         {
-    //           kind: "para",
-    //           text: "When you **use the Ice Sphere as a psychic anchor**, your consciousness leaves your body and walks the world as a spirit, invisible and insubstantial. Roll +INT: **on a 10+**, hold 3 Power; **on a 7-9**, hold 2 Power; **on a 6-**, hold 2 Power and mark a Consequence. While mindwalking, you may spend your Power, 1-for-1 to:",
-    //         },
-    //         {
-    //           kind: "list",
-    //           items: [
-    //             "Manifest as a ghostly voice and/or presence",
-    //             "Manipulate an unattended item (small or ◊, no bigger)",
-    //             "Return instantly to the Ice Sphere from any distance",
-    //           ],
-    //         },
-    //         {
-    //           kind: "para",
-    //           text: "For every 2 Consequences you mark, gain one of the following moves:",
-    //         },
-    //       ],
-    //       citation: "Book 2, p. 547",
-    //     },
-    //     {
-    //       id: "a-mighty-will",
-    //       name: "A Mighty Will",
-    //       requires: ["mindwalking"],
-    //       body: [
-    //         {
-    //           kind: "para",
-    //           text: "When you *mindwalk*, hold +1 Power.",
-    //         },
-    //       ],
-    //       citation: "Book 2, p. 547",
-    //     },
-    //     {
-    //       id: "farwalker",
-    //       name: "Farwalker",
-    //       requires: ["mindwalking"],
-    //       body: [
-    //         {
-    //           kind: "para",
-    //           text: "When you *mindwalk*, you may spend 1 Power to instantly send your mind to any place you have ever visited, physically or mentally.",
-    //         },
-    //       ],
-    //       citation: "Book 2, p. 547",
-    //     },
+    //
+    //
+
     //     {
     //       id: "telepathy",
     //       name: "Telepathy",
@@ -501,24 +496,6 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     //     },
     //   ],
     //   consequences: [
-    //     {
-    //       id: "sphere-c1",
-    //       text: "You draw the attention of some powerful, hungry entity of the spirit world. It has your scent.",
-    //     },
-    //     {
-    //       id: "sphere-c2",
-    //       text: "Your physical body withers and fades—permanently mark the *weakened* debility.",
-    //     },
-    //     {
-    //       id: "sphere-c3",
-    //       text: "Your emotions dull. You can no longer be affected by fear, hate, passion, or other powerful emotions (for good or ill).",
-    //       children: [
-    //         {
-    //           id: "sphere-c3a",
-    //           text: 'Replace your instinct with "Detachment: To distance yourself from human connections and emotions."',
-    //         },
-    //       ],
-    //     },
     //     {
     //       id: "sphere-c4",
     //       text: "Your skin tinges bluish; your body becomes cold to the touch. You are unaffected by even the bitterest cold, but find heat and warmth unbearable.",
