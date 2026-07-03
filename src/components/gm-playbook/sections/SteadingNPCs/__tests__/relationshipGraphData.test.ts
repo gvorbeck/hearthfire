@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { buildRelationshipGraph } from '../relationshipGraphData';
+import {
+  buildRelationshipGraph,
+  pairKey,
+  reciprocalLabelOffset,
+  reciprocalPairKeys,
+  RECIPROCAL_LABEL_OFFSET,
+} from '../relationshipGraphData';
+import type { GraphEdge } from '../relationshipGraphData';
 import type { GameSession, SteadingNPC, NpcRelationship } from '@/types';
 
 const rel = (overrides: Partial<NpcRelationship> = {}): NpcRelationship => ({
@@ -93,6 +100,27 @@ describe('buildRelationshipGraph', () => {
     expect(graph.edges[0]).toMatchObject({ sourceId: 'r1', targetId: 'r2' });
   });
 
+  it('collapses duplicate links in the same direction to one edge', () => {
+    // Legacy data can have an NPC linked to the same target twice; keep only one
+    // edge per direction so the two labels don't stack. The reverse stays.
+    const game = makeGame({
+      steading: {
+        residents: [
+          npc('r1', {
+            relationships: [
+              { id: 'a', type: 'fart', targetId: 'r2', targetKind: 'resident' },
+              { id: 'b', type: 'burp', targetId: 'r2', targetKind: 'resident' },
+            ],
+          }),
+          npc('r2', { relationships: [rel({ targetId: 'r1', targetKind: 'resident' })] }),
+        ],
+      },
+    });
+    const graph = buildRelationshipGraph(game, W, H);
+    const dirs = graph.edges.map((e) => `${e.sourceId}->${e.targetId}`).sort();
+    expect(dirs).toEqual(['r1->r2', 'r2->r1']);
+  });
+
   it('restricts to the ego network when a focus id is given', () => {
     const game = makeGame({
       steading: {
@@ -165,5 +193,64 @@ describe('buildRelationshipGraph', () => {
     const graph = buildRelationshipGraph(game, W, H);
     expect(graph.nodes.find((n) => n.id === 'r1')?.dead).toBe(true);
     expect(graph.nodes.find((n) => n.id === 'r2')?.dead).toBe(false);
+  });
+});
+
+const edge = (sourceId: string, targetId: string): GraphEdge => ({
+  id: `${sourceId}->${targetId}`,
+  sourceId,
+  targetId,
+  type: 'knows',
+});
+
+describe('pairKey', () => {
+  it('is order-independent, so A→B and B→A share a key', () => {
+    expect(pairKey('a', 'b')).toBe(pairKey('b', 'a'));
+  });
+});
+
+describe('reciprocalPairKeys', () => {
+  it('flags only pairs that have an edge in both directions', () => {
+    const both = reciprocalPairKeys([
+      edge('a', 'b'), // one-way
+      edge('c', 'd'), // ↩ reciprocal with next
+      edge('d', 'c'),
+    ]);
+    expect(both.has(pairKey('c', 'd'))).toBe(true);
+    expect(both.has(pairKey('a', 'b'))).toBe(false);
+    expect(both.size).toBe(1);
+  });
+
+  it('does not flag two edges pointing the SAME way (duplicate link in legacy data)', () => {
+    // Both edges are Bram→Ada. They'd share the same label offset, so treating
+    // the pair as reciprocal would just re-overlap the labels — it must not.
+    const both = reciprocalPairKeys([edge('bram', 'ada'), edge('bram', 'ada')]);
+    expect(both.size).toBe(0);
+  });
+});
+
+describe('reciprocalLabelOffset', () => {
+  // The bug this guards against: the two labels of a reciprocal pair share a
+  // midpoint. They must be pushed to opposite VERTICAL offsets so they never
+  // overlap — at any line orientation, since the labels are horizontal text (#235).
+  it('gives the two directions of a pair opposite vertical offsets', () => {
+    const forward = reciprocalLabelOffset('a', 'b');
+    const reverse = reciprocalLabelOffset('b', 'a');
+    expect(forward.dy).toBe(-reverse.dy);
+    expect(Math.abs(forward.dy)).toBe(RECIPROCAL_LABEL_OFFSET);
+  });
+
+  it('splits by id order, not edge direction, so it is stable', () => {
+    // The id-sorted edge always goes up; its reverse always goes down —
+    // independent of the geometric direction of the arrow.
+    expect(reciprocalLabelOffset('a', 'b').dy).toBeLessThan(0);
+    expect(reciprocalLabelOffset('b', 'a').dy).toBeGreaterThan(0);
+  });
+
+  it('offsets vertically only, so the separation holds even for a vertical line', () => {
+    // A horizontal offset can't separate two horizontal labels on a vertical
+    // line — this must stay purely vertical.
+    expect(reciprocalLabelOffset('a', 'b').dx).toBe(0);
+    expect(reciprocalLabelOffset('b', 'a').dx).toBe(0);
   });
 });

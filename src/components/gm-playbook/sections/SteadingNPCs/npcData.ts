@@ -91,6 +91,20 @@ export const buildGroups = (game: GameSession): DropdownGroup<RelTarget>[] => {
   return groups;
 };
 
+/*
+ * Drop options whose encoded value is in `taken` (targets already linked by
+ * other relationship rows), so a character can't be linked twice. Groups left
+ * with no options are dropped. Used to keep each relationship row's dropdown from
+ * offering a character another row already points at.
+ */
+export const filterLinkedTargets = (
+  groups: DropdownGroup<RelTarget>[],
+  taken: Set<string>,
+): DropdownGroup<RelTarget>[] =>
+  groups
+    .map((group) => ({ ...group, options: group.options.filter((opt) => !taken.has(opt.value)) }))
+    .filter((group) => group.options.length > 0);
+
 export const buildNameMap = (game: GameSession): Map<string, string> => {
   const map = new Map<string, string>();
   for (const c of game.characters) map.set(c.id, c.name);

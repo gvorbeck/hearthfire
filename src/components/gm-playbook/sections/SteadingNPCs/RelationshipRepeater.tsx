@@ -1,9 +1,9 @@
-import { useCallback, useId } from 'react';
+import { useCallback, useId, useMemo } from 'react';
 import { Button, Input, Dropdown } from '@/components/ui';
 import type { DropdownGroup } from '@/components/ui';
 import type { NpcRelationship } from '@/types';
 import { generateId } from '@/lib/id';
-import { encodeTarget, decodeTarget } from './npcData';
+import { encodeTarget, decodeTarget, filterLinkedTargets } from './npcData';
 import type { RelTarget } from './npcData';
 import styles from './RelationshipRepeater.module.css';
 
@@ -90,20 +90,48 @@ export const RelationshipRepeater = ({ relationships, groups, onChange }: Relati
     onChange([...relationships, { id: generateId(), type: '', targetId: '', targetKind: 'pc' }]);
   }, [relationships, onChange]);
 
+  // Every target already linked by some row, keyed by id so each row can hide
+  // the ones taken by OTHER rows and stop a character being linked twice.
+  const takenByRow = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const r of relationships) {
+      const value = encodeTarget(r);
+      if (value) map.set(r.id, value);
+    }
+    return map;
+  }, [relationships]);
+  const allTaken = useMemo(() => new Set(takenByRow.values()), [takenByRow]);
+  // No point offering another row once every character is already linked — the
+  // new row's dropdown would show nothing but the placeholder.
+  const totalTargets = useMemo(
+    () => groups.reduce((sum, g) => sum + g.options.length, 0),
+    [groups],
+  );
+  // Also block adding while a row is still blank, so unlinked placeholder rows
+  // can't pile up — fill the empty one first.
+  const hasBlankRow = takenByRow.size < relationships.length;
+  const canAdd = allTaken.size < totalTargets && !hasBlankRow;
+
   return (
     <div className={styles.relRepeater}>
-      {relationships.map((rel, i) => (
-        <RelationshipRow
-          key={rel.id}
-          rel={rel}
-          groups={groups}
-          position={i + 1}
-          onTypeChange={handleTypeChange}
-          onTargetChange={handleTargetChange}
-          onRemove={handleRemove}
-        />
-      ))}
-      <Button type="button" variant="ghost" size="sm" icon="plus" onClick={handleAdd} className={styles.relAddBtn}>
+      {relationships.map((rel, i) => {
+        // Hide targets other rows already use; keep this row's own selection.
+        const taken = new Set(allTaken);
+        const own = takenByRow.get(rel.id);
+        if (own) taken.delete(own);
+        return (
+          <RelationshipRow
+            key={rel.id}
+            rel={rel}
+            groups={filterLinkedTargets(groups, taken)}
+            position={i + 1}
+            onTypeChange={handleTypeChange}
+            onTargetChange={handleTargetChange}
+            onRemove={handleRemove}
+          />
+        );
+      })}
+      <Button type="button" variant="ghost" size="sm" icon="plus" onClick={handleAdd} disabled={!canAdd} className={styles.relAddBtn}>
         Add relationship
       </Button>
     </div>

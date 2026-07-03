@@ -24,6 +24,56 @@ export interface GraphData {
   edges: GraphEdge[];
 }
 
+// Vertical half-gap, in layout units, between the two labels of a reciprocal
+// pair. Labels are horizontal text, so only VERTICAL separation reliably keeps
+// them apart at any line orientation — a perpendicular offset fails when the
+// line itself is vertical (the two labels just shift sideways and still overlap).
+// One label goes up by this, the other down, so the gap between them is twice
+// this plus the font's line height (the label font is ~10 layout units tall, so
+// this keeps a clear gap between the two lines of text).
+export const RECIPROCAL_LABEL_OFFSET = 10;
+
+/*
+ * Unordered key for a pair of nodes, so an A→B edge and a B→A edge collapse to
+ * the same key regardless of direction.
+ */
+export const pairKey = (a: string, b: string): string => (a < b ? `${a}|${b}` : `${b}|${a}`);
+
+/*
+ * The set of node-pair keys that have an edge in BOTH directions (A→B and B→A).
+ * Their two labels would otherwise land on the same midpoint. Two edges pointing
+ * the SAME way (a duplicate link, possible in legacy data) don't count — they'd
+ * share the same offset and re-overlap, so they aren't treated as reciprocal.
+ */
+export const reciprocalPairKeys = (edges: GraphEdge[]): Set<string> => {
+  // Track the directions seen for each pair; a pair is reciprocal only once both
+  // orientations (source<target and source>target) have appeared.
+  const forward = new Set<string>();
+  const backward = new Set<string>();
+  const both = new Set<string>();
+  for (const e of edges) {
+    if (e.sourceId === e.targetId) continue;
+    const key = pairKey(e.sourceId, e.targetId);
+    const dir = e.sourceId < e.targetId ? forward : backward;
+    dir.add(key);
+    if (forward.has(key) && backward.has(key)) both.add(key);
+  }
+  return both;
+};
+
+/*
+ * Vertical offset for a reciprocal edge's label so the pair's two labels don't
+ * overlap. The label of the id-sorted (canonical) edge goes up, its counterpart
+ * goes down — decided by endpoint id order, not the edge's own direction, so the
+ * two are always split regardless of which way each arrow points. Purely vertical
+ * because the labels are horizontal text: sideways separation would have to
+ * exceed the label's width to clear it, but a fixed vertical gap always does.
+ */
+export const reciprocalLabelOffset = (sourceId: string, targetId: string): { dx: number; dy: number } => ({
+  dx: 0,
+  dy: sourceId < targetId ? -RECIPROCAL_LABEL_OFFSET : RECIPROCAL_LABEL_OFFSET,
+});
+
 interface RawNode {
   id: string;
   label: string;
@@ -54,15 +104,21 @@ const collectNodes = (game: GameSession): Map<string, RawNode> => {
  * Build the directed edge list from NPC relationships. Only NPCs (residents +
  * neighbors) own relationships; PCs are link targets, never sources. An edge is
  * kept only when both endpoints resolve to a known node and the source isn't
- * pointing at itself.
+ * pointing at itself. Duplicate links in the same direction (legacy data — the
+ * editor now prevents them) collapse to a single edge, so their labels can't
+ * stack on top of each other; the reverse direction is kept as its own edge.
  */
 const collectEdges = (game: GameSession, known: Map<string, RawNode>): GraphEdge[] => {
   const npcs: SteadingNPC[] = [...(game.steading?.residents ?? []), ...(game.steading?.neighbors ?? [])];
   const edges: GraphEdge[] = [];
+  const seenDirections = new Set<string>();
   for (const npc of npcs) {
     for (const rel of npc.relationships ?? []) {
       if (!rel.targetId || rel.targetId === npc.id) continue;
       if (!known.has(npc.id) || !known.has(rel.targetId)) continue;
+      const direction = `${npc.id}->${rel.targetId}`;
+      if (seenDirections.has(direction)) continue;
+      seenDirections.add(direction);
       edges.push({ id: rel.id, sourceId: npc.id, targetId: rel.targetId, type: rel.type });
     }
   }
