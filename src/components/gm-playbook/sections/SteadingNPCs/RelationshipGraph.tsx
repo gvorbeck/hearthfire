@@ -3,7 +3,12 @@ import clsx from 'clsx';
 import { Button, Text } from '@/components/ui';
 import type { GameSession } from '@/types';
 import { useLatest } from '@/hooks/useLatest';
-import { buildRelationshipGraph } from './relationshipGraphData';
+import {
+  buildRelationshipGraph,
+  pairKey,
+  reciprocalLabelOffset,
+  reciprocalPairKeys,
+} from './relationshipGraphData';
 import type { GraphNode } from './relationshipGraphData';
 import styles from './RelationshipGraph.module.css';
 
@@ -123,6 +128,11 @@ export const RelationshipGraph = ({ game, focusId }: RelationshipGraphProps) => 
     for (const n of nodes) map.set(n.id, n);
     return map;
   }, [nodes]);
+
+  // Node pairs that have an edge in both directions. Their labels share a
+  // midpoint, so we offset each off the line to opposite sides to keep both
+  // readable.
+  const reciprocalPairs = useMemo(() => reciprocalPairKeys(graph.edges), [graph.edges]);
 
   // Fit the viewBox to the simulated layout (graph.nodes), NOT the drag-adjusted
   // positions — otherwise dragging a node to the edge would grow the frame and
@@ -338,8 +348,15 @@ export const RelationshipGraph = ({ game, focusId }: RelationshipGraphProps) => 
             const y1 = a.y + uy * NODE_RADIUS;
             const x2 = b.x - ux * NODE_RADIUS;
             const y2 = b.y - uy * NODE_RADIUS;
-            const midX = (x1 + x2) / 2;
-            const midY = (y1 + y2) / 2;
+            let midX = (x1 + x2) / 2;
+            let midY = (y1 + y2) / 2;
+            // For a reciprocal pair both labels land on the same midpoint, so
+            // offset each off the line to opposite sides (see reciprocalLabelOffset).
+            if (reciprocalPairs.has(pairKey(edge.sourceId, edge.targetId))) {
+              const { dx: offX, dy: offY } = reciprocalLabelOffset(edge.sourceId, edge.targetId);
+              midX += offX;
+              midY += offY;
+            }
             return (
               <g key={edge.id} className={styles.edge}>
                 <line x1={x1} y1={y1} x2={x2} y2={y2} className={styles.edgeLine} markerEnd="url(#rel-arrow)" />
