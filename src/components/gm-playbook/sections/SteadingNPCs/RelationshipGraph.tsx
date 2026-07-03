@@ -39,6 +39,13 @@ const MAX_LABEL_CHARS = 22;
 const truncateLabel = (label: string): string =>
   label.length > MAX_LABEL_CHARS ? `${label.slice(0, MAX_LABEL_CHARS - 1)}…` : label;
 
+// Unordered key for a pair of nodes, so an A→B edge and a B→A edge collide on the
+// same key regardless of direction.
+const pairKey = (a: string, b: string): string => (a < b ? `${a}|${b}` : `${b}|${a}`);
+// How far, in layout units, to push each label of a reciprocal pair off the line
+// so the two don't overlap at the shared midpoint.
+const RECIPROCAL_LABEL_OFFSET = 8;
+
 // --bp-md (768px): below this we default to the focused ego view, since a full
 // web is unreadable on a phone. CSS custom properties can't be read in JS, so
 // the value is duplicated here per the project's media-query convention.
@@ -123,6 +130,20 @@ export const RelationshipGraph = ({ game, focusId }: RelationshipGraphProps) => 
     for (const n of nodes) map.set(n.id, n);
     return map;
   }, [nodes]);
+
+  // Node pairs that have an edge in both directions. Their labels share a
+  // midpoint, so we offset each off the line to opposite sides to keep both
+  // readable.
+  const reciprocalPairs = useMemo(() => {
+    const seen = new Set<string>();
+    const both = new Set<string>();
+    for (const e of graph.edges) {
+      const key = pairKey(e.sourceId, e.targetId);
+      if (seen.has(key)) both.add(key);
+      seen.add(key);
+    }
+    return both;
+  }, [graph.edges]);
 
   // Fit the viewBox to the simulated layout (graph.nodes), NOT the drag-adjusted
   // positions — otherwise dragging a node to the edge would grow the frame and
@@ -338,8 +359,17 @@ export const RelationshipGraph = ({ game, focusId }: RelationshipGraphProps) => 
             const y1 = a.y + uy * NODE_RADIUS;
             const x2 = b.x - ux * NODE_RADIUS;
             const y2 = b.y - uy * NODE_RADIUS;
-            const midX = (x1 + x2) / 2;
-            const midY = (y1 + y2) / 2;
+            let midX = (x1 + x2) / 2;
+            let midY = (y1 + y2) / 2;
+            // For a reciprocal pair both labels land here, so push each along the
+            // line's perpendicular (-uy, ux) — one edge one way, its counterpart
+            // the other, chosen deterministically by endpoint id order so the two
+            // never end up on the same side.
+            if (reciprocalPairs.has(pairKey(edge.sourceId, edge.targetId))) {
+              const sign = edge.sourceId < edge.targetId ? 1 : -1;
+              midX += -uy * RECIPROCAL_LABEL_OFFSET * sign;
+              midY += ux * RECIPROCAL_LABEL_OFFSET * sign;
+            }
             return (
               <g key={edge.id} className={styles.edge}>
                 <line x1={x1} y1={y1} x2={x2} y2={y2} className={styles.edgeLine} markerEnd="url(#rel-arrow)" />
