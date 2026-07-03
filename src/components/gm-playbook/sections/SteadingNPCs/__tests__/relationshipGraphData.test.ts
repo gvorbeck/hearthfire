@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { buildRelationshipGraph } from '../relationshipGraphData';
+import {
+  buildRelationshipGraph,
+  pairKey,
+  reciprocalLabelOffset,
+  reciprocalPairKeys,
+  RECIPROCAL_LABEL_OFFSET,
+} from '../relationshipGraphData';
+import type { GraphEdge } from '../relationshipGraphData';
 import type { GameSession, SteadingNPC, NpcRelationship } from '@/types';
 
 const rel = (overrides: Partial<NpcRelationship> = {}): NpcRelationship => ({
@@ -165,5 +172,53 @@ describe('buildRelationshipGraph', () => {
     const graph = buildRelationshipGraph(game, W, H);
     expect(graph.nodes.find((n) => n.id === 'r1')?.dead).toBe(true);
     expect(graph.nodes.find((n) => n.id === 'r2')?.dead).toBe(false);
+  });
+});
+
+const edge = (sourceId: string, targetId: string): GraphEdge => ({
+  id: `${sourceId}->${targetId}`,
+  sourceId,
+  targetId,
+  type: 'knows',
+});
+
+describe('pairKey', () => {
+  it('is order-independent, so A→B and B→A share a key', () => {
+    expect(pairKey('a', 'b')).toBe(pairKey('b', 'a'));
+  });
+});
+
+describe('reciprocalPairKeys', () => {
+  it('flags only pairs that have an edge in both directions', () => {
+    const both = reciprocalPairKeys([
+      edge('a', 'b'), // one-way
+      edge('c', 'd'), // ↩ reciprocal with next
+      edge('d', 'c'),
+    ]);
+    expect(both.has(pairKey('c', 'd'))).toBe(true);
+    expect(both.has(pairKey('a', 'b'))).toBe(false);
+    expect(both.size).toBe(1);
+  });
+});
+
+describe('reciprocalLabelOffset', () => {
+  // The bug this guards against: the two edges of a reciprocal pair point
+  // opposite ways, so their offsets must come out opposite too. If they ever
+  // collapse to the same vector, both labels stack and overlap again (#235).
+  it('gives the two directions of a pair opposite offsets', () => {
+    // A horizontal pair: A→B points +x, B→A points −x.
+    const forward = reciprocalLabelOffset(1, 0);
+    const reverse = reciprocalLabelOffset(-1, 0);
+    expect(forward.dx).toBeCloseTo(-reverse.dx);
+    expect(forward.dy).toBeCloseTo(-reverse.dy);
+    // For a horizontal line the labels separate vertically.
+    expect(forward.dy).toBe(RECIPROCAL_LABEL_OFFSET);
+    expect(reverse.dy).toBe(-RECIPROCAL_LABEL_OFFSET);
+  });
+
+  it('offsets perpendicular to the line', () => {
+    // Offset · direction must be zero (perpendicular) for any direction.
+    const { dx, dy } = reciprocalLabelOffset(0.6, 0.8);
+    expect(dx * 0.6 + dy * 0.8).toBeCloseTo(0);
   });
 });
