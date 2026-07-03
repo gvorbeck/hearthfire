@@ -24,6 +24,44 @@ export interface GraphData {
   edges: GraphEdge[];
 }
 
+// How far, in layout units, to push each label of a reciprocal pair off the line
+// so the two don't overlap at the shared midpoint. The two labels move in
+// opposite directions, so the gap between them is twice this.
+export const RECIPROCAL_LABEL_OFFSET = 12;
+
+/*
+ * Unordered key for a pair of nodes, so an A→B edge and a B→A edge collapse to
+ * the same key regardless of direction.
+ */
+export const pairKey = (a: string, b: string): string => (a < b ? `${a}|${b}` : `${b}|${a}`);
+
+/*
+ * The set of node-pair keys that have an edge in BOTH directions. Their two
+ * labels would otherwise land on the same midpoint.
+ */
+export const reciprocalPairKeys = (edges: GraphEdge[]): Set<string> => {
+  const seen = new Set<string>();
+  const both = new Set<string>();
+  for (const e of edges) {
+    const key = pairKey(e.sourceId, e.targetId);
+    if (seen.has(key)) both.add(key);
+    seen.add(key);
+  }
+  return both;
+};
+
+/*
+ * Perpendicular offset for a reciprocal edge's label, given the edge's unit
+ * direction (ux, uy) from source to target. The perpendicular is (-uy, ux); the
+ * reverse edge has the opposite direction, so its perpendicular is the opposite
+ * vector — that difference alone puts the two labels on opposite sides of the
+ * line, so no per-edge sign is applied (one would flip them back and re-overlap).
+ */
+export const reciprocalLabelOffset = (ux: number, uy: number): { dx: number; dy: number } => ({
+  dx: -uy * RECIPROCAL_LABEL_OFFSET,
+  dy: ux * RECIPROCAL_LABEL_OFFSET,
+});
+
 interface RawNode {
   id: string;
   label: string;

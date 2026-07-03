@@ -3,7 +3,12 @@ import clsx from 'clsx';
 import { Button, Text } from '@/components/ui';
 import type { GameSession } from '@/types';
 import { useLatest } from '@/hooks/useLatest';
-import { buildRelationshipGraph } from './relationshipGraphData';
+import {
+  buildRelationshipGraph,
+  pairKey,
+  reciprocalLabelOffset,
+  reciprocalPairKeys,
+} from './relationshipGraphData';
 import type { GraphNode } from './relationshipGraphData';
 import styles from './RelationshipGraph.module.css';
 
@@ -38,14 +43,6 @@ const MAX_LABEL_CHARS = 22;
 
 const truncateLabel = (label: string): string =>
   label.length > MAX_LABEL_CHARS ? `${label.slice(0, MAX_LABEL_CHARS - 1)}…` : label;
-
-// Unordered key for a pair of nodes, so an A→B edge and a B→A edge collide on the
-// same key regardless of direction.
-const pairKey = (a: string, b: string): string => (a < b ? `${a}|${b}` : `${b}|${a}`);
-// How far, in layout units, to push each label of a reciprocal pair off the line
-// so the two don't overlap at the shared midpoint. The two labels move in
-// opposite directions, so the gap between them is twice this.
-const RECIPROCAL_LABEL_OFFSET = 12;
 
 // --bp-md (768px): below this we default to the focused ego view, since a full
 // web is unreadable on a phone. CSS custom properties can't be read in JS, so
@@ -135,16 +132,7 @@ export const RelationshipGraph = ({ game, focusId }: RelationshipGraphProps) => 
   // Node pairs that have an edge in both directions. Their labels share a
   // midpoint, so we offset each off the line to opposite sides to keep both
   // readable.
-  const reciprocalPairs = useMemo(() => {
-    const seen = new Set<string>();
-    const both = new Set<string>();
-    for (const e of graph.edges) {
-      const key = pairKey(e.sourceId, e.targetId);
-      if (seen.has(key)) both.add(key);
-      seen.add(key);
-    }
-    return both;
-  }, [graph.edges]);
+  const reciprocalPairs = useMemo(() => reciprocalPairKeys(graph.edges), [graph.edges]);
 
   // Fit the viewBox to the simulated layout (graph.nodes), NOT the drag-adjusted
   // positions — otherwise dragging a node to the edge would grow the frame and
@@ -362,16 +350,12 @@ export const RelationshipGraph = ({ game, focusId }: RelationshipGraphProps) => 
             const y2 = b.y - uy * NODE_RADIUS;
             let midX = (x1 + x2) / 2;
             let midY = (y1 + y2) / 2;
-            // For a reciprocal pair both labels land on the same midpoint, so push
-            // each off the line so they don't overlap. Each edge's perpendicular
-            // (-uy, ux) is built from its own a→b direction, and the two edges
-            // point opposite ways — so their perpendiculars are already opposite
-            // vectors. That difference alone puts the labels on opposite sides; no
-            // extra sign is needed (adding one would flip them back onto the same
-            // side and re-overlap).
+            // For a reciprocal pair both labels land on the same midpoint, so
+            // offset each off the line to opposite sides (see reciprocalLabelOffset).
             if (reciprocalPairs.has(pairKey(edge.sourceId, edge.targetId))) {
-              midX += -uy * RECIPROCAL_LABEL_OFFSET;
-              midY += ux * RECIPROCAL_LABEL_OFFSET;
+              const { dx: offX, dy: offY } = reciprocalLabelOffset(ux, uy);
+              midX += offX;
+              midY += offY;
             }
             return (
               <g key={edge.id} className={styles.edge}>
