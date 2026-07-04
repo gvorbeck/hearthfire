@@ -1,10 +1,12 @@
 import { useCallback } from "react";
 import { Text } from "@/components/ui";
-import type { ArcanaConsequence, ArcanaFollowerEntry, ArcanaMajorEntry, ArcanaSection, MoveDefinition } from "@/types";
+import type { ArcanaConsequence, ArcanaFollowerEntry, ArcanaMajorEntry, ArcanaSection, Creature, MoveDefinition } from "@/types";
 import { isMoveDefinition } from "../arcanaParsing";
 import type { MoveGating } from "../useArcanumGating";
 import { ArcanaFollowerBlock } from "../ArcanaFollowerBlock";
 import { ConsequenceRow } from "./ConsequenceRow";
+import { ConsequenceTableBlock } from "./ConsequenceTableBlock";
+import { MysteryCreatureCard } from "./MysteryCreatureCard";
 import { MysteryMoveBlock } from "./MysteryMoveBlock";
 import styles from "../arcanaCard.module.css";
 
@@ -25,6 +27,9 @@ interface ArcanaBackSectionProps {
   entry: ArcanaMajorEntry;
   // Each back consequence id → its prose, so a consequence-gated follower can name what activates it.
   consequenceTextById: Record<string, string>;
+  // The section's creature projected from its marked consequences; rendered when the section carries a
+  // `creature`. Undefined for sections without one.
+  projectedCreature: Creature | undefined;
   getConsequenceCheckedMarks: (id: string, text: string, count?: number) => boolean[];
   // Lock reasons + dot override for a back move, computed the same way as for mystery moves.
   getMoveGating: (move: MoveDefinition) => MoveGating;
@@ -33,6 +38,8 @@ interface ArcanaBackSectionProps {
   onTrackerChange: (moveId: string, value: number) => void;
   onFollowerHpChange: (moveId: string, index: number, value: number) => void;
   onBodyCheckChange: (moveId: string, itemId: string, checked: boolean) => void;
+  onConsequenceTableChoice: (consequenceId: string, rowId: string) => void;
+  onMysteryCreatureSave: (creature: Creature) => void;
 }
 
 // One labeled section of an arcanum's back: a "Moves" section renders its MoveDefinitions through the
@@ -43,6 +50,7 @@ export const ArcanaBackSection = ({
   section,
   entry,
   consequenceTextById,
+  projectedCreature,
   getConsequenceCheckedMarks,
   getMoveGating,
   onMysteryMoveToggle,
@@ -50,6 +58,8 @@ export const ArcanaBackSection = ({
   onTrackerChange,
   onFollowerHpChange,
   onBodyCheckChange,
+  onConsequenceTableChoice,
+  onMysteryCreatureSave,
 }: ArcanaBackSectionProps) => {
   // A section whose entries are all moves lays them out masonry-style (two columns on desktop, one
   // below); a section that mixes in consequences or followers stays a single stacked column.
@@ -62,14 +72,23 @@ export const ArcanaBackSection = ({
       <Text font="serif" size="xs" weight="bold" className={styles.consequencesLabel}>
         {section.label}
       </Text>
+      {section.creature && projectedCreature && (
+        <MysteryCreatureCard
+          creature={projectedCreature}
+          onSave={onMysteryCreatureSave}
+        />
+      )}
       <div className={itemsClassName}>
         {section.content.map((item) =>
           isConsequence(item) ? (
             <ConsequenceConsequence
               key={item.id}
               consequence={item}
+              entry={entry}
               getConsequenceCheckedMarks={getConsequenceCheckedMarks}
               onConsequenceToggle={onConsequenceToggle}
+              onTrackerChange={onTrackerChange}
+              onConsequenceTableChoice={onConsequenceTableChoice}
             />
           ) : isFollowerEntry(item) ? (
             <BackFollower
@@ -183,20 +202,27 @@ const BackFollower = ({
 
 interface ConsequenceConsequenceProps {
   consequence: ArcanaConsequence;
+  entry: ArcanaMajorEntry;
   // A child is locked until its parent is marked; the root consequence of a tree is never disabled.
   disabled?: boolean;
   getConsequenceCheckedMarks: (id: string, text: string, count?: number) => boolean[];
   onConsequenceToggle: (consequenceId: string, checked: boolean) => void;
+  onTrackerChange: (id: string, value: number) => void;
+  onConsequenceTableChoice: (consequenceId: string, rowId: string) => void;
 }
 
 // A back consequence and its nested children, rendered with the same ConsequenceRow used by the mystery
 // path. Recursive so an arbitrarily deep consequence tree renders without special-casing depth. A child's
-// boxes stay locked until its parent's first box is marked (the parent's own id).
+// boxes stay locked until its parent's first box is marked (the parent's own id). A creature-projecting
+// consequence may also carry a "hold" tracker or a roll table, rendered exactly as the mystery path does.
 const ConsequenceConsequence = ({
   consequence,
+  entry,
   disabled,
   getConsequenceCheckedMarks,
   onConsequenceToggle,
+  onTrackerChange,
+  onConsequenceTableChoice,
 }: ConsequenceConsequenceProps) => {
   const checkedMarks = getConsequenceCheckedMarks(
     consequence.id,
@@ -212,16 +238,31 @@ const ConsequenceConsequence = ({
         markCount={consequence.checkboxes}
         disabled={disabled}
         onToggle={onConsequenceToggle}
+        tracker={consequence.tracker}
+        trackerValue={entry.trackerValues?.[consequence.id]}
+        onTrackerChange={onTrackerChange}
       />
+      {consequence.table && (
+        <ConsequenceTableBlock
+          consequenceId={consequence.id}
+          table={consequence.table}
+          selectedRowId={entry.consequenceTableChoice?.[consequence.id]}
+          disabled={!checkedMarks[0]}
+          onChoose={onConsequenceTableChoice}
+        />
+      )}
       {consequence.children && consequence.children.length > 0 && (
         <div className={styles.consequenceChildren}>
           {consequence.children.map((child) => (
             <ConsequenceConsequence
               key={child.id}
               consequence={child}
+              entry={entry}
               disabled={!checkedMarks[0]}
               getConsequenceCheckedMarks={getConsequenceCheckedMarks}
               onConsequenceToggle={onConsequenceToggle}
+              onTrackerChange={onTrackerChange}
+              onConsequenceTableChoice={onConsequenceTableChoice}
             />
           ))}
         </div>

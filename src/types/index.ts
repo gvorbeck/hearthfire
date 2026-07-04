@@ -144,12 +144,13 @@ export interface Creature {
 // A declarative mutation a consequence applies to its creature when marked. Book-data fields
 // (tags, moves, qualities) are always a pure projection of the seed plus the effects of every
 // currently-marked consequence, so toggling a box is fully reversible without an undo trail.
-export type CreatureEffect =
-  | { op: "addTag"; tag: string }
-  | { op: "removeTag"; tag: string }
-  | { op: "replaceTag"; from: string; to: string }
-  | { op: "addMove"; move: string }
-  | { op: "replaceQuality"; label: string; value: string };
+// The subset of ConsequenceAction that mutates the arcanum's creature (rather than the PC). Narrowed
+// from the one action union so the roll-table effect and the projection pipeline take a creature-only
+// type, while authors still use a single `actions` vocabulary. See ConsequenceAction below.
+export type CreatureEffect = Extract<
+  ConsequenceAction,
+  { type: "addTag" | "removeTag" | "replaceTag" | "addMove" | "replaceQuality" }
+>;
 
 export interface ArcanaMove {
   name: string;
@@ -175,11 +176,16 @@ export interface MinorArcanum {
 // mark a debility and by the Stats section.
 export type DebilityType = "weakened" | "dazed" | "miserable";
 
-// A side effect a consequence checkbox fires when checked (and reverses when unchecked). This is the
-// extensible heart of the back-section consequence system: every cross-section thing a consequence
-// can do is one member of this union, dispatched centrally in lib/consequenceActions.ts. Add a new
-// member plus one dispatch case to teach consequences a new trick.
+// Everything a consequence checkbox can do when checked (and reverse when unchecked), in one union.
+// Two families, distinguished by subject:
+//   • PC actions (permanentDebility, setInstinct, armor) mutate the player's own sheet and are applied
+//     by the Firestore-writing dispatcher in lib/consequenceActions.ts.
+//   • Creature actions (addTag … replaceQuality) reshape the arcanum's creature and are applied by the
+//     pure projection in lib/creatureMutations.ts (nothing persisted — recomputed from marked state).
+// Authors use one `actions` vocabulary; each member is routed to the right subsystem by its `type`.
+// Add a new member plus its one dispatch case (PC) or projection case (creature) to teach a new trick.
 export type ConsequenceAction =
+  // --- PC-side: applied by lib/consequenceActions.ts ---
   // Mark a PC debility and lock its Stats box for as long as the consequence is marked (e.g. the
   // Lidless Orb's withered eye → permanent miserable).
   | { type: "permanentDebility"; debility: DebilityType }
@@ -188,7 +194,16 @@ export type ConsequenceAction =
   | { type: "setInstinct"; text: string }
   // Adjust the PC's Armor stat by `amount` while marked (e.g. the Lidless Orb's scales → +1 armor),
   // undoing the same delta on unmark. Additive, so it composes with manual edits and other armor grants.
-  | { type: "armor"; amount: number };
+  | { type: "armor"; amount: number }
+  // --- Creature-side: applied by lib/creatureMutations.ts (see CreatureEffect above) ---
+  // Add/remove/replace a tag on the arcanum's creature (e.g. the Mindgem's Servant gaining *devious*).
+  | { type: "addTag"; tag: string }
+  | { type: "removeTag"; tag: string }
+  | { type: "replaceTag"; from: string; to: string }
+  // Append a move to the creature's move list.
+  | { type: "addMove"; move: string }
+  // Overwrite a named creature quality's value (e.g. the Servant's Damage or Cost).
+  | { type: "replaceQuality"; label: string; value: string };
 
 // A checkbox consequence on an arcanum's back. Marking it can fire `actions` (see ConsequenceAction)
 // and reveal `children`. The prose lives in `value`; `id` is the persistence key for its checked state.
@@ -198,7 +213,16 @@ export interface ArcanaConsequence {
   // How many mark boxes this consequence has; defaults to 1. Replaces the legacy ◻-glyph prefix used by
   // mystery consequences (e.g. El'rash-Orra's three boxes). Each box persists under its own mark id.
   checkboxes?: number;
+  // Everything the consequence does when marked — PC-side (debility/instinct/armor) and creature-side
+  // (tag/quality/move mutations) alike. Creature actions are only meaningful in a section with a
+  // `creature`. See ConsequenceAction.
   actions?: ConsequenceAction[];
+  // A "hold up to max" dot tracker shown after the prose, interactive only while the consequence is
+  // marked; its value persists under entry.trackerValues[id].
+  tracker?: { label: string; max: number };
+  // A roll table whose picked row drives a creature effect (e.g. the Mindgem's 1d4 new-cost table).
+  // The chosen row id persists on entry.consequenceTableChoice[id].
+  table?: ConsequenceTable;
   children?: ArcanaConsequence[];
 }
 
@@ -219,6 +243,10 @@ export interface ArcanaFollowerEntry {
 export interface ArcanaSection {
   label: string;
   content: (MoveDefinition | ArcanaConsequence | ArcanaFollowerEntry)[];
+  // Some arcana (e.g. the Mindgem) grant an editable creature whose stats are projected from the
+  // marked consequences in this same section. The seed renders through MysteryCreatureCard; the
+  // player's working copy lives on the entry. Set only on a creature-bearing section.
+  creature?: Creature;
 }
 
 // The back side of an arcanum: a labeled wrapper around its sections. Replacing `mystery`; both

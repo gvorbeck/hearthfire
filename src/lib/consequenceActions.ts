@@ -172,6 +172,10 @@ const applyOne = (
       const delta = checked ? action.amount : -action.amount;
       return { statArmor: String(current + delta) };
     }
+    default:
+      // Creature-side actions (addTag, replaceQuality, …) touch the arcanum's creature, not the PC
+      // sheet, so they write nothing here — the projection in lib/creatureMutations.ts applies them.
+      return {};
   }
 };
 
