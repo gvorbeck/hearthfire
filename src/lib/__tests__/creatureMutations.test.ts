@@ -78,10 +78,10 @@ describe("replaceQuality", () => {
 describe("applyEffects", () => {
   it("folds effects in order", () => {
     const next = applyEffects(servant(), [
-      { op: "removeTag", tag: "meek" },
-      { op: "replaceTag", from: "slow", to: "warrior" },
-      { op: "addMove", move: "Carry on" },
-      { op: "replaceQuality", label: "Damage", value: "1d10+5" },
+      { type: "removeTag", tag: "meek" },
+      { type: "replaceTag", from: "slow", to: "warrior" },
+      { type: "addMove", move: "Carry on" },
+      { type: "replaceQuality", label: "Damage", value: "1d10+5" },
     ]);
     expect(next.tags).toBe("large, construct, warrior, strong");
     expect(next.moves).toContain("Carry on");
@@ -90,19 +90,19 @@ describe("applyEffects", () => {
 
   it("does not mutate the input", () => {
     const base = servant();
-    applyEffects(base, [{ op: "removeTag", tag: "meek" }]);
+    applyEffects(base, [{ type: "removeTag", tag: "meek" }]);
     expect(base.tags).toBe("large, construct, meek, slow, strong");
   });
 });
 
 const consequences: MajorArcanaMysteryConsequence[] = [
-  { id: "c3", text: "", effects: [{ op: "removeTag", tag: "meek" }] },
+  { id: "c3", text: "", effects: [{ type: "removeTag", tag: "meek" }] },
   {
     id: "c4",
     text: "",
-    effects: [{ op: "replaceTag", from: "slow", to: "warrior" }],
+    effects: [{ type: "replaceTag", from: "slow", to: "warrior" }],
     children: [
-      { id: "c4a", text: "", effects: [{ op: "addTag", tag: "area" }] },
+      { id: "c4a", text: "", effects: [{ type: "addTag", tag: "area" }] },
     ],
   },
   {
@@ -115,7 +115,7 @@ const consequences: MajorArcanaMysteryConsequence[] = [
           id: "c5-1",
           roll: "1",
           cells: ["To punish", "Victory"],
-          effect: { op: "replaceQuality", label: "Cost", value: "Victory" },
+          effect: { type: "replaceQuality", label: "Cost", value: "Victory" },
         },
       ],
     },
@@ -124,7 +124,7 @@ const consequences: MajorArcanaMysteryConsequence[] = [
         id: "c6",
         text: "",
         effects: [
-          { op: "replaceQuality", label: "Instinct", value: "To pursue its purpose" },
+          { type: "replaceQuality", label: "Instinct", value: "To pursue its purpose" },
         ],
       },
     ],

@@ -233,25 +233,46 @@ export const useArcanumGating = (
 
   // The creature's book data is a projection of the seed plus every marked consequence; recompute it
   // only when the seed or marked state changes so the memo on MysteryCreatureCard holds.
-  // Sub-paths hoisted into consts so the memo deps match what the React Compiler
-  // infers (bare bindings, not two `mystery?.x` optional-chains it collapses to
-  // `mystery`), letting it optimize this component instead of skipping it.
-  const mysteryCreature = mystery?.mysteryCreature;
-  const mysteryConsequences = mystery?.consequences;
+  // The seed comes from a `back` section carrying a `creature` when the arcanum has migrated (e.g. the
+  // Mindgem), else from the legacy `mystery`. `back` is authoritative: the card renders `back` when
+  // present, so its creature must win over any stale `mystery` seed. Its projecting consequences are
+  // every back consequence across all sections — the "Consequences" section is separate from the
+  // creature's, so we don't confine projection to the creature section's own (empty) content.
+  // Sub-paths hoisted into consts so the memo deps are bare bindings the React Compiler can track.
+  // The whole projection assumes at most one creature per arcanum (one seed, one card): both this hook
+  // and ArcanaBackSection would otherwise show every creature section the same first-found creature.
+  // Fail loudly on a second so the assumption is caught in dev, not shipped as a silently-wrong card.
+  const creatureSections = (back?.sections ?? []).filter((s) => s.creature);
+  if (creatureSections.length > 1) {
+    throw new Error(
+      `Arcanum "${arcanum.id}" has ${creatureSections.length} creature sections; only one is supported.`,
+    );
+  }
+  const backCreatureSection = creatureSections[0];
+  const creatureSeed = backCreatureSection?.creature ?? mystery?.mysteryCreature;
+  // Memoized so its reference is stable across renders (it's derived by flattening a fresh array each
+  // render), keeping the projectedCreature memo below from rebuilding on every unrelated re-render.
+  const creatureConsequences = useMemo(
+    () =>
+      backCreatureSection
+        ? (back?.sections ?? []).flatMap((s) => s.content.filter(isBackConsequence))
+        : mystery?.consequences,
+    [backCreatureSection, back, mystery?.consequences],
+  );
   const projectedCreature = useMemo(
     () =>
-      mysteryCreature
+      creatureSeed
         ? projectCreature(
-            mysteryCreature,
+            creatureSeed,
             entry.mysteryCreature,
-            mysteryConsequences ?? [],
+            creatureConsequences ?? [],
             entry.consequencesMarked,
             entry.consequenceTableChoice ?? {},
           )
         : undefined,
     [
-      mysteryCreature,
-      mysteryConsequences,
+      creatureSeed,
+      creatureConsequences,
       entry.mysteryCreature,
       entry.consequencesMarked,
       entry.consequenceTableChoice,

@@ -2,8 +2,48 @@ import type {
   Creature,
   CreatureEffect,
   CreatureQuality,
-  MajorArcanaMysteryConsequence,
+  ConsequenceAction,
+  ConsequenceTable,
 } from "@/types";
+
+// The projection reads only the creature-mutating parts of a consequence (never its prose), so it works
+// on either consequence shape without per-shape branching:
+//   • legacy mystery consequences (`text`) carry creature effects on `effects`;
+//   • back consequences (`value`) carry them among their `actions` (a superset that also holds PC ops).
+// A back consequence's creature ops are extracted from `actions`; PC ops are ignored here (they're
+// applied by lib/consequenceActions.ts, not the projection).
+interface ProjectableConsequence {
+  id: string;
+  effects?: CreatureEffect[];
+  actions?: ConsequenceAction[];
+  table?: ConsequenceTable;
+  children?: { id: string; effects?: CreatureEffect[]; actions?: ConsequenceAction[] }[];
+}
+
+// The `type`s that mutate the creature (as opposed to the PC). A ConsequenceAction of one of these is
+// structurally a CreatureEffect, so the projection can apply it directly.
+const CREATURE_OPS = new Set<ConsequenceAction["type"]>([
+  "addTag",
+  "removeTag",
+  "replaceTag",
+  "addMove",
+  "replaceQuality",
+]);
+
+// The creature effects a consequence contributes, from whichever field carries them: a mystery
+// consequence's `effects`, plus the creature-op subset of a back consequence's `actions`.
+// A type guard (not a bare filter) so the compiler verifies a kept action really is a CreatureEffect,
+// rather than trusting a cast — a renamed op then fails to compile instead of silently slipping through.
+const isCreatureEffect = (a: ConsequenceAction): a is CreatureEffect =>
+  CREATURE_OPS.has(a.type);
+
+const creatureEffectsOf = (c: {
+  effects?: CreatureEffect[];
+  actions?: ConsequenceAction[];
+}): CreatureEffect[] => [
+  ...(c.effects ?? []),
+  ...(c.actions ?? []).filter(isCreatureEffect),
+];
 
 // Creature tags are stored as a single comma-separated string (e.g. "large, construct, meek").
 // These helpers parse to a list and rejoin so callers work with individual tags.
@@ -57,7 +97,7 @@ export const replaceQuality = (
 };
 
 const applyEffect = (creature: Creature, effect: CreatureEffect): Creature => {
-  switch (effect.op) {
+  switch (effect.type) {
     case "addTag":
       return addTag(creature, effect.tag);
     case "removeTag":
@@ -82,14 +122,14 @@ export const applyEffects = (
 // Gather the effects of every marked consequence (and marked child), plus the effect of any picked
 // roll-table row, in document order.
 const collectEffects = (
-  consequences: MajorArcanaMysteryConsequence[],
+  consequences: ProjectableConsequence[],
   marked: Record<string, boolean>,
   tableChoice: Record<string, string>,
 ): CreatureEffect[] => {
   const effects: CreatureEffect[] = [];
   for (const c of consequences) {
     if (marked[c.id]) {
-      if (c.effects) effects.push(...c.effects);
+      effects.push(...creatureEffectsOf(c));
       // A roll-table pick only applies while its consequence is marked; unmarking reverts it.
       if (c.table) {
         const row = c.table.rows.find((r) => r.id === tableChoice[c.id]);
@@ -97,7 +137,7 @@ const collectEffects = (
       }
     }
     for (const child of c.children ?? []) {
-      if (marked[child.id] && child.effects) effects.push(...child.effects);
+      if (marked[child.id]) effects.push(...creatureEffectsOf(child));
     }
   }
   return effects;
@@ -110,7 +150,7 @@ const collectEffects = (
 export const projectCreature = (
   seed: Creature,
   saved: Creature | undefined,
-  consequences: MajorArcanaMysteryConsequence[],
+  consequences: ProjectableConsequence[],
   marked: Record<string, boolean>,
   tableChoice: Record<string, string>,
 ): Creature => {

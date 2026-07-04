@@ -168,6 +168,7 @@ export const MajorArcanaCard = ({
               section={section}
               entry={entry}
               consequenceTextById={backConsequenceTextById}
+              projectedCreature={projectedCreature}
               getConsequenceCheckedMarks={getConsequenceCheckedMarks}
               getMoveGating={getMoveGating}
               onMysteryMoveToggle={onMysteryMoveToggle}
@@ -175,6 +176,8 @@ export const MajorArcanaCard = ({
               onTrackerChange={onTrackerChange}
               onFollowerHpChange={onFollowerHpChange}
               onBodyCheckChange={onBodyCheckChange}
+              onConsequenceTableChoice={onConsequenceTableChoice}
+              onMysteryCreatureSave={onMysteryCreatureSave}
             />
           ))}
         </div>

@@ -364,7 +364,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
   {
     id: "norubas-ice-sphere",
     name: "Noruba's Ice Sphere",
-    tags: "◊, magical, awkward",
+    tags: "magical, awkward",
     weight: 1,
     description:
       "A perfect sphere of dark ice, the size of a fist, never melting, hard as stone, and set like a gaudy gem at the end of a finely wrought torc. Or not a torc, perhaps, but maybe a ring that once sat upon some giant's finger?\n\nStaring into the icy sphere brings a sense of calm, serenity, and detachment. Indeed, a lesser mind might find itself staring into its depths for hours on end.\n\n---\n\nWhen you **peer into the Ice Sphere**, your mind is cleared of strong emotions.\n\nWhen you **gaze deeply into the Ice Sphere and ponder a situation, puzzle, or mystery**, ask the GM one of the questions below. The GM will answer honestly.\n\n- Who benefits (or would benefit) from __?\n- What about __ isn’t what it seems to be?\n- How could I learn more about __?\n- What’s the most likely outcome if __?\n- What am I overlooking?\n\nAfter the GM answers, roll +INT: **on a 10+**, hold 2 Acumen; **on a 7-9**, hold 1.\nWhile acting on the GM’s answer, you can spend Acumen 1-for-1 to:\n\n- Ask another question from the list above, and get an honest answer\n- Treat a 6- that you rolled as a 7-9, or a 7-9 as a 10+\n\n**On a 6-**, your connection to your body weakens—mark a debility and mark 1 circle. The debility lasts until you spend a few days living wholly in your body and averting your gaze from the Ice Sphere.\n\nWhen you **make the last mark**, you unlock the mysteries of the Ice Sphere and can use Mindwalking.",
@@ -513,191 +513,179 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         },
       ],
     },
-    // mystery: {
-    //   moves: [
-    //
-    //
-
-    //   ],
-    //   consequences: [
-    //   ],
-    //   dotBonuses: [{ targetId: "mindwalking", sourceId: "a-mighty-will" }],
-    // },
   },
   {
     id: "mindgem",
     name: "Mindgem",
-    tags: "◊◊, slow, indestructible",
+    tags: "slow, indestructible",
     weight: 2,
     description:
-      "A chunk of makerglass the size of a human head; inspection reveals facets within facets, a thousandfold. When you **touch the glass with bare skin and open your mind to it**, you contact the intelligence within—lonely, confused, longing for meaning and connection.\n\nIt will happily speak with you, mind-to-mind. It knows much about the past, but naught of its own history or purpose. At least, not yet.",
-    frontMoves: [
-      {
-        name: "Consult the Mindgem about the Makers, their arts, or their history",
-        text: "Ask a question and roll +INT: **on a 7+**, it answers but **on a 10+**, pick 1; **on a 7-9**, pick 2:\n\n- The answer is cryptic, vague, or lacking crucial context\n- It takes a long time—hours or even days—to get the answer\n- Your mind is left reeling; take disadvantage on your next roll\n\n**On a 6-**, choose 1:\n\n- It wastes your time with irrelevant histories and data\n- It answers now, but refuses to answer further questions until you make progress towards restoring its body (or, if its body is assembled, until you pay its Cost).\n\nThe Mindgem knows that a body was crafted for it, and that it has likely survived—at least in part. It longs for the body to be whole, and to interact with the world. To assemble the Mindgem's body and unlock its mysteries, complete the tasks below.",
-      },
-    ],
+      'A chunk of makerglass the size of a human head; inspection reveals facets within facets, a thousandfold. When you **touch the glass with bare skin and open your mind to it**, you contact the intelligence within—lonely, confused, longing for meaning and connection.\n\nIt will happily speak with you, mind-to-mind. It knows much about the past, but naught of its own history or purpose. At least, not yet.\n\n---\n\nWhen you **consult the Mindgem about the Makers, their arts, or their history**, ask a question and roll +INT: **on a 7+**, it answers but on a 10+, pick 1; on a 7-9, pick 2:\n\n- The answer is cryptic, vague, or lacking crucial context\n- It takes a long time—hours or even days—to get the answer\n- Your mind is left reeling; take disadvantage on your next roll\n\n**On a 6-**, choose 1:\n\n- It wastes your time with irrelevant histories and data\n- It answers now, but refuses to answer further questions until you make progress towards restoring its body (or, if its body is assembled, until you pay its Cost).\n\n---\n\nThe Mindgem knows that a body was crafted for it, and that it has likely survived—at least in part. It longs for the body to be whole, and to interact with the world. To assemble the Mindgem\'s body and unlock its mysteries:\n\n[ ] Recover its chassis of white granite, which weighs well over a ton\n[ ] Recover its ◊ "heart," a chunk of makerglass that forever burns with terrible heat (*indestructible, dangerous*)\n[ ] Recover and repair the intricate ◊◊ bronze helm (*awkward, big*) that serves as a casing for the Mindgem\n[ ] Puzzle out how to assemble all the pieces\n\nWhen you’ve completed all the requirements, gain the Mighty Servant.',
     frontTrackers: [
-      {
-        id: "marks",
-        label: "marks",
-        max: 4,
-        role: "marks",
-        unlockAt: 4,
-        tasks: [
-          "Recover its chassis of white granite, which weighs well over a ton",
-          'Recover its ◊ "heart," a chunk of makerglass that forever burns with terrible heat (*indestructible, dangerous*)',
-          "Recover and repair the intricate ◊◊ bronze helm (*awkward, big*) that serves as a casing for the Mindgem",
-          "Puzzle out how to assemble all the pieces",
-        ],
-      },
+      { id: "marks", label: "marks", max: 4, role: "marks", unlockAt: 4 },
     ],
-    mystery: {
-      moves: [],
-      mysteryCreature: {
-        id: "the-mighty-servant",
-        name: "The Mighty Servant",
-        tags: "large, construct, Maker-wise, beautiful, meek, hardy, slow, strong, exceptional",
-        hpMax: "24",
-        armor: "4",
-        armorNote: "Made of stone",
-        qualities: [
-          {
-            label: "Damage",
-            value: "stone fists d10+1 (*hand, close, disadvantage*)",
-          },
-          { label: "Special qualities", value: "living stone, tireless" },
-          { label: "Cost", value: "wonder, excitement, joy, discovery" },
-          { label: "Instinct", value: "To misunderstand" },
-        ],
-        loyalty: 3,
-        moves: ["Perform a mighty feat of strength", "Carry on implacably"],
-        notes:
-          "When **the Mighty Servant makes a move at your behest** (see Order Followers), on a 6-, in addition to whatever the GM says, mark a consequence.",
-      },
-      consequences: [
+    back: {
+      label: "Mysteries of the Mindgem",
+      sections: [
         {
-          id: "mindgem-c1",
-          text: "It becomes frustrated/agitated and begins to obsessively do something destructive or dangerous to others.",
-        },
-        {
-          id: "mindgem-c2",
-          text: "It begins to understand (or perhaps it remembers) lies and deception. It gains the *devious* tag and this move: ➤ Reveal an earlier deception or half-truth.",
-          effects: [
-            { op: "addTag", tag: "devious" },
-            {
-              op: "addMove",
-              move: "Reveal an earlier deception or half-truth",
-            },
-          ],
-        },
-        {
-          id: "mindgem-c3",
-          text: "It develops a sense of pride; cross off the *meek* tag.",
-          effects: [{ op: "removeTag", tag: "meek" }],
-        },
-        {
-          id: "mindgem-c4",
-          text: "It realizes its potential as a weapon. Replace the *slow* tag with the *warrior* tag, and its damage becomes d10+5 (*hand, close, messy, forceful*, 3 piercing).",
-          effects: [
-            { op: "replaceTag", from: "slow", to: "warrior" },
-            {
-              op: "replaceQuality",
-              label: "Damage",
-              value:
-                "stone fists d10+5 (*hand, close, messy, forceful*, 3 piercing)",
-            },
-          ],
-          children: [
-            {
-              id: "mindgem-c4a",
-              text: "It becomes aggressive and reckless in battle. Its attacks gain the *area* and *dangerous* tags.",
-              effects: [
-                { op: "addTag", tag: "area" },
-                { op: "addTag", tag: "dangerous" },
-              ],
-            },
-          ],
-        },
-        {
-          id: "mindgem-c5",
-          text: 'It remembers its original purpose. The GM will pick 1 or have you roll 1d4 on the table below to determine the Servant\'s new cost (replacing "wonder, excitement, joy").',
-          table: {
-            columnHeaders: ["1d4", "Purpose", "Cost"],
-            rows: [
+          label: "The Mighty Servant",
+          creature: {
+            id: "the-mighty-servant",
+            name: "The Mighty Servant",
+            tags: "large, construct, Maker-wise, beautiful, meek, hardy, slow, strong, exceptional",
+            hpMax: "24",
+            armor: "4",
+            armorNote: "Made of stone",
+            qualities: [
               {
-                id: "mindgem-c5-1",
-                roll: "1",
-                cells: [
-                  "To punish",
-                  "Victory against Hillfolk, sorcerers, the Things Below",
-                ],
-                effect: {
-                  op: "replaceQuality",
-                  label: "Cost",
-                  value:
-                    "Victory against Hillfolk, sorcerers, the Things Below",
-                },
+                label: "Damage",
+                value: "stone fists d10+1 (*hand, close, disadvantage*)",
               },
-              {
-                id: "mindgem-c5-2",
-                roll: "2",
-                cells: [
-                  "To preserve",
-                  "Acquiring artifacts of the past, safely hiding them away",
-                ],
-                effect: {
-                  op: "replaceQuality",
-                  label: "Cost",
-                  value:
-                    "Acquiring artifacts of the past, safely hiding them away",
-                },
-              },
-              {
-                id: "mindgem-c5-3",
-                roll: "3",
-                cells: [
-                  "To purge",
-                  "Destroying artifacts of the Green Lords or Things Below",
-                ],
-                effect: {
-                  op: "replaceQuality",
-                  label: "Cost",
-                  value:
-                    "Destroying artifacts of the Green Lords or Things Below",
-                },
-              },
-              {
-                id: "mindgem-c5-4",
-                roll: "4",
-                cells: [
-                  "To build",
-                  "Progress towards building an enormous, enigmatic edifice",
-                ],
-                effect: {
-                  op: "replaceQuality",
-                  label: "Cost",
-                  value:
-                    "Progress towards building an enormous, enigmatic edifice",
-                },
-              },
+              { label: "Special qualities", value: "living stone, tireless" },
+              { label: "Cost", value: "wonder, excitement, joy, discovery" },
+              { label: "Instinct", value: "To misunderstand" },
             ],
+            loyalty: 3,
+            moves: ["Perform a mighty feat of strength", "Carry on implacably"],
+            notes:
+              "When **the Mighty Servant makes a move at your behest** (see Order Followers), on a 6-, in addition to whatever the GM says, mark a consequence.",
           },
-          children: [
+          content: [],
+        },
+        {
+          label: "Consequences",
+          content: [
             {
-              id: "mindgem-c6",
-              text: 'Its instinct becomes "to pursue its purpose." You must Persuade it to do anything unrelated to that purpose, and it will flat-out refuse to act against its purpose.',
-              effects: [
+              id: "mindgem-c1",
+              value:
+                "It becomes frustrated/agitated and begins to obsessively do something destructive or dangerous to others.",
+            },
+            {
+              id: "mindgem-c2",
+              value:
+                "It begins to understand (or perhaps it remembers) lies and deception. It gains the *devious* tag and this move: Reveal an earlier deception or half-truth.",
+              actions: [
+                { type: "addTag", tag: "devious" },
                 {
-                  op: "replaceQuality",
-                  label: "Instinct",
-                  value: "To pursue its purpose",
+                  type: "addMove",
+                  move: "Reveal an earlier deception or half-truth",
                 },
               ],
             },
             {
-              id: "mindgem-c7",
-              text: "It wanders off in pursuit of its purpose, implacably pursuing it. It is no longer a follower, though you might still be able to Persuade it.",
+              id: "mindgem-c3",
+              value: "It develops a sense of pride; cross off the *meek* tag.",
+              actions: [{ type: "removeTag", tag: "meek" }],
+            },
+            {
+              id: "mindgem-c4",
+              value:
+                "It realizes its potential as a weapon. Replace the *slow* tag with the *warrior* tag, and its damage becomes d10+5 (*hand, close, messy, forceful*, 3 piercing).",
+              actions: [
+                { type: "replaceTag", from: "slow", to: "warrior" },
+                {
+                  type: "replaceQuality",
+                  label: "Damage",
+                  value:
+                    "stone fists d10+5 (*hand, close, messy, forceful*, 3 piercing)",
+                },
+              ],
+              children: [
+                {
+                  id: "mindgem-c4a",
+                  value:
+                    "It becomes aggressive and reckless in battle. Its attacks gain the *area* and *dangerous* tags.",
+                  actions: [
+                    { type: "addTag", tag: "area" },
+                    { type: "addTag", tag: "dangerous" },
+                  ],
+                },
+              ],
+            },
+            {
+              id: "mindgem-c5",
+              value:
+                'It remembers its original purpose. The GM will pick 1 or have you roll 1d4 on the table below to determine the Servant\'s new cost (replacing "wonder, excitement, joy").',
+              table: {
+                columnHeaders: ["1d4", "Purpose", "Cost"],
+                rows: [
+                  {
+                    id: "mindgem-c5-1",
+                    roll: "1",
+                    cells: [
+                      "To punish",
+                      "Victory against Hillfolk, sorcerers, the Things Below",
+                    ],
+                    effect: {
+                      type: "replaceQuality",
+                      label: "Cost",
+                      value:
+                        "Victory against Hillfolk, sorcerers, the Things Below",
+                    },
+                  },
+                  {
+                    id: "mindgem-c5-2",
+                    roll: "2",
+                    cells: [
+                      "To preserve",
+                      "Acquiring artifacts of the past, safely hiding them away",
+                    ],
+                    effect: {
+                      type: "replaceQuality",
+                      label: "Cost",
+                      value:
+                        "Acquiring artifacts of the past, safely hiding them away",
+                    },
+                  },
+                  {
+                    id: "mindgem-c5-3",
+                    roll: "3",
+                    cells: [
+                      "To purge",
+                      "Destroying artifacts of the Green Lords or Things Below",
+                    ],
+                    effect: {
+                      type: "replaceQuality",
+                      label: "Cost",
+                      value:
+                        "Destroying artifacts of the Green Lords or Things Below",
+                    },
+                  },
+                  {
+                    id: "mindgem-c5-4",
+                    roll: "4",
+                    cells: [
+                      "To build",
+                      "Progress towards building an enormous, enigmatic edifice",
+                    ],
+                    effect: {
+                      type: "replaceQuality",
+                      label: "Cost",
+                      value:
+                        "Progress towards building an enormous, enigmatic edifice",
+                    },
+                  },
+                ],
+              },
+              children: [
+                {
+                  id: "mindgem-c6",
+                  value:
+                    'Its instinct becomes "to pursue its purpose." You must Persuade it to do anything unrelated to that purpose, and it will flat-out refuse to act against its purpose.',
+                  actions: [
+                    {
+                      type: "replaceQuality",
+                      label: "Instinct",
+                      value: "To pursue its purpose",
+                    },
+                  ],
+                },
+                {
+                  id: "mindgem-c7",
+                  value:
+                    "It wanders off in pursuit of its purpose, implacably pursuing it. It is no longer a follower, though you might still be able to Persuade it.",
+                },
+              ],
             },
           ],
         },
