@@ -697,63 +697,73 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     name: "Whispering Rocks",
     tags: "magical",
     description:
-      "Jagged hunks of black volcanic glass. Surely the swirling movement in their depths is a trick of light. And, surely, those hushed voices you've been hearing are just the sighing wind. Surely.",
-    frontMoves: [
-      {
-        name: "Spend a few hours staring into the stones and listening to their whispers",
-        text: "Name someone you know but on whom you have never used this power before. Then, roll +INT: **on a 10+**, the stones reveal a secret about them; **on a 7-9**, the stones reveal a secret, but you must first reveal a secret to the stones (about your hopes, fears, regrets, desires); **on a 6-**, the stones pry a secret from you.\n\nWhen you **reveal a secret to the stones**, or they pry one from your mind, mark 1.\n\nWhen you **make the last mark**, you unlock the mysteries of the rocks, and are able to use Shadow Magic (in the Mysteries below).\n\nWhen **one of the rocks is shattered**, cross off one of the Shadow Magic options; it is no longer available.",
-      },
-    ],
+      "Jagged hunks of black volcanic glass. Surely the swirling movement in their depths is a trick of light. And, surely, those hushed voices you've been hearing are just the sighing wind. Surely.\n\n---\n\nWhen you **spend a few hours staring into the stones and listening to their whispers**, name someone you know but on whom you have never used this power before. Then, roll +INT: **on a 10+**, the stones reveal a secret about them; **on a 7-9**, the stones reveal a secret, but you must first reveal a secret to the stones (about your hopes, fears, regrets, desires); **on a 6-**, the stones pry a secret from you.\n\nWhen you **reveal a secret to the stones**, or they pry one from your mind, mark 1.\n\nWhen you **make the last mark**, you unlock the mysteries of the rocks, and are able to use Shadow Magic (in the Mysteries below).\n\nWhen **one of the rocks is shattered**, cross off one of the Shadow Magic options; it is no longer available.",
     frontTrackers: [{ id: "marks", label: "marks", max: 5, role: "marks" }],
-    mystery: {
-      moves: [
+    back: {
+      label: "Mysteries of the Whispering Rocks",
+      sections: [
         {
-          id: "shadow-magic",
-          name: "Shadow Magic",
-          body: [
+          label: "Moves",
+          content: [
             {
-              kind: "para",
-              text: "When you **hold a Whispering Rock and call out the shadows within**, choose one thing which you wish to do:",
-            },
-            {
-              kind: "list",
-              items: [
-                "Cloak yourself in shadows and silence, moving unseen and unnoticed as long as you draw no attention to yourself and avoid the sun or sacred light",
-                "Name someone you know or to whom you have an arcane link (hair, clothing, or the like); you can see them, hear them, and whisper to them as if from a nearby shadow",
-                "Name someone you can see; the nearby shadows ensnare them, doing no harm but hampering their sight and movement",
+              id: "shadow-magic",
+              name: "Shadow Magic",
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **hold a Whispering Rock and call out the shadows within**, choose one thing which you wish to do:",
+                },
+                {
+                  kind: "list",
+                  items: [
+                    "Cloak yourself in shadows and silence, moving unseen and unnoticed as long as you draw no attention to yourself and avoid the sun or sacred light",
+                    "Name someone you know or to whom you have an arcane link (hair, clothing, or the like); you can see them, hear them, and whisper to them as if from a nearby shadow",
+                    "Name someone you can see; the nearby shadows ensnare them, doing no harm but hampering their sight and movement",
+                  ],
+                },
+                {
+                  kind: "para",
+                  text: "Then, roll +CON: **on a 10+**, the effect lasts as long as you wish, but you have disadvantage on all rolls while you maintain it; **on a 7-9**, either mark a consequence and the effect lasts as on a 10+, or the effect flickers out after mere moments (your choice which); **on a 6-**, ask the GM what happens (which may or may not involve marking a consequence).",
+                },
               ],
-            },
-            {
-              kind: "para",
-              text: "Then, roll +CON: **on a 10+**, the effect lasts as long as you wish, but you have disadvantage on all rolls while you maintain it; **on a 7-9**, either mark a consequence and the effect lasts as on a 10+, or the effect flickers out after mere moments (your choice which); **on a 6-**, ask the GM what happens (which may or may not involve marking a consequence).",
             },
           ],
         },
-      ],
-      consequences: [
         {
-          id: "rocks-c1",
-          text: "The rocks all cease to function until each is caressed by a dying breath.",
-        },
-        {
-          id: "rocks-c2",
-          text: "◻◻◻ The dark spirit in the rock you were using escapes, manifesting in the world. Cross off the Shadow Magic option that you just used until you force or convince the spirit to return to the rock.",
-        },
-        {
-          id: "rocks-c3",
-          text: "Your eyes turn jet black. You can see sharply in even utter darkness, but you see no color and are blinded by sunlight.",
-        },
-        {
-          id: "rocks-c4",
-          text: "You skin turns deathly pale or coal black (your choice) and chill to the touch. The sun burns your skin, but you go unharmed by even the bitterest cold.",
-        },
-        {
-          id: "rocks-c5",
-          text: "You begin to suffer from dark and troubling dreams. When you **Make Camp**, roll +WIS: **on a 10+**, a useful secret is revealed by your nightmares—ask the GM to describe them; **on a 7-9**, you get as good a night's sleep as you can; **on a 6-**, you get no rest for the night.",
-        },
-        {
-          id: "rocks-c6",
-          text: "The spirits in the rocks take purchase in your soul. When **the spirits compel you to action**, mark XP if you comply. If you resist, roll +WIS: **on a 10+**, you quickly shake off the compulsion; **on a 7-9**, it takes a few moments to break free; **on a 6-**, you come to your senses some time later, having done the-gods-know-what.",
+          label: "Consequences",
+          content: [
+            {
+              id: "rocks-c1",
+              value:
+                "The rocks all cease to function until each is caressed by a dying breath.",
+            },
+            {
+              id: "rocks-c2",
+              checkboxes: 3,
+              value:
+                "The dark spirit in the rock you were using escapes, manifesting in the world. Cross off the Shadow Magic option that you just used until you force or convince the spirit to return to the rock.",
+            },
+            {
+              id: "rocks-c3",
+              value:
+                "Your eyes turn jet black. You can see sharply in even utter darkness, but you see no color and are blinded by sunlight.",
+            },
+            {
+              id: "rocks-c4",
+              value:
+                "You skin turns deathly pale or coal black (your choice) and chill to the touch. The sun burns your skin, but you go unharmed by even the bitterest cold.",
+            },
+            {
+              id: "rocks-c5",
+              value:
+                "You begin to suffer from dark and troubling dreams. When you **Make Camp**, roll +WIS: **on a 10+**, a useful secret is revealed by your nightmares—ask the GM to describe them; **on a 7-9**, you get as good a night's sleep as you can; **on a 6-**, you get no rest for the night.",
+            },
+            {
+              id: "rocks-c6",
+              value:
+                "The spirits in the rocks take purchase in your soul. When **the spirits compel you to action**, mark XP if you comply. If you resist, roll +WIS: **on a 10+**, you quickly shake off the compulsion; **on a 7-9**, it takes a few moments to break free; **on a 6-**, you come to your senses some time later, having done the-gods-know-what.",
+            },
+          ],
         },
       ],
     },
