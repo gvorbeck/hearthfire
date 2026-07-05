@@ -121,7 +121,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     tags: "reach, magical",
     weight: 2,
     description:
-      "A knobby length of wood, pale as death and hard as steel, tapering to a needle point. The shaft is scored and notched, the tip stained with blood and soot.\n\nThe Spear is a potent weapon against spirits and demons. They cannot bear its touch and its presence makes them deeply ill at ease.\n\n---\n\nWhen you **wield the Twisted Spear as a weapon**, you ignore magical protections and can harm spirits, demons, and insubstantial creatures.\n\nWhen you **first plunge the Spear into a spirit or demon**, your mind reels with strange visions. These tasks become known to you:\n\n[ ] Impale a foul spirit with the Spear, and keep it skewered until it burns away to nothing.\n[ ] Visit the elder tree from which the Spear was carved, and water its roots with your blood.\n[ ] Face the Pale Hunter and survive the encounter.\n[ ] Spend a fortnight in the wild, eating nothing, naked and unarmed except for the Spear.\n[ ] Pierce your own hand through with the Spear, giving it a shard of your soul and reducing your max HP by 1d4+1.\n\nWhen you **complete a task**, mark it off.\n\nWhen you **have marked 3 tasks**, you unlock the mysteries of the Twisted Spear. Choose one of the moves on the reverse; you can use that move as long as you wield the Spear. Each time you mark a task thereafter, gain another move from the reverse.",
+      "A knobby length of wood, pale as death and hard as steel, tapering to a needle point. The shaft is scored and notched, the tip stained with blood and soot.\n\nThe Spear is a potent weapon against spirits and demons. They cannot bear its touch and its presence makes them deeply ill at ease.\n\n---\n\nWhen you **wield the Twisted Spear as a weapon**, you ignore magical protections and can harm spirits, demons, and insubstantial creatures.\n\nWhen you **first plunge the Spear into a spirit or demon**, your mind reels with strange visions. These tasks become known to you:\n\n[ ] Impale a foul spirit with the Spear, and keep it skewered until it burns away to nothing.\n[ ] Visit the elder tree from which the Spear was carved, and water its roots with your blood.\n[ ] Face the Pale Hunter and survive the encounter.\n[ ] Spend a fortnight in the wild, eating nothing, naked and unarmed except for the Spear.\n[ ] Pierce your own hand through with the Spear, giving it a shard of your soul and reducing your max HP by 1d4+1.\n\nWhen you **complete a task**, mark it off.\n\nWhen you **have marked 3 tasks**, you unlock the mysteries of the Twisted Spear. Choose one of the moves in the Mysteries; you can use that move as long as you wield the Spear. Each time you mark a task thereafter, gain another move from the Mysteries.",
     frontTrackers: [
       { id: "marks", label: "marks", max: 5, role: "marks", unlockAt: 3 },
     ],
@@ -697,7 +697,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     name: "Whispering Rocks",
     tags: "magical",
     description:
-      "Jagged hunks of black volcanic glass. Surely the swirling movement in their depths is a trick of light. And, surely, those hushed voices you've been hearing are just the sighing wind. Surely.\n\n---\n\nWhen you **spend a few hours staring into the stones and listening to their whispers**, name someone you know but on whom you have never used this power before. Then, roll +INT: **on a 10+**, the stones reveal a secret about them; **on a 7-9**, the stones reveal a secret, but you must first reveal a secret to the stones (about your hopes, fears, regrets, desires); **on a 6-**, the stones pry a secret from you.\n\nWhen you **reveal a secret to the stones**, or they pry one from your mind, mark 1.\n\nWhen you **make the last mark**, you unlock the mysteries of the rocks, and are able to use Shadow Magic (in the Mysteries below).\n\nWhen **one of the rocks is shattered**, cross off one of the Shadow Magic options; it is no longer available.",
+      "Jagged hunks of black volcanic glass. Surely the swirling movement in their depths is a trick of light. And, surely, those hushed voices you've been hearing are just the sighing wind. Surely.\n\n---\n\nWhen you **spend a few hours staring into the stones and listening to their whispers**, name someone you know but on whom you have never used this power before. Then, roll +INT: **on a 10+**, the stones reveal a secret about them; **on a 7-9**, the stones reveal a secret, but you must first reveal a secret to the stones (about your hopes, fears, regrets, desires); **on a 6-**, the stones pry a secret from you.\n\nWhen you **reveal a secret to the stones**, or they pry one from your mind, mark 1.\n\nWhen you **make the last mark**, you unlock the mysteries of the rocks, and are able to use Shadow Magic (in the Mysteries).\n\nWhen **one of the rocks is shattered**, cross off one of the Shadow Magic options; it is no longer available.",
     frontTrackers: [{ id: "marks", label: "marks", max: 5, role: "marks" }],
     back: {
       label: "Mysteries of the Whispering Rocks",
@@ -771,104 +771,106 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
   {
     id: "blood-quenched-sword",
     name: "Blood-quenched Sword",
-    tags: "◊, close, +1 damage, 1 piercing, messy, magical",
+    tags: "close, +1 damage, 1 piercing, messy, magical",
     weight: 1,
     description:
-      "An ancient blade of deep red bronze, its pommel etched with symbols like those that the Hillfolk use to decorate their drinking horns. It thrums in its scabbard, wanting nothing more than to be drawn and to burn like a fire, quenching itself in the blood of foes.",
-    frontMoves: [
-      {
-        name: "Draw the Blood-quenched Sword",
-        text: "When you **draw the Blood-quenched Sword**, it leaps from its sheath before any present have time to even blink, and must spill blood before you can return it to its sheath.",
-      },
-      {
-        name: "Spill your own blood in order to return the Sword to its sheath",
-        text: "When you **spill your own blood in order to return the Sword to its sheath**, take 1d4 damage (ignoring armor) and the scars from the cut never fade.",
-      },
-      {
-        name: "Strike first in a fight with the Blood-quenched Sword",
-        text: "When you **strike first in a fight with the Blood-quenched Sword**, gain advantage on your first roll.",
-      },
-      {
-        name: "Sheathe the Sword after using it to kill a living, bleeding foe",
-        text: "When you **sheathe the Sword after using it to kill a living, bleeding foe**, mark 1 unless you have already done so since the last sunset.\n\nWhen you **make the last mark**, you unlock the Sword's mysteries; gain Unquenched (in the Mysteries below).",
-      },
-    ],
+      "An ancient blade of deep red bronze, its pommel etched with symbols like those that the Hillfolk use to decorate their drinking horns. It thrums in its scabbard, wanting nothing more than to be drawn and to burn like a fire, quenching itself in the blood of foes.\n\n---\n\nWhen you **draw the Blood-quenched Sword**, it leaps from its sheath before any present have time to even blink, and must spill blood before you can return it to its sheath.\n\nWhen you **spill your own blood in order to return the Sword to its sheath**, take 1d4 damage (ignoring armor) and the scars from the cut never fade.\n\nWhen you **strike first in a fight with the Blood-quenched Sword**, gain advantage on your first roll.\n\nWhen you **sheathe the Sword after using it to kill a living, bleeding foe**, mark 1 unless you have already done so since the last sunset.\n\nWhen you **make the last mark**, you unlock the Sword's mysteries; gain Unquenched (in the Mysteries).",
     frontTrackers: [{ id: "marks", label: "marks", max: 5, role: "marks" }],
-    mystery: {
-      moves: [
+    back: {
+      label: "Mysteries of the Blood-quenched Sword",
+      sections: [
         {
-          id: "unquenched",
-          name: "Unquenched",
-          body: [
+          label: "Moves",
+          content: [
             {
-              kind: "para",
-              text: "When you **Clash with a living, bleeding foe with the Blood-quenched Sword**, you may mark a Consequence to shift the result up one step (a 6- becomes a 7-9; a 7-9 becomes a 10-11; a 10-11 becomes 12+). You can do this only once per roll.",
-            },
-            {
-              kind: "para",
-              text: "When you **have marked 3 consequences**, you gain A Flickering Flame.",
-            },
-          ],
-        },
-        {
-          id: "a-flickering-flame",
-          name: "A Flickering Flame",
-          requiresConsequences: 3,
-          rightControl: [{ type: "dot", number: 3, label: "Speed" }],
-          body: [
-            {
-              kind: "para",
-              text: "When you **wield the Blood-quenched Blade and leap headlong into battle against multiple foes**, roll +CON: **on a 10+**, hold 3 Speed; **on a 7-9**, hold 2 Speed; **on a 6-**, hold 2 Speed, and mark a consequence.",
-            },
-            {
-              kind: "para",
-              text: "During this battle, you may spend Speed, 1-for-1 to do the following:",
-            },
-            {
-              kind: "list",
-              items: [
-                "Attack any number of foes within your reach; roll Clash once and apply the result to all of them, but roll damage separately for each foe",
-                "Strike a weak point, ignoring your foe's armor",
-                "Disengage from a foe you are fighting",
-                "Name a foe on the scene but out of your reach; you cross the distance to them before any can react",
+              id: "unquenched",
+              name: "Unquenched",
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **Clash with a living, bleeding foe with the Blood-quenched Sword**, you may mark a Consequence to shift the result up one step (a 6- becomes a 7-9; a 7-9 becomes a 10-11; a 10-11 becomes 12+). You can do this only once per roll.",
+                },
+                {
+                  kind: "para",
+                  text: "When you **have marked 3 consequences**, you gain A Flickering Flame.",
+                },
               ],
             },
             {
-              kind: "para",
-              text: "When you stop fighting, lose all Speed.",
+              id: "a-flickering-flame",
+              name: "A Flickering Flame",
+              requiresConsequences: 3,
+              rightControl: [{ type: "dot", number: 3, label: "Speed" }],
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **wield the Blood-quenched Blade and leap headlong into battle against multiple foes**, roll +CON: **on a 10+**, hold 3 Speed; **on a 7-9**, hold 2 Speed; **on a 6-**, hold 2 Speed, and mark a consequence.",
+                },
+                {
+                  kind: "para",
+                  text: "During this battle, you may spend Speed, 1-for-1 to do the following:",
+                },
+                {
+                  kind: "list",
+                  items: [
+                    "Attack any number of foes within your reach; roll Clash once and apply the result to all of them, but roll damage separately for each foe",
+                    "Strike a weak point, ignoring your foe's armor",
+                    "Disengage from a foe you are fighting",
+                    "Name a foe on the scene but out of your reach; you cross the distance to them before any can react",
+                  ],
+                },
+                {
+                  kind: "para",
+                  text: "When you stop fighting, lose all Speed.",
+                },
+              ],
             },
           ],
         },
-      ],
-      consequences: [
         {
-          id: "sword-c1",
-          text: "◻◻◻ You lose yourself in a blood-rage, no longer distinguishing between friend, foe, and bystander.\n\nWhen you **attack the nearest living creature**, you have advantage on damage rolls.\n\nWhen you **attempt to stay your hand**, roll +WIS: **on a 10+**, you do so, and can choose to calm yourself and end the rage with a few moments focus; **on a 7-9**, you stay your hand, but must choose a different target for your rage; **on a 6-**, attack without mercy or doubt.",
-        },
-        {
-          id: "sword-c2",
-          text: "Pick someone who survives this battle (friend or foe). You are convinced that they covet the Blood-quenched Sword. Until you put them in their place, you are either *dazed* or *miserable* (your choice).",
-          children: [
+          label: "Consequences",
+          content: [
             {
-              id: "sword-c2a",
-              text: 'Your instinct becomes "Paranoia: to accuse someone of plotting against or wanting to steal the Blood-quenched Sword, and do something about it."',
-              setsInstinct:
-                "Paranoia: to accuse someone of plotting against or wanting to steal the Blood-quenched Sword, and do something about it.",
+              id: "sword-c1",
+              checkboxes: 3,
+              value:
+                "You lose yourself in a blood-rage, no longer distinguishing between friend, foe, and bystander.\n\nWhen you **attack the nearest living creature**, you have advantage on damage rolls.\n\nWhen you **attempt to stay your hand**, roll +WIS: **on a 10+**, you do so, and can choose to calm yourself and end the rage with a few moments focus; **on a 7-9**, you stay your hand, but must choose a different target for your rage; **on a 6-**, attack without mercy or doubt.",
+            },
+            {
+              id: "sword-c2",
+              value:
+                "Pick someone who survives this battle (friend or foe). You are convinced that they covet the Blood-quenched Sword. Until you put them in their place, you are either *dazed* or *miserable* (your choice).",
+              children: [
+                {
+                  id: "sword-c2a",
+                  value:
+                    'Your instinct becomes "Paranoia: to accuse someone of plotting against or wanting to steal the Blood-quenched Sword, and do something about it."',
+                  actions: [
+                    {
+                      type: "setInstinct",
+                      text: "Paranoia: to accuse someone of plotting against or wanting to steal the Blood-quenched Sword, and do something about it.",
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              id: "sword-c3",
+              value:
+                "You can no longer sleep or rest without the Blood-quenched Sword at hand.",
+            },
+            {
+              id: "sword-c4",
+              value:
+                "You no longer gain sustenance from food. When you **slay a living, bleeding creature with the Sword**, hold 1 Sustenance (max 3). When you would consume a ration, lose 1 Sustenance instead.",
+              tracker: { label: "Sustenance", max: 3 },
+            },
+            {
+              id: "sword-c5",
+              value:
+                'You can always ask the GM "Does this NPC disrespect me or intend to do me harm?" and the GM will answer honestly "Yes" or "No." If they answer "Yes," gain advantage to end their life and take disadvantage to do anything else.',
             },
           ],
-        },
-        {
-          id: "sword-c3",
-          text: "You can no longer sleep or rest without the Blood-quenched Sword at hand.",
-        },
-        {
-          id: "sword-c4",
-          text: "You no longer gain sustenance from food. When you **slay a living, bleeding creature with the Sword**, hold 1 Sustenance (max 3). When you would consume a ration, lose 1 Sustenance instead.",
-          tracker: { label: "Sustenance", max: 3 },
-        },
-        {
-          id: "sword-c5",
-          text: 'You can always ask the GM "Does this NPC disrespect me or intend to do me harm?" and the GM will answer honestly "Yes" or "No." If they answer "Yes," gain advantage to end their life and take disadvantage to do anything else.',
         },
       ],
     },
