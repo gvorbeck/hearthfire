@@ -330,11 +330,12 @@ export interface MajorArcanum {
   tags?: string;
   weight?: 1 | 2;
   description: string;
-  // Most front moves are terse ArcanaMoves (a name + a string of prose). A few (e.g. the Hec'tumel
-  // Codex's "Cast a Codex Spell") are full moves with typed body blocks and persistent dot controls,
-  // authored as a MoveDefinition and rendered through the shared Move component. Being phased out in
-  // favor of folding the front-side prose into `description`; optional during that migration.
-  frontMoves?: (ArcanaMove | MoveDefinition)[];
+  // Moves available the moment you hold the arcanum, before the Mysteries unlock. Most are terse
+  // ArcanaMoves (a name + a string of prose). A few (e.g. the Hec'tumel Codex's "Cast a Codex Spell")
+  // are full moves with typed body blocks and persistent dot controls, authored as a MoveDefinition and
+  // rendered through the shared Move component. Terse ones are being phased out in favor of folding
+  // their prose into `description`; optional during that migration.
+  baseMoves?: (ArcanaMove | MoveDefinition)[];
   // Every front-side dot tracker, in render order. Exactly one carries `role: "marks"` — the unlock
   // tracker, whose value drives the mysteries reveal and move prerequisites and persists under
   // entry.marksValue. The rest are free resource pools (e.g. Noruba's Ice Sphere's Acumen) persisting
