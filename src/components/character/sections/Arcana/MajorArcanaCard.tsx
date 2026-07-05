@@ -3,7 +3,12 @@ import clsx from "clsx";
 import { Text } from "@/components/ui";
 import { UseDots } from "@/components/ui/UseDots/UseDots";
 import { parseMarkdown } from "@/lib/parseMarkdown";
-import type { MajorArcanum, ArcanaMajorEntry, Creature } from "@/types";
+import type {
+  MajorArcanum,
+  ArcanaMajorEntry,
+  Creature,
+  MoveDefinition,
+} from "@/types";
 import { ArcanaCardHeader } from "./ArcanaCardHeader";
 import { parseDescriptionTasks } from "./arcanaParsing";
 import { useArcanumGating } from "./useArcanumGating";
@@ -151,6 +156,26 @@ export const MajorArcanaCard = ({
           {parseMarkdown(proseAfter)}
         </div>
       )}
+
+      {/* Full-MoveDefinition base moves (e.g. the Codex's Cast a Codex Spell) render inline after the
+          description prose so their typed body and dot controls show, unlike the terse ArcanaMove prose
+          that gets folded into the description. Terse ArcanaMoves have no `body`, so skip them here. */}
+      {arcanum.baseMoves
+        ?.filter((move): move is MoveDefinition => "body" in move && !!move.body)
+        .map((move) => (
+          <MysteryMoveBlock
+            key={move.id}
+            move={move}
+            checked={!!entry.mysteryMovesChecked[move.id]}
+            trackerValue={entry.trackerValues?.[move.id]}
+            followerHp={entry.followerHp?.[move.id]}
+            bodyChecks={entry.bodyChecks?.[move.id]}
+            onToggle={onMysteryMoveToggle}
+            onTrackerChange={onTrackerChange}
+            onFollowerHpChange={onFollowerHpChange}
+            onBodyCheckChange={onBodyCheckChange}
+          />
+        ))}
 
       {unlocked && back && (
         <div className={styles.mysteries}>

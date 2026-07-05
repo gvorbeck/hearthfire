@@ -973,15 +973,11 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
   {
     id: "hectumel-codex",
     name: "Hec'tumel Codex",
-    tags: "◊, crude, slow, magical",
+    tags: "crude, slow, magical",
     weight: 1,
     description:
-      "A dozen copper plates, green with age and bound with loops of reddish metal wire. The outer plates are embossed with strange images of man and beast while the inner plates are etched with arcane diagrams and annotated in some forgotten script.",
-    frontMoves: [
-      {
-        name: "First run your fingers over the inscriptions",
-        text: "When you **first run your fingers over the inscriptions**, your dreams that night are filled with images of a pale, reptilian creature with skulls for eyes, slithering through darksome caverns. You awake with an alien incantation on your tongue, its words emblazoned in your mind. You can Cast a Codex Spell, and know Call the Pale Lizard.",
-      },
+      "A dozen copper plates, green with age and bound with loops of reddish metal wire. The outer plates are embossed with strange images of man and beast while the inner plates are etched with arcane diagrams and annotated in some forgotten script.\n\n---\n\nWhen you **first run your fingers over the inscriptions**, your dreams that night are filled with images of a pale, reptilian creature with skulls for eyes, slithering through darksome caverns. You awake with an alien incantation on your tongue, its words emblazoned in your mind. You can Cast a Codex Spell, and know Call the Pale Lizard.\n\n**Call the Pale Lizard.** Cast this spell at night. Hec'tumel (*Slithering One! Death Is Its Eyes!*) manifests in the shadows until sunrise or until dismissed. It has no power unless given a host and no knowledge of the present except that which you give it. It knows much of the ancient past and the arcane arts, and can teach you if you make it worth its while. It cannot lie, but need not answer fully.\n\nWhen **Hec'tumel spends the night teaching you a spell from the Codex**, mark 1.\n\nEach time you **make a mark**, choose one of the Codex Spells in the Mysteries—you can now cast it. When you **make the last mark**, you have unlocked the mysteries of the Codex and gain the Darksome Vessel move (in the Mysteries).",
+    baseMoves: [
       {
         id: "cast-a-codex-spell",
         name: "Cast a Codex Spell",
@@ -989,7 +985,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
         body: [
           {
             kind: "para",
-            text: "When you **cast a spell learned from the Hec'tumel Codex**, roll +INT: **on a 10+**, the spell works as described; **on a 7-9**, the spell works, but choose 1 from the list below; **on a 6-**, mark a Consequence (in the Mysteries below) in addition to whatever the GM says.",
+            text: "When you **cast a spell learned from the Hec'tumel Codex**, roll +INT: **on a 10+**, the spell works as described; **on a 7-9**, the spell works, but choose 1 from the list below; **on a 6-**, mark a Consequence (in the Mysteries) in addition to whatever the GM says.",
           },
           {
             kind: "list",
@@ -1000,85 +996,131 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
           },
         ],
       },
-      {
-        name: "Call the Pale Lizard",
-        text: "Cast this spell at night. Hec'tumel (*Slithering One! Death Is Its Eyes!*) manifests in the shadows until sunrise or until dismissed. It has no power unless given a host and no knowledge of the present except that which you give it. It knows much of the ancient past and the arcane arts, and can teach you if you make it worth its while. It cannot lie, but need not answer fully.\n\nWhen **Hec'tumel spends the night teaching you a spell from the Codex**, mark 1.\n\nEach time you **make a mark**, choose one of the Codex Spells in the Mysteries below—you can now cast it. When you **make the last mark**, you have unlocked the mysteries of the Codex and gain the Darksome Vessel move (in the Mysteries below).",
-      },
     ],
     frontTrackers: [
       { id: "marks", label: "marks", max: 4, role: "marks", unlockAt: 1 },
     ],
-    mystery: {
-      sectionLabel: "Spells of the Codex",
-      moves: [
+    back: {
+      label: "Mysteries of the Hec'tumel Codex",
+      sections: [
         {
-          id: "call-up-the-dead",
-          name: "Call Up the Dead",
-          text: "Touch a corpse; you conjure its shade, which must truthfully answer 3 questions. **Empowered:** Bind the shade to a tether as a revenant or a ghost; it must perform 3 tasks before being freed from your service.",
-        },
-        {
-          id: "serpentine",
-          name: "Serpentine",
-          text: "Your soul slithers from your mouth in the form of an albino viper (*tiny, stealthy, quick, venomous*), leaving your body insensate until you slither back in. Use your normal stats while in this form. **Empowered:** Rather than your soul leaving your body, you physically transform into a man-sized serpent (2 armor, *stealthy, quick, venomous, forceful, grabby*).",
-        },
-        {
-          id: "snuff-the-spirit",
-          name: "Snuff the Spirit",
-          text: "Name a living victim within *near* range and roll 2d6. If the victim has fewer current HP than your roll, it dies suddenly. **Empowered:** each living creature near your victim is also affected.",
-        },
-        {
-          id: "torpor",
-          name: "Torpor",
-          text: "Lock eyes with someone and whisper soothing words. They start to fall asleep. If they resist, roll 3d4—if your roll exceeds their current HP, they fail. Once asleep, they do not age, need not eat/drink, and suffer no harm from poison or disease. They cannot be roused until they hear their name thrice-spoken. **Empowered:** Over 3d6 days, all physical harm heals, lost limbs (etc.) regenerate, poisons & diseases are cured, and the infirmities of age reverse.",
-        },
-        {
-          id: "darksome-vessel",
-          name: "Darksome Vessel",
-          requiresMarks: 4,
-          body: [
+          label: "Spells of the Codex",
+          content: [
             {
-              kind: "para",
-              text: "When you **cast a Codex spell**, on a 12+ you can choose the Empowered effect.",
+              id: "call-up-the-dead",
+              name: "Call Up the Dead",
+              selectable: true,
+              citation: "Book 2, p. 557",
+              body: [
+                {
+                  kind: "para",
+                  text: "Touch a corpse; you conjure its shade, which must truthfully answer 3 questions. **Empowered:** Bind the shade to a tether as a revenant or a ghost; it must perform 3 tasks before being freed from your service.",
+                },
+              ],
             },
             {
-              kind: "para",
-              text: "When you **choose to mark a consequence before casting a spell**, don't roll; you get a 12+.",
+              id: "serpentine",
+              name: "Serpentine",
+              selectable: true,
+              citation: "Book 2, p. 557",
+              body: [
+                {
+                  kind: "para",
+                  text: "Your soul slithers from your mouth in the form of an albino viper (*tiny, stealthy, quick, venomous*), leaving your body insensate until you slither back in. Use your normal stats while in this form. **Empowered:** Rather than your soul leaving your body, you physically transform into a man-sized serpent (2 armor, *stealthy, quick, venomous, forceful, grabby*).",
+                },
+              ],
             },
-          ],
-        },
-      ],
-      consequences: [
-        {
-          id: "codex-c1",
-          text: "Over a few days, you lose all body hair. Your skin pales and develops scaly patches.",
-          children: [
             {
-              id: "codex-c1a",
-              text: "Over a few days, you lose all your remaining hair and grow a fine layer of scales over all your skin except that on your face. Gain +1 armor.",
+              id: "snuff-the-spirit",
+              name: "Snuff the Spirit",
+              selectable: true,
+              citation: "Book 2, p. 557",
+              body: [
+                {
+                  kind: "para",
+                  text: "Name a living victim within *near* range and roll 2d6. If the victim has fewer current HP than your roll, it dies suddenly. **Empowered:** each living creature near your victim is also affected.",
+                },
+              ],
             },
-          ],
-        },
-        {
-          id: "codex-c2",
-          text: "Your body temperature drops and your skin becomes cool to the touch; you have disadvantage on all rolls while exposed to the cold. Your metabolism also slows, and you need to consume supplies or provisions only once every 2 days.",
-          children: [
             {
-              id: "codex-c2a",
-              text: "Your heart rate and breathing slows, and you can hold supremely still for hours on end. You can easily be mistaken for dead. You only need to eat once every 3 days, but you gain no benefit from healing arts or magic.",
+              id: "torpor",
+              name: "Torpor",
+              selectable: true,
+              citation: "Book 2, p. 557",
+              body: [
+                {
+                  kind: "para",
+                  text: "Lock eyes with someone and whisper soothing words. They start to fall asleep. If they resist, roll 3d4—if your roll exceeds their current HP, they fail. Once asleep, they do not age, need not eat/drink, and suffer no harm from poison or disease. They cannot be roused until they hear their name thrice-spoken. **Empowered:** Over 3d6 days, all physical harm heals, lost limbs (etc.) regenerate, poisons & diseases are cured, and the infirmities of age reverse.",
+                },
+              ],
             },
           ],
         },
         {
-          id: "codex-c3",
-          text: "Over a few days, your ears grow smaller and flatten against your head. Your tongue grows longer, and you can distend your jaw and throat to swallow things no human should be able to.",
-          children: [
+          label: "Moves",
+          content: [
             {
-              id: "codex-c3a",
-              text: "Your eyes grow milky, you no longer blink, and you have trouble seeing things that aren't moving. Your tongue becomes forked, and you gain a preternatural sense of smell and touch.",
+              id: "darksome-vessel",
+              name: "Darksome Vessel",
+              requiresMarks: 4,
+              citation: "Book 2, p. 557",
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **cast a Codex spell**, on a 12+ you can choose the Empowered effect.",
+                },
+                {
+                  kind: "para",
+                  text: "When you **choose to mark a consequence before casting a spell**, don't roll; you get a 12+.",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: "Consequences",
+          content: [
+            {
+              id: "codex-c1",
+              value:
+                "Over a few days, you lose all body hair. Your skin pales and develops scaly patches.",
+              children: [
+                {
+                  id: "codex-c1a",
+                  value:
+                    "Over a few days, you lose all your remaining hair and grow a fine layer of scales over all your skin except that on your face. Gain +1 armor.",
+                  actions: [{ type: "armor", amount: 1 }],
+                },
+              ],
             },
             {
-              id: "codex-c3b",
-              text: "Anything that you perceive, Hec'tumel perceives it too.",
+              id: "codex-c2",
+              value:
+                "Your body temperature drops and your skin becomes cool to the touch; you have disadvantage on all rolls while exposed to the cold. Your metabolism also slows, and you need to consume supplies or provisions only once every 2 days.",
+              children: [
+                {
+                  id: "codex-c2a",
+                  value:
+                    "Your heart rate and breathing slows, and you can hold supremely still for hours on end. You can easily be mistaken for dead. You only need to eat once every 3 days, but you gain no benefit from healing arts or magic.",
+                },
+              ],
+            },
+            {
+              id: "codex-c3",
+              value:
+                "Over a few days, your ears grow smaller and flatten against your head. Your tongue grows longer, and you can distend your jaw and throat to swallow things no human should be able to.",
+              children: [
+                {
+                  id: "codex-c3a",
+                  value:
+                    "Your eyes grow milky, you no longer blink, and you have trouble seeing things that aren't moving. Your tongue becomes forked, and you gain a preternatural sense of smell and touch.",
+                },
+                {
+                  id: "codex-c3b",
+                  value:
+                    "Anything that you perceive, Hec'tumel perceives it too.",
+                },
+              ],
             },
           ],
         },
@@ -1092,7 +1134,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     weight: 1,
     description:
       "A bronze rod, tipped with a glowing red crystal and carved with openwork shapes of hungry, leering faces.",
-    frontMoves: [
+    baseMoves: [
       {
         name: "Red Scepter",
         text: "When you **hold the Scepter and wind blows through the openings in the crystal**, it makes a soft howling noise.\n\nWhen you **gesture at an open flame with the scepter**, the flame flickers or flares as if blown by the wind.\n\nWhen you **bleed a helpless, living creature and dip the Scepter's crystal in their still-warm blood**, mark 1 charge as the crystal soaks up the blood (to a maximum of 3).",
@@ -1212,7 +1254,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     tags: "magical",
     description:
       "A finely carved ring of copper, coated in verdigris and always a little damp. Its shape is that of a strange, reptilian creature devouring its own tail.",
-    frontMoves: [
+    baseMoves: [
       {
         name: "Don the Ring",
         text: "You feel the presence of every body of water within a few miles, natural or not, even if it is underground.",
@@ -1302,7 +1344,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     weight: 2,
     description:
       "An ancient vest of bluish steel, each scale etched with a silvery rune similar to those found among the ruins near Barrier Pass. A working of the Makers, no doubt, or at least of their most gifted students. The armor is surprisingly light and supple. The scales are always cold to the touch, and often edged in frost.",
-    frontMoves: [
+    baseMoves: [
       {
         name: "Wear the Rune-laden Scales",
         text: "You are perfectly comfortable in cold weather and suffer no harm from exposure or magic that might otherwise freeze your flesh. You have no such immunity to secondary effects of ice-magic, such as slipping, being impaled by an icicle, becoming encased in a block of ice, or the like.",
@@ -1383,7 +1425,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     weight: 1,
     description:
       "A pair of wooden figurines, carved from blackwood and worn smooth with age and use. A whitish shaft has been driven into the top of each figurine's head, and the eyes and forehead of each are stained a rusty, reddish color.\n\nThe figurines resist all mundane attempts to damage them. Such attempts might mar them slightly, but their forms hold fast.",
-    frontMoves: [
+    baseMoves: [
       {
         name: "Mark a figurine's eyes with blood and likewise mark your own eyelids",
         text: "You see through the eyes of the figurine whenever you close your eyes, for as long as the blood remains.",
@@ -1451,7 +1493,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     tags: "implanted, magical",
     description:
       "A series of branching, tree-like markings coursing up and down your skin. Usually pale blue, almost like veins, but when you become agitated they seem to glow, pulse, and ripple with light.\n\nThe markings are usually seen as a blessing of Tor (rainmaker, thunderhead, slayer-of-beasts). But like most blessings of the gods, they are also a great burden.",
-    frontMoves: [
+    baseMoves: [
       {
         name: "Roil with anger",
         text: "You do +1 damage until you calm down. But when you **try to control your temper**, roll +WIS: **on a 10+**, you keep your cool and act as you wish; **on a 7-9**, choose 1 from the list below; **on a 6-**, you just lose it—tell the GM what damn fool thing you end up doing.\n\n- Take some deep breaths and count to ten, fuming all the while\n- Vent your rage, but tell us how and on what",
@@ -1517,7 +1559,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     tags: "implanted, magical",
     description:
       "Syllables of the first language, words of pure thought and will, emblazoned on your soul and tongue by some angelic force or being. A gift, perhaps. Or a terrible, terrible affliction.\n\nTheir power thrums inside you, pulsing against the crude vessel of your flesh and blood. Sometimes, under stress or simply out of the blue, you are struck with shakes and seizures. And when the tremors pass and your senses return, you find that you have scratched strange symbols in the dirt or on the walls. Sometimes in your own blood.",
-    frontMoves: [
+    baseMoves: [
       {
         name: "Enter an ecstatic delirium and allow the Ineffable Words to pour forth",
         text: "Roll +CON: **on a 10+**, you speak Truth, revealing something new and interesting about the current situation—ask the GM what, and all present understand this Truth as though it were spoken in their native tongue; **on a 7-9**, the 10+ result applies, but choose 1 from the list below.\n\n- The Truth is cryptic, vague, incomplete\n- You are overcome, collapsing in a full-body seizure\n- You draw unwanted attention",
@@ -1587,7 +1629,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     tags: "magical",
     description:
       "A vaguely man-shaped root of blood-red wood, wrapped in tattered cloth. Bright blue markings adorn the fabric, as do rust-colored stains.\n\nBut you know that. After all, you made it yourself. You've bound your flesh and soul to the effigy, and this is the only one you will ever be able to make.",
-    frontMoves: [
+    baseMoves: [
       {
         name: "Perform the secret rite",
         subtitle:
@@ -1643,7 +1685,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     tags: "magical",
     description:
       "A ring of black metal bands, woven in an intricate pattern beyond the skills of modern smiths. The way the bands twist on each other seems to defy reality, and the weak-willed find themselves pondering the bands for minutes or hours.\n\nThe metal is always cold. Always.",
-    frontMoves: [
+    baseMoves: [
       {
         name: "Wear the ring and press it firmly into the skin of a living thing",
         text: "The ring draws the life-force from your victim. If your victim is helpless or unable to struggle, they are reduced to 0 HP (see below).\n\nIf **your victim struggles**, roll +CON: **on a 10+**, deal 1d10 damage (ignores armor) and they are left reeling (a PC or follower marks a debility, an NPC or monster grants advantage on any moves made against it until it recovers); **on a 7-9**, deal 1d10 damage (ignores armor) but you suffer whatever counterattack they dish out; **on a 6-**, ask the GM what happens (which may or may not involve marking a consequence).\n\nWhen you **use the ring to reduce an intelligent victim to 0 HP**, roll 1d6:\n\n- 1-2: Their soul is wounded but they'll live, suffering from unnatural, compulsive hungers; should they die in this state, they become a wraith.\n- 3-4: Their soul is wounded and their body gives up; they become a wraith.\n- 5-6: Their soul is consumed and utterly destroyed by the ring—mark 1 below.",
@@ -1710,7 +1752,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     weight: 1,
     description:
       "A thick staff of gray metal, topped with a plate of aetherium in the shape of a stylized hand. The palm is embossed with a cloud and lightning bolt, and the whole thing is more than a little top-heavy. It smells of ozone, and your spine never ceases to tingle in its presence.",
-    frontMoves: [
+    baseMoves: [
       {
         name: "Bear the Azure Hand",
         text: "You sense sources, currents, and reservoirs of energy much like you sense the pull of gravity or the position of your own hand. You can closely study such energy and Seek Insight about it.",

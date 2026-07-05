@@ -10,7 +10,7 @@ interface ArcanaTrackerRowProps {
   disabled?: boolean;
 }
 
-// The labelled dot tracker shared by every arcana move (front moves, mystery moves, the minor-card
+// The labelled dot tracker shared by every arcana move (base moves, mystery moves, the minor-card
 // reveal). Label on the left, UseDots on the right.
 export const ArcanaTrackerRow = ({
   label,
