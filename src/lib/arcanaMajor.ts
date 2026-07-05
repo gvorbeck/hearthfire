@@ -878,96 +878,94 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
   {
     id: "shield-of-the-wisent-witch",
     name: "Shield of the Wisent Witch",
-    tags: "◊◊, +1 armor, close, forceful, magical, +1 Readiness on a 7+ to Defend",
+    tags: "+1 armor, close, forceful, magical, +1 Readiness on a 7+ to Defend",
     weight: 2,
     description:
-      "A shield of horn-oak, glossy from long use, shod in bronze and adorned with a stylized wisent skull. It's heavier than it looks, but its heft gives you a feeling of confidence, like anyone would be a fool to mess with a titan such as you.",
-    frontMoves: [
-      {
-        name: "Bear the Shield openly",
-        text: "When you **bear the Shield openly**, natural creatures give you wide berth and treat you with the respect that they would give a 1,000-lb. bison.",
-      },
-      {
-        name: "Use the Shield to Defend with both feet planted firmly on the ground",
-        text: "When you **use the Shield to Defend with both feet planted firmly on the ground**, so long as you hold Readiness you cannot be moved or tripped. When you **spend Readiness to strike back at an attacker**, you also break their momentum, knock them back, and/or send them reeling.",
-      },
-      {
-        name: "Perform the sacred rites of the forest witches",
-        text: "When you **perform the sacred rites of the forest witches**, alone in the woods under a clear crescent moon, mark 1:",
-      },
-      {
-        name: "Make the last mark",
-        text: "When you **make the last mark**, you unlock the shield's mysteries, and can use Spirits of the Herd (in the Mysteries below).",
-      },
-    ],
+      "A shield of horn-oak, glossy from long use, shod in bronze and adorned with a stylized wisent skull. It's heavier than it looks, but its heft gives you a feeling of confidence, like anyone would be a fool to mess with a titan such as you.\n\n---\n\nWhen you **bear the Shield openly**, natural creatures give you wide berth and treat you with the respect that they would give a 1,000-lb. bison.\n\nWhen you **use the Shield to Defend with both feet planted firmly on the ground**, so long as you hold Readiness you cannot be moved or tripped. When you **spend Readiness to strike back at an attacker**, you also break their momentum, knock them back, and/or send them reeling.\n\nWhen you **perform the sacred rites of the forest witches**, alone in the woods under a clear crescent moon, mark 1:\n\nWhen you **make the last mark**, you unlock the shield's mysteries, and can use Spirits of the Herd (in the Mysteries).",
     frontTrackers: [{ id: "marks", label: "marks", max: 5, role: "marks" }],
-    mystery: {
-      moves: [
+    back: {
+      label: "Mysteries of the Shield of the Wisent Witch",
+      sections: [
         {
-          id: "spirits-of-the-herd",
-          name: "Spirits of the Herd",
-          rightControl: [{ type: "dot", number: 3, label: "Might" }],
-          body: [
+          label: "Moves",
+          content: [
             {
-              kind: "para",
-              text: "When you **proudly bear the Shield of the Wisent Witch and call upon the spirits of the herd**, choose 1 of the following effects:",
-            },
-            {
-              kind: "list",
-              items: [
-                "So long as you bear the Shield and until one of you speaks in the tongues of men, you and any allies that you mark with mud from the forest floor take on the visage of a herd of wisents. While this spell lasts, you and your allies cover ground at great speed and can graze rather than consuming supplies/provisions.",
-                "As you charge your foes, conjure a herd of stampeding wisent to join you. Treat the herd as a weapon (+2d4 damage, *forceful, messy, area, dangerous, terrifying*) as you Clash. The herd vanishes once the charge's momentum is spent.",
-                "Hold 3 Might. You can spend Might 1-for-1 to:",
+              id: "spirits-of-the-herd",
+              name: "Spirits of the Herd",
+              rightControl: [{ type: "dot", number: 3, label: "Might" }],
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **proudly bear the Shield of the Wisent Witch and call upon the spirits of the herd**, choose 1 of the following effects:",
+                },
+                {
+                  kind: "list",
+                  items: [
+                    "So long as you bear the Shield and until one of you speaks in the tongues of men, you and any allies that you mark with mud from the forest floor take on the visage of a herd of wisents. While this spell lasts, you and your allies cover ground at great speed and can graze rather than consuming supplies/provisions.",
+                    "As you charge your foes, conjure a herd of stampeding wisent to join you. Treat the herd as a weapon (+2d4 damage, *forceful, messy, area, dangerous, terrifying*) as you Clash. The herd vanishes once the charge's momentum is spent.",
+                    "Hold 3 Might. You can spend Might 1-for-1 to:",
+                  ],
+                },
+                {
+                  kind: "list",
+                  indent: true,
+                  items: [
+                    "Plow past, over, or through an opponent or obstacle",
+                    "Tear free from any physical restraint",
+                    "Shrug off a physical blow, unfazed and unharmed",
+                  ],
+                },
+                {
+                  kind: "para",
+                  text: "After choosing an effect, roll +CON: **on a 10+**, the effect occurs as described; **on a 7-9**, the effect occurs, but only if you mark 1 Consequence; **on a 6-**, mark 1 Consequence, and the effect occurs—but the GM will tell you what goes wrong.",
+                },
               ],
-            },
-            {
-              kind: "list",
-              indent: true,
-              items: [
-                "Plow past, over, or through an opponent or obstacle",
-                "Tear free from any physical restraint",
-                "Shrug off a physical blow, unfazed and unharmed",
-              ],
-            },
-            {
-              kind: "para",
-              text: "After choosing an effect, roll +CON: **on a 10+**, the effect occurs as described; **on a 7-9**, the effect occurs, but only if you mark 1 Consequence; **on a 6-**, mark 1 Consequence, and the effect occurs—but the GM will tell you what goes wrong.",
             },
           ],
         },
-      ],
-      consequences: [
         {
-          id: "shield-c1",
-          text: "You give off a strong, musky scent no matter how much you bathe. It is distinctive and easily recognized.",
-        },
-        {
-          id: "shield-c2",
-          text: "Over the next few days, you grow 4-6 inches.",
-        },
-        {
-          id: "shield-c3",
-          text: "Over the next few days, your body mass doubles. Your size and relative strength remain mostly the same.",
-        },
-        {
-          id: "shield-c4",
-          text: "You consume twice the normal amount of supplies or provisions each day.",
-        },
-        {
-          id: "shield-c5",
-          text: "You make an inordinate amount of noise; your voice booms, your feet stomp heavily, even your breathing is loud.",
-        },
-        {
-          id: "shield-c6",
-          text: "Your attacks all gain the *forceful* tag (and become more so if they already were *forceful*) and large weapons lose the *awkward* tag. Alas, you hardly know your own strength and must be careful to avoid breaking things (including your friends).",
-        },
-        {
-          id: "shield-c7",
-          text: "Predators sense that you would be delicious and will choose to attack and eat you before just about any other potential prey.",
-        },
-        {
-          id: "shield-c8",
-          text: "You become territorial and overly defensive of your allies. When someone or thing **disrespects you, challenges your authority, or directly threatens your allies**, you have disadvantage to do anything other than set them straight.",
+          label: "Consequences",
+          content: [
+            {
+              id: "shield-c1",
+              value:
+                "You give off a strong, musky scent no matter how much you bathe. It is distinctive and easily recognized.",
+            },
+            {
+              id: "shield-c2",
+              value: "Over the next few days, you grow 4-6 inches.",
+            },
+            {
+              id: "shield-c3",
+              value:
+                "Over the next few days, your body mass doubles. Your size and relative strength remain mostly the same.",
+            },
+            {
+              id: "shield-c4",
+              value:
+                "You consume twice the normal amount of supplies or provisions each day.",
+            },
+            {
+              id: "shield-c5",
+              value:
+                "You make an inordinate amount of noise; your voice booms, your feet stomp heavily, even your breathing is loud.",
+            },
+            {
+              id: "shield-c6",
+              value:
+                "Your attacks all gain the *forceful* tag (and become more so if they already were *forceful*) and large weapons lose the *awkward* tag. Alas, you hardly know your own strength and must be careful to avoid breaking things (including your friends).",
+            },
+            {
+              id: "shield-c7",
+              value:
+                "Predators sense that you would be delicious and will choose to attack and eat you before just about any other potential prey.",
+            },
+            {
+              id: "shield-c8",
+              value:
+                "You become territorial and overly defensive of your allies. When someone or thing **disrespects you, challenges your authority, or directly threatens your allies**, you have disadvantage to do anything other than set them straight.",
+            },
+          ],
         },
       ],
     },
