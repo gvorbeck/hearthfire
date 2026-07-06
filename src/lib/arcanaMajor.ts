@@ -1130,16 +1130,11 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
   {
     id: "red-scepter",
     name: "Red Scepter",
-    tags: "◊, magical",
+    tags: "magical",
     weight: 1,
     description:
-      "A bronze rod, tipped with a glowing red crystal and carved with openwork shapes of hungry, leering faces.",
+      "A bronze rod, tipped with a glowing red crystal and carved with openwork shapes of hungry, leering faces.\n\n---\n\nWhen you **hold the Scepter and wind blows through the openings in the crystal**, it makes a soft howling noise.\n\nWhen you **gesture at an open flame with the scepter**, the flame flickers or flares as if blown by the wind.\n\nWhen you **bleed a helpless, living creature and dip the Scepter's crystal in their still-warm blood**, mark 1 charge as the crystal soaks up the blood (to a maximum of 3).\n\nWhen you **Inflame someone and they kill one or more living beings as a result**, mark 1.\n\nWhen you **make the last mark**, you unlock the Scepter's mysteries and gain Burning Hatred (in the Mysteries).",
     baseMoves: [
-      {
-        name: "Red Scepter",
-        text: "When you **hold the Scepter and wind blows through the openings in the crystal**, it makes a soft howling noise.\n\nWhen you **gesture at an open flame with the scepter**, the flame flickers or flares as if blown by the wind.\n\nWhen you **bleed a helpless, living creature and dip the Scepter's crystal in their still-warm blood**, mark 1 charge as the crystal soaks up the blood (to a maximum of 3).",
-        tracker: { label: "Charges", max: 3 },
-      },
       {
         id: "inflame",
         name: "Inflame",
@@ -1157,93 +1152,112 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
           },
         ],
       },
-      {
-        name: "Inflame someone and they kill one or more living beings as a result",
-        text: "When you **Inflame someone and they kill one or more living beings as a result**, mark 1.\n\nWhen you **make the last mark**, you unlock the Scepter's mysteries and gain Burning Hatred (in the Mysteries below).",
-      },
     ],
-    frontTrackers: [{ id: "marks", label: "marks", max: 4, role: "marks" }],
-    mystery: {
-      moves: [
+    frontTrackers: [
+      { id: "marks", label: "marks", max: 4, role: "marks" },
+      { id: "red-scepter-charges", label: "Charges", max: 3 },
+    ],
+    back: {
+      label: "Mysteries of the Red Scepter",
+      sections: [
         {
-          id: "burning-hatred",
-          name: "Burning Hatred",
-          body: [
-            { kind: "para", text: "*near, magical, reload*" },
+          label: "Moves",
+          content: [
             {
-              kind: "para",
-              text: "When you **point the Red Scepter at an object of your hatred and erase 1 charge**, roll +CHA: **on a 10+**, the Scepter deals 2d4 damage (*messy*, ignores armor), manifested as blistering burns; **on a 7-9**, as a 10+ but pick 1:",
-            },
-            {
-              kind: "list",
-              items: [
-                "Mark a consequence",
-                "Spend a few seconds chanting and muttering before dealing damage",
-                "Cause any exposed, combustible items in range to burst into flames",
+              id: "burning-hatred",
+              name: "Burning Hatred",
+              citation: "Book 2, p. 559",
+              body: [
+                { kind: "para", text: "*near, magical, reload*" },
+                {
+                  kind: "para",
+                  text: "When you **point the Red Scepter at an object of your hatred and erase 1 charge**, roll +CHA: **on a 10+**, the Scepter deals 2d4 damage (*messy*, ignores armor), manifested as blistering burns; **on a 7-9**, as a 10+ but pick 1:",
+                },
+                {
+                  kind: "list",
+                  items: [
+                    "Mark a consequence",
+                    "Spend a few seconds chanting and muttering before dealing damage",
+                    "Cause any exposed, combustible items in range to burst into flames",
+                  ],
+                },
+                {
+                  kind: "para",
+                  text: "**On a 6-**, the GM says what happens (which may or may not involve marking a consequence).",
+                },
+                {
+                  kind: "para",
+                  text: "When you **mark 3 Consequences**, you gain Fanning the Flames.",
+                },
               ],
             },
             {
-              kind: "para",
-              text: "**On a 6-**, the GM says what happens (which may or may not involve marking a consequence).",
-            },
-            {
-              kind: "para",
-              text: "When you **mark 3 Consequences**, you gain Fanning the Flames.",
-            },
-          ],
-        },
-        {
-          id: "fanning-the-flames",
-          name: "Fanning the Flames",
-          requiresConsequences: 3,
-          body: [
-            {
-              kind: "para",
-              text: "When you **use Inflame**, you can incite everyone who can hear you into violent action, not just an individual. If you do, roll once for the entire crowd, but each target makes their own choices. **On a 7-9**, you must also choose a Consequence; **on a 6-**, the GM chooses a Consequence for you in addition to whatever else happens.",
-            },
-            {
-              kind: "para",
-              text: "When you **use Burning Hatred**, you can mark a consequence to target not just the person or thing you hate but also everything near them. Roll +CHA once but roll damage for each victim. Any combustibles on your targets also erupt into flame.",
+              id: "fanning-the-flames",
+              name: "Fanning the Flames",
+              requiresConsequences: 3,
+              citation: "Book 2, p. 559",
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **use Inflame**, you can incite everyone who can hear you into violent action, not just an individual. If you do, roll once for the entire crowd, but each target makes their own choices. **On a 7-9**, you must also choose a Consequence; **on a 6-**, the GM chooses a Consequence for you in addition to whatever else happens.",
+                },
+                {
+                  kind: "para",
+                  text: "When you **use Burning Hatred**, you can mark a consequence to target not just the person or thing you hate but also everything near them. Roll +CHA once but roll damage for each victim. Any combustibles on your targets also erupt into flame.",
+                },
+              ],
             },
           ],
         },
-      ],
-      consequences: [
         {
-          id: "scepter-c1",
-          text: "Your skin becomes feverish. You always feel hot and can't bear to wear *warm* gear.",
-        },
-        {
-          id: "scepter-c2",
-          text: "Your eyes change, glowing like fiery embers. They flare with your temper.",
-        },
-        {
-          id: "scepter-c3",
-          text: 'The crystal tip of the Scepter cracks, and you cannot use the Scepter\'s powers until you have "fed" the Scepter another chunk of red crystal, one at least the size of your fist.',
-        },
-        {
-          id: "scepter-c4",
-          text: "To gain any future charge, the victim you bleed must be awake and terrified.",
-        },
-        {
-          id: "scepter-c5",
-          text: "To gain any future charge, the blood-letting must be brutal, messy, and wanton.",
-        },
-        {
-          id: "scepter-c6",
-          text: "Henceforth, when you **incite someone to violence with the Scepter and they act as you suggest**, they lose themselves to primal bloodlust. They feel no pain and revel in carnage until they are killed, restrained, or crippled.",
-        },
-        {
-          id: "scepter-c7",
-          text: "When you **use Burning Hatred**, something on your person or within reach also catches fire.",
-        },
-        {
-          id: "scepter-c8",
-          text: "You always hear a dim howling in the back of your mind. When the wind blows, the howling grows in volume, making it difficult to hear anything other than insults or plans to commit violence.",
-        },
-        {
-          id: "scepter-c9",
-          text: "When you **Persuade using anything other than threats, pain, or violence**, the best you can get is a 7-9.",
+          label: "Consequences",
+          content: [
+            {
+              id: "scepter-c1",
+              value:
+                "Your skin becomes feverish. You always feel hot and can't bear to wear *warm* gear.",
+            },
+            {
+              id: "scepter-c2",
+              value:
+                "Your eyes change, glowing like fiery embers. They flare with your temper.",
+            },
+            {
+              id: "scepter-c3",
+              value:
+                'The crystal tip of the Scepter cracks, and you cannot use the Scepter\'s powers until you have "fed" the Scepter another chunk of red crystal, one at least the size of your fist.',
+            },
+            {
+              id: "scepter-c4",
+              value:
+                "To gain any future charge, the victim you bleed must be awake and terrified.",
+            },
+            {
+              id: "scepter-c5",
+              value:
+                "To gain any future charge, the blood-letting must be brutal, messy, and wanton.",
+            },
+            {
+              id: "scepter-c6",
+              value:
+                "Henceforth, when you **incite someone to violence with the Scepter and they act as you suggest**, they lose themselves to primal bloodlust. They feel no pain and revel in carnage until they are killed, restrained, or crippled.",
+            },
+            {
+              id: "scepter-c7",
+              value:
+                "When you **use Burning Hatred**, something on your person or within reach also catches fire.",
+            },
+            {
+              id: "scepter-c8",
+              value:
+                "You always hear a dim howling in the back of your mind. When the wind blows, the howling grows in volume, making it difficult to hear anything other than insults or plans to commit violence.",
+            },
+            {
+              id: "scepter-c9",
+              value:
+                "When you **Persuade using anything other than threats, pain, or violence**, the best you can get is a 7-9.",
+            },
+          ],
         },
       ],
     },
