@@ -6,7 +6,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hearthfire — Stonetop Party Tracker</title>
     <meta name="description" content="Track your Stonetop TTRPG campaign — manage characters, GM playbook, and game sessions." />
+    <!--
+      Link-preview (Open Graph + Twitter Card) tags. These live in the static
+      index.html — not react-helmet — because unfurlers (Discord, Slack,
+      iMessage) don't run JavaScript, so runtime-injected tags never reach them.
+      og:image must be an absolute URL. The card is 1200×630 (public/og-image.png).
+    -->
     <meta property="og:site_name" content="Hearthfire" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Hearthfire — Stonetop Party Tracker" />
+    <meta property="og:description" content="Track your Stonetop TTRPG campaign — manage characters, GM playbook, and game sessions." />
+    <meta property="og:url" content="https://hearthfire.camp/" />
+    <meta property="og:image" content="https://hearthfire.camp/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Hearthfire — Stonetop Party Tracker" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Hearthfire — Stonetop Party Tracker" />
+    <meta name="twitter:description" content="Track your Stonetop TTRPG campaign — manage characters, GM playbook, and game sessions." />
+    <meta name="twitter:image" content="https://hearthfire.camp/og-image.png" />
     <!--
       preconnect opens the TCP + TLS connection to Firestore eagerly so the
       first realtime read isn't stalled on connection setup. dns-prefetch is
