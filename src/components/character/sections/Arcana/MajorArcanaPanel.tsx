@@ -16,19 +16,21 @@ interface MajorArcanaCardRowProps {
   onConsequenceTableChoice: (id: string, consequenceId: string, rowId: string) => void;
   onTrackerChange: (id: string, moveId: string, value: number) => void;
   onFollowerHpChange: (id: string, moveId: string, index: number, value: number) => void;
-  onBodyCheckChange: (id: string, moveId: string, itemId: string, checked: boolean) => void;
+  onBodyCheckChange: (id: string, ownerId: string, itemId: string, checked: boolean) => void;
+  onBodyInputChange: (id: string, ownerId: string, itemId: string, value: string) => void;
   onMysteryCreatureSave: (id: string, creature: Creature) => void;
   onRemove: (id: string) => void;
 }
 
-const MajorArcanaCardRow = memo(({ entry, arcanum, onMarksChange, onMysteryMoveToggle, onConsequenceToggle, onConsequenceTableChoice, onTrackerChange, onFollowerHpChange, onBodyCheckChange, onMysteryCreatureSave, onRemove }: MajorArcanaCardRowProps) => {
+const MajorArcanaCardRow = memo(({ entry, arcanum, onMarksChange, onMysteryMoveToggle, onConsequenceToggle, onConsequenceTableChoice, onTrackerChange, onFollowerHpChange, onBodyCheckChange, onBodyInputChange, onMysteryCreatureSave, onRemove }: MajorArcanaCardRowProps) => {
   const handleMarks = useCallback((value: number) => onMarksChange(entry.id, value), [entry.id, onMarksChange]);
   const handleMysteryMove = useCallback((moveId: string, checked: boolean) => onMysteryMoveToggle(entry.id, moveId, checked), [entry.id, onMysteryMoveToggle]);
   const handleConsequence = useCallback((consequenceId: string, checked: boolean) => onConsequenceToggle(entry.id, consequenceId, checked), [entry.id, onConsequenceToggle]);
   const handleConsequenceTable = useCallback((consequenceId: string, rowId: string) => onConsequenceTableChoice(entry.id, consequenceId, rowId), [entry.id, onConsequenceTableChoice]);
   const handleTracker = useCallback((moveId: string, value: number) => onTrackerChange(entry.id, moveId, value), [entry.id, onTrackerChange]);
   const handleFollowerHp = useCallback((moveId: string, index: number, value: number) => onFollowerHpChange(entry.id, moveId, index, value), [entry.id, onFollowerHpChange]);
-  const handleBodyCheck = useCallback((moveId: string, itemId: string, checked: boolean) => onBodyCheckChange(entry.id, moveId, itemId, checked), [entry.id, onBodyCheckChange]);
+  const handleBodyCheck = useCallback((ownerId: string, itemId: string, checked: boolean) => onBodyCheckChange(entry.id, ownerId, itemId, checked), [entry.id, onBodyCheckChange]);
+  const handleBodyInput = useCallback((ownerId: string, itemId: string, value: string) => onBodyInputChange(entry.id, ownerId, itemId, value), [entry.id, onBodyInputChange]);
   const handleMysteryCreature = useCallback((creature: Creature) => onMysteryCreatureSave(entry.id, creature), [entry.id, onMysteryCreatureSave]);
   const handleRemove = useCallback(() => onRemove(entry.id), [entry.id, onRemove]);
   return (
@@ -42,6 +44,7 @@ const MajorArcanaCardRow = memo(({ entry, arcanum, onMarksChange, onMysteryMoveT
       onTrackerChange={handleTracker}
       onFollowerHpChange={handleFollowerHp}
       onBodyCheckChange={handleBodyCheck}
+      onBodyInputChange={handleBodyInput}
       onMysteryCreatureSave={handleMysteryCreature}
       onRemove={handleRemove}
     />
@@ -185,14 +188,31 @@ export const MajorArcanaPanel = ({ arcanaMajor, arcanaMajorRef, saveMajor, actio
   );
 
   const handleMajorBodyCheckChange = useCallback(
-    (id: string, moveId: string, itemId: string, checked: boolean) => {
+    (id: string, ownerId: string, itemId: string, checked: boolean) => {
       saveMajor(arcanaMajorRef.current.map((a) =>
         a.id === id
           ? {
               ...a,
               bodyChecks: {
                 ...a.bodyChecks,
-                [moveId]: { ...a.bodyChecks?.[moveId], [itemId]: checked },
+                [ownerId]: { ...a.bodyChecks?.[ownerId], [itemId]: checked },
+              },
+            }
+          : a,
+      ));
+    },
+    [saveMajor],
+  );
+
+  const handleMajorBodyInputChange = useCallback(
+    (id: string, ownerId: string, itemId: string, value: string) => {
+      saveMajor(arcanaMajorRef.current.map((a) =>
+        a.id === id
+          ? {
+              ...a,
+              bodyInputs: {
+                ...a.bodyInputs,
+                [ownerId]: { ...a.bodyInputs?.[ownerId], [itemId]: value },
               },
             }
           : a,
@@ -248,6 +268,7 @@ export const MajorArcanaPanel = ({ arcanaMajor, arcanaMajorRef, saveMajor, actio
                   onTrackerChange={handleMajorTrackerChange}
                   onFollowerHpChange={handleMajorFollowerHpChange}
                   onBodyCheckChange={handleMajorBodyCheckChange}
+                  onBodyInputChange={handleMajorBodyInputChange}
                   onMysteryCreatureSave={handleMysteryCreatureSave}
                   onRemove={handleRemoveMajor}
                 />

@@ -11,6 +11,7 @@ import type {
 } from "@/types";
 import { ArcanaCardHeader } from "./ArcanaCardHeader";
 import { parseDescriptionTasks } from "./arcanaParsing";
+import { getMarkedFollowerCost } from "@/lib/consequenceActions";
 import { useArcanumGating } from "./useArcanumGating";
 import {
   ArcanaBackSection,
@@ -31,7 +32,8 @@ interface MajorArcanaCardProps {
   onConsequenceTableChoice: (consequenceId: string, rowId: string) => void;
   onTrackerChange: (moveId: string, value: number) => void;
   onFollowerHpChange: (moveId: string, index: number, value: number) => void;
-  onBodyCheckChange: (moveId: string, itemId: string, checked: boolean) => void;
+  onBodyCheckChange: (ownerId: string, itemId: string, checked: boolean) => void;
+  onBodyInputChange: (ownerId: string, itemId: string, value: string) => void;
   onMysteryCreatureSave: (creature: Creature) => void;
   onRemove: () => void;
 }
@@ -46,6 +48,7 @@ export const MajorArcanaCard = ({
   onTrackerChange,
   onFollowerHpChange,
   onBodyCheckChange,
+  onBodyInputChange,
   onMysteryCreatureSave,
   onRemove,
 }: MajorArcanaCardProps) => {
@@ -62,6 +65,20 @@ export const MajorArcanaCard = ({
   } = useArcanumGating(arcanum, entry);
 
   const cx = clsx(styles.card, unlocked && styles.cardUnlocked);
+
+  // A consequence can replace a follower's Cost (e.g. the Ring of Daagon's daagon-c4). Derive the
+  // effective override per follower id from marked state, so unmarking restores the seed cost.
+  const followerCostById = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const section of back?.sections ?? []) {
+      for (const item of section.content) {
+        if (!("follower" in item)) continue;
+        const cost = getMarkedFollowerCost(arcanum, entry.consequencesMarked, item.id);
+        if (cost !== undefined) map[item.id] = cost;
+      }
+    }
+    return map;
+  }, [arcanum, back, entry.consequencesMarked]);
 
   // A follower gained via a consequence shows a note naming that consequence's prose; map each back
   // consequence id to its text so a follower can look up its activating consequence across sections.
@@ -193,6 +210,7 @@ export const MajorArcanaCard = ({
               section={section}
               entry={entry}
               consequenceTextById={backConsequenceTextById}
+              followerCostById={followerCostById}
               projectedCreature={projectedCreature}
               getConsequenceCheckedMarks={getConsequenceCheckedMarks}
               getMoveGating={getMoveGating}
@@ -201,6 +219,7 @@ export const MajorArcanaCard = ({
               onTrackerChange={onTrackerChange}
               onFollowerHpChange={onFollowerHpChange}
               onBodyCheckChange={onBodyCheckChange}
+              onBodyInputChange={onBodyInputChange}
               onConsequenceTableChoice={onConsequenceTableChoice}
               onMysteryCreatureSave={onMysteryCreatureSave}
             />

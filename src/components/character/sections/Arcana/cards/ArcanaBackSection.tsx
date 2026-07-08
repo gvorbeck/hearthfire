@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { Text } from "@/components/ui";
 import type { ArcanaConsequence, ArcanaFollowerEntry, ArcanaMajorEntry, ArcanaSection, Creature, MoveDefinition } from "@/types";
 import { isMoveDefinition } from "../arcanaParsing";
@@ -27,6 +27,8 @@ interface ArcanaBackSectionProps {
   entry: ArcanaMajorEntry;
   // Each back consequence id → its prose, so a consequence-gated follower can name what activates it.
   consequenceTextById: Record<string, string>;
+  // Follower id → replacement Cost, when a marked consequence overrides it (e.g. the Ring of Daagon).
+  followerCostById: Record<string, string>;
   // The section's creature projected from its marked consequences; rendered when the section carries a
   // `creature`. Undefined for sections without one.
   projectedCreature: Creature | undefined;
@@ -37,7 +39,8 @@ interface ArcanaBackSectionProps {
   onConsequenceToggle: (consequenceId: string, checked: boolean) => void;
   onTrackerChange: (moveId: string, value: number) => void;
   onFollowerHpChange: (moveId: string, index: number, value: number) => void;
-  onBodyCheckChange: (moveId: string, itemId: string, checked: boolean) => void;
+  onBodyCheckChange: (ownerId: string, itemId: string, checked: boolean) => void;
+  onBodyInputChange: (ownerId: string, itemId: string, value: string) => void;
   onConsequenceTableChoice: (consequenceId: string, rowId: string) => void;
   onMysteryCreatureSave: (creature: Creature) => void;
 }
@@ -50,6 +53,7 @@ export const ArcanaBackSection = ({
   section,
   entry,
   consequenceTextById,
+  followerCostById,
   projectedCreature,
   getConsequenceCheckedMarks,
   getMoveGating,
@@ -58,6 +62,7 @@ export const ArcanaBackSection = ({
   onTrackerChange,
   onFollowerHpChange,
   onBodyCheckChange,
+  onBodyInputChange,
   onConsequenceTableChoice,
   onMysteryCreatureSave,
 }: ArcanaBackSectionProps) => {
@@ -96,8 +101,11 @@ export const ArcanaBackSection = ({
               followerEntry={item}
               entry={entry}
               consequenceTextById={consequenceTextById}
+              costOverride={followerCostById[item.id]}
               onTrackerChange={onTrackerChange}
               onFollowerHpChange={onFollowerHpChange}
+              onBodyCheckChange={onBodyCheckChange}
+              onBodyInputChange={onBodyInputChange}
             />
           ) : isMoveDefinition(item) ? (
             <BackMove
@@ -158,21 +166,37 @@ interface BackFollowerProps {
   followerEntry: ArcanaFollowerEntry;
   entry: ArcanaMajorEntry;
   consequenceTextById: Record<string, string>;
+  // A replacement Cost imposed by a marked consequence (e.g. the Ring of Daagon's daagon-c4). When set,
+  // it overrides the follower's seed cost; undefined leaves the seed cost in place.
+  costOverride: string | undefined;
   onTrackerChange: (moveId: string, value: number) => void;
   onFollowerHpChange: (moveId: string, index: number, value: number) => void;
+  onBodyCheckChange: (ownerId: string, itemId: string, checked: boolean) => void;
+  onBodyInputChange: (ownerId: string, itemId: string, value: string) => void;
 }
 
 // A standalone follower in a "Followers" section. Its saved state is keyed by the entry's id: HP under
-// followerHp[id], Loyalty under trackerValues[id] (reusing the same tracker path moves use for dots). A
-// follower gated on a consequence (requiresConsequence) renders inactive until that box is marked.
+// followerHp[id], Loyalty under trackerValues[id] (reusing the same tracker path moves use for dots),
+// and — for a rolled-aspects follower (the Servant of Daagon) — its d4 write-ins under bodyInputs[id]
+// and Traits/Moves ticks under bodyChecks[id]. A follower gated on a consequence (requiresConsequence)
+// renders inactive until that box is marked.
 const BackFollower = ({
   followerEntry,
   entry,
   consequenceTextById,
+  costOverride,
   onTrackerChange,
   onFollowerHpChange,
+  onBodyCheckChange,
+  onBodyInputChange,
 }: BackFollowerProps) => {
-  const { id, follower, requiresConsequence } = followerEntry;
+  const { id, follower: seedFollower, requiresConsequence } = followerEntry;
+  // A marked consequence may replace the follower's Cost; apply it over the seed. Memoized so the
+  // follower object stays referentially stable (and ArcanaFollowerBlock's memo holds) until it changes.
+  const follower = useMemo(
+    () => (costOverride === undefined ? seedFollower : { ...seedFollower, cost: costOverride }),
+    [seedFollower, costOverride],
+  );
   const inactive = !!requiresConsequence && !entry.consequencesMarked[requiresConsequence];
   const gateText = requiresConsequence ? consequenceTextById[requiresConsequence] : undefined;
   const activationNote = gateText ? `Gained when you mark: “${gateText}”` : undefined;
@@ -186,6 +210,14 @@ const BackFollower = ({
     (value: number) => onTrackerChange(id, value),
     [id, onTrackerChange],
   );
+  const handleAspectInput = useCallback(
+    (rowId: string, value: string) => onBodyInputChange(id, rowId, value),
+    [id, onBodyInputChange],
+  );
+  const handleAspectCheck = useCallback(
+    (optionId: string, checked: boolean) => onBodyCheckChange(id, optionId, checked),
+    [id, onBodyCheckChange],
+  );
   return (
     <ArcanaFollowerBlock
       arcanaId={id}
@@ -196,6 +228,10 @@ const BackFollower = ({
       onLoyaltyChange={handleLoyalty}
       inactive={inactive}
       activationNote={activationNote}
+      aspectInputs={entry.bodyInputs?.[id]}
+      onAspectInputChange={handleAspectInput}
+      aspectChecks={entry.bodyChecks?.[id]}
+      onAspectCheckChange={handleAspectCheck}
     />
   );
 };

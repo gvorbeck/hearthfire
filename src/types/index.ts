@@ -112,6 +112,25 @@ export interface ArcanaFollower {
   // A follower tracked by Loyalty rather than HP (e.g. the Demonhide Cloak) renders an interactive
   // dot tracker with this many dots; its value persists on the entry under trackerValues[entry id].
   loyalty?: number;
+  // A follower whose stats are rolled each time it's summoned (the Ring of Daagon's Servant of Daagon):
+  // the player assigns a d4 to each aspect row and ticks the chosen Traits/Moves. Aspect write-in
+  // values persist under entry.bodyInputs[followerId][rowId]; option checks under
+  // entry.bodyChecks[followerId][optionId].
+  aspects?: FollowerAspects;
+}
+
+// The roll-and-assign block a Servant-of-Daagon-style follower carries: intro/footer prose around a
+// set of numeric write-in rows (each d4 clamped to [min, max]), some of which nest an option checklist.
+export interface FollowerAspects {
+  intro?: string;
+  footer?: string;
+  min: number;
+  max: number;
+  rows: {
+    id: string;
+    label: string;
+    options?: { id: string; label: string }[];
+  }[];
 }
 
 // A presented stat line on a creature card — a bold label (e.g. "Damage") and its value.
@@ -192,6 +211,10 @@ export type ConsequenceAction =
   // Overwrite the PC's Instinct while marked, restoring the prior text on unmark (e.g. the
   // Blood-quenched Sword's "Paranoia").
   | { type: "setInstinct"; text: string }
+  // Overwrite a back follower's Cost while marked (e.g. the Ring of Daagon's Cost becoming "Living,
+  // helpless, intelligent sacrifices"). Read-only like setInstinct: derived from marked state at render,
+  // never persisted. `followerId` is the ArcanaFollowerEntry id whose cost is replaced.
+  | { type: "setFollowerCost"; followerId: string; text: string }
   // Adjust the PC's Armor stat by `amount` while marked (e.g. the Lidless Orb's scales → +1 armor),
   // undoing the same delta on unmark. Additive, so it composes with manual edits and other armor grants.
   | { type: "armor"; amount: number }
@@ -559,8 +582,11 @@ export interface ArcanaMajorEntry {
   consequenceTableChoice?: Record<string, string>;
   trackerValues?: Record<string, number>;
   followerHp?: Record<string, number[]>;
-  // Per-move checkbox-block state: moveId -> itemId -> checked.
+  // Per-move (or per-follower) checkbox state: ownerId -> itemId -> checked. Reused by the Servant of
+  // Daagon follower for its Traits/Moves option ticks.
   bodyChecks?: Record<string, Record<string, boolean>>;
+  // Per-follower write-in state for aspect rows: followerId -> rowId -> value (the Servant's d4 dice).
+  bodyInputs?: Record<string, Record<string, string>>;
   // Player's working copy of an arcanum's granted creature (e.g. the Mindgem's Mighty Servant),
   // seeded from mystery.mysteryCreature and editable via CreatureCard.
   mysteryCreature?: Creature;
