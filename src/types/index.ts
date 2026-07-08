@@ -575,6 +575,11 @@ export interface ArcanaMinorEntry {
 export interface ArcanaMajorEntry {
   id: string;
   marksValue: number;
+  // Latches true the first time marks reach the unlock threshold. Some arcana (e.g. the Rune-laden
+  // Scales, Ineffable Words) instruct the player to erase all marks after each unlock and re-earn them
+  // for the next reward; once unlocked, the Mysteries must stay revealed even at 0 marks. Without this
+  // flag, `unlocked` (marksValue >= unlockAt) would re-hide the moves and consequence they just earned.
+  everUnlocked?: boolean;
   mysteryMovesChecked: Record<string, boolean>;
   consequencesMarked: Record<string, boolean>;
   // Picked row id for a consequence's roll table: consequenceId -> rowId (e.g. the Mindgem's chosen

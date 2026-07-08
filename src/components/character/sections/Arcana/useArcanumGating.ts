@@ -81,7 +81,12 @@ export const useArcanumGating = (
   // The unlock track is the front tracker with role "marks"; its value lives on entry.marksValue.
   const marksTracker = frontTrackers.find((t) => t.role === "marks");
   const marksMax = marksTracker?.max ?? 0;
-  const unlocked = entry.marksValue >= (marksTracker?.unlockAt ?? marksMax);
+  // Unlocked once marks reach the threshold — and it stays unlocked thereafter via the latched
+  // `everUnlocked` flag, so arcana that erase all marks after each unlock (e.g. the Rune-laden Scales)
+  // keep their Mysteries revealed while the player re-earns marks for the next reward.
+  const unlocked =
+    !!entry.everUnlocked ||
+    entry.marksValue >= (marksTracker?.unlockAt ?? marksMax);
 
   // Gating runs over both shapes during the migration: a move or consequence is subject to the same
   // lock rules whether it was authored under `mystery` or in a `back` section.
