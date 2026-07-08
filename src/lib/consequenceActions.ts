@@ -165,6 +165,10 @@ const applyOne = (
       // getMarkedInstinctOverride) and shown as an override note in the Instinct section, so there's
       // nothing to persist or restore. The PC's own instinct fields are left untouched.
       return {};
+    case "setFollowerCost":
+      // No write: like setInstinct, a replaced follower Cost is derived read-only from marked state
+      // (see getMarkedFollowerCost) and applied to the follower card at render, so nothing persists.
+      return {};
     case "armor": {
       // Additive: add the amount on mark, subtract it on unmark, relative to the running armor value.
       // No stash/lock — the box stays editable and the delta composes with manual edits and other grants.
@@ -196,6 +200,24 @@ export const getMarkedInstinctOverride = (
       );
       if (action?.type === "setInstinct") return action.text;
     }
+  }
+  return undefined;
+};
+
+// The replacement Cost imposed on a back follower by a currently-marked consequence, if any (e.g. the
+// Ring of Daagon's `daagon-c4`). Derived read-only from marked state rather than persisted — the
+// follower card shows it in place of the seed cost. Returns undefined when no such consequence is marked.
+export const getMarkedFollowerCost = (
+  arcanum: MajorArcanum,
+  markedConsequences: Record<string, boolean>,
+  followerId: string,
+): string | undefined => {
+  for (const [consequenceId, marked] of Object.entries(markedConsequences)) {
+    if (!marked) continue;
+    const action = findConsequence(arcanum, consequenceId)?.actions?.find(
+      (a) => a.type === "setFollowerCost" && a.followerId === followerId,
+    );
+    if (action?.type === "setFollowerCost") return action.text;
   }
   return undefined;
 };

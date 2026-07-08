@@ -1,9 +1,17 @@
-import { useCallback, memo } from 'react';
+import { useCallback, useEffect, useRef, useState, memo } from 'react';
 import clsx from 'clsx';
-import { List, Text } from '@/components/ui';
+import { CheckboxGroup, List, Text } from '@/components/ui';
+import { parseInlineMarkdown } from '@/lib/parseMarkdown';
 import type { ArcanaFollower } from '@/types';
 import { ArcanaTrackerRow } from './ArcanaTrackerRow';
 import styles from './ArcanaFollowerBlock.module.css';
+
+// A short screen-reader label for a d4 box, from the aspect row's bold lead-in (e.g. "**Tags:** 1 = …"
+// → "Tags die"), so the field isn't announced as the whole option paragraph with literal asterisks.
+const aspectDieLabel = (rowLabel: string): string => {
+  const lead = rowLabel.match(/^\*\*(.+?):?\*\*/);
+  return lead ? `${lead[1]} die` : 'Aspect die';
+};
 
 interface ArcanaFollowerBlockProps {
   arcanaId: string;
@@ -18,6 +26,12 @@ interface ArcanaFollowerBlockProps {
   // disabled, with `activationNote` explaining what unlocks it.
   inactive?: boolean;
   activationNote?: string;
+  // A rolled-aspects follower (the Servant of Daagon) carries per-row d4 write-in values and per-option
+  // Traits/Moves ticks. Absent for ordinary followers.
+  aspectInputs?: Record<string, string>;
+  onAspectInputChange?: (rowId: string, value: string) => void;
+  aspectChecks?: Record<string, boolean>;
+  onAspectCheckChange?: (optionId: string, checked: boolean) => void;
 }
 
 export const ArcanaFollowerBlock = memo(({
@@ -29,6 +43,10 @@ export const ArcanaFollowerBlock = memo(({
   onLoyaltyChange,
   inactive = false,
   activationNote,
+  aspectInputs,
+  onAspectInputChange,
+  aspectChecks,
+  onAspectCheckChange,
 }: ArcanaFollowerBlockProps) => {
   const isMultiHp = !!(follower.hpCount && follower.hpCount > 1);
   const cx = clsx(styles.follower, inactive && styles.followerInactive);
@@ -99,6 +117,56 @@ export const ArcanaFollowerBlock = memo(({
             <Text as="span" font="serif" size="xs">{follower.cost}</Text>
           </div>
         )}
+        {follower.aspects && (
+          <div className={styles.aspects}>
+            {follower.aspects.intro && (
+              <Text font="serif" size="xs" color="muted">
+                {parseInlineMarkdown(follower.aspects.intro)}
+              </Text>
+            )}
+            <div className={styles.aspectRows}>
+              {follower.aspects.rows.map((row) => (
+                <div key={`aspect-${arcanaId}-${row.id}`} className={styles.aspectRow}>
+                  <AspectDie
+                    rowId={row.id}
+                    label={aspectDieLabel(row.label)}
+                    value={aspectInputs?.[row.id] ?? ''}
+                    min={follower.aspects!.min}
+                    max={follower.aspects!.max}
+                    disabled={inactive}
+                    onChange={onAspectInputChange}
+                  />
+                  <div className={styles.aspectBody}>
+                    <div className={styles.aspectLabel}>
+                      {/* Inner span keeps the inline content as one flex child, so the flex box
+                          centering doesn't collapse the space after the bold "Tags:" label. */}
+                      <Text as="span" font="serif" size="xs">
+                        {parseInlineMarkdown(row.label)}
+                      </Text>
+                    </div>
+                    {row.options && row.options.length > 0 && (
+                      <CheckboxGroup
+                        columns={2}
+                        items={row.options.map((opt) => ({
+                          ...opt,
+                          disabled: inactive,
+                        }))}
+                        checked={aspectChecks ?? {}}
+                        onChange={(optId, value) => onAspectCheckChange?.(optId, value)}
+                        disabled={inactive}
+                      />
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            {follower.aspects.footer && (
+              <Text font="serif" size="xs" color="muted">
+                {parseInlineMarkdown(follower.aspects.footer)}
+              </Text>
+            )}
+          </div>
+        )}
       </div>
       {inactive && activationNote && (
         <Text as="span" font="serif" size="xs" italic color="muted" className={styles.followerActivation}>
@@ -142,5 +210,56 @@ const HpInput = memo(({ index, followerName, isMultiHp, value, max, onFollowerHp
       />
       <Text as="span" font="serif" size="xs" color="muted">/{max}</Text>
     </label>
+  );
+});
+
+interface AspectDieProps {
+  rowId: string;
+  label: string;
+  value: string;
+  min: number;
+  max: number;
+  disabled: boolean;
+  onChange?: (rowId: string, value: string) => void;
+}
+
+// The d4 write-in beside an aspect row: optimistic local state persisted on blur (so a debounced
+// Firestore echo doesn't jump the cursor), clamped to [min, max]. Blank stays blank.
+const AspectDie = memo(({ rowId, label, value, min, max, disabled, onChange }: AspectDieProps) => {
+  const [draft, setDraft] = useState(value);
+  const lastSaved = useRef(value);
+  useEffect(() => {
+    if (value === lastSaved.current) return;
+    lastSaved.current = value;
+    setDraft(value);
+  }, [value]);
+  const commit = useCallback(
+    (raw: string) => {
+      let next = raw;
+      if (raw !== '') {
+        const n = Math.round(Number(raw));
+        next = Number.isNaN(n) ? '' : String(Math.min(max, Math.max(min, n)));
+      }
+      setDraft(next);
+      if (next === lastSaved.current) return;
+      lastSaved.current = next;
+      onChange?.(rowId, next);
+    },
+    [max, min, onChange, rowId],
+  );
+  return (
+    <input
+      type="number"
+      className={styles.aspectDie}
+      value={draft}
+      min={min}
+      max={max}
+      inputMode="numeric"
+      disabled={disabled}
+      aria-label={label}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={(e) => commit(e.target.value)}
+      onWheel={(e) => e.currentTarget.blur()}
+    />
   );
 });
