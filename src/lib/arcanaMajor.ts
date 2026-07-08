@@ -1415,80 +1415,122 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
   {
     id: "rune-laden-scales",
     name: "Rune-laden Scales",
-    tags: "◊◊, 2 armor, magical",
+    tags: "2 armor, magical",
     weight: 2,
     description:
-      "An ancient vest of bluish steel, each scale etched with a silvery rune similar to those found among the ruins near Barrier Pass. A working of the Makers, no doubt, or at least of their most gifted students. The armor is surprisingly light and supple. The scales are always cold to the touch, and often edged in frost.",
-    baseMoves: [
-      {
-        name: "Wear the Rune-laden Scales",
-        text: "You are perfectly comfortable in cold weather and suffer no harm from exposure or magic that might otherwise freeze your flesh. You have no such immunity to secondary effects of ice-magic, such as slipping, being impaled by an icicle, becoming encased in a block of ice, or the like.",
-      },
-      {
-        name: "Wear the Rune-laden Scales and stand fast against a magical attack",
-        text: "Roll +CON: **on a 10+**, the magic washes over you, unpleasant perhaps but with no ill effect; **on a 7-9**, you're only partially affected—suffer half damage (if any) and a reduced effect; **on a 6-**, mark XP, and the magic affects you fully.",
-      },
-      {
-        name: "Wear the Rune-laden Scales and defeat a wielder of chaotic magic",
-        text: "Mark 1.",
-      },
-    ],
+      "An ancient vest of bluish steel, each scale etched with a silvery rune similar to those found among the ruins near Barrier Pass. A working of the Makers, no doubt, or at least of their most gifted students. The armor is surprisingly light and supple. The scales are always cold to the touch, and often edged in frost.\n\n---\n\nWhen you **wear the Rune-laden Scales**, you are perfectly comfortable in cold weather and suffer no harm from exposure or magic that might otherwise freeze your flesh. You have no such immunity to secondary effects of ice-magic, such as slipping, being impaled by an icicle, becoming encased in a block of ice, or the like.\n\nWhen you **wear the Rune-laden Scales and stand fast against a magical attack**, roll +CON: **on a 10+**, the magic washes over you, unpleasant perhaps but with no ill effect; **on a 7-9**, you're only partially affected—suffer half damage (if any) and a reduced effect; **on a 6-**, mark XP, and the magic affects you fully.\n\nWhen you **wear the Rune-laden Scales and defeat a wielder of chaotic magic**, mark 1.\n\nWhen you **make the last mark**, you unlock the mysteries of the armor. Gain a move of your choice (in the Mysteries), but also mark a consequence. Then, erase all marks.",
     frontTrackers: [{ id: "marks", label: "marks", max: 5, role: "marks" }],
-    mystery: {
-      moves: [
+    back: {
+      label: "Mysteries of the Rune-laden Scales",
+      sections: [
         {
-          id: "indomitable",
-          name: "Indomitable",
-          text: "When you **wear the Scales and stand fast against a magical attack**, you can mark a consequence after you roll to add 3 to the result.",
-        },
-        {
-          id: "magnet",
-          name: "Magnet",
-          text: "When you **witness a magical attack**, you can either spend 1 Readiness (from the Defend move) or mark a consequence to redirect the magic so that it affects only you. You can then stand fast against it.",
-        },
-        {
-          id: "power-sink",
-          name: "Power Sink",
-          text: "When you **wear the Rune-laden Scales and stand fast against a magical attack**, **on a 12+** the armor drains the attacker's power. That form of attack is lost to them, though they might regain it with time, study, or effort.\n\nWhen you **wear the Rune-laden Scales and spend time in quiet communion with the elements**, the power absorbed by the armor dissipates harmlessly.\n\nIf you **trigger Power Sink again before dissipating the absorbed power**, mark XP, ask the GM what happens, and brace yourself for the worst.",
-        },
-        {
-          id: "proof-against-harm",
-          name: "Proof Against Harm",
-          text: "The Rune-laden Scales now provide you 3 armor, even against piercing and attacks that normally ignore armor.\n\nWhen you **wear the Rune-laden Scales and find yourself at Death's Door**, you may mark a consequence before you roll to automatically get a 10+.",
-        },
-      ],
-      consequences: [
-        {
-          id: "scales-c1",
-          text: "You no longer mark 1 (per the move above) when you simply *defeat* a being that wields chaotic magic; you must destroy it instead.",
-          children: [
+          label: "Moves",
+          content: [
             {
-              id: "scales-c1a",
-              text: "Mere minions and mindless horrors will no longer suffice. You only mark 1 for destroying a potent agent of chaos, such as a mighty demon or sorcerer.",
+              id: "indomitable",
+              name: "Indomitable",
+              selectable: true,
+              citation: "Book 2, p. 563",
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **wear the Scales and stand fast against a magical attack**, you can mark a consequence after you roll to add 3 to the result.",
+                },
+              ],
+            },
+            {
+              id: "magnet",
+              name: "Magnet",
+              selectable: true,
+              citation: "Book 2, p. 563",
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **witness a magical attack**, you can either spend 1 Readiness (from the Defend move) or mark a consequence to redirect the magic so that it affects only you. You can then stand fast against it.",
+                },
+              ],
+            },
+            {
+              id: "power-sink",
+              name: "Power Sink",
+              selectable: true,
+              citation: "Book 2, p. 563",
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **wear the Rune-laden Scales and stand fast against a magical attack**, **on a 12+** the armor drains the attacker's power. That form of attack is lost to them, though they might regain it with time, study, or effort.",
+                },
+                {
+                  kind: "para",
+                  text: "When you **wear the Rune-laden Scales and spend time in quiet communion with the elements**, the power absorbed by the armor dissipates harmlessly.",
+                },
+                {
+                  kind: "para",
+                  text: "If you **trigger Power Sink again before dissipating the absorbed power**, mark XP, ask the GM what happens, and brace yourself for the worst.",
+                },
+              ],
+            },
+            {
+              id: "proof-against-harm",
+              name: "Proof Against Harm",
+              selectable: true,
+              citation: "Book 2, p. 563",
+              body: [
+                {
+                  kind: "para",
+                  text: "The Rune-laden Scales now provide you 3 armor, even against piercing and attacks that normally ignore armor.",
+                },
+                {
+                  kind: "para",
+                  text: "When you **wear the Rune-laden Scales and find yourself at Death's Door**, you may mark a consequence before you roll to automatically get a 10+.",
+                },
+              ],
             },
           ],
         },
         {
-          id: "scales-c2",
-          text: "When you **use or knowingly submit to chaotic magic**, the Rune-laden Scales cease to benefit you or anyone you consider to be a friend or ally.",
-        },
-        {
-          id: "scales-c3",
-          text: "When you **kill a living creature out of anger, fear, or passion**, even an agent of chaos, take disadvantage on all rolls until you ceremonially atone and purify yourself.",
-          children: [
+          label: "Consequences",
+          content: [
             {
-              id: "scales-c3a",
-              text: "When you **take any violent action out of anger, fear, or passion**, even against an agent of chaos, take disadvantage on all rolls until you ceremonially atone and purify yourself.",
+              id: "scales-c1",
+              value:
+                "You no longer mark 1 when you simply *defeat* a being that wields chaotic magic; you must destroy it instead.",
+              children: [
+                {
+                  id: "scales-c1a",
+                  value:
+                    "Mere minions and mindless horrors will no longer suffice. You only mark 1 for destroying a potent agent of chaos, such as a mighty demon or sorcerer.",
+                },
+              ],
+            },
+            {
+              id: "scales-c2",
+              value:
+                "When you **use or knowingly submit to chaotic magic**, the Rune-laden Scales cease to benefit you or anyone you consider to be a friend or ally.",
+            },
+            {
+              id: "scales-c3",
+              value:
+                "When you **kill a living creature out of anger, fear, or passion**, even an agent of chaos, take disadvantage on all rolls until you ceremonially atone and purify yourself.",
+              children: [
+                {
+                  id: "scales-c3a",
+                  value:
+                    "When you **take any violent action out of anger, fear, or passion**, even against an agent of chaos, take disadvantage on all rolls until you ceremonially atone and purify yourself.",
+                },
+              ],
+            },
+            {
+              id: "scales-c4",
+              value:
+                "You come to the attention of one of the mightiest of the Things Below, and they make your doom—or your corruption—a priority.",
+            },
+            {
+              id: "scales-c5",
+              value:
+                "You ascend into a vision state, in which you meet the spirit of the last hero to wear the Scales. Should you refuse the quest they offer, the Rune-laden Scales cease to function.",
             },
           ],
-        },
-        {
-          id: "scales-c4",
-          text: "You come to the attention of one of the mightiest of the Things Below, and they make your doom—or your corruption—a priority.",
-        },
-        {
-          id: "scales-c5",
-          text: "You ascend into a vision state, in which you meet the spirit of the last hero to wear the Scales. Should you refuse the quest they offer, the Rune-laden Scales cease to function.",
         },
       ],
     },

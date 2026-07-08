@@ -7,6 +7,19 @@ import { MajorArcanaCard } from './MajorArcanaCard';
 import { AddArcanaModal } from './AddArcanaModal';
 import styles from './ArcanaPanel.module.css';
 
+// Set an entry's marks and latch `everUnlocked` the first time marks reach the unlock threshold (the
+// tracker's `unlockAt`, or its `max` when unspecified). Once latched it never clears, so an arcanum that
+// erases all marks after each unlock keeps its Mysteries revealed. Never un-latches: erasing marks is
+// the intended flow, not a mistake to undo.
+export const withMarks = (entry: ArcanaMajorEntry, marksValue: number): ArcanaMajorEntry => {
+  const marksTracker = MAJOR_ARCANA.find((m) => m.id === entry.id)?.frontTrackers.find(
+    (t) => t.role === 'marks',
+  );
+  const threshold = marksTracker?.unlockAt ?? marksTracker?.max ?? 0;
+  const everUnlocked = entry.everUnlocked || (threshold > 0 && marksValue >= threshold);
+  return { ...entry, marksValue, everUnlocked };
+};
+
 interface MajorArcanaCardRowProps {
   entry: ArcanaMajorEntry;
   arcanum: MajorArcanum;
@@ -90,7 +103,7 @@ export const MajorArcanaPanel = ({ arcanaMajor, arcanaMajorRef, saveMajor, actio
 
   const handleMajorMarksChange = useCallback(
     (id: string, value: number) => {
-      saveMajor(arcanaMajorRef.current.map((a) => (a.id === id ? { ...a, marksValue: value } : a)));
+      saveMajor(arcanaMajorRef.current.map((a) => (a.id === id ? withMarks(a, value) : a)));
     },
     [saveMajor],
   );
@@ -137,7 +150,7 @@ export const MajorArcanaPanel = ({ arcanaMajor, arcanaMajorRef, saveMajor, actio
         const marksValue = Object.entries(consequencesMarked).filter(
           ([key, checked]) => key.startsWith('task-') && checked,
         ).length;
-        return { ...a, consequencesMarked, marksValue };
+        return { ...withMarks(a, marksValue), consequencesMarked };
       }));
       if (actionChange && Object.keys(actionChange.dataPatch).length > 0) {
         saveCharacterData(actionChange.dataPatch);
