@@ -1538,70 +1538,89 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
   {
     id: "blackwood-fetishes",
     name: "Blackwood Fetishes",
-    tags: "◊, magical, indestructible",
+    tags: "magical, indestructible",
     weight: 1,
     description:
-      "A pair of wooden figurines, carved from blackwood and worn smooth with age and use. A whitish shaft has been driven into the top of each figurine's head, and the eyes and forehead of each are stained a rusty, reddish color.\n\nThe figurines resist all mundane attempts to damage them. Such attempts might mar them slightly, but their forms hold fast.",
-    baseMoves: [
-      {
-        name: "Mark a figurine's eyes with blood and likewise mark your own eyelids",
-        text: "You see through the eyes of the figurine whenever you close your eyes, for as long as the blood remains.",
-      },
-      {
-        name: "Anoint a figurine with your own blood and then sleep in its presence",
-        text: "Roll +CON: **on a 10+**, you dream lucidly of the spirit in the figurine, which speaks an archaic but intelligible dialect—it might be persuaded to reveal its name, or the name of its fellow spirit, or the method of calling them forth; **on a 7-9**, you dream of the spirit, but the dream is fleeting, strange, and disorienting—ask the GM what you learn of the spirit.",
-      },
-      {
-        name: "Learn the name of one of the bound spirits",
-        subtitle: "or the sign that draws them forth and binds them",
-        text: "Mark 1.",
-      },
-    ],
+      "A pair of wooden figurines, carved from blackwood and worn smooth with age and use. A whitish shaft has been driven into the top of each figurine's head, and the eyes and forehead of each are stained a rusty, reddish color.\n\nThe figurines resist all mundane attempts to damage them. Such attempts might mar them slightly, but their forms hold fast.\n\n---\n\nWhen you **mark a figurine's eyes with blood and likewise mark your own eyelids**, you see through the eyes of the figurine whenever you close your eyes, for as long as the blood remains.\n\nWhen you **anoint a figurine with your own blood and then sleep in its presence**, roll +CON: **on a 10+**, you dream lucidly of the spirit in the figurine, which speaks an archaic but intelligible dialect—it might be persuaded to reveal its name, or the name of its fellow spirit, or the method of calling them forth; **on a 7-9**, you dream of the spirit, but the dream is fleeting, strange, and disorienting—ask the GM what you learn of the spirit.\n\nWhen you **learn the name of one of the bound spirits, or the sign that draws them forth and binds them**, mark 1.\n\nWhen you **make the last mark**, you unlock the mysteries of the Blackwood Fetishes and can use Call Forth and Command (in the Mysteries).",
     frontTrackers: [{ id: "marks", label: "marks", max: 3, role: "marks" }],
-    mystery: {
-      moves: [
+    back: {
+      label: "Mysteries of the Blackwood Fetishes",
+      sections: [
         {
-          id: "call-forth-and-command",
-          name: "Call Forth and Command",
-          text: "When you **mark both figurines with your own blood and call both Astor and Halix by name**, their ghosts manifest before you. Treat them as followers. They are bound to obey your direct commands and can take no overt action against you, but you might need to Persuade them to do anything other than follow your orders to the letter.\n\nWhen you **dismiss either Astor or Halix**, both return to their figurines until you call them forth again.\n\nWhen **either Astor or Halix is banished or reduced to 0 HP**, they both return to their respective fetish. They cannot be called forth again until the next new moon.\n\n*In life, Astor was a hunter, low-born but handsome and proud. Halix was the lordly heir of Astor's people: spoiled, manipulative, vain. Halix took Astor as one of many furtive lovers, making an insincere blood-oath that one day they would wed.*\n\n*Their clan fell under the sway of a sorcerer. Astor snuck away to warn the Makers of rebellion, but Halix sided with the sorcerer. The sorcerer used the blood-oath between them to work foul magic, wrenching Astor's soul from their body and binding it. To their surprise, Halix's soul was likewise bound. The sorcerer used them as spies and assassins, leaving Astor's once-noble soul bitter and distrustful. Halix, though, revels in immortality and delights in the opportunities afforded by this undead state.*",
-          follower: {
-            name: "Astor",
-            tags: "undead, spirit, hunter, cunning, jealous, sarcastic, warrior",
-            hp: 13,
-            armor: 1,
-            damage: "ghostly spear d8 (reach, ignores armor)",
-            instinct: "to comply maliciously",
-            qualities: [
-              "Stalk assigned prey",
-              "Manifest a ghostly presence (harmed only by silver or salt)",
-              "Make a pessimistic observation",
-            ],
-            cost: "proof of honor, nobility (Loyalty ◻◻◻)",
-          },
+          label: "Moves",
+          content: [
+            {
+              id: "call-forth-and-command",
+              name: "Call Forth and Command",
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **mark both figurines with your own blood and call both Astor and Halix by name**, their ghosts manifest before you. Treat them as followers. They are bound to obey your direct commands and can take no overt action against you, but you might need to Persuade them to do anything other than follow your orders to the letter.",
+                },
+                {
+                  kind: "para",
+                  text: "When you **dismiss either Astor or Halix**, both return to their figurines until you call them forth again.",
+                },
+                {
+                  kind: "para",
+                  text: "When **either Astor or Halix is banished or reduced to 0 HP**, they both return to their respective fetish. They cannot be called forth again until the next new moon.",
+                },
+                {
+                  kind: "para",
+                  text: "*In life, Astor was a hunter, low-born but handsome and proud. Halix was the lordly heir of Astor's people: spoiled, manipulative, vain. Halix took Astor as one of many furtive lovers, making an insincere blood-oath that one day they would wed.*",
+                },
+                {
+                  kind: "para",
+                  text: "*Their clan fell under the sway of a sorcerer. Astor snuck away to warn the Makers of rebellion, but Halix sided with the sorcerer. The sorcerer used the blood-oath between them to work foul magic, wrenching Astor's soul from their body and binding it. To their surprise, Halix's soul was likewise bound. The sorcerer used them as spies and assassins, leaving Astor's once-noble soul bitter and distrustful. Halix, though, revels in immortality and delights in the opportunities afforded by this undead state.*",
+                },
+              ],
+            },
+          ],
         },
         {
-          id: "halix",
-          name: "Halix",
-          text: "Halix accompanies Astor when called forth (see Call Forth and Command).",
-          follower: {
-            name: "Halix",
-            tags: "undead, spirit, magical, hedonistic, cautious, devious, stealthy, exceptional",
-            hp: 10,
-            armor: 1,
-            damage:
-              "ghostly touch d4 (band, ignores armor) or host's weapon d6 (tags vary)",
-            instinct: "to second-guess your decisions",
-            qualities: [
-              "Manifest a ghostly presence (harmed only by silver or salt)",
-              "Possess an inebriated victim",
-              "Spot a weakness, want, or fear",
-              "Spin plots and falsehoods",
-            ],
-            cost: "pleasures of the flesh (Loyalty ◻◻◻)",
-          },
+          label: "Followers",
+          content: [
+            {
+              id: "call-forth-and-command",
+              follower: {
+                name: "Astor",
+                tags: "undead, spirit, hunter, cunning, jealous, sarcastic, warrior",
+                hp: 13,
+                armor: 1,
+                damage: "ghostly spear d8 (reach, ignores armor)",
+                instinct: "to comply maliciously",
+                qualities: [
+                  "Stalk assigned prey",
+                  "Manifest a ghostly presence (harmed only by silver or salt)",
+                  "Make a pessimistic observation",
+                ],
+                loyalty: 3,
+                cost: "proof of honor, nobility",
+              },
+            },
+            {
+              id: "halix",
+              follower: {
+                name: "Halix",
+                tags: "undead, spirit, magical, hedonistic, cautious, devious, stealthy, exceptional",
+                hp: 10,
+                armor: 1,
+                damage:
+                  "ghostly touch d4 (hand, ignores armor) or host's weapon d6 (tags vary)",
+                instinct: "to second-guess your decisions",
+                qualities: [
+                  "Manifest a ghostly presence (harmed only by silver or salt)",
+                  "Possess an inebriated victim",
+                  "Spot a weakness, want, or fear",
+                  "Spin plots and falsehoods",
+                ],
+                loyalty: 3,
+                cost: "pleasures of the flesh",
+              },
+            },
+          ],
         },
       ],
-      consequences: [],
     },
   },
   {

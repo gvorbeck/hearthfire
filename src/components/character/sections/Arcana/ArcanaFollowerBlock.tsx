@@ -101,15 +101,18 @@ export const ArcanaFollowerBlock = memo(({
         )}
         <div className={styles.followerInstinct}>
           <Text as="span" font="serif" size="xs" color="muted">Instinct: </Text>
-          <Text as="span" font="serif" size="xs" italic>{follower.instinct}</Text>
+          <Text as="span" font="serif" size="xs">{follower.instinct}</Text>
         </div>
         {follower.qualities && (
-          <List
-            variant="bullet"
-            items={follower.qualities.map((q, i) => (
-              <Text key={`quality-${arcanaId}-${i}`} as="span" font="serif" size="xs">{q}</Text>
-            ))}
-          />
+          <div className={styles.followerMoves}>
+            <Text as="span" font="serif" size="xs" color="muted">Moves</Text>
+            <List
+              variant="bullet"
+              items={follower.qualities.map((q, i) => (
+                <Text key={`quality-${arcanaId}-${i}`} as="span" font="serif" size="xs">{q}</Text>
+              ))}
+            />
+          </div>
         )}
         {follower.cost && (
           <div className={styles.followerCost}>
