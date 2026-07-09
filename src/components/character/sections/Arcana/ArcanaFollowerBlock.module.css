@@ -44,7 +44,7 @@
 }
 
 .followerHpInput {
-  width: 3.5rem;
+  width: 2.5rem;
   padding: 2px var(--spacing-1);
   background: var(--surface-raised);
   border: 1px solid var(--border-strong);
@@ -54,6 +54,15 @@
   font-size: var(--text-xs);
   text-align: center;
   outline: none;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Drop the native number spinner: it pads the box on the right and reads as clutter. */
+.followerHpInput::-webkit-outer-spin-button,
+.followerHpInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .followerHpInput:focus-visible {
@@ -78,6 +87,12 @@
   display: flex;
   flex-wrap: wrap;
   gap: 2px;
+}
+
+.followerMoves {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
 }
 
 /* ── Rolled aspects (Servant of Daagon's d4 assignments) ── */
