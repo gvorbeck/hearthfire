@@ -169,6 +169,10 @@ const applyOne = (
       // No write: like setInstinct, a replaced follower Cost is derived read-only from marked state
       // (see getMarkedFollowerCost) and applied to the follower card at render, so nothing persists.
       return {};
+    case "widenDots":
+      // No write: the dot-control widening is derived read-only from marked state by useArcanumGating's
+      // dotBonusFor (which reads this action alongside a move's grantsDotBonus), so nothing persists.
+      return {};
     case "armor": {
       // Additive: add the amount on mark, subtract it on unmark, relative to the running armor value.
       // No stash/lock — the box stays editable and the delta composes with manual edits and other grants.
