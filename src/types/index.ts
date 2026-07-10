@@ -218,6 +218,10 @@ export type ConsequenceAction =
   // Adjust the PC's Armor stat by `amount` while marked (e.g. the Lidless Orb's scales → +1 armor),
   // undoing the same delta on unmark. Additive, so it composes with manual edits and other armor grants.
   | { type: "armor"; amount: number }
+  // Widen a back move's dot control by `amount` while marked (e.g. Storm Markings' "gain +1 Fury"
+  // consequence widens Storm's Fury from 3 to 4 Fury). Like setInstinct, derived read-only from marked
+  // state — nothing persisted; useArcanumGating's dotBonusFor reads it alongside a move's grantsDotBonus.
+  | { type: "widenDots"; targetId: string; amount: number }
   // --- Creature-side: applied by lib/creatureMutations.ts (see CreatureEffect above) ---
   // Add/remove/replace a tag on the arcanum's creature (e.g. the Mindgem's Servant gaining *devious*).
   | { type: "addTag"; tag: string }

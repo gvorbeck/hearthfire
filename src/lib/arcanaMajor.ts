@@ -1628,61 +1628,106 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     name: "Storm Markings",
     tags: "implanted, magical",
     description:
-      "A series of branching, tree-like markings coursing up and down your skin. Usually pale blue, almost like veins, but when you become agitated they seem to glow, pulse, and ripple with light.\n\nThe markings are usually seen as a blessing of Tor (rainmaker, thunderhead, slayer-of-beasts). But like most blessings of the gods, they are also a great burden.",
-    baseMoves: [
-      {
-        name: "Roil with anger",
-        text: "You do +1 damage until you calm down. But when you **try to control your temper**, roll +WIS: **on a 10+**, you keep your cool and act as you wish; **on a 7-9**, choose 1 from the list below; **on a 6-**, you just lose it—tell the GM what damn fool thing you end up doing.\n\n- Take some deep breaths and count to ten, fuming all the while\n- Vent your rage, but tell us how and on what",
-      },
-      {
-        name: "Are struck by lightning or an electrical discharge",
-        text: "Mark 1, take no damage, and suffer no ill effects (your gear, alas, has no such protection).",
-      },
-    ],
+      "A series of branching, tree-like markings coursing up and down your skin. Usually pale blue, almost like veins, but when you become agitated they seem to glow, pulse, and ripple with light.\n\nThe markings are usually seen as a blessing of Tor (rainmaker, thunderhead, slayer-of-beasts). But like most blessings of the gods, they are also a great burden.\n\n---\n\nWhen you **roil with anger**, you do +1 damage until you calm down. But when you **try to control your temper**, roll +WIS: **on a 10+**, you keep your cool and act as you wish; **on a 7-9**, choose 1 from the list below; **on a 6-**, you just lose it—tell the GM what damn fool thing you end up doing.\n\n- Take some deep breaths and count to ten, fuming all the while\n- Vent your rage, but tell us how and on what\n\nWhen you **are struck by lightning or an electrical discharge**, mark 1, take no damage, and suffer no ill effects (your gear, alas, has no such protection).\n\nWhen you **make the last mark**, you unlock the mysteries of the Storm Markings and can use Storm's Fury.\n\nWhen you **would make a mark but have already marked all 3**, set your Fury to 3.",
     frontTrackers: [{ id: "marks", label: "marks", max: 3, role: "marks" }],
-    mystery: {
-      moves: [
+    back: {
+      label: "Mysteries of the Storm Markings",
+      sections: [
         {
-          id: "storms-fury",
-          name: "Storm's Fury",
-          subtitle: "begin to roil with anger",
-          tracker: { label: "Fury", max: 3 },
-          text: "Your markings crackle with electricity and the air thrums with pressure. Roll +CON: **on a 10+**, hold 3 Fury; **on a 7-9**, hold 2 Fury; **on a 6-**, hold 2 Fury but also mark a consequence.\n\nYou may spend Fury 1-for-1 to manifest one of the following:\n\n- Imbue your next strike with the force of thunder (+1d6 damage, *forceful, loud*)\n- Move like lightning, closing the distance between you and a nearby foe before they can react\n- Bellow like the storm itself, drawing no small amount of attention and making craven foes cringe in fear\n\nWhen you **have marked 3 consequences**, you gain Chosen of the Storm-bringer.",
-        },
-        {
-          id: "chosen-of-the-storm-bringer",
-          name: "Chosen of the Storm-bringer",
-          text: "Add these to the list of potential manifestations granted by Storm's Fury:\n\n- Roll +CON to Let Fly with a bolt of lightning (2d6 damage, *thrown, forceful, loud, dangerous*, ignores armor)\n- Make a prodigious leap, buoyed by the wind\n- Summon a powerful gale with you at its center—dirt and debris swirl about, the wind is deafening, people must brace themselves to keep from getting bowled over, projectiles careen off course—and take disadvantage on all rolls as long as you sustain it",
-        },
-      ],
-      consequences: [
-        {
-          id: "storm-c1",
-          text: "◻◻◻ Lightning begins to arc off of you, striking objects and creatures nearby at random for 2d6 damage (*near, forceful, loud*, ignores armor). This lasts until you calm down.",
-        },
-        {
-          id: "storm-c2",
-          text: "◻◻ A gale of winds forms around you, as with Chosen of the Storm-bringer (even if you can't normally use that move). You can't dismiss it easily; the effects (including the disadvantage) continue until you calm down.",
-        },
-        {
-          id: "storm-c3",
-          text: "Name an NPC who is present and whose regard you value. They are terrified of the power you wield and grow distant.",
-        },
-        {
-          id: "storm-c4",
-          text: "From now on, when you gain Fury, gain +1 Fury. But you also have disadvantage on rolls to control your temper.",
-        },
-        {
-          id: "storm-c5",
-          text: "A storm forms (or worsens) in your immediate area. It arrives unnaturally fast, but not miraculously so.",
-        },
-        {
-          id: "storm-c6",
-          text: "A terrible storm begins to form in your immediate area and pummels the entire region. Blizzards, tornados, floods—it's bad.",
-          children: [
+          label: "Moves",
+          content: [
             {
-              id: "storm-c6a",
-              text: "A terrible storm forms (as above) and the weather remains freakish for a few months. Your steading takes -2 to its next roll to generate Surplus, and its next Fortunes roll for Seasons Change is automatically a 6-. Other communities in the region likewise suffer.",
+              id: "storms-fury",
+              name: "Storm's Fury",
+              rightControl: [{ type: "dot", number: 3, label: "Fury" }],
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **begin to roil with anger**, your markings crackle with electricity and the air thrums with pressure. Roll +CON: **on a 10+**, hold 3 Fury; **on a 7-9**, hold 2 Fury; **on a 6-**, hold 2 Fury but also mark a consequence.",
+                },
+                {
+                  kind: "para",
+                  text: "You may spend Fury 1-for-1 to manifest one of the following:",
+                },
+                {
+                  kind: "list",
+                  items: [
+                    "Imbue your next strike with the force of thunder (+1d6 damage, *forceful, loud*)",
+                    "Move like lightning, closing the distance between you and a nearby foe before they can react",
+                    "Bellow like the storm itself, drawing no small amount of attention and making craven foes cringe in fear",
+                  ],
+                },
+                {
+                  kind: "para",
+                  text: "When you **have marked 3 consequences**, you gain Chosen of the Storm-bringer.",
+                },
+              ],
+              citation: "Book 2, p. 567",
+            },
+            {
+              id: "chosen-of-the-storm-bringer",
+              name: "Chosen of the Storm-bringer",
+              requiresConsequences: 3,
+              body: [
+                {
+                  kind: "para",
+                  text: "Add these to the list of potential manifestations granted by Storm's Fury:",
+                },
+                {
+                  kind: "list",
+                  items: [
+                    "Roll +CON to Let Fly with a bolt of lightning (2d6 damage, *thrown, forceful, loud, dangerous*, ignores armor)",
+                    "Make a prodigious leap, buoyed by the wind",
+                    "Summon a powerful gale with you at its center—dirt and debris swirl about, the wind is deafening, people must brace themselves to keep from getting bowled over, projectiles careen off course—and take disadvantage on all rolls as long as you sustain it",
+                  ],
+                },
+              ],
+              citation: "Book 2, p. 567",
+            },
+          ],
+        },
+        {
+          label: "Consequences",
+          content: [
+            {
+              id: "storm-c1",
+              checkboxes: 3,
+              value:
+                "Lightning begins to arc off of you, striking objects and creatures nearby at random for 2d6 damage (*near, forceful, loud*, ignores armor). This lasts until you calm down.",
+            },
+            {
+              id: "storm-c2",
+              checkboxes: 2,
+              value:
+                "A gale of winds forms around you, as with Chosen of the Storm-bringer (even if you can't normally use that move). You can't dismiss it easily; the effects (including the disadvantage) continue until you calm down.",
+            },
+            {
+              id: "storm-c3",
+              value:
+                "Name an NPC who is present and whose regard you value. They are terrified of the power you wield and grow distant.",
+            },
+            {
+              id: "storm-c4",
+              value:
+                "From now on, when you gain Fury, gain +1 Fury. But you also have disadvantage on rolls to control your temper.",
+              actions: [{ type: "widenDots", targetId: "storms-fury", amount: 1 }],
+            },
+            {
+              id: "storm-c5",
+              value:
+                "A storm forms (or worsens) in your immediate area. It arrives unnaturally fast, but not miraculously so.",
+            },
+            {
+              id: "storm-c6",
+              value:
+                "A terrible storm begins to form in your immediate area and pummels the entire region. Blizzards, tornados, floods—it's bad.",
+              children: [
+                {
+                  id: "storm-c6a",
+                  value:
+                    "A terrible storm forms (as above) and the weather remains freakish for a few months. Your steading takes -2 to its next roll to generate Surplus, and its next Fortunes roll for Seasons Change is automatically a 6-. Other communities in the region likewise suffer.",
+                },
+              ],
             },
           ],
         },

@@ -3,6 +3,7 @@ import { projectCreature } from "@/lib/creatureMutations";
 import type {
   ArcanaConsequence,
   ArcanaSection,
+  ConsequenceAction,
   Creature,
   MajorArcanum,
   MajorArcanaMystery,
@@ -13,12 +14,15 @@ import type {
 import { consequenceMarkId, markIdsFor } from "./arcanaParsing";
 
 type MysteryMove = MajorArcanaMystery["moves"][number];
+type WidenDotsAction = Extract<ConsequenceAction, { type: "widenDots" }>;
 
-// A consequence flattened to what the gating math needs: an id and its mark-box ids. Mystery
-// consequences derive box ids from the ◻-glyph prefix in their text; back consequences from `checkboxes`.
+// A consequence flattened to what the gating math needs: an id, its mark-box ids, and any `widenDots`
+// actions it carries. Mystery consequences derive box ids from the ◻-glyph prefix in their text; back
+// consequences from `checkboxes`. Only back consequences carry actions (mystery ones never do).
 interface FlatConsequence {
   id: string;
   markIds: string[];
+  widenDots: WidenDotsAction[];
 }
 
 // Back sections mix MoveDefinitions, ArcanaConsequences, and follower entries; these split a section's
@@ -40,6 +44,9 @@ const flattenBackConsequences = (
       id: c.id,
       markIds: Array.from({ length: c.checkboxes ?? 1 }, (_, i) =>
         consequenceMarkId(c.id, i),
+      ),
+      widenDots: (c.actions ?? []).filter(
+        (a): a is WidenDotsAction => a.type === "widenDots",
       ),
     },
     ...flattenBackConsequences(c.children ?? []),
@@ -99,10 +106,11 @@ export const useArcanumGating = (
 
   const allConsequences: FlatConsequence[] = useMemo(() => {
     const mysteryFlat = (mystery?.consequences ?? []).flatMap((c) => [
-      { id: c.id, markIds: markIdsFor(c.id, c.text) },
+      { id: c.id, markIds: markIdsFor(c.id, c.text), widenDots: [] },
       ...(c.children?.map((child) => ({
         id: child.id,
         markIds: markIdsFor(child.id, child.text),
+        widenDots: [],
       })) ?? []),
     ]);
     const backFlat = (back?.sections ?? []).flatMap((s) =>
@@ -198,14 +206,28 @@ export const useArcanumGating = (
     };
 
     // A move declaring `grantsDotBonus` widens its target's dot control while it's selected (e.g. A
-    // Mighty Will → Mindwalking's Power +1). Sum the amount across every selected granting move, so a
-    // target with two active bonuses widens by both. Undefined when no active bonus applies.
-    const dotBonusFor = (targetId: string): number =>
-      allMoves.reduce((sum, m) => {
+    // Mighty Will → Mindwalking's Power +1); a marked consequence carrying a `widenDots` action does the
+    // same (e.g. Storm Markings' "gain +1 Fury" → Storm's Fury +1). Sum the amount across every selected
+    // granting move and every marked widening consequence, so a target with several active bonuses widens
+    // by all of them. Undefined when no active bonus applies.
+    const dotBonusFor = (targetId: string): number => {
+      const moveBonus = allMoves.reduce((sum, m) => {
         if (!("grantsDotBonus" in m) || !m.grantsDotBonus) return sum;
         if (m.grantsDotBonus.targetId !== targetId) return sum;
         return entry.mysteryMovesChecked[m.id] ? sum + m.grantsDotBonus.amount : sum;
       }, 0);
+      const consequenceBonus = allConsequences.reduce((sum, c) => {
+        const marked = c.markIds.some((id) => entry.consequencesMarked[id]);
+        if (!marked) return sum;
+        return (
+          sum +
+          c.widenDots
+            .filter((w) => w.targetId === targetId)
+            .reduce((acc, w) => acc + w.amount, 0)
+        );
+      }, 0);
+      return moveBonus + consequenceBonus;
+    };
 
     const dotOverrideFor = (
       move: MysteryMove,
