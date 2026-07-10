@@ -1739,67 +1739,113 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     name: "Ineffable Words",
     tags: "implanted, magical",
     description:
-      "Syllables of the first language, words of pure thought and will, emblazoned on your soul and tongue by some angelic force or being. A gift, perhaps. Or a terrible, terrible affliction.\n\nTheir power thrums inside you, pulsing against the crude vessel of your flesh and blood. Sometimes, under stress or simply out of the blue, you are struck with shakes and seizures. And when the tremors pass and your senses return, you find that you have scratched strange symbols in the dirt or on the walls. Sometimes in your own blood.",
-    baseMoves: [
-      {
-        name: "Enter an ecstatic delirium and allow the Ineffable Words to pour forth",
-        text: "Roll +CON: **on a 10+**, you speak Truth, revealing something new and interesting about the current situation—ask the GM what, and all present understand this Truth as though it were spoken in their native tongue; **on a 7-9**, the 10+ result applies, but choose 1 from the list below.\n\n- The Truth is cryptic, vague, incomplete\n- You are overcome, collapsing in a full-body seizure\n- You draw unwanted attention",
-      },
-      {
-        name: "Spend weeks in ascetic contemplation of the incommunicable words within you",
-        text: "Roll +WIS: **on a 10+**, you gain insight into the power within you—mark 1 below; **on a 7-9**, gain advantage on your next attempt to contemplate the words.",
-      },
-    ],
+      "Syllables of the first language, words of pure thought and will, emblazoned on your soul and tongue by some angelic force or being. A gift, perhaps. Or a terrible, terrible affliction.\n\nTheir power thrums inside you, pulsing against the crude vessel of your flesh and blood. Sometimes, under stress or simply out of the blue, you are struck with shakes and seizures. And when the tremors pass and your senses return, you find that you have scratched strange symbols in the dirt or on the walls. Sometimes in your own blood.\n\n---\n\nWhen you **enter an ecstatic delirium and allow the Ineffable Words to pour forth**, roll +CON: **on a 10+**, you speak Truth, revealing something new and interesting about the current situation—ask the GM what, and all present understand this Truth as though it were spoken in their native tongue; **on a 7-9**, the 10+ result applies, but choose 1 from the list below.\n\n- The Truth is cryptic, vague, incomplete\n- You are overcome, collapsing in a full-body seizure\n- You draw unwanted attention\n\nWhen you **spend weeks in ascetic contemplation of the incommunicable words within you**, roll +WIS: **on a 10+**, you gain insight into the power within you—mark 1 below; **on a 7-9**, gain advantage on your next attempt to contemplate the words.\n\nWhen you **make the last mark**, you unlock the mysteries of the Ineffable Words and can Speak the Unutterable (in the Mysteries). Choose 1 Word that you have mastered and erase all marks. Thereafter, when you make the last mark, choose another Word to master and erase all marks.",
     frontTrackers: [{ id: "marks", label: "marks", max: 3, role: "marks" }],
-    mystery: {
-      sectionLabel: "Mastered Words",
-      moves: [
+    back: {
+      label: "Mysteries of the Ineffable Words",
+      sections: [
         {
-          id: "speak-the-unutterable",
-          name: "Speak the Unutterable",
-          text: "When you **speak an Ineffable Word that you have mastered**, roll +CON: **on a 10+**, the Word's power manifests as described; **on a 7-9**, the Word's power manifests, but choose 1 from the list below; **on a 6-**, the GM says what happens (which may or may not involve marking a consequence).\n\n- You collapse in a full-body seizure\n- Mark a consequence",
+          label: "Moves",
+          content: [
+            {
+              id: "speak-the-unutterable",
+              name: "Speak the Unutterable",
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **speak an Ineffable Word that you have mastered**, roll +CON: **on a 10+**, the Word's power manifests as described; **on a 7-9**, the Word's power manifests, but choose 1 from the list below; **on a 6-**, the GM says what happens (which may or may not involve marking a consequence).",
+                },
+                {
+                  kind: "list",
+                  items: [
+                    "You collapse in a full-body seizure",
+                    "Mark a consequence",
+                  ],
+                },
+              ],
+            },
+          ],
         },
         {
-          id: "word-seal",
-          name: "Seal",
-          text: "Name a portal, clasp, or seam in your presence. If you speak this Word forward, the target seals shut and holds against any mundane attempt to open it. If you speak backward, the target is pried open or apart.",
+          label: "Mastered Words",
+          content: [
+            {
+              id: "word-seal",
+              name: "Seal",
+              selectable: true,
+              body: [
+                {
+                  kind: "para",
+                  text: "Name a portal, clasp, or seam in your presence. If you speak this Word forward, the target seals shut and holds against any mundane attempt to open it. If you speak backward, the target is pried open or apart.",
+                },
+              ],
+            },
+            {
+              id: "word-purify",
+              name: "Purify",
+              selectable: true,
+              body: [
+                {
+                  kind: "para",
+                  text: "Name an instance of corruption, infection, or taint in your presence. If you speak this Word forward, the target is cleansed. If you speak backward, the corruption grows and spreads aggressively.",
+                },
+              ],
+            },
+            {
+              id: "word-gather",
+              name: "Gather",
+              selectable: true,
+              body: [
+                {
+                  kind: "para",
+                  text: "Name an unliving object in your presence. If you speak this Word forward, the object is drawn forcefully towards you, possibly flying through the air and into your hand. If you speak backward, the object is flung away from you. If the object weighs more than you, or is secured by something that does, it is you that moves instead.",
+                },
+              ],
+            },
+            {
+              id: "word-empower",
+              name: "Empower",
+              selectable: true,
+              body: [
+                {
+                  kind: "para",
+                  text: "Name a living thing or vessel for power in your presence. If you speak this Word forward, the target surges with power. A creature heals 1d8 HP or gains advantage on its next roll. If you speak backward, the target is drained of energy. A creature takes 1d8 damage (ignores armor) or takes disadvantage on its next roll.",
+                },
+              ],
+            },
+          ],
         },
         {
-          id: "word-purify",
-          name: "Purify",
-          text: "Name an instance of corruption, infection, or taint in your presence. If you speak this Word forward, the target is cleansed. If you speak backward, the corruption grows and spreads aggressively.",
-        },
-        {
-          id: "word-gather",
-          name: "Gather",
-          text: "Name an unliving object in your presence. If you speak this Word forward, the object is drawn forcefully towards you, possibly flying through the air and into your hand. If you speak backward, the object is flung away from you. If the object weighs more than you, or is secured by something that does, it is you that moves instead.",
-        },
-        {
-          id: "word-empower",
-          name: "Empower",
-          text: "Name a living thing or vessel for power in your presence. If you speak this Word forward, the target surges with power. A creature heals 1d8 HP or gains advantage on its next roll. If you speak backward, the target is drained of energy. A creature takes 1d8 damage (ignores armor) or takes disadvantage on its next roll.",
-        },
-      ],
-      consequences: [
-        {
-          id: "words-c1",
-          text: "◻◻◻ The Word's power draws the attention of every magical being for miles around. They will recognize you on sight as the bearer of the Word.",
-        },
-        {
-          id: "words-c2",
-          text: "◻◻ The power of the Word overflows, affecting every possible target within *far* range to violent effect.",
-        },
-        {
-          id: "words-c3",
-          text: "Your voice takes on a metallic, inhuman edge. Henceforth, all creatures understand you as though you spoke their native tongue, but you can never again use language to lie or deceive.",
-        },
-        {
-          id: "words-c4",
-          text: "The Word tears reality, leaving a rift from which primordial power pours into the world. Expect all manner of strange and chaotic effects.",
-        },
-        {
-          id: "words-c5",
-          text: "You rouse an eternal, ancient being of Order. It seeks you out, implacably, to reprimand you for your reckless use of such primordial power.",
+          label: "Consequences",
+          content: [
+            {
+              id: "words-c1",
+              checkboxes: 3,
+              value:
+                "The Word's power draws the attention of every magical being for miles around. They will recognize you on sight as the bearer of the Word.",
+            },
+            {
+              id: "words-c2",
+              checkboxes: 2,
+              value:
+                "The power of the Word overflows, affecting every possible target within *far* range to violent effect.",
+            },
+            {
+              id: "words-c3",
+              value:
+                "Your voice takes on a metallic, inhuman edge. Henceforth, all creatures understand you as though you spoke their native tongue, but you can never again use language to lie or deceive.",
+            },
+            {
+              id: "words-c4",
+              value:
+                "The Word tears reality, leaving a rift from which primordial power pours into the world. Expect all manner of strange and chaotic effects.",
+            },
+            {
+              id: "words-c5",
+              value:
+                "You rouse an eternal, ancient being of Order. It seeks you out, implacably, to reprimand you for your reckless use of such primordial power.",
+            },
+          ],
         },
       ],
     },
