@@ -2129,7 +2129,8 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
             {
               id: "battery",
               name: "Battery",
-              rightControl: [{ type: "checkbox", label: "Stored Energy" }],
+              selectable: true,
+              rightControl: [{ type: "dot", number: 1, label: "Stored Energy" }],
               body: [
                 {
                   kind: "para",
@@ -2140,6 +2141,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
             {
               id: "eye-of-the-storm",
               name: "Eye of the Storm",
+              selectable: true,
               body: [
                 {
                   kind: "para",
@@ -2158,6 +2160,7 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
             {
               id: "resonance",
               name: "Resonance",
+              selectable: true,
               body: [
                 {
                   kind: "para",
