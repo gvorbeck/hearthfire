@@ -32,7 +32,10 @@ vi.mock('@/hooks/useGame', () => ({
 describe('CharacterSheet — playbook-specific sections', () => {
   it('renders Blessed-specific "Sacred Pouch" section for a blessed character', async () => {
     renderRoute(<CharacterPlaybook />, '/game/game-1/blessed', '/game/:id/:playbook');
-    // Playbook sections are lazy-loaded, so the section resolves asynchronously.
-    expect(await screen.findByText('Sacred Pouch')).toBeInTheDocument();
+    // Playbook sections are lazy-loaded, so the section resolves asynchronously. Cold CI runners can
+    // take longer than findByText's 1s default to resolve the dynamic import, so give it headroom.
+    expect(
+      await screen.findByText('Sacred Pouch', undefined, { timeout: 5000 }),
+    ).toBeInTheDocument();
   });
 });
