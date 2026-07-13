@@ -18,10 +18,10 @@ jobs:
           # "Failed to authenticate". See nodejs/node#63989, firebase-tools#10692.
           node-version: "22.20.0"
           cache: "npm"
-      - name: Upgrade npm
-        run: npm install -g npm@latest
       - name: Install dependencies
         run: npm ci
+      - name: Run tests
+        run: npm test
       - name: Build project
         run: npm run build
         env:

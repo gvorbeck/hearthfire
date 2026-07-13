@@ -1,5 +1,6 @@
-import { useRef, useCallback, useEffect, useState, type MutableRefObject } from 'react';
+import { useRef, useCallback, useEffect, useState, useInsertionEffect, type MutableRefObject } from 'react';
 import { useToastOptional } from '@/components/app/Toast/ToastContext';
+import { useLatest } from './useLatest';
 import { SAVE_ERROR_MESSAGE } from '@/lib/constants';
 
 interface UseDebouncedSaveReturn<T> {
@@ -34,12 +35,9 @@ export const useDebouncedSave = <T>(
   // The value waiting on the debounce timer, so unmount/pagehide can flush it
   // instead of silently discarding it.
   const queuedRef = useRef<{ value: T } | null>(null);
-  const onSaveRef = useRef(onSave);
-  onSaveRef.current = onSave;
-  const onErrorRef = useRef(onError);
-  onErrorRef.current = onError;
-  const onSuccessRef = useRef(onSuccess);
-  onSuccessRef.current = onSuccess;
+  const onSaveRef = useLatest(onSave);
+  const onErrorRef = useLatest(onError);
+  const onSuccessRef = useLatest(onSuccess);
 
   const addToast = useToastOptional()?.addToast;
 
@@ -93,7 +91,12 @@ export const useDebouncedSave = <T>(
     chainRef.current = run;
     return run;
   }, [setPending, addToast]);
-  saveRef.current = save;
+  // Mirror the latest `save` into a ref so the retry timer can call it without a
+  // circular useCallback dependency. Written in an insertion effect (not during
+  // render) to satisfy react-hooks/refs; the retry timer only fires post-commit.
+  useInsertionEffect(() => {
+    saveRef.current = save;
+  });
 
   const onChange = useCallback((value: T) => {
     if (JSON.stringify(value) !== lastSavedRef.current) setPending(true);

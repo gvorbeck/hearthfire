@@ -10,7 +10,6 @@ import { AddCharacterModal } from './modals/AddCharacterModal';
 import { RemoveCharacterModal } from './modals/RemoveCharacterModal';
 import { GameGuard } from '@/components/app/GameGuard/GameGuard';
 import { PageLayout } from '@/components/app/PageLayout/PageLayout';
-import { buildGameNav } from '@/components/app/PageHeader/gameNav';
 import type { Character, GameSession } from '@/types';
 import styles from './Game.module.css';
 
@@ -134,7 +133,6 @@ const GameContent = ({
   onReorderCharacters,
 }: GameContentProps) => {
   const gameName = g.name || DEFAULT_GAME_NAME;
-  const nav = useMemo(() => buildGameNav(g, id, `/game/${id}`), [g, id]);
   const [removingCharacter, setRemovingCharacter] = useState<Character | null>(null);
   const [orderedCharacters, setOrderedCharacters] = useState<Character[]>(g.characters);
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -223,24 +221,31 @@ const GameContent = ({
         title={`${gameName} — Hearthfire`}
         description={`Party tracker for ${gameName}. Manage characters and GM playbook.`}
       />
-      <GameIdModal gameId={id} open={showIdModal} onClose={onCloseIdModal} />
-      <AddCharacterModal
-        open={showAddCharacter}
-        onClose={onCloseAddCharacter}
-        existingPlaybooks={existingPlaybooks}
-        onAdd={onAddCharacter}
-      />
-      <RemoveCharacterModal
-        open={!!removingCharacter}
-        character={removingCharacter}
-        onClose={handleCloseRemoveModal}
-        onConfirm={handleConfirmRemove}
-      />
+      {/* Mounted only while open so per-open UI state (spinners, copy feedback)
+          resets on each open without a reset effect. */}
+      {showIdModal && (
+        <GameIdModal gameId={id} open={showIdModal} onClose={onCloseIdModal} />
+      )}
+      {showAddCharacter && (
+        <AddCharacterModal
+          open={showAddCharacter}
+          onClose={onCloseAddCharacter}
+          existingPlaybooks={existingPlaybooks}
+          onAdd={onAddCharacter}
+        />
+      )}
+      {!!removingCharacter && (
+        <RemoveCharacterModal
+          open={!!removingCharacter}
+          character={removingCharacter}
+          onClose={handleCloseRemoveModal}
+          onConfirm={handleConfirmRemove}
+        />
+      )}
       <PageLayout
         title={gameName}
         titleLabel="Edit game name"
         gameId={id}
-        nav={nav}
         onSaveTitle={onSaveTitle}
       >
         <div className={styles.sections}>

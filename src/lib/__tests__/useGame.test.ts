@@ -9,17 +9,31 @@ describe('parseCharacters', () => {
     expect(result[0].id).toBe('1');
   });
 
-  it('rejects entries with an unknown playbook or wrong-typed fields', () => {
+  it('rejects entries with an unknown playbook or wrong-typed id/name', () => {
     const raw = {
       characters: [
         { id: '1', name: 'Ok', playbook: 'heavy', level: 1 },
         { id: '2', name: 'Bad PB', playbook: 'wizard', level: 1 },
-        { id: '3', name: 'No level', playbook: 'fox' },
         { id: 4, name: 'Numeric id', playbook: 'fox', level: 1 },
       ],
     };
     const result = parseCharacters(raw as never);
     expect(result.map((c) => c.id)).toEqual(['1']);
+  });
+
+  it('keeps a character with a missing or non-numeric level, repairing it to 1', () => {
+    const raw = {
+      characters: [
+        { id: '1', name: 'Ok', playbook: 'heavy', level: 2 },
+        { id: '2', name: 'No level', playbook: 'fox' },
+        { id: '3', name: 'String level', playbook: 'ranger', level: 'five' },
+      ],
+    };
+    const result = parseCharacters(raw as never);
+    expect(result.map((c) => c.id)).toEqual(['1', '2', '3']);
+    expect(result.find((c) => c.id === '1')!.level).toBe(2);
+    expect(result.find((c) => c.id === '2')!.level).toBe(1);
+    expect(result.find((c) => c.id === '3')!.level).toBe(1);
   });
 
   it('returns an empty array when characters is missing or not an array', () => {

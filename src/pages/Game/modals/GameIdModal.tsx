@@ -10,6 +10,8 @@ interface GameIdModalProps {
 
 export const GameIdModal = ({ gameId, open, onClose }: GameIdModalProps) => {
   const headingId = useId();
+  // The parent mounts this modal only while open, so copy feedback resets
+  // naturally on each open — no reset effect needed.
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState(false);
   const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -19,13 +21,6 @@ export const GameIdModal = ({ gameId, open, onClose }: GameIdModalProps) => {
       if (resetTimer.current !== null) clearTimeout(resetTimer.current);
     };
   }, []);
-
-  useEffect(() => {
-    if (open) {
-      setCopied(false);
-      setCopyError(false);
-    }
-  }, [open]);
 
   const handleCopy = useCallback(async () => {
     try {

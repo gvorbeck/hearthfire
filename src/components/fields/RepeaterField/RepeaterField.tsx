@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { Button } from '@/components/ui';
 import { Icon } from '@/components/ui';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
+import { useLatest } from '@/hooks/useLatest';
 import styles from './RepeaterField.module.css';
 
 interface BaseItem {
@@ -176,8 +177,7 @@ export const RepeaterField = (props: RepeaterFieldProps) => {
   const listCx = clsx(styles.list, className);
 
   const nextId = useRef(props.items.length);
-  const onSaveRef = useRef<SaveFn>(props.onSave);
-  onSaveRef.current = props.onSave;
+  const onSaveRef = useLatest<SaveFn>(props.onSave);
 
   const variantRef = useRef(props.variant);
 
@@ -195,6 +195,10 @@ export const RepeaterField = (props: RepeaterFieldProps) => {
     return rows.map((r) => r.text);
   }, []);
 
+  // The lazy initializer calls itemsToLocal, which reads variantRef.current. That
+  // ref is set once at mount and never reassigned (variant is fixed per instance),
+  // so reading it here is the mount value — safe despite running during render.
+  // eslint-disable-next-line react-hooks/refs
   const [local, setLocal] = useState<LocalItem[]>(() => itemsToLocal(props.items, 0));
   const [pendingFocusId, setPendingFocusId] = useState<number | null>(null);
   const lastSavedRef = useRef<string>(JSON.stringify(props.items));

@@ -1,4 +1,4 @@
-import { useState, useId, useCallback, useEffect, useMemo } from 'react';
+import { useState, useId, useCallback, useMemo } from 'react';
 import { Button, Heading, Modal, Radio, RadioGroup } from '@/components/ui';
 import { INSERT_OPTIONS, type InsertOption } from '@/hooks/useInsertTabs';
 import styles from './AddInsertModal.module.css';
@@ -16,11 +16,9 @@ export const AddInsertModal = ({ open, existingInserts, onClose, onAdd }: AddIns
     () => INSERT_OPTIONS.filter((opt) => !existingInserts.includes(opt)),
     [existingInserts]
   );
-  const [selected, setSelected] = useState<InsertOption>(INSERT_OPTIONS[0]);
-
-  useEffect(() => {
-    if (open) setSelected(availableOptions[0] ?? INSERT_OPTIONS[0]);
-  }, [open, availableOptions]);
+  // The parent mounts this modal only while open, so the default selection is set
+  // once on mount from the currently available options — no reset effect needed.
+  const [selected, setSelected] = useState<InsertOption>(() => availableOptions[0] ?? INSERT_OPTIONS[0]);
 
   const handleSelectChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSelected(e.currentTarget.value as InsertOption);

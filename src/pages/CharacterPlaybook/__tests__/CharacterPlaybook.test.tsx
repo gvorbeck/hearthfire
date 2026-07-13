@@ -20,6 +20,7 @@ vi.mock('@/hooks/useGame', () => ({
     error: null,
     updateCharacterName: vi.fn(),
     updateCharacterData: vi.fn(),
+    adjustCharacterStats: vi.fn(),
     updateGameName: vi.fn(),
     updateContent: vi.fn(),
     updateField: vi.fn(),

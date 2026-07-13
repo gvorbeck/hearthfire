@@ -7,7 +7,9 @@
     "dev": "vite",
     "test": "vitest run",
     "test:watch": "vitest",
-    "build": "tsc && vite build",
+    "build": "eslint . && tsc && vite build",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "preview": "vite preview",
     "migrate:dry": "GOOGLE_APPLICATION_CREDENTIALS=./service-account.json tsx --tsconfig scripts/tsconfig.json scripts/migrate-playbook-features.ts",
     "migrate:write": "GOOGLE_APPLICATION_CREDENTIALS=./service-account.json tsx --tsconfig scripts/tsconfig.json scripts/migrate-playbook-features.ts --write",
@@ -29,6 +31,7 @@
     "react-router-dom": "^6.26.2"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
@@ -36,10 +39,15 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
     "@vitest/ui": "^4.1.7",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.3",
     "firebase-admin": "^13.10.0",
+    "globals": "^17.7.0",
     "jsdom": "^29.1.1",
     "tsx": "^4.22.3",
     "typescript": "^5.5.4",
+    "typescript-eslint": "^8.62.1",
     "vite": "^5.4.8",
     "vitest": "^4.1.7"
   }

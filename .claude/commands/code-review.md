@@ -1,20 +1,37 @@
+---
+description: Read-only review of pending changes (or the whole branch) against project standards
+allowed-tools: Read, Grep, Glob, Bash(npm run lint), Bash(npm run build), Bash(npm test:*), Bash(npx tsc:*), Bash(git diff:*), Bash(git status:*), Bash(git ls-files:*), Bash(git merge-base:*), Bash(git log:*)
+---
+
 # Code Review
 
 **Read-only review — do not edit any files.** Identify and report findings only.
 
-Perform an in-depth code review of all currently modified files (staged + unstaged) against this project's coding standards.
+Perform an in-depth code review of all pending changes against this project's coding standards.
 
 ## Steps
 
-1. Run `git diff HEAD --name-only` and `git diff --cached --name-only` to get the list of modified files.
-2. Read each modified file in full.
-3. Review each file against every category below. For each finding, note the file path and line number.
+1. Run `npm run lint`, `npx tsc --noEmit`, `npm test`, and `npm run build`. (`npm run build` chains lint and tsc before vite, but run them separately so each failure is reported distinctly.) Failures here are must-fix and take precedence over any style findings below.
+2. Collect the files under review:
+   - Modified: `git diff HEAD --name-only` and `git diff --cached --name-only`
+   - New and untracked: `git ls-files --others --exclude-standard` (excluding build output)
+   - **Branch mode:** if the working tree is clean and the current branch is not `main`, review the branch's commits instead: `git diff $(git merge-base main HEAD) --name-only`
+3. Read each file under review in full. For deleted files, don't try to read them — grep for remaining references to the deleted module and flag any dangling imports.
+4. Review each file against every category below. For each finding, note the file path and line number.
 
 ## Project Context
 
-Stack: Vite + React 18 + TypeScript (strict), React Router v6, Firebase v10 (Firestore), CSS Modules, clsx.  
-Architecture: flat `games/{id}` Firestore doc, `characters[]` nested array, full real-time sync via `onSnapshot`, no auth.  
-Design system: atoms in `src/components/ui/` (Button, Checkbox, Heading, Icon, Input, List, Modal, Stack, Tabs, Text, Toggle, UseDots, etc.) — always check there before flagging a missing component.
+Stack, structure, and the design-system atoms in `src/components/ui/` are documented in CLAUDE.md — always check `ui/` before flagging a missing component. What CLAUDE.md doesn't stress: the Firestore model is a single flat `games/{id}` doc with a nested `characters[]` array, fully synced via `onSnapshot`, no auth — whole-array rewrites and cross-client write races are the recurring failure mode.
+
+## Severity Scale
+
+Every finding is exactly one of:
+
+- **Must fix** — breaks the build, loses or corrupts user data, or ships a real bug.
+- **Should fix** — violates a non-negotiable project standard (code style, accessibility, Firestore safety) without immediately breaking anything.
+- **Suggestion** — worthwhile improvement, reviewer's judgment.
+
+Where a category below pins a minimum severity, never downgrade past it.
 
 ## Review Categories
 
@@ -26,8 +43,8 @@ Design system: atoms in `src/components/ui/` (Button, Checkbox, Heading, Icon, I
 - CSS class names accessed as `styles.foo` instead of importing `styles` from the module
 - TypeScript `any` usage — strict mode is required throughout
 - Comments that describe _what_ instead of _why_ (naming, visible logic); only add comments when the WHY is genuinely non-obvious
-- Hardcoded `rem` values for `font-size` instead of type scale tokens — all font sizes must use `--text-xs` through `--text-3xl` from the Major Third scale defined in `src/index.css`; raw `rem` values are only acceptable for layout dimensions (widths, heights, spacing) and responsive `clamp()` display sizes
-- Raw palette tokens used for text `color:` instead of theme-aware semantic tokens — any `color:` declaration must use `--text-primary`, `--text-secondary`, `--text-tertiary`, `--text-accent`, or `--text-heading`, never a raw `--color-stone-*` / `--color-gold-*` / `--color-navy-*` value. Raw palette tokens do not flip between dark and light mode, so text set with them becomes near-invisible in the wrong theme. (Raw palette tokens remain correct for `background`, `border`, `outline`, etc. — this rule is `color:` only.) Treat as a [Standards Violation] or higher, since it breaks light-mode legibility.
+- Hardcoded `rem` values for `font-size` instead of type scale tokens — all font sizes must use `--text-2xs` through `--text-3xl` (plus the one-off `--text-display` / `--text-hero`) from `src/index.css`; raw `rem` values are only acceptable for layout dimensions (widths, heights, spacing) and responsive `clamp()` display sizes
+- Raw palette tokens used for text `color:` instead of theme-aware semantic tokens — any `color:` declaration must use `--text-primary`, `--text-secondary`, `--text-tertiary`, `--text-accent`, `--text-accent-strong`, or `--text-heading`, never a raw `--color-stone-*` / `--color-gold-*` / `--color-navy-*` value. Raw palette tokens do not flip between dark and light mode, so text set with them becomes near-invisible in the wrong theme. (Raw palette tokens remain correct for `background`, `border`, `outline`, etc. — this rule is `color:` only.) At least Should fix, since it breaks light-mode legibility.
 - Game text written as JSX fragments instead of plain strings — all move/possession text with bold, italic, or inline icons must be written as a plain string and rendered through `parseInlineMarkdown` in `src/lib/parseMarkdown.tsx`
 - `◊` or `◈` rendered as raw Unicode characters instead of icons — `◊` maps to `empty-provisions` (diamond outline), `◈` maps to `filled-provisions` (diamond with checkmark); both are handled automatically by `parseInlineMarkdown`
 
@@ -39,6 +56,10 @@ Design system: atoms in `src/components/ui/` (Button, Checkbox, Heading, Icon, I
 - State mutations (modifying arrays/objects directly instead of spreading/replacing)
 - Optimistic UI updates not rolled back on Firestore write failure
 - Interactive controls that write to Firestore reading their value directly from props instead of local optimistic state with a pending ref (the project pattern — see `useCharacterField`); prop-driven controls flicker when the snapshot echoes back
+- Swallowed errors — empty `catch {}`, or a Firestore write whose rejection is never surfaced to the user. With no backend validation, a silent write failure means the user's edit vanishes with no warning
+- Debounced or timeout-based writes not cancelled on unmount (`useDebouncedSave`, `setTimeout`) — a pending save can fire after the component is gone or against a since-changed character
+- Debounced write capturing a stale value or the wrong character — the payload must reflect the value at flush time, not at the moment the timer was scheduled
+- Non-exhaustive `switch` / map over a union (especially `PlaybookType`, 9 members) with no `never`-typed default — a missed case slips through TypeScript-strict silently
 
 ### Firestore Efficiency & Cost
 
@@ -46,6 +67,8 @@ Design system: atoms in `src/components/ui/` (Button, Checkbox, Heading, Icon, I
 - `onSnapshot` listeners not cleaned up on component unmount (leaked listeners = ongoing billing)
 - Overly broad reads (fetching full collection when a single doc suffices)
 - Writing entire document when only one field changed — use `updateDoc` with targeted field paths
+- Dot-notation field path used to write a single array element (e.g. `updateDoc(ref, { 'characters.0.hp': x })`) — Firestore reads `characters.0` as a literal field name, silently corrupting the doc; array elements must be updated by rewriting the array. Must fix — it destroys user data.
+- Whole-`characters[]` read-modify-write races — two clients editing different characters each rewrite the full array under `onSnapshot` and clobber each other's changes; guard the write scope
 - Redundant writes (writing data that hasn't changed)
 - Missing or unnecessary Firestore indexes that would cause extra reads or rejected queries
 - `collection().where()` chains that download more documents than needed client-side filtering would produce
@@ -62,20 +85,16 @@ Design system: atoms in `src/components/ui/` (Button, Checkbox, Heading, Icon, I
 - State that could be derived from props or other state (unnecessary `useState`)
 - Missing `React.memo` on components rendered in long lists, where one item's change re-renders every sibling — do not flag memo as "missing" on components that render once or rarely
 
-### Architecture & Separation of Responsibilities
+### Architecture & DRY
 
 - Firestore calls made directly inside JSX components — data access should live in custom hooks or a data layer
 - Business logic embedded in render functions or event handlers that could be extracted to pure utilities
-- Shared logic copy-pasted across components (DRY violation — extract to hook or utility)
-- Flat document shape assumptions violated — components reaching into nested arrays without going through a consistent accessor
-- Route-level concerns (path params, navigation) leaking into presentational components
-
-### DRY Violations
-
-- Duplicated logic that should be extracted into a shared utility or custom hook
-- Inline constants (Firestore collection names, field paths, magic strings/numbers) that should be named constants
+- Shared logic copy-pasted across components — extract to a hook or utility
 - Repeated JSX structures that should be a shared component
 - Copy-pasted type definitions that should be a shared interface
+- Inline constants (Firestore collection names, field paths, magic strings/numbers) that should be named constants
+- Flat document shape assumptions violated — components reaching into nested arrays without going through a consistent accessor
+- Route-level concerns (path params, navigation) leaking into presentational components
 
 ### Naming & Readability
 
@@ -95,7 +114,7 @@ Design system: atoms in `src/components/ui/` (Button, Checkbox, Heading, Icon, I
 - Secrets, API keys, or tokens referenced in frontend code
 - Missing input validation on user-facing fields before writing to Firestore
 
-### Accessibility (Non-Negotiable — treat violations as [Standards Violation] or higher, never [Suggestion])
+### Accessibility (Non-Negotiable — at least Should fix, never a Suggestion)
 
 - Non-semantic HTML (`<div onClick>` instead of `<button>` or `<a>`)
 - Missing `aria-label` on icon-only interactive elements
@@ -125,6 +144,7 @@ Design system: atoms in `src/components/ui/` (Button, Checkbox, Heading, Icon, I
 - Error handling or validation added for scenarios that cannot actually happen
 - Backwards-compatibility shims, re-exports, or renamed `_unused` variables for removed code — delete cleanly
 - Features, fallbacks, or flags not required by the current task
+- New non-trivial logic (utilities, hooks, reducers) shipped without a test, when a sibling test file already exists for that area — flag as a Suggestion and recommend `/write-tests` in the closing `Next:` line
 
 ## Confidence Bar
 
@@ -134,17 +154,26 @@ Only report findings you would defend in person. If you are not sure a finding i
 
 No emojis. The reader wants to scan this in under a minute.
 
-Write dead simple, not technical. Every finding must pass this test: someone who has never programmed could read it and know what goes wrong for the person using the app. Use everyday words ("the page freezes", "the user's typing gets erased", "screen-reader users can't find this button"). Technical terms are allowed only in the Fix, and only the minimum needed to act (a hook name, a prop name). Simple never means longer — if plain words push past one line, cut detail, not clarity.
+Write dead simple, not technical. Every finding must pass this test: someone who has never programmed could read it and know what goes wrong for the person using the app. Use everyday words ("the page freezes", "the user's typing gets erased", "screen-reader users can't find this button"). Technical terms are allowed only in the Fix, and only the minimum needed to act (a hook name, a prop name).
 
 Example of the level wanted:
 - Bad: "Unstable lambda reference in onChange prop invalidates memoization of child component."
 - Good: "This list redraws every item on every keystroke, so typing feels slow. Fix: wrap `handleChange` in `useCallback`."
 
-Start with the verdict — one line:
+Start with the verdict — one line. If lint, type check, tests, or build failed, the verdict is at least Needs Work (Major Issues if the build is broken):
 
 ```
 Verdict: Ready | Needs Work | Major Issues — N must-fix, N should-fix, N suggestions
 ```
+
+If lint, type check, tests, or build failed, list those first, quoting the failing file, line, and message in plain words:
+
+```
+### Build, Tests & Type Check
+1. `file-path:line` — the error message in plain words. Fix: the concrete change.
+```
+
+If all passed, note it in one line (`Build, lint, tests, and type check pass.`) and continue to the findings.
 
 Then findings grouped by severity (worst first), numbered sequentially. **One line each:**
 
@@ -164,6 +193,6 @@ Hard rules:
 - One line per finding: what's wrong + the fix. No elaboration, no second paragraph.
 - At most 5 suggestions — pick the most valuable, silently drop the rest.
 - Skip empty severity groups entirely.
-- Never list categories checked, never write "no issues found in X", no preamble, no closing commentary after the last finding.
+- Never list categories checked, never write "no issues found in X", no preamble, no closing commentary after the last finding — with one exception: end with at most one `Next:` line when applicable. Recommend `/write-tests` if untested logic was flagged, and/or `/css-audit` if the diff touched `.module.css` files or any token violation was found (the diff-only review can't see repo-wide stragglers).
 - Lead with what the problem does ("this loses the user's edit"), not what rule it breaks ("violates the optimistic-state pattern").
 - Active voice only ("this will cause", not "this could potentially cause").

@@ -37,3 +37,7 @@ game-*-backup-*.json
 
 # Firebase deploy cache
 .firebase/
+
+# Source book texts — kept locally for reference (grepped when verifying game prose), not tracked
+docs/Stonetop (Book 1).txt
+docs/The Wider World (Book 2).txt

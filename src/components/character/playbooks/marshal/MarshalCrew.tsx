@@ -336,6 +336,11 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
     if (incoming === lastFirestoreCrewRef.current) return;
     lastFirestoreCrewRef.current = incoming;
     const f = resolvePlaybookFeatures(data);
+    // Mirror the remote Firestore snapshot into optimistic local state. This is a
+    // store-subscription sync (guarded by lastFirestoreCrewRef), not a derivable
+    // value — deriving in render would drop in-flight edits during the save→echo
+    // window, so the effect is necessary.
+    /* eslint-disable react-hooks/set-state-in-effect */
     if (f.crewHp !== undefined) setHp(f.crewHp);
     if (f.crewArmor !== undefined) setArmor(f.crewArmor);
     if (f.crewTags !== undefined) setTags({ group: true, ...f.crewTags });
@@ -349,6 +354,10 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
     if (f.crewSuppliesUses !== undefined) setSuppliesUses(f.crewSuppliesUses);
     if (f.crewIndividuals !== undefined)
       setIndividuals(parseIndividuals(f.crewIndividuals));
+    /* eslint-enable react-hooks/set-state-in-effect */
+  // Keyed on the specific feature subfields, not the whole `data` object: syncing
+  // on every unrelated data change would clobber pending optimistic local edits.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.playbookFeatures, data?.typeMoves, data?.typeMoveCheckList]);
 
   const { saveDebounced, saveImmediate, flushDebounce, dataRef, onSaveRef } =

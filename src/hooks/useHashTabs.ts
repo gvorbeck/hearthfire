@@ -5,6 +5,10 @@ interface TabWithId {
   [key: string]: unknown;
 }
 
+// This hook owns the first "&"-delimited hash segment (the tab id); later segments belong to a tab's
+// own nested state (e.g. ArcanaTab's "#arcana&major" sub-tab). Match against the first segment only.
+const tabSegment = () => window.location.hash.slice(1).split('&')[0];
+
 export const useHashTabs = (tabs: TabWithId[]) => {
   const hashResolved = useRef(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -12,9 +16,12 @@ export const useHashTabs = (tabs: TabWithId[]) => {
   // Resolve hash → index once after mount, when tabs are available
   useEffect(() => {
     if (hashResolved.current || tabs.length === 0) return;
-    const hash = window.location.hash.slice(1);
+    const hash = tabSegment();
     if (hash) {
       const idx = tabs.findIndex((t) => t.id === hash);
+      // One-shot mount resolution of the initial URL hash (an external read via
+      // window.location); guarded by hashResolved so it fires exactly once.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (idx !== -1) setActiveIndex(idx);
     }
     hashResolved.current = true;
@@ -26,8 +33,7 @@ export const useHashTabs = (tabs: TabWithId[]) => {
   // browser back/forward buttons navigating between tabs.
   useEffect(() => {
     const onHashChange = () => {
-      const hash = window.location.hash.slice(1);
-      const idx = tabs.findIndex((t) => t.id === hash);
+      const idx = tabs.findIndex((t) => t.id === tabSegment());
       if (idx !== -1) setActiveIndex(idx);
     };
     window.addEventListener('hashchange', onHashChange);

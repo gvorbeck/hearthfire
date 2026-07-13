@@ -8,6 +8,16 @@
   border-radius: var(--radius-md);
 }
 
+/* A follower not yet gained (its activating consequence is unmarked): dimmed and read as pending. The
+   tracker is separately disabled, so this is purely the visual cue. */
+.followerInactive {
+  opacity: 0.55;
+}
+
+.followerActivation {
+  margin-top: var(--spacing-1);
+}
+
 .followerHeader {
   display: flex;
   flex-direction: column;
@@ -34,7 +44,7 @@
 }
 
 .followerHpInput {
-  width: 3.5rem;
+  width: 2.5rem;
   padding: 2px var(--spacing-1);
   background: var(--surface-raised);
   border: 1px solid var(--border-strong);
@@ -44,6 +54,15 @@
   font-size: var(--text-xs);
   text-align: center;
   outline: none;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Drop the native number spinner: it pads the box on the right and reads as clutter. */
+.followerHpInput::-webkit-outer-spin-button,
+.followerHpInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .followerHpInput:focus-visible {
@@ -68,4 +87,75 @@
   display: flex;
   flex-wrap: wrap;
   gap: 2px;
+}
+
+.followerMoves {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+/* ── Rolled aspects (Servant of Daagon's d4 assignments) ── */
+.aspects {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.aspectRows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.aspectRow {
+  display: flex;
+  gap: var(--spacing-2);
+  align-items: flex-start;
+}
+
+.aspectDie {
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-serif);
+  font-size: var(--text-md);
+  line-height: 1;
+  text-align: center;
+  outline: none;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Drop the native number spinner: it makes the focused box grow and reads as clutter for a d4 field. */
+.aspectDie::-webkit-outer-spin-button,
+.aspectDie::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.aspectDie:focus-visible {
+  border-color: var(--border-accent);
+  outline: 2px solid var(--border-accent);
+  outline-offset: 1px;
+}
+
+.aspectBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+/* Vertically center the row's label against the input box (single-line rows read as aligned; rows
+   whose label is followed by a checklist keep the label centered on the die, list flowing below). */
+.aspectLabel {
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
 }

@@ -79,11 +79,15 @@ interface DebilityRowProps {
   label: string;
   debilityKey: keyof DebilitiesState;
   checked: boolean;
+  // Locked by an arcana consequence (e.g. the Lidless Orb's withered eye): force-checked and not
+  // editable here, since unmarking the consequence is what clears it.
+  locked?: boolean;
   onChange: (key: keyof DebilitiesState, checked: boolean) => void;
 }
 
-const DebilityRow = ({ label, debilityKey, checked, onChange }: DebilityRowProps) => {
-  const braceCx = clsx(styles.debilityBrace, checked && styles.debilityBraceActive);
+const DebilityRow = ({ label, debilityKey, checked, locked, onChange }: DebilityRowProps) => {
+  const isChecked = checked || !!locked;
+  const braceCx = clsx(styles.debilityBrace, isChecked && styles.debilityBraceActive);
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onChange(debilityKey, e.target.checked), [onChange, debilityKey]);
   return (
     <div className={styles.debility}>
@@ -91,7 +95,8 @@ const DebilityRow = ({ label, debilityKey, checked, onChange }: DebilityRowProps
       <Checkbox
         name={`debility-${label}`}
         value={label}
-        checked={checked}
+        checked={isChecked}
+        disabled={locked}
         onChange={handleChange}
         label={<Text as="span" font="serif" size="sm" color="muted" italic>{label}</Text>}
       />
@@ -135,6 +140,7 @@ const STAT_GROUPS = [
       { key: 'statDex' as const, label: 'Dexterity', abbr: 'DEX' },
     ],
     debilityKey: 'debilityWeakened' as const,
+    debilityLockedKey: 'debilityWeakenedLocked' as const,
     debilityLabel: 'weakened',
   },
   {
@@ -143,6 +149,7 @@ const STAT_GROUPS = [
       { key: 'statWis' as const, label: 'Wisdom', abbr: 'WIS' },
     ],
     debilityKey: 'debilityDazed' as const,
+    debilityLockedKey: 'debilityDazedLocked' as const,
     debilityLabel: 'dazed',
   },
   {
@@ -151,6 +158,7 @@ const STAT_GROUPS = [
       { key: 'statCha' as const, label: 'Charisma', abbr: 'CHA' },
     ],
     debilityKey: 'debilityMiserable' as const,
+    debilityLockedKey: 'debilityMiserableLocked' as const,
     debilityLabel: 'miserable',
   },
 ] as const;
@@ -180,12 +188,18 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
   // field we never touched.
   const dirtyRef = useRef(new Set<keyof StatsState | keyof DebilitiesState>());
 
+  // Deps intentionally list the specific stat subfields, not the whole `data`
+  // object, so unrelated data changes don't re-derive the stats snapshot.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const syncedStats = useMemo(() => statsFromData(data, hpMax), [
     data?.statStr, data?.statDex, data?.statInt, data?.statWis, data?.statCon, data?.statCha,
     data?.statHp, data?.statArmor, data?.statXp, data?.statLevel,
     hpMax,
   ]);
 
+  // Deps intentionally list the specific debility subfields, not the whole
+  // `data` object.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const syncedDebilities = useMemo(() => debilitiesFromData(data), [
     data?.debilityWeakened, data?.debilityDazed, data?.debilityMiserable,
   ]);
@@ -308,6 +322,7 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
                 label={group.debilityLabel}
                 debilityKey={group.debilityKey}
                 checked={debilities[group.debilityKey]}
+                locked={!!data[group.debilityLockedKey]}
                 onChange={handleDebilityChange}
               />
             </div>
