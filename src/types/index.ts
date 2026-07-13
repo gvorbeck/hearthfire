@@ -274,6 +274,9 @@ export interface ArcanaSection {
   // marked consequences in this same section. The seed renders through MysteryCreatureCard; the
   // player's working copy lives on the entry. Set only on a creature-bearing section.
   creature?: Creature;
+  // Trailing prose rendered after the section's content, with no checkbox of its own (e.g. the Redwood
+  // Effigy's "when you would mark a consequence but they've all been marked…" overflow rule).
+  note?: string;
 }
 
 // The back side of an arcanum: a labeled wrapper around its sections. Replacing `mystery`; both
