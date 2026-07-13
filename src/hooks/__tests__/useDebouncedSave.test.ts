@@ -1,8 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useDebouncedSave } from '../useDebouncedSave';
+import { DOC_TOO_LARGE_MESSAGE } from '@/lib/constants';
 
-beforeEach(() => { vi.useFakeTimers(); });
+const addToastSpy = vi.fn();
+vi.mock('@/components/app/Toast/ToastContext', () => ({
+  useToastOptional: () => ({ addToast: addToastSpy }),
+}));
+
+beforeEach(() => { vi.useFakeTimers(); addToastSpy.mockClear(); });
 afterEach(() => {
   vi.useRealTimers();
   vi.restoreAllMocks();
@@ -230,6 +236,62 @@ describe('useDebouncedSave', () => {
 
     await act(async () => { vi.advanceTimersByTime(60000); });
     expect(onSave).toHaveBeenCalledTimes(2);
+  });
+
+  it('re-saves a value another client overwrote after noteRemoteValue clears the dedupe (#254)', async () => {
+    const onSave = vi.fn().mockResolvedValue(undefined);
+    const { result } = renderHook(() => useDebouncedSave(onSave, 1500));
+
+    // This client saves 'X'.
+    await act(async () => {
+      result.current.onChange('X');
+      vi.advanceTimersByTime(1500);
+    });
+    expect(onSave).toHaveBeenCalledTimes(1);
+
+    // Another client changed the server to 'Y'; our sync layer reports the
+    // divergent remote value, which must clear the dedupe for 'X'.
+    act(() => { result.current.noteRemoteValue('Y'); });
+
+    // The user types 'X' again — without the clear this would be deduped away,
+    // leaving the server on 'Y'. It must now go through.
+    await act(async () => {
+      result.current.onChange('X');
+      vi.advanceTimersByTime(1500);
+    });
+    expect(onSave).toHaveBeenCalledTimes(2);
+    expect(onSave).toHaveBeenLastCalledWith('X');
+  });
+
+  it('noteRemoteValue of the value we just saved leaves the dedupe intact', async () => {
+    const onSave = vi.fn().mockResolvedValue(undefined);
+    const { result } = renderHook(() => useDebouncedSave(onSave, 1500));
+
+    await act(async () => {
+      result.current.onChange('X');
+      vi.advanceTimersByTime(1500);
+    });
+    expect(onSave).toHaveBeenCalledTimes(1);
+
+    // The remote echo matches what we saved — this is our own write, so the
+    // dedupe must still skip a redundant re-save of 'X'.
+    act(() => { result.current.noteRemoteValue('X'); });
+    await act(async () => {
+      result.current.onChange('X');
+      vi.advanceTimersByTime(1500);
+    });
+    expect(onSave).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows the doc-too-large message (not the generic one) on an invalid-argument failure (#254)', async () => {
+    const onSave = vi.fn().mockRejectedValue(Object.assign(new Error('too big'), { code: 'invalid-argument' }));
+    const { result } = renderHook(() => useDebouncedSave(onSave, 1500));
+
+    await act(async () => {
+      result.current.onChange('hello');
+      vi.advanceTimersByTime(1500);
+    });
+    expect(addToastSpy).toHaveBeenCalledWith(DOC_TOO_LARGE_MESSAGE, 'error');
   });
 
   it('reports failures through onError instead of the default handling when provided', async () => {

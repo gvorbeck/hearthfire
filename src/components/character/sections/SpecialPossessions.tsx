@@ -76,26 +76,22 @@ const SubItem = ({ item, possessionId, idx, parentChecked, selectOne, atSubMax, 
 
     return (
       <li className={liCx}>
+        {/* Dots render as a sibling of the checkbox, never inside its <label>: interactive
+            buttons nested in a <label> are invalid HTML and garble the accessible name. */}
         <Checkbox
           aria-label={item.label}
           checked={subChecked}
           disabled={!parentChecked || (!subChecked && atSubMax)}
           onChange={(e) => onToggle(key, e.target.checked)}
           className={styles.subItemCheckbox}
-          label={
-            item.uses !== undefined ? (
-              <span className={styles.subItemWithUses}>
-                <Text as="span" className={styles.labelText}>{item.label}</Text>
-                <span className={styles.subItemDots}>
-                  <UseDots total={item.uses} checked={uses[key] ?? 0} onChange={(n) => onUses(key, n)} disabled={!subChecked} />
-                  {item.usesLabel && <Text as="span" font="serif" size="xs" color="muted">{item.usesLabel}</Text>}
-                </span>
-              </span>
-            ) : (
-              <Text as="span" className={styles.labelText}>{item.label}</Text>
-            )
-          }
+          label={<Text as="span" className={styles.labelText}>{item.label}</Text>}
         />
+        {item.uses !== undefined && (
+          <span className={styles.subItemDots}>
+            <UseDots total={item.uses} checked={uses[key] ?? 0} onChange={(n) => onUses(key, n)} disabled={!subChecked} />
+            {item.usesLabel && <Text as="span" font="serif" size="xs" color="muted">{item.usesLabel}</Text>}
+          </span>
+        )}
       </li>
     );
   }

@@ -56,26 +56,24 @@ const MainItemRow = memo(
     );
     return (
       <div className={styles.mainItemRow}>
+        {/* Dots render as a sibling of the checkbox, never inside its <label>: interactive
+            buttons nested in a <label> are invalid HTML and garble the accessible name. */}
         <Checkbox
           variant="provision"
           weight={weightOverride ?? item.weight}
           checked={checked}
           onChange={handleChecked}
           label={
-            <div className={shared.itemLabel}>
+            <span className={shared.itemLabel}>
               <Text as="span">{item.label}</Text>
-              {hasUses && checked && (
-                <div className={styles.itemDots}>
-                  <UseDots
-                    total={effectiveTotal}
-                    checked={uses}
-                    onChange={handleUses}
-                  />
-                </div>
-              )}
-            </div>
+            </span>
           }
         />
+        {hasUses && checked && (
+          <div className={styles.itemDots}>
+            <UseDots total={effectiveTotal} checked={uses} onChange={handleUses} />
+          </div>
+        )}
       </div>
     );
   },

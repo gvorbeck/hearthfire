@@ -1,18 +1,27 @@
 import { useRef, useCallback, useEffect, useState, useInsertionEffect, type MutableRefObject } from 'react';
 import { useToastOptional } from '@/components/app/Toast/ToastContext';
 import { useLatest } from './useLatest';
-import { SAVE_ERROR_MESSAGE } from '@/lib/constants';
+import { DOC_TOO_LARGE_MESSAGE, SAVE_ERROR_MESSAGE } from '@/lib/constants';
 
 interface UseDebouncedSaveReturn<T> {
   onChange: (value: T) => void;
   flush: (value: T) => Promise<void>;
   isPending: boolean;
   isPendingRef: MutableRefObject<boolean>;
+  // Tell the hook the authoritative remote value. If it differs from what this
+  // client last saved, the dedupe key is cleared so re-submitting the old value
+  // is no longer skipped. See noteRemoteValue below.
+  noteRemoteValue: (value: T) => void;
 }
 
 // One automatic retry per failed value, delayed long enough for a transient
 // connection blip to clear.
 const RETRY_DELAY_MS = 4000;
+
+// A write over Firestore's 1 MiB doc ceiling rejects with `invalid-argument`.
+const isDocTooLarge = (error: unknown): boolean =>
+  typeof error === 'object' && error !== null &&
+  (error as { code?: unknown }).code === 'invalid-argument';
 
 export const useDebouncedSave = <T>(
   onSave: (value: T) => Promise<void>,
@@ -79,7 +88,10 @@ export const useDebouncedSave = <T>(
         const isFirstFailure = failedKeyRef.current !== key;
         failedKeyRef.current = key;
         if (onErrorRef.current) onErrorRef.current(error);
-        else addToast?.(SAVE_ERROR_MESSAGE, 'error');
+        // The 1 MiB doc-size rejection gets its own actionable line; every other
+        // failure uses the generic message. Both strings match the ones useGame's
+        // reportSave emits, so the Toast dedupe collapses the two paths to one.
+        else addToast?.(isDocTooLarge(error) ? DOC_TOO_LARGE_MESSAGE : SAVE_ERROR_MESSAGE, 'error');
         if (isFirstFailure) {
           retryTimerRef.current = setTimeout(() => { void saveRef.current(value); }, RETRY_DELAY_MS);
         }
@@ -97,6 +109,17 @@ export const useDebouncedSave = <T>(
   useInsertionEffect(() => {
     saveRef.current = save;
   });
+
+  // Called by consumers when a fresh remote value arrives. The dedupe check in
+  // `save` skips any write whose serialized value equals `lastSavedRef` — correct
+  // while we're the only writer, but if another client changed the field after
+  // our last save, the server no longer holds our value. Re-typing that value
+  // would then be silently skipped and the field would snap back to the remote
+  // one on the next echo. Clearing `lastSavedRef` once we see the remote diverge
+  // lets that legitimate revert write go through.
+  const noteRemoteValue = useCallback((value: T) => {
+    if (JSON.stringify(value) !== lastSavedRef.current) lastSavedRef.current = null;
+  }, []);
 
   const onChange = useCallback((value: T) => {
     if (JSON.stringify(value) !== lastSavedRef.current) setPending(true);
@@ -135,5 +158,5 @@ export const useDebouncedSave = <T>(
     };
   }, [save]);
 
-  return { onChange, flush, isPending, isPendingRef };
+  return { onChange, flush, isPending, isPendingRef, noteRemoteValue };
 };

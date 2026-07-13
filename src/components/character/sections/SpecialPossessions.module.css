@@ -98,6 +98,14 @@
 .subItemSelectable {
   list-style: none;
   margin-left: calc(-1 * var(--spacing-4));
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+/* Indent sibling dots under the checkbox label text (checkbox indicator + gap). */
+.subItemSelectable .subItemDots {
+  padding-left: calc(var(--checkbox-size, 16px) + var(--spacing-3));
 }
 
 .subItemCheckbox {
