@@ -1855,53 +1855,138 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     name: "Redwood Effigy",
     tags: "magical",
     description:
-      "A vaguely man-shaped root of blood-red wood, wrapped in tattered cloth. Bright blue markings adorn the fabric, as do rust-colored stains.\n\nBut you know that. After all, you made it yourself. You've bound your flesh and soul to the effigy, and this is the only one you will ever be able to make.",
+      "A vaguely man-shaped root of blood-red wood, wrapped in tattered cloth. Bright blue markings adorn the fabric, as do rust-colored stains.\n\nBut you know that. After all, you made it yourself. You've bound your flesh and soul to the effigy, and this is the only one you will ever be able to make.\n\n---\n\nWhen you **perform the secret rite**, which requires privacy, a few hours, and a drop of your own fresh blood, hold 1 Conduit (max 1 Conduit, at least to start).\n\n**Each time the effigy suffers harm on your behalf**, mark 1. If all 3 marks are already marked, then mark a Consequence instead (in the Mysteries).\n\nWhen you **make the last mark**, you unlock the effigy's mysteries and gain Suffering Unleashed (in the Mysteries).",
     baseMoves: [
       {
-        name: "Perform the secret rite",
-        subtitle:
-          "requires privacy, a few hours, and a drop of your own fresh blood",
-        text: "Hold 1 Conduit (max 1 Conduit, at least to start). ◊◊◊",
-        tracker: { label: "Conduit", max: 1 },
-      },
-      {
+        id: "surrogate-suffering",
         name: "Surrogate Suffering",
-        text: "When you **suffer physical harm while carrying the effigy on your person**, you can spend 1 Conduit. If you do, the effigy suffers that harm in your place. You suffer no more than a passing inconvenience, and the effigy bears faint signs of the trauma it has endured in your stead.\n\nRecord the diverted harm: a brief description of the injury, the HP that would have been lost, and any debilities you would have marked. If the **effigy is destroyed**, you suffer all this harm at once.\n\n**Each time the effigy suffers harm on your behalf**, mark 1. If all 3 marks are already marked, then mark a Consequence instead (in the Mysteries below).",
+        body: [
+          {
+            kind: "para",
+            text: "When you **suffer physical harm while carrying the effigy on your person**, you can spend 1 Conduit. If you do, the effigy suffers that harm in your place. You suffer no more than a passing inconvenience, and the effigy bears faint signs of the trauma it has endured in your stead.",
+          },
+          {
+            kind: "para",
+            text: "Record the diverted harm: a brief description of the injury, the HP that would have been lost, and any debilities you would have marked. If the **effigy is destroyed**, you suffer all this harm at once.",
+          },
+        ],
       },
     ],
-    frontTrackers: [{ id: "marks", label: "marks", max: 3, role: "marks" }],
-    mystery: {
-      moves: [
+    frontTrackers: [
+      { id: "marks", label: "marks", max: 3, role: "marks" },
+      { id: "redwood-effigy-conduit", label: "Conduit", max: 1 },
+    ],
+    back: {
+      label: "Mysteries of the Redwood Effigy",
+      sections: [
         {
-          id: "suffering-unleashed",
-          name: "Suffering Unleashed",
-          text: "When you **feed the effigy the blood of another**, pick one of the harms you've recorded via Surrogate Suffering and roll +CON: **on a 10+**, your target suffers that harm fully; **on a 7-9**, your target suffers that harm but pick 1; **on a 6-**, they suffer that harm but all 3 are true:\n\n- They suffer only half the harm's effects/damage\n- You fully suffer the unleashed harm (you can't divert it via Surrogate Suffering)\n- Mark a consequence\n\n**Regardless**, the harm is no longer stored in the effigy—erase it from your records.\n\nFor every 2 Consequences you mark, gain one of the following moves:\n\n**Greater Conduit** — When you *perform the secret rite*, hold 3 Conduit instead of 1 (and increase your max Conduit to 3). You no longer need the effigy on your person to use Surrogate Suffering. However, any magic that divines your location or spies on you also targets the effigy.\n\n**The Roots Grow Deep** — When you *use Suffering Unleashed and roll a 12+*, clear one of your marks above.\n\n**We Are As One** — You can sense, speak, and even work magic through the effigy as though it were an extension of yourself. (It remains inanimate.)",
+          label: "Moves",
+          content: [
+            {
+              id: "suffering-unleashed",
+              name: "Suffering Unleashed",
+              selectable: true,
+              grantsPerConsequences: 2,
+              citation: "Book 2, p. 571",
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **feed the effigy the blood of another**, pick one of the harms you've recorded via Surrogate Suffering and roll +CON: **on a 10+**, your target suffers that harm fully; **on a 7-9**, your target suffers that harm but pick 1; **on a 6-**, they suffer that harm but all 3 are true:",
+                },
+                {
+                  kind: "list",
+                  items: [
+                    "They suffer only half the harm's effects/damage",
+                    "You fully suffer the unleashed harm (you can't divert it via Surrogate Suffering)",
+                    "Mark a consequence",
+                  ],
+                },
+                {
+                  kind: "para",
+                  text: "**Regardless**, the harm is no longer stored in the effigy—erase it from your records.",
+                },
+                {
+                  kind: "para",
+                  text: "For every 2 Consequences you mark, gain one of the following moves:",
+                },
+              ],
+            },
+            {
+              id: "greater-conduit",
+              name: "Greater Conduit",
+              selectable: true,
+              requires: ["suffering-unleashed"],
+              citation: "Book 2, p. 571",
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **perform the secret rite**, hold 3 Conduit instead of 1 (and increase your max Conduit to 3). You no longer need the effigy on your person to use Surrogate Suffering. However, any magic that divines your location or spies on you also targets the effigy.",
+                },
+              ],
+            },
+            {
+              id: "the-roots-grow-deep",
+              name: "The Roots Grow Deep",
+              selectable: true,
+              requires: ["suffering-unleashed"],
+              citation: "Book 2, p. 571",
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **use Suffering Unleashed and roll a 12+**, clear one of your marks above.",
+                },
+              ],
+            },
+            {
+              id: "we-are-as-one",
+              name: "We Are As One",
+              selectable: true,
+              requires: ["suffering-unleashed"],
+              citation: "Book 2, p. 571",
+              body: [
+                {
+                  kind: "para",
+                  text: "You can sense, speak, and even work magic through the effigy as though it were an extension of yourself. (It remains inanimate.)",
+                },
+              ],
+            },
+          ],
         },
-      ],
-      consequences: [
         {
-          id: "effigy-c1",
-          text: "Your heartbeat slows and your emotions dull. Magic cannot stir your emotions unless it specifically targets the effigy. Alas, you can no longer Burn Brightly.",
-        },
-        {
-          id: "effigy-c2",
-          text: "Your blood flows like sap and your muscles become like wood. Gain +1 armor and +4 max HP, but you can no longer regain HP via the Recover move. When you **Make Camp**, you must rest while touching soil or you get no benefit.",
-        },
-        {
-          id: "effigy-c3",
-          text: "Henceforth, when **anyone works magic upon the effigy**, it affects you instead and bypasses any defenses that you have in place (including Surrogate Suffering).",
-        },
-        {
-          id: "effigy-c4",
-          text: "Henceforth, when you **suffer physical harm while you hold Conduit**, you must spend it and use Surrogate Suffering.",
-        },
-        {
-          id: "effigy-c5",
-          text: "The effigy becomes both *fragile* and highly flammable. When you suffer damage from heat or fire, you take +1d6 damage. If the effigy suffers harm from heat or fire in your place, it will burst into flames and be destroyed.",
-        },
-        {
-          id: "effigy-c6",
-          text: "When you **roll 6- at Death's Door**, you have no choice: gain the Revenant insert until the effigy is destroyed (and you become a wraith controlled by the GM) or it is buried in a Red Grove (and you become an NPC spirit of that grove).",
+          label: "Consequences",
+          content: [
+            {
+              id: "effigy-c1",
+              value:
+                "Your heartbeat slows and your emotions dull. Magic cannot stir your emotions unless it specifically targets the effigy. Alas, you can no longer Burn Brightly.",
+            },
+            {
+              id: "effigy-c2",
+              value:
+                "Your blood flows like sap and your muscles become like wood. Gain +1 armor and +4 max HP, but you can no longer regain HP via the Recover move. When you **Make Camp**, you must rest while touching soil or you get no benefit.",
+            },
+            {
+              id: "effigy-c3",
+              value:
+                "Henceforth, when **anyone works magic upon the effigy**, it affects you instead and bypasses any defenses that you have in place (including Surrogate Suffering).",
+            },
+            {
+              id: "effigy-c4",
+              value:
+                "Henceforth, when you **suffer physical harm while you hold Conduit**, you must spend it and use Surrogate Suffering.",
+            },
+            {
+              id: "effigy-c5",
+              value:
+                "The effigy becomes both *fragile* and highly flammable. When you suffer damage from heat or fire, you take +1d6 damage. If the effigy suffers harm from heat or fire in your place, it will burst into flames and be destroyed.",
+            },
+            {
+              id: "effigy-c6",
+              value:
+                "When you **roll 6- at Death's Door**, you have no choice: gain the Revenant insert until the effigy is destroyed (and you become a wraith controlled by the GM) or it is buried in a Red Grove (and you become an NPC spirit of that grove).",
+            },
+          ],
+          note: "When you **would mark a consequence but they've all been marked**, pick a harm stored in the effigy at random. Erase that harm and suffer it now (it can't be diverted).",
         },
       ],
     },

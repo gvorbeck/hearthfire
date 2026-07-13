@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from "react";
 import { Text } from "@/components/ui";
+import { parseMarkdown } from "@/lib/parseMarkdown";
 import type { ArcanaConsequence, ArcanaFollowerEntry, ArcanaMajorEntry, ArcanaSection, Creature, MoveDefinition } from "@/types";
 import { isMoveDefinition } from "../arcanaParsing";
 import type { MoveGating } from "../useArcanumGating";
@@ -121,6 +122,9 @@ export const ArcanaBackSection = ({
           ) : null,
         )}
       </div>
+      {section.note && (
+        <div className={styles.description}>{parseMarkdown(section.note)}</div>
+      )}
     </div>
   );
 };
