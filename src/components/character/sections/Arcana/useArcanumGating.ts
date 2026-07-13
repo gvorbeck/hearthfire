@@ -196,7 +196,7 @@ export const useArcanumGating = (
         .filter((id) => !isParentMet(id))
         .map((id) => allMoves.find((m) => m.id === id)?.name ?? id);
       if (unmetParents.length > 0) return [`Requires ${unmetParents.join(", ")}`];
-      if (selectedSubMoves >= consequenceGrants) {
+      if (grantEvery && selectedSubMoves >= consequenceGrants) {
         // The next grant unlocks once the marked count reaches the next multiple of the ratio, so name
         // the exact remaining count (1..grantEvery), not the full ratio.
         const needed = (selectedSubMoves + 1) * (grantEvery ?? 2) - markedConsequenceCount;
