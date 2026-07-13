@@ -28,7 +28,9 @@ export const ConsequenceTableBlock = memo(
         columnHeaders={table.columnHeaders}
         selectionLabel={table.columnHeaders.join(" ")}
         rows={table.rows.map((row) => ({
+          id: row.id,
           cells: [row.roll, ...row.cells],
+          ariaLabel: [row.roll, ...row.cells].join(" "),
           selectable: true,
           selected: selectedRowId === row.id,
           disabled,

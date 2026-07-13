@@ -218,6 +218,9 @@ export type ConsequenceAction =
   // Adjust the PC's Armor stat by `amount` while marked (e.g. the Lidless Orb's scales → +1 armor),
   // undoing the same delta on unmark. Additive, so it composes with manual edits and other armor grants.
   | { type: "armor"; amount: number }
+  // Adjust the PC's HP stat by `amount` while marked (e.g. the Hungering Maw's soul wound → -4 max HP),
+  // undoing the same delta on unmark. Additive like `armor`, so it composes with manual edits.
+  | { type: "maxHp"; amount: number }
   // Widen a back move's dot control by `amount` while marked (e.g. Storm Markings' "gain +1 Fury"
   // consequence widens Storm's Fury from 3 to 4 Fury). Like setInstinct, derived read-only from marked
   // state — nothing persisted; useArcanumGating's dotBonusFor reads it alongside a move's grantsDotBonus.
