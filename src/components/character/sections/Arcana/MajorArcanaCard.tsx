@@ -124,13 +124,15 @@ export const MajorArcanaCard = ({
       {tasks ? (
         <div className={styles.taskList}>
           {tasks.map((task, i) => {
-            const key = `task-${i}`;
+            // The persisted mark key is positional (`task-i`) so a saved mark survives re-renders; the
+            // React key also encodes the task text so it stays stable if the list is ever reordered.
+            const taskKey = `task-${i}`;
             return (
               <TaskRow
-                key={key}
-                taskKey={key}
+                key={`${taskKey}-${task}`}
+                taskKey={taskKey}
                 task={task}
-                checked={!!entry.consequencesMarked[key]}
+                checked={!!entry.consequencesMarked[taskKey]}
                 onToggle={onConsequenceToggle}
               />
             );

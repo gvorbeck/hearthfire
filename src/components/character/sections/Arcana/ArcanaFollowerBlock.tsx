@@ -190,12 +190,26 @@ interface HpInputProps {
 }
 
 const HpInput = memo(({ index, followerName, isMultiHp, value, max, onFollowerHpChange }: HpInputProps) => {
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const val = parseInt(e.target.value, 10);
-      if (!isNaN(val)) onFollowerHpChange(index, val);
+  // Optimistic local draft persisted on blur (matching AspectDie), so clearing or mid-edit typing shows
+  // exactly what the player sees rather than snapping back to the saved number, and an empty field
+  // doesn't silently keep the old stored value. Re-syncs when a genuinely new saved value arrives.
+  const [draft, setDraft] = useState(String(value));
+  const lastSaved = useRef(value);
+  useEffect(() => {
+    if (value === lastSaved.current) return;
+    lastSaved.current = value;
+    setDraft(String(value));
+  }, [value]);
+  const commit = useCallback(
+    (raw: string) => {
+      const n = parseInt(raw, 10);
+      const next = Number.isNaN(n) ? 0 : Math.min(max, Math.max(0, n));
+      setDraft(String(next));
+      if (next === lastSaved.current) return;
+      lastSaved.current = next;
+      onFollowerHpChange(index, next);
     },
-    [index, onFollowerHpChange],
+    [index, max, onFollowerHpChange],
   );
   return (
     <label className={styles.followerHpLabel}>
@@ -205,10 +219,12 @@ const HpInput = memo(({ index, followerName, isMultiHp, value, max, onFollowerHp
       <input
         type="number"
         className={styles.followerHpInput}
-        value={value}
+        value={draft}
         min={0}
         max={max}
-        onChange={handleChange}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={(e) => commit(e.target.value)}
+        onWheel={(e) => e.currentTarget.blur()}
         aria-label={isMultiHp ? `${followerName} ${index + 1} HP` : `${followerName} HP`}
       />
       <Text as="span" font="serif" size="xs" color="muted">/{max}</Text>

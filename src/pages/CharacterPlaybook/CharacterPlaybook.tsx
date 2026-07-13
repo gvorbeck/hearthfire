@@ -153,6 +153,7 @@ interface SheetProps {
   nav: GameNav;
   updateCharacterName: (characterId: string, name: string) => Promise<void>;
   updateCharacterData: (characterId: string, data: Partial<CharacterData>) => Promise<void>;
+  adjustCharacterStats: (characterId: string, deltas: Partial<Record<'statArmor' | 'statHp', number>>) => Promise<void>;
 }
 
 type PlaybookTabConfig = {
@@ -184,7 +185,6 @@ const resolveStaticTabContent = (
   onSave: (data: Partial<CharacterData>) => Promise<void>,
 ): ReactNode => {
   if (id === 'inventory') return <Inventory data={data} prosperity={prosperity} onSave={onSave} />;
-  if (id === 'arcana') return lazyTab(<ArcanaTab data={data} onSave={onSave} />);
   if (id === 'Revenant') return lazyTab(<RevenantInsert data={data} onSave={onSave} />);
   if (id === 'Ghost') return lazyTab(<GhostInsert data={data} onSave={onSave} />);
   if (id === 'Thrall') return lazyTab(<ThrallInsert data={data} onSave={onSave} />);
@@ -193,12 +193,17 @@ const resolveStaticTabContent = (
 };
 
 
-const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, nav, updateCharacterName, updateCharacterData }: SheetProps) => {
+const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, nav, updateCharacterName, updateCharacterData, adjustCharacterStats }: SheetProps) => {
   const headerRef = useRef<HTMLDivElement>(null);
 
   const handleSaveCharacterData = useCallback(
     (data: Partial<CharacterData>) => updateCharacterData(character.id, data),
     [updateCharacterData, character.id]
+  );
+
+  const handleAdjustCharacterStats = useCallback(
+    (deltas: Partial<Record<'statArmor' | 'statHp', number>>) => adjustCharacterStats(character.id, deltas),
+    [adjustCharacterStats, character.id]
   );
 
   const handleSaveCharacterName = useCallback(
@@ -266,8 +271,10 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, n
     },
     {
       id: 'arcana',
+      // Rendered directly (not via resolveStaticTabContent) because Arcana alone needs the transactional
+      // stat-adjuster for consequence Armor/HP deltas; the other static tabs only take onSave.
       label: 'Arcana',
-      content: resolveStaticTabContent('arcana', characterData, prosperity, handleSaveCharacterData),
+      content: lazyTab(<ArcanaTab data={characterData} onSave={handleSaveCharacterData} adjustCharacterStats={handleAdjustCharacterStats} />),
     },
     ...playbookTabs.map(({ id: tabId, label, render }) => ({
       id: tabId,
@@ -289,7 +296,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, n
         : undefined,
       removeTooltip: `Remove ${label}`,
     })),
-  ], [characterData, playbook, level, playbookOption, handleSaveCharacterData, insertInstinctNote, playbookTabs, showInvocationsBadge, prosperity, removeInsertHandlers]);
+  ], [characterData, playbook, level, playbookOption, handleSaveCharacterData, handleAdjustCharacterStats, insertInstinctNote, playbookTabs, showInvocationsBadge, prosperity, removeInsertHandlers]);
 
   const { activeIndex, setActiveIndex: setActiveIndexFn, handleActiveChange: hashHandleActiveChange } = useHashTabs(tabs);
   // Mirror the latest tab setter into a ref (written post-commit, not during
@@ -347,12 +354,13 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, n
   );
 };
 
-const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, updateCharacterData }: {
+const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, updateCharacterData, adjustCharacterStats }: {
   g: GameSession;
   id: string;
   playbook: PlaybookType;
   updateCharacterName: (characterId: string, name: string) => Promise<void>;
   updateCharacterData: (characterId: string, data: Partial<CharacterData>) => Promise<void>;
+  adjustCharacterStats: (characterId: string, deltas: Partial<Record<'statArmor' | 'statHp', number>>) => Promise<void>;
 }) => {
   const prosperity = g.steading?.prosperity ?? 0;
   const playbookOption = getPlaybook(playbook);
@@ -392,13 +400,14 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
       nav={nav}
       updateCharacterName={updateCharacterName}
       updateCharacterData={updateCharacterData}
+      adjustCharacterStats={adjustCharacterStats}
     />
   );
 };
 
 export const CharacterPlaybook = () => {
   const { id = '', playbook = '' } = useParams<{ id: string; playbook: string }>();
-  const { game, loading, error, updateCharacterName, updateCharacterData } = useGame(id);
+  const { game, loading, error, updateCharacterName, updateCharacterData, adjustCharacterStats } = useGame(id);
 
   return (
     <GameGuard loading={loading} error={error} game={game} errorBackTo={`/game/${id}`} errorBackLabel="Back to Game">
@@ -409,6 +418,7 @@ export const CharacterPlaybook = () => {
           playbook={playbook as PlaybookType}
           updateCharacterName={updateCharacterName}
           updateCharacterData={updateCharacterData}
+          adjustCharacterStats={adjustCharacterStats}
         />
       )}
     </GameGuard>
