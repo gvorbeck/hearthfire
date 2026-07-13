@@ -10,12 +10,16 @@ export const useDebouncedTextField = (
   delay = 1500,
 ) => {
   const [value, setValue] = useState(firestoreValue);
-  const { onChange: debouncedChange, flush, isPendingRef } = useDebouncedSave(save, delay);
+  const { onChange: debouncedChange, flush, isPendingRef, noteRemoteValue } = useDebouncedSave(save, delay);
 
   useEffect(() => {
     if (isPendingRef.current) return;
+    // Not pending, so this is an authoritative remote value (not our own echo).
+    // Tell the debounce hook so a value another client overwrote can be re-saved
+    // if the user types it again, instead of being deduped away.
+    noteRemoteValue(firestoreValue);
     setValue(firestoreValue);
-  }, [firestoreValue, isPendingRef]);
+  }, [firestoreValue, isPendingRef, noteRemoteValue]);
 
   const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setValue(e.target.value);

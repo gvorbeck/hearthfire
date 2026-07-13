@@ -11,6 +11,15 @@ export const GAMES_COLLECTION = "games";
 export const SAVE_ERROR_MESSAGE =
   "Couldn't save your changes — check your connection.";
 
+// Shown when a write is rejected because the game document exceeds Firestore's
+// 1 MiB per-doc ceiling (surfaced as the `invalid-argument` code). The whole
+// game lives in one doc, so this is reachable with enough content. Both save
+// paths (useGame's reportSave and useDebouncedSave's handler) map the code to
+// this same string so the Toast dedupe collapses them to one — same reason
+// SAVE_ERROR_MESSAGE is shared.
+export const DOC_TOO_LARGE_MESSAGE =
+  "This game has grown too large to save. Trim some content (long notes, unused characters) and try again.";
+
 export interface PlaybookOption {
   value: PlaybookType;
   label: string;

@@ -5,7 +5,7 @@ import type { FirestoreError } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useSaveStatusOptional } from '@/components/app/SaveStatus/SaveStatusContext';
 import { useToastOptional } from '@/components/app/Toast/ToastContext';
-import { GAMES_COLLECTION, PLAYBOOKS, SAVE_ERROR_MESSAGE } from '@/lib/constants';
+import { DOC_TOO_LARGE_MESSAGE, GAMES_COLLECTION, PLAYBOOKS, SAVE_ERROR_MESSAGE } from '@/lib/constants';
 import { filterByType, isBoolean, isNumber, isRecord, isString } from '@/lib/typeGuards';
 import type { Character, CharacterData, ContentLists, GameSession, GmImprovement, NpcRelationship, SteadingData, SteadingNPC } from '@/types';
 
@@ -33,10 +33,18 @@ const FIRESTORE_ERROR_MESSAGES: Partial<Record<FirestoreError['code'], string>> 
   unavailable: "Can't reach the server — check your connection and try again.",
   'deadline-exceeded': "The server took too long to respond — try again.",
   unauthenticated: "Your session expired — reload the page and try again.",
+  // A write that exceeds Firestore's 1 MiB per-doc ceiling surfaces as
+  // `invalid-argument`. Without this it fell through to the generic "check your
+  // connection" line, which is both wrong and offers no recovery path.
+  'invalid-argument': DOC_TOO_LARGE_MESSAGE,
 };
 
 const friendlyFirestoreError = (err: FirestoreError): string =>
   FIRESTORE_ERROR_MESSAGES[err.code] ?? 'Something went wrong loading this game. Please try again.';
+
+// A FirestoreError carries a string `code`; other throws (network, mock) don't.
+const isFirestoreError = (err: unknown): err is FirestoreError =>
+  isRecord(err) && isString(err.code);
 
 // Derived from the canonical PLAYBOOKS list, not hand-copied: a character whose
 // playbook isn't recognized gets filtered out of the array we write back (see
@@ -186,7 +194,10 @@ const withCharacters = async (
 ): Promise<void> => {
   await runTransaction(db, async (tx) => {
     const snap = await tx.get(ref);
-    if (!snap.exists()) return;
+    // Fail loud rather than silently no-op: a missing doc here means the game was
+    // deleted mid-session, so returning would let reportSave flag "Saved." for a
+    // write that never happened. Throwing routes it through the save-error path.
+    if (!snap.exists()) throw new Error('Game not found — it may have been deleted.');
     tx.update(ref, { characters: transform(parseCharacters(snap.data())) });
   });
 };
@@ -219,7 +230,14 @@ export const useGame = (gameId: string): UseGameResult => {
       await write();
       succeeded = true;
     } catch (error) {
-      addToastRef.current?.(SAVE_ERROR_MESSAGE, 'error');
+      // A code we have a specific line for (e.g. the 1 MiB doc-size ceiling) gets
+      // that actionable message; everything else falls back to SAVE_ERROR_MESSAGE
+      // so it still dedupes against the debounce hook's toast on the shared string.
+      const message =
+        isFirestoreError(error) && FIRESTORE_ERROR_MESSAGES[error.code]
+          ? FIRESTORE_ERROR_MESSAGES[error.code]!
+          : SAVE_ERROR_MESSAGE;
+      addToastRef.current?.(message, 'error');
       throw error;
     } finally {
       saveStatusRef.current?.reportSaveSettled(succeeded);

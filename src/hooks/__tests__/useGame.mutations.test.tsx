@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { firestoreMockModule, firestoreStore } from '@/test/firestoreMock';
 import { addToastSpy, toastModuleMock } from '@/test/toastMock';
-import { SAVE_ERROR_MESSAGE } from '@/lib/constants';
+import { DOC_TOO_LARGE_MESSAGE, SAVE_ERROR_MESSAGE } from '@/lib/constants';
 
 vi.mock('firebase/app', () => ({ initializeApp: () => ({}) }));
 vi.mock('firebase/firestore', () => firestoreMockModule());
@@ -178,6 +178,38 @@ describe('useGame mutations', () => {
     });
 
     expect(addToastSpy).toHaveBeenCalledWith(SAVE_ERROR_MESSAGE, 'error');
+  });
+
+  it('withCharacters throws (not silently no-ops) when the game doc is gone (#254)', async () => {
+    firestoreStore.set(GAME_PATH, { name: 'Test', createdAt: 0, characters: [char('a')] });
+    const { result } = renderGame();
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    // The doc is deleted mid-session; a transaction-backed write must fail loud
+    // rather than resolve, so reportSave doesn't flag "Saved." for a no-op.
+    firestoreStore.delete(GAME_PATH);
+
+    await act(async () => {
+      await expect(result.current.updateCharacterName('a', 'Renamed')).rejects.toThrow();
+    });
+    expect(addToastSpy).toHaveBeenCalledWith(SAVE_ERROR_MESSAGE, 'error');
+  });
+
+  it('surfaces the doc-size-limit message when a write hits invalid-argument (#254)', async () => {
+    firestoreStore.set(GAME_PATH, { name: 'Test', createdAt: 0, characters: [char('a')] });
+    const { result } = renderGame();
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    // Simulate Firestore rejecting an over-1MiB write with invalid-argument.
+    const { updateDoc } = await import('firebase/firestore');
+    (updateDoc as unknown as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
+      Object.assign(new Error('maximum size'), { code: 'invalid-argument' }),
+    );
+
+    await act(async () => {
+      await expect(result.current.updateGameName('New Name')).rejects.toThrow();
+    });
+    expect(addToastSpy).toHaveBeenCalledWith(DOC_TOO_LARGE_MESSAGE, 'error');
   });
 
   it('updateSteading validates debility booleans pass through as written', async () => {
