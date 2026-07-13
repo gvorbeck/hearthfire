@@ -8,16 +8,20 @@ type GroupRow = { group: string };
 // pressing space) calls `onSelect`. Used for pick-one roll tables. Cells accept rich nodes so callers
 // can pass inline-formatted text (bold, italic, icons); `ariaLabel` supplies the plain-text name a
 // selectable row needs for its radio, since rich cells can't be joined into a string.
-type CellsRow = {
+type CellsRowBase = {
   // Stable identifier for the row's React key, since rich-node cells can't be stringified into one.
   id: string;
   cells: React.ReactNode[];
-  selectable?: boolean;
   selected?: boolean;
   disabled?: boolean;
   onSelect?: () => void;
-  ariaLabel?: string;
 };
+// A selectable row renders a Radio, which needs a plain-text accessible name — so `ariaLabel` is
+// required in that branch (rich-node cells can't supply one). Non-selectable rows never render a
+// control, so it stays optional (and unused) there.
+type CellsRow =
+  | (CellsRowBase & { selectable?: false; ariaLabel?: string })
+  | (CellsRowBase & { selectable: true; ariaLabel: string });
 type Row = DataRow | GroupRow | CellsRow;
 
 const isGroup = (row: Row): row is GroupRow => 'group' in row;
