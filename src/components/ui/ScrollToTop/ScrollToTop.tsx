@@ -23,7 +23,13 @@ export const ScrollToTop = ({ sentinelRef }: ScrollToTopProps) => {
     return () => observer.disconnect();
   }, [sentinelRef]);
 
-  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+  const scrollToTop = () => {
+    // Respect reduced-motion: jump instantly rather than animate (WCAG 2.3.3).
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
+    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+  };
 
   const cx = clsx(styles.btn, visible && styles.visible);
 

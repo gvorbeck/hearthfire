@@ -160,7 +160,14 @@
 html,
 body {
   height: 100%;
-  scroll-behavior: smooth;
+}
+
+/* Only animate scrolling for users who haven't asked to reduce motion (WCAG 2.3.3). */
+@media (prefers-reduced-motion: no-preference) {
+  html,
+  body {
+    scroll-behavior: smooth;
+  }
 }
 
 body {
