@@ -1996,63 +1996,118 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     name: "Hungering Maw of Hlad",
     tags: "magical",
     description:
-      "A ring of black metal bands, woven in an intricate pattern beyond the skills of modern smiths. The way the bands twist on each other seems to defy reality, and the weak-willed find themselves pondering the bands for minutes or hours.\n\nThe metal is always cold. Always.",
-    baseMoves: [
-      {
-        name: "Wear the ring and press it firmly into the skin of a living thing",
-        text: "The ring draws the life-force from your victim. If your victim is helpless or unable to struggle, they are reduced to 0 HP (see below).\n\nIf **your victim struggles**, roll +CON: **on a 10+**, deal 1d10 damage (ignores armor) and they are left reeling (a PC or follower marks a debility, an NPC or monster grants advantage on any moves made against it until it recovers); **on a 7-9**, deal 1d10 damage (ignores armor) but you suffer whatever counterattack they dish out; **on a 6-**, ask the GM what happens (which may or may not involve marking a consequence).\n\nWhen you **use the ring to reduce an intelligent victim to 0 HP**, roll 1d6:\n\n- 1-2: Their soul is wounded but they'll live, suffering from unnatural, compulsive hungers; should they die in this state, they become a wraith.\n- 3-4: Their soul is wounded and their body gives up; they become a wraith.\n- 5-6: Their soul is consumed and utterly destroyed by the ring—mark 1 below.",
-      },
-    ],
+      "A ring of black metal bands, woven in an intricate pattern beyond the skills of modern smiths. The way the bands twist on each other seems to defy reality, and the weak-willed find themselves pondering the bands for minutes or hours.\n\nThe metal is always cold. Always.\n\n---\n\nWhen you **wear the ring and press it firmly into the skin of a living thing**, the ring draws the life-force from your victim. If your victim is helpless or unable to struggle, they are reduced to 0 HP.\n\nIf **your victim struggles**, roll +CON: **on a 10+**, deal 1d10 damage (ignores armor) and they are left reeling (a PC or follower marks a debility, an NPC or monster grants advantage on any moves made against it until it recovers); **on a 7-9**, deal 1d10 damage (ignores armor) but you suffer whatever counterattack they dish out; **on a 6-**, ask the GM what happens (which may or may not involve marking a consequence).\n\nWhen you **use the ring to reduce an intelligent victim to 0 HP**, roll 1d6:\n\n| 1d6 | effect |\n| --- | --- |\n| 1-2 | Their soul is wounded but they'll live, suffering from unnatural, compulsive hungers; should they die in this state, they become a wraith. |\n| 3-4 | Their soul is wounded and their body gives up; they become a wraith. |\n| 5-6 | Their soul is consumed and utterly destroyed by the ring—mark 1. |\n\nWhen you **make the last mark**, you unlock the ring's mysteries. Gain Siphon (in the Mysteries) and erase all the marks. Each time you mark the third circle, gain another move from the Mysteries. If you **have all the moves**, mark a consequence instead.",
     frontTrackers: [{ id: "marks", label: "marks", max: 3, role: "marks" }],
-    mystery: {
-      moves: [
+    back: {
+      label: "Mysteries of the Hungering Maw of Hlad",
+      sections: [
         {
-          id: "siphon",
-          name: "Siphon",
-          text: "When you **raise your ringed hand and will the ring to consume someone's life-force** (at up to *reach* range), roll +CON: **on a 10+**, deal 1d10 damage (*grabby*, ignores armor); **on a 7-9**, deal 1d10 damage (ignores armor) but choose one:\n\n- The ring eats at your life-force, too—lose 1d10 HP and mark a debility\n- Mark a consequence\n\n**On a 6-**, the GM says what happens (which may or may not involve marking a consequence).",
-        },
-        {
-          id: "inescapable-pull",
-          name: "Inescapable Pull",
-          text: "You can use Siphon at up to *near* range, and on a 10+ you can choose to drag the victim closer.",
-        },
-        {
-          id: "maelstrom",
-          name: "Maelstrom",
-          text: "When you **use Siphon**, you can mark a consequence before rolling to affect a number of victims within range. Roll +CON once, but roll damage separately for each target.",
-        },
-        {
-          id: "dust-to-dust",
-          name: "Dust to Dust",
-          text: "When you **wear the ring and press it firmly against a work of mortal artifice**, mark a debility and then roll +CON: **on a 10+**, the artifice fails or is ruined (say how); **on a 7-9**, it is ruined (as per a 10+) but also mark a consequence; **on a 6-**, the GM says what happens (which may or may not involve marking a consequence.)",
-        },
-      ],
-      consequences: [
-        {
-          id: "hlad-c1",
-          text: "◻◻◻ A powerful earthquake strikes the area. Each time you choose this option, the quake is longer, more powerful, more destructive.",
-        },
-        {
-          id: "hlad-c2",
-          text: "The ring fuses to your flesh and bone and can no longer be removed without cutting off your finger.",
-          children: [
+          label: "Moves",
+          content: [
             {
-              id: "hlad-c2a",
-              text: "The air in your presence is always noticeably colder, though you yourself are unharmed and unfazed by even the bitterest cold.",
+              id: "siphon",
+              name: "Siphon",
+              citation: "Book 2, p. 573",
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **raise your ringed hand and will the ring to consume someone's life-force** (at up to *reach* range), roll +CON: **on a 10+**, deal 1d10 damage (*grabby*, ignores armor); **on a 7-9**, deal 1d10 damage (ignores armor) but choose one:",
+                },
+                {
+                  kind: "list",
+                  items: [
+                    "The ring eats at your life-force, too—lose 1d10 HP and mark a debility",
+                    "Mark a consequence",
+                  ],
+                },
+                {
+                  kind: "para",
+                  text: "**On a 6-**, the GM says what happens (which may or may not involve marking a consequence).",
+                },
+              ],
+            },
+            {
+              id: "inescapable-pull",
+              name: "Inescapable Pull",
+              selectable: true,
+              citation: "Book 2, p. 573",
+              body: [
+                {
+                  kind: "para",
+                  text: "You can use Siphon at up to *near* range, and on a 10+ you can choose to drag the victim closer.",
+                },
+              ],
+            },
+            {
+              id: "maelstrom",
+              name: "Maelstrom",
+              selectable: true,
+              citation: "Book 2, p. 573",
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **use Siphon**, you can mark a consequence before rolling to affect a number of victims within range. Roll +CON once, but roll damage separately for each target.",
+                },
+              ],
+            },
+            {
+              id: "dust-to-dust",
+              name: "Dust to Dust",
+              selectable: true,
+              citation: "Book 2, p. 573",
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **wear the ring and press it firmly against a work of mortal artifice**, mark a debility and then roll +CON: **on a 10+**, the artifice fails or is ruined (say how); **on a 7-9**, it is ruined (as per a 10+) but also mark a consequence; **on a 6-**, the GM says what happens (which may or may not involve marking a consequence.)",
+                },
+              ],
             },
           ],
         },
         {
-          id: "hlad-c3",
-          text: "The ring wounds your soul, reducing your max HP by 4. Until your soul is healed, your instinct becomes \"Hunger: to fill the emptiness inside you with excess.\" Should you roll a 6- on Death's Door, you die and become a wraith (a monster in the GM's control).",
-        },
-        {
-          id: "hlad-c4",
-          text: "The ring opens a gaping vortex, sucking in the life-force of everything around it (d10 damage, *near, area, grabby*, ignores armor) and weakening stone and metal and wood. You can, perhaps, close the vortex through a force of will.",
-        },
-        {
-          id: "hlad-c5",
-          text: "The earth shakes. The ring tears at your life-force (1d10 damage, *messy*, ignores armor, mark all three debilities). The ring is gone and your hand is left a withered and palsied thing. And somewhere, a hole has opened in the world.",
+          label: "Consequences",
+          content: [
+            {
+              id: "hlad-c1",
+              checkboxes: 3,
+              value:
+                "A powerful earthquake strikes the area. Each time you choose this option, the quake is longer, more powerful, more destructive.",
+            },
+            {
+              id: "hlad-c2",
+              value:
+                "The ring fuses to your flesh and bone and can no longer be removed without cutting off your finger.",
+              children: [
+                {
+                  id: "hlad-c2a",
+                  value:
+                    "The air in your presence is always noticeably colder, though you yourself are unharmed and unfazed by even the bitterest cold.",
+                },
+              ],
+            },
+            {
+              id: "hlad-c3",
+              value:
+                "The ring wounds your soul, reducing your max HP by 4. Until your soul is healed, your instinct becomes \"Hunger: to fill the emptiness inside you with excess.\" Should you roll a 6- on Death's Door, you die and become a wraith (a monster in the GM's control).",
+              actions: [
+                { type: "maxHp", amount: -4 },
+                {
+                  type: "setInstinct",
+                  text: "Hunger: to fill the emptiness inside you with excess.",
+                },
+              ],
+            },
+            {
+              id: "hlad-c4",
+              value:
+                "The ring opens a gaping vortex, sucking in the life-force of everything around it (d10 damage, *near, area, grabby*, ignores armor) and weakening stone and metal and wood. You can, perhaps, close the vortex through a force of will.",
+            },
+            {
+              id: "hlad-c5",
+              value:
+                "The earth shakes. The ring tears at your life-force (1d10 damage, *messy*, ignores armor, mark all three debilities). The ring is gone and your hand is left a withered and palsied thing. And somewhere, a hole has opened in the world.",
+            },
+          ],
         },
       ],
     },
@@ -2060,65 +2115,105 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
   {
     id: "azure-hand",
     name: "Azure Hand",
-    tags: "◊, close, magical, awkward",
+    tags: "close, magical, awkward",
     weight: 1,
     description:
-      "A thick staff of gray metal, topped with a plate of aetherium in the shape of a stylized hand. The palm is embossed with a cloud and lightning bolt, and the whole thing is more than a little top-heavy. It smells of ozone, and your spine never ceases to tingle in its presence.",
-    baseMoves: [
-      {
-        name: "Bear the Azure Hand",
-        text: "You sense sources, currents, and reservoirs of energy much like you sense the pull of gravity or the position of your own hand. You can closely study such energy and Seek Insight about it.",
-      },
-      {
-        name: "Brandish the Azure Hand at a source of elemental energy",
-        text: "Roll +CON: **on a 10+**, you gather the energy about the Hand in a swirling vortex for as long as you grip the staff or until you choose 1 from the list below; **on a 7-9**, as a 10+, but the vortex is unstable and maintaining it requires all your focus.\n\n- Direct the energy into a vessel able to contain it\n- Discharge the energy harmlessly into the earth\n- Fling the energy, rolling +INT to Let Fly (*thrown, dangerous*), inflicting damage and other effects of the GM's choosing\n- Use the energy to fuel or empower some other magic.\n\n**On a 6-**, instead of marking XP, mark 1.\n\nEach time you mark 1, ask the GM how the power goes out of control.",
-      },
-    ],
+      "A thick staff of gray metal, topped with a plate of aetherium in the shape of a stylized hand. The palm is embossed with a cloud and lightning bolt, and the whole thing is more than a little top-heavy. It smells of ozone, and your spine never ceases to tingle in its presence.\n\n---\n\nWhen you **bear the Azure Hand**, you sense sources, currents, and reservoirs of energy much like you sense the pull of gravity or the position of your own hand. You can closely study such energy and Seek Insight about it.\n\nWhen you **brandish the Azure Hand at a source of elemental energy**, roll +CON: **on a 10+**, you gather the energy about the Hand in a swirling vortex for as long as you grip the staff or until you choose 1 from the list below; **on a 7-9**, as a 10+, but the vortex is unstable and maintaining it requires all your focus.\n\n- Direct the energy into a vessel able to contain it\n- Discharge the energy harmlessly into the earth\n- Fling the energy, rolling +INT to Let Fly (*thrown, dangerous*), inflicting damage and other effects of the GM's choosing\n- Use the energy to fuel or empower some other magic.\n\n**On a 6-**, instead of marking XP, mark 1.\n\nEach time you mark 1, ask the GM how the power goes out of control.\n\nWhen you **make the last mark**, you unlock the mysteries of the Azure Hand—choose one of the moves in the Mysteries, and erase all marks above.",
     frontTrackers: [{ id: "marks", label: "marks", max: 4, role: "marks" }],
-    mystery: {
-      moves: [
+    back: {
+      label: "Mysteries of the Azure Hand",
+      sections: [
         {
-          id: "battery",
-          name: "Battery",
-          tracker: { label: "Stored Energy", max: 1 },
-          text: "When you **gather elemental power about the Azure Hand**, you can choose to store the energy in the staff itself. It no longer requires your touch or focus to maintain. You cannot do this again until you use up the energy contained within (via the front-side move above).",
+          label: "Moves",
+          content: [
+            {
+              id: "battery",
+              name: "Battery",
+              rightControl: [{ type: "checkbox", label: "Stored Energy" }],
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **gather elemental power about the Azure Hand**, you can choose to store the energy in the staff itself. It no longer requires your touch or focus to maintain. You cannot do this again until you use up the energy contained within.",
+                },
+              ],
+            },
+            {
+              id: "eye-of-the-storm",
+              name: "Eye of the Storm",
+              body: [
+                {
+                  kind: "para",
+                  text: "When you **grasp the Azure Hand and impose your will on the elements around you**, roll +CON: **on a 10+**, the elements calm or diminish in their power, and choose 2 from the list below; **on a 7-9**, the elements calm or diminish, and choose 1.",
+                },
+                {
+                  kind: "list",
+                  items: [
+                    "You suffer no consequence (otherwise, mark one)",
+                    "The effect is far reaching, up to a mile around you (otherwise, it extends just a few paces)",
+                    "You can maintain the effect easily (otherwise, it takes all of your concentration)",
+                  ],
+                },
+              ],
+            },
+            {
+              id: "resonance",
+              name: "Resonance",
+              body: [
+                {
+                  kind: "para",
+                  text: "*Requires: Battery, Eye of the Storm*",
+                },
+                {
+                  kind: "para",
+                  text: "When you **have captured a tremendous elemental force** (like that from a storm or wildfire) and **then channel it into the eddies of air or earth**, pick 1 from the list below and roll +INT: **on a 10+**, it comes to pass; **on a 7-9**, it will come to pass if you choose to mark a consequence; **on a 6-**, mark a consequence and prepare for the worst.",
+                },
+                {
+                  kind: "list",
+                  items: [
+                    "A potent storm or earthquake builds, unleashing itself within the next few hours.",
+                    "The weather for the next few weeks is abnormal, hotter or colder, wetter or dryer, windier or more still, per your desires (though nothing too extreme).",
+                    "The weather for the next few months is generally favorable; any steading in the area gains advantage to its next Seasons Change roll.",
+                  ],
+                },
+              ],
+            },
+          ],
         },
         {
-          id: "eye-of-the-storm",
-          name: "Eye of the Storm",
-          text: "When you **grasp the Azure Hand and impose your will on the elements around you**, roll +CON: **on a 10+**, the elements calm or diminish in their power, and choose 2 from the list below; **on a 7-9**, the elements calm or diminish, and choose 1.\n\n- You suffer no consequence (otherwise, mark one)\n- The effect is far reaching, up to a mile around you (otherwise, it extends just a few paces)\n- You can maintain the effect easily (otherwise, it takes all of your concentration)",
-        },
-        {
-          id: "resonance",
-          name: "Resonance",
-          subtitle: "Requires: Battery, Eye of the Storm",
-          text: "When you **have captured a tremendous elemental force** (like that from a storm or wildfire) and **then channel it into the eddies of air or earth**, pick 1 from the list below and roll +INT: **on a 10+**, it comes to pass; **on a 7-9**, it will come to pass if you choose to mark a consequence; **on a 6-**, mark a consequence and prepare for the worst.\n\n- A potent storm or earthquake builds, unleashing itself within the next few hours.\n- The weather for the next few weeks is abnormal, hotter or colder, wetter or dryer, windier or more still, per your desires (though nothing too extreme).\n- The weather for the next few months is generally favorable; any steading in the area gains advantage to its next Seasons Change roll.",
-        },
-      ],
-      consequences: [
-        {
-          id: "azure-c1",
-          text: "◻◻◻ You are burned by the power you attempt to wield. Mark a debility and take 2d4 damage (ignores armor).",
-        },
-        {
-          id: "azure-c2",
-          text: "You become bound to the staff. You can call it to your hand from up to *far* range, but you fully suffer the effects of any harm or magic visited upon it.",
-        },
-        {
-          id: "azure-c3",
-          text: "Your eyes become a solid bluish white, darkening or brightening with your mood. You now see energy patterns, glowing brightly, which can obscure facial expressions and other details unless you focus.",
-        },
-        {
-          id: "azure-c4",
-          text: "Your skin takes on a bluish tint; your hair is streaked with white; the air about you thrums with power. Sensitive beings can easily sense your presence, even from afar.",
-        },
-        {
-          id: "azure-c5",
-          text: "Henceforth, any storm in your presence is unnaturally strong. If you spend a summer or a winter in a steading or within a day's march of one, the steading loses 1d4-1 Surplus due to storms.",
-        },
-        {
-          id: "azure-c6",
-          text: "Your body pulses with barely controlled energy. Henceforth, when you **roll +CON and get a 6-**, you unleash bolts of elemental power all about you (1d10 damage, *near, area, forceful, dangerous*) in addition to whatever else the GM says.",
+          label: "Consequences",
+          content: [
+            {
+              id: "azure-c1",
+              checkboxes: 3,
+              value:
+                "You are burned by the power you attempt to wield. Mark a debility and take 2d4 damage (ignores armor).",
+            },
+            {
+              id: "azure-c2",
+              value:
+                "You become bound to the staff. You can call it to your hand from up to *far* range, but you fully suffer the effects of any harm or magic visited upon it.",
+            },
+            {
+              id: "azure-c3",
+              value:
+                "Your eyes become a solid bluish white, darkening or brightening with your mood. You now see energy patterns, glowing brightly, which can obscure facial expressions and other details unless you focus.",
+            },
+            {
+              id: "azure-c4",
+              value:
+                "Your skin takes on a bluish tint; your hair is streaked with white; the air about you thrums with power. Sensitive beings can easily sense your presence, even from afar.",
+            },
+            {
+              id: "azure-c5",
+              value:
+                "Henceforth, any storm in your presence is unnaturally strong. If you spend a summer or a winter in a steading or within a day's march of one, the steading loses 1d4-1 Surplus due to storms.",
+            },
+            {
+              id: "azure-c6",
+              value:
+                "Your body pulses with barely controlled energy. Henceforth, when you **roll +CON and get a 6-**, you unleash bolts of elemental power all about you (1d10 damage, *near, area, forceful, dangerous*) in addition to whatever else the GM says.",
+            },
+          ],
         },
       ],
     },

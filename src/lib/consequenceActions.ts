@@ -108,6 +108,8 @@ export const hasConsequenceActions = (
 export interface ConsequenceActionContext {
   // The current Armor stat, so an armor action can add/subtract relative to it.
   armor: string;
+  // The current HP stat, so a maxHp action can add/subtract relative to it.
+  hp: string;
 }
 
 // Compute the character patch, entry bookkeeping, and cascade for marking/unmarking a consequence.
@@ -133,9 +135,13 @@ export const applyConsequenceActions = (
   for (const id of targetIds) {
     for (const action of findConsequence(arcanum, id)?.actions ?? []) {
       // Read the running value an action depends on: a field already patched this pass (so additive
-      // armor stacks), falling back to the live value from ctx.
+      // armor/HP stacks), falling back to the live value from ctx.
       const runningArmor = (dataPatch.statArmor as string | undefined) ?? ctx.armor;
-      dataPatch = { ...dataPatch, ...applyOne(action, checked, { armor: runningArmor }) };
+      const runningHp = (dataPatch.statHp as string | undefined) ?? ctx.hp;
+      dataPatch = {
+        ...dataPatch,
+        ...applyOne(action, checked, { armor: runningArmor, hp: runningHp }),
+      };
     }
   }
 
@@ -173,12 +179,17 @@ const applyOne = (
       // No write: the dot-control widening is derived read-only from marked state by useArcanumGating's
       // dotBonusFor (which reads this action alongside a move's grantsDotBonus), so nothing persists.
       return {};
-    case "armor": {
-      // Additive: add the amount on mark, subtract it on unmark, relative to the running armor value.
-      // No stash/lock — the box stays editable and the delta composes with manual edits and other grants.
-      const current = Number(ctx.armor) || 0;
+    case "armor":
+    case "maxHp": {
+      // Additive stat deltas (Armor, HP): add the amount on mark, subtract it on unmark, relative to the
+      // running value. No stash/lock — the box stays editable and the delta composes with manual edits
+      // and other grants.
+      const { field, current } =
+        action.type === "armor"
+          ? { field: "statArmor" as const, current: Number(ctx.armor) || 0 }
+          : { field: "statHp" as const, current: Number(ctx.hp) || 0 };
       const delta = checked ? action.amount : -action.amount;
-      return { statArmor: String(current + delta) };
+      return { [field]: String(current + delta) };
     }
     default:
       // Creature-side actions (addTag, replaceQuality, …) touch the arcanum's creature, not the PC

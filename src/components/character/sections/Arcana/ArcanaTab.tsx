@@ -59,10 +59,13 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
     (next) => onSave({ arcanaMajor: next }),
     'Failed to save.',
   );
-  // A consequence's armor action adds to the PC's Armor relative to its current value; the major panel
-  // reads it on toggle and persists the new value via onSave (Stats reconciles from the snapshot). Armor
-  // is edited in another tab, so the snapshot value is current.
-  const actionContextRef = useLatest({ armor: data?.statArmor ?? '0' });
+  // A consequence's armor/maxHp action adds to the PC's Armor or HP relative to its current value; the
+  // major panel reads it on toggle and persists the new value via onSave (Stats reconciles from the
+  // snapshot). Both are edited in another tab, so the snapshot values are current.
+  const actionContextRef = useLatest({
+    armor: data?.statArmor ?? '0',
+    hp: data?.statHp ?? '0',
+  });
 
   return (
     <div className={styles.root}>

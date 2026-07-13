@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { parseInlineMarkdown } from '../parseMarkdown';
+import { parseInlineMarkdown, parseMarkdown } from '../parseMarkdown';
 
 const Wrapper = ({ text }: { text: string }) => <>{parseInlineMarkdown(text)}</>;
+const Block = ({ text }: { text: string }) => <>{parseMarkdown(text)}</>;
 
 describe('parseInlineMarkdown', () => {
   it('renders **bold** as a <strong> element', () => {
@@ -58,5 +59,43 @@ describe('parseInlineMarkdown', () => {
 
   it('leaves plain text without markers untouched', () => {
     expect(parseInlineMarkdown('just words')).toEqual(['just words']);
+  });
+});
+
+describe('parseMarkdown tables', () => {
+  const table = '| 1d6 | effect |\n| --- | --- |\n| 1-2 | wounded |\n| 3-4 | worse |';
+
+  it('renders a GFM table block as a <table> with headers and cells', () => {
+    render(<Block text={table} />);
+    const el = screen.getByRole('table');
+    expect(el.tagName).toBe('TABLE');
+    expect(screen.getByRole('columnheader', { name: '1d6' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'effect' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: '1-2' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'wounded' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'worse' })).toBeInTheDocument();
+  });
+
+  it('does not treat a bullet list as a table', () => {
+    render(<Block text={'- one\n- two'} />);
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    expect(screen.getByRole('list')).toBeInTheDocument();
+  });
+
+  it('does not treat prose containing a stray pipe as a table', () => {
+    render(<Block text={'a | b is just prose'} />);
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+  });
+
+  it('renders inline formatting inside table cells and headers', () => {
+    render(<Block text={'| **roll** | effect |\n| --- | --- |\n| 10+ | *good* |'} />);
+    expect(screen.getByText('roll').tagName).toBe('STRONG');
+    expect(screen.getByText('good').tagName).toBe('EM');
+  });
+
+  it('pads a row with too few cells so the table stays aligned', () => {
+    render(<Block text={'| a | b |\n| --- | --- |\n| only-one |'} />);
+    const bodyRow = screen.getByRole('cell', { name: 'only-one' }).closest('tr')!;
+    expect(bodyRow.querySelectorAll('td')).toHaveLength(2);
   });
 });

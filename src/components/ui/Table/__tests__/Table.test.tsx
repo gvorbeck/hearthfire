@@ -19,7 +19,7 @@ describe("Table", () => {
     render(
       <Table
         columnHeaders={["1d4", "Purpose", "Cost"]}
-        rows={[{ cells: ["1", "To punish", "Victory"] }]}
+        rows={[{ id: "r1", cells: ["1", "To punish", "Victory"] }]}
       />,
     );
     expect(screen.getAllByRole("columnheader")).toHaveLength(3);
@@ -34,6 +34,7 @@ describe("Table", () => {
         selectionLabel="purpose"
         rows={[
           {
+            id: "r1",
             cells: ["1", "To punish", "Victory"],
             selectable: true,
             selected: false,
@@ -51,8 +52,8 @@ describe("Table", () => {
       <Table
         columnHeaders={["1d4", "Purpose", "Cost"]}
         rows={[
-          { cells: ["1", "To punish", "Victory"], selectable: true, selected: false, onSelect: () => {} },
-          { cells: ["2", "To preserve", "Hoard"], selectable: true, selected: true, onSelect: () => {} },
+          { id: "r1", cells: ["1", "To punish", "Victory"], selectable: true, selected: false, onSelect: () => {} },
+          { id: "r2", cells: ["2", "To preserve", "Hoard"], selectable: true, selected: true, onSelect: () => {} },
         ]}
       />,
     );
@@ -68,6 +69,7 @@ describe("Table", () => {
         columnHeaders={["1d4", "Purpose", "Cost"]}
         rows={[
           {
+            id: "r1",
             cells: ["1", "To punish", "Victory"],
             selectable: true,
             disabled: true,
@@ -83,7 +85,7 @@ describe("Table", () => {
     render(
       <Table
         selectionLabel="1d4 Purpose Cost"
-        rows={[{ cells: ["1", "To punish"], selectable: true, onSelect: () => {} }]}
+        rows={[{ id: "r1", cells: ["1", "To punish"], selectable: true, onSelect: () => {} }]}
       />,
     );
     expect(
