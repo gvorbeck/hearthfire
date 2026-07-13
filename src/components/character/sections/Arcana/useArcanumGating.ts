@@ -270,7 +270,10 @@ export const useArcanumGating = (
   // and ArcanaBackSection would otherwise show every creature section the same first-found creature.
   // Fail loudly on a second so the assumption is caught in dev, not shipped as a silently-wrong card.
   const creatureSections = (back?.sections ?? []).filter((s) => s.creature);
-  if (creatureSections.length > 1) {
+  // A second creature section is an authoring mistake (the projection assumes one seed per arcanum). In
+  // dev, throw so it's caught immediately; in production, fall back to the first section rather than
+  // crashing the whole character sheet for a player over bad data.
+  if (creatureSections.length > 1 && import.meta.env.DEV) {
     throw new Error(
       `Arcanum "${arcanum.id}" has ${creatureSections.length} creature sections; only one is supported.`,
     );

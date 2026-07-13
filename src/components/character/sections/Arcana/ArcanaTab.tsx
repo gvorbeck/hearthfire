@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { useOptimisticField } from '@/hooks/useOptimisticField';
-import { useLatest } from '@/hooks/useLatest';
 import type { PlaybookSectionProps } from '@/types';
 import { Spinner } from '@/components/ui';
 import { ArcanaSubTabs, type ArcanaSubTab } from './ArcanaSubTabs';
@@ -31,9 +30,13 @@ const MajorArcanaPanel = lazy(() =>
   import('./MajorArcanaPanel').then((m) => ({ default: m.MajorArcanaPanel })),
 );
 
-type ArcanaTabProps = PlaybookSectionProps;
+interface ArcanaTabProps extends PlaybookSectionProps {
+  // Transactional Armor/HP adjuster: a consequence's armor/maxHp action applies its delta against the
+  // freshly-read doc, so rapid toggles or a stale snapshot can't strand the stat on the wrong value.
+  adjustCharacterStats: (deltas: Partial<Record<'statArmor' | 'statHp', number>>) => Promise<void>;
+}
 
-export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
+export const ArcanaTab = ({ data, onSave, adjustCharacterStats }: ArcanaTabProps) => {
   const [subTab, setSubTab] = useState<ArcanaSubTab>(readSubTabFromHash);
 
   const handleSelectSubTab = useCallback((next: ArcanaSubTab) => {
@@ -59,14 +62,6 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
     (next) => onSave({ arcanaMajor: next }),
     'Failed to save.',
   );
-  // A consequence's armor/maxHp action adds to the PC's Armor or HP relative to its current value; the
-  // major panel reads it on toggle and persists the new value via onSave (Stats reconciles from the
-  // snapshot). Both are edited in another tab, so the snapshot values are current.
-  const actionContextRef = useLatest({
-    armor: data?.statArmor ?? '0',
-    hp: data?.statHp ?? '0',
-  });
-
   return (
     <div className={styles.root}>
       <ArcanaSubTabs
@@ -90,8 +85,8 @@ export const ArcanaTab = ({ data, onSave }: ArcanaTabProps) => {
             arcanaMajor={arcanaMajor}
             arcanaMajorRef={arcanaMajorRef}
             saveMajor={saveMajor}
-            actionContextRef={actionContextRef}
             saveCharacterData={onSave}
+            adjustCharacterStats={adjustCharacterStats}
           />
         )}
       </Suspense>

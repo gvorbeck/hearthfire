@@ -16,6 +16,7 @@ interface UseGameResult {
   updateGameName: (name: string) => Promise<void>;
   updateCharacterName: (characterId: string, name: string) => Promise<void>;
   updateCharacterData: (characterId: string, data: Partial<CharacterData>) => Promise<void>;
+  adjustCharacterStats: (characterId: string, deltas: Partial<Record<'statArmor' | 'statHp', number>>) => Promise<void>;
   updateContent: (field: keyof ContentLists, value: string) => Promise<void>;
   updateField: (field: keyof Pick<GameSession, 'threats' | 'iWonder'>, value: string) => Promise<void>;
   updateSteading: (patch: Partial<SteadingData>) => Promise<void>;
@@ -313,6 +314,21 @@ export const useGame = (gameId: string): UseGameResult => {
     })));
   }, [gameRef, reportSave]);
 
+  // Add a signed delta to a character's Armor/HP inside the transaction, reading each stat off the
+  // freshly-read doc rather than a caller-supplied snapshot. Arcana consequence actions use this so a
+  // rapid check-then-uncheck (or a snapshot that hasn't echoed the last edit) can't compute the new
+  // value from a stale number and strand the stat on the wrong total.
+  const adjustCharacterStats = useCallback(async (characterId: string, deltas: Partial<Record<'statArmor' | 'statHp', number>>) => {
+    await reportSave(() => withCharacters(gameRef, (chars) => chars.map((c) => {
+      if (c.id !== characterId) return c;
+      const next = { ...c.data };
+      for (const [field, delta] of Object.entries(deltas) as ['statArmor' | 'statHp', number][]) {
+        next[field] = String((Number(next[field]) || 0) + delta);
+      }
+      return { ...c, data: next };
+    })));
+  }, [gameRef, reportSave]);
+
   const updateSteading = useCallback(async (patch: Partial<SteadingData>) => {
     const dotted: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(patch)) {
@@ -334,5 +350,5 @@ export const useGame = (gameId: string): UseGameResult => {
     await reportSave(() => updateDoc(gameRef, dotted));
   }, [gameRef, reportSave]);
 
-  return { game, loading, error, updateGameName, updateCharacterName, updateCharacterData, updateContent, updateField, updateSteading, addCharacter, removeCharacter, reorderCharacters };
+  return { game, loading, error, updateGameName, updateCharacterName, updateCharacterData, adjustCharacterStats, updateContent, updateField, updateSteading, addCharacter, removeCharacter, reorderCharacters };
 };

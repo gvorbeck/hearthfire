@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, memo, type MutableRefObject } from 'react';
 import { Button, Text } from '@/components/ui';
 import { MAJOR_ARCANA } from '@/lib/arcanaMajor';
-import { applyConsequenceActions, hasConsequenceActions, type ConsequenceActionContext } from '@/lib/consequenceActions';
+import { applyConsequenceActions, hasConsequenceActions } from '@/lib/consequenceActions';
 import type { MajorArcanum, ArcanaMajorEntry, Creature, CharacterData } from '@/types';
 import { MajorArcanaCard } from './MajorArcanaCard';
 import { AddArcanaModal } from './AddArcanaModal';
@@ -68,14 +68,14 @@ interface MajorArcanaPanelProps {
   arcanaMajor: ArcanaMajorEntry[];
   arcanaMajorRef: MutableRefObject<ArcanaMajorEntry[]>;
   saveMajor: (next: ArcanaMajorEntry[]) => void;
-  // The live character fields a consequence action reads (Instinct to capture/restore, Armor to add to),
-  // as a ref so the handler always sees the freshest values; plus a writer for the field patch the
-  // action produces.
-  actionContextRef: MutableRefObject<ConsequenceActionContext>;
-  saveCharacterData: (patch: Partial<CharacterData>) => void;
+  // Writer for the absolute field patch a consequence action produces (debility flags). Armor/HP go
+  // through adjustCharacterStats instead, since those are additive.
+  saveCharacterData: (patch: Partial<CharacterData>) => Promise<void>;
+  // Transactional Armor/HP adjuster: applies a consequence's signed delta against the freshly-read doc.
+  adjustCharacterStats: (deltas: Partial<Record<'statArmor' | 'statHp', number>>) => Promise<void>;
 }
 
-export const MajorArcanaPanel = ({ arcanaMajor, arcanaMajorRef, saveMajor, actionContextRef, saveCharacterData }: MajorArcanaPanelProps) => {
+export const MajorArcanaPanel = ({ arcanaMajor, arcanaMajorRef, saveMajor, saveCharacterData, adjustCharacterStats }: MajorArcanaPanelProps) => {
   const [majorModalOpen, setMajorModalOpen] = useState(false);
 
   const existingMajorIds = useMemo(() => arcanaMajor.map((a) => a.id), [arcanaMajor]);
@@ -122,12 +122,14 @@ export const MajorArcanaPanel = ({ arcanaMajor, arcanaMajorRef, saveMajor, actio
   const handleConsequenceToggle = useCallback(
     (id: string, consequenceId: string, checked: boolean) => {
       const arcanum = MAJOR_ARCANA.find((m) => m.id === id);
-      // A consequence whose actions touch character fields (a debility, Armor): compute the field patch
-      // and any cascade-cleared descendant ids up front, then persist the patch once — not inside the
-      // map below, which React may run twice under StrictMode.
+      // A consequence whose actions touch character fields (a debility, Armor/HP): compute the field
+      // patch, the signed stat deltas, and any cascade-cleared descendant ids up front, then persist
+      // once — not inside the map below, which React may run twice under StrictMode. The pre-toggle
+      // marked map is read from the ref so unchecking a parent reverses only actually-marked descendants.
+      const preToggleMarked = arcanaMajorRef.current.find((a) => a.id === id)?.consequencesMarked ?? {};
       const actionChange =
         arcanum && hasConsequenceActions(arcanum, consequenceId)
-          ? applyConsequenceActions(arcanum, consequenceId, checked, actionContextRef.current)
+          ? applyConsequenceActions(arcanum, consequenceId, checked, preToggleMarked)
           : undefined;
       saveMajor(arcanaMajorRef.current.map((a) => {
         if (a.id !== id) return a;
@@ -152,11 +154,16 @@ export const MajorArcanaPanel = ({ arcanaMajor, arcanaMajorRef, saveMajor, actio
         ).length;
         return { ...withMarks(a, marksValue), consequencesMarked };
       }));
+      // Persist the character-side effects. Failures already surface a toast via reportSave, so swallow
+      // the rejection here to avoid an unhandled promise — the box stays as the player left it.
       if (actionChange && Object.keys(actionChange.dataPatch).length > 0) {
-        saveCharacterData(actionChange.dataPatch);
+        saveCharacterData(actionChange.dataPatch).catch(() => {});
+      }
+      if (actionChange && (actionChange.statDeltas.statArmor || actionChange.statDeltas.statHp)) {
+        adjustCharacterStats(actionChange.statDeltas).catch(() => {});
       }
     },
-    [saveMajor, actionContextRef, saveCharacterData],
+    [saveMajor, arcanaMajorRef, saveCharacterData, adjustCharacterStats],
   );
 
   const handleConsequenceTableChoice = useCallback(

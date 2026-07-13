@@ -91,6 +91,11 @@ export const AddArcanaModal = <T extends ArcanaItem>({
 
   const handleListKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' && selected) {
+        e.preventDefault();
+        handleAdd();
+        return;
+      }
       if (results.length === 0) return;
       const currentIndex = selected ? results.findIndex((a) => a.id === selected.id) : -1;
       if (e.key === 'ArrowDown') {
@@ -114,7 +119,7 @@ export const AddArcanaModal = <T extends ArcanaItem>({
         document.getElementById(`${idPrefix}-${last.id}`)?.scrollIntoView({ block: 'nearest' });
       }
     },
-    [results, selected, idPrefix],
+    [results, selected, idPrefix, handleAdd],
   );
 
   const listCx = clsx(styles.list, results.length === 0 && styles.listEmpty);
