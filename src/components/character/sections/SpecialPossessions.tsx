@@ -88,7 +88,7 @@ const SubItem = ({ item, possessionId, idx, parentChecked, selectOne, atSubMax, 
         />
         {item.uses !== undefined && (
           <span className={styles.subItemDots}>
-            <UseDots total={item.uses} checked={uses[key] ?? 0} onChange={(n) => onUses(key, n)} disabled={!subChecked} />
+            <UseDots total={item.uses} checked={uses[key] ?? 0} onChange={(n) => onUses(key, n)} disabled={!subChecked} ariaLabel={item.label} />
             {item.usesLabel && <Text as="span" font="serif" size="xs" color="muted">{item.usesLabel}</Text>}
           </span>
         )}
@@ -102,7 +102,7 @@ const SubItem = ({ item, possessionId, idx, parentChecked, selectOne, atSubMax, 
         <Text as="span" className={styles.labelText}>{item.label}</Text>
         {item.uses !== undefined && (
           <span className={styles.subItemDots}>
-            <UseDots total={item.uses} checked={uses[key] ?? 0} onChange={(n) => onUses(key, n)} disabled={!parentChecked} />
+            <UseDots total={item.uses} checked={uses[key] ?? 0} onChange={(n) => onUses(key, n)} disabled={!parentChecked} ariaLabel={item.label} />
             {item.usesLabel && <Text as="span" font="serif" size="xs" color="muted">{item.usesLabel}</Text>}
           </span>
         )}
@@ -174,7 +174,7 @@ const PossessionLabel = ({ p, checked, selected, uses, onToggle, onRadioSelect, 
       <span className={styles.labelWithUses}>
         {heading}
         <span className={styles.subItemDots}>
-          <UseDots total={p.uses} checked={uses[p.id] ?? 0} onChange={(n) => onUses(p.id, n)} disabled={!checked} />
+          <UseDots total={p.uses} checked={uses[p.id] ?? 0} onChange={(n) => onUses(p.id, n)} disabled={!checked} ariaLabel={p.label} />
           {p.usesLabel && <Text as="span" font="serif" size="xs" color="muted">{p.usesLabel}</Text>}
         </span>
       </span>
@@ -264,7 +264,7 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1, chooseOver
             total={capacity}
             checked={stock}
             onChange={(n) => handleStock(stockItem.stockKey!, n)}
-            label={stockItem.stockLabel ? undefined : `Stock: ${stock} of ${capacity}`}
+            ariaLabel={`${visibleLabel} ${stock} of ${capacity}`}
           />
         </span>
       );

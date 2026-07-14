@@ -123,6 +123,7 @@ export const BackgroundOptionItem = memo(
                   checked={usesChecked}
                   onChange={(n) => onUsesChange(option.value, n)}
                   disabled={!selected}
+                  ariaLabel={option.title}
                 />
               </span>
             )}

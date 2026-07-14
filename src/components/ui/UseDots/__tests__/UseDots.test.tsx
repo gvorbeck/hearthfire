@@ -61,4 +61,10 @@ describe('UseDots', () => {
     render(<UseDots total={5} checked={2} onChange={vi.fn()} />);
     expect(screen.getByRole('group', { name: 'Uses: 2 of 5' })).toBeInTheDocument();
   });
+
+  it('uses ariaLabel to override the group name without rendering a visible label', () => {
+    render(<UseDots total={2} checked={1} onChange={vi.fn()} ariaLabel="Loyalty" />);
+    expect(screen.getByRole('group', { name: 'Loyalty' })).toBeInTheDocument();
+    expect(screen.queryByText('Loyalty')).not.toBeInTheDocument();
+  });
 });

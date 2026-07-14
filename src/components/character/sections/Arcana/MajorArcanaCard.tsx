@@ -345,7 +345,7 @@ interface DotRowProps {
 // Acumen): dots on the left, a "N / max label" counter on the right.
 const DotRow = ({ total, value, label, ariaLabel, onChange }: DotRowProps) => (
   <div className={styles.marksRow}>
-    <UseDots total={total} checked={value} onChange={onChange} aria-label={ariaLabel} />
+    <UseDots total={total} checked={value} onChange={onChange} ariaLabel={ariaLabel} />
     <Text as="span" font="serif" size="xs" color="muted">
       {value} / {total} {label}
     </Text>

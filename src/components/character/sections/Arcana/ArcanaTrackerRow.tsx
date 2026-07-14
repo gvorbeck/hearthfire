@@ -29,6 +29,6 @@ export const ArcanaTrackerRow = ({
     >
       {label}
     </Text>
-    <UseDots total={total} checked={checked} onChange={onChange} disabled={disabled} />
+    <UseDots total={total} checked={checked} onChange={onChange} disabled={disabled} ariaLabel={label} />
   </div>
 );

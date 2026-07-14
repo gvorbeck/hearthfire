@@ -257,7 +257,14 @@ const SuppliesMemberDots = memo(
       (n: number) => onChange(memberIndex, n),
       [memberIndex, onChange],
     );
-    return <UseDots total={total} checked={checked} onChange={handleChange} />;
+    return (
+      <UseDots
+        total={total}
+        checked={checked}
+        onChange={handleChange}
+        ariaLabel={`Supplies, individual ${memberIndex + 1}`}
+      />
+    );
   },
 );
 

@@ -165,6 +165,7 @@ export const CreatureCard = memo(
                   total={3}
                   checked={creature.loyalty ?? 0}
                   onChange={handleLoyalty}
+                  ariaLabel="Loyalty"
                 />
               </div>
             )}
