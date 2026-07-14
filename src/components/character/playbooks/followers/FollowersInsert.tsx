@@ -452,6 +452,9 @@ export const FollowersInsert = ({ data, onSave }: FollowersInsertProps) => {
 
   const followersRef = useLatest(followers);
 
+  const { saveDebounced, saveImmediate, flushDebounce, pendingRef, resolvedTick } =
+    useCrewSave(data, onSave);
+
   // Track the last Firestore snapshot we applied so we only sync when it
   // actually changes, not on every local keystroke that triggers a re-render.
   const lastFirestoreFollowersRef = useRef<string | undefined>(undefined);
@@ -461,16 +464,16 @@ export const FollowersInsert = ({ data, onSave }: FollowersInsertProps) => {
     if (f.followers === undefined) return;
     const incoming = JSON.stringify(f.followers);
     if (incoming === lastFirestoreFollowersRef.current) return;
+    // While a save is in flight, skip applying the echo — it would clobber
+    // optimistic local state mid-keystroke. resolvedTick forces this effect to
+    // re-run against the latest `data` once the save resolves, so a remote
+    // edit that arrived mid-save is still applied instead of being dropped.
+    if (pendingRef.current) return;
     lastFirestoreFollowersRef.current = incoming;
     setFollowers(
       f.followers.map((fl) => normalizeFollower(fl, fl.id ?? generateId())),
     );
-  }, [data]);
-
-  const { saveDebounced, saveImmediate, flushDebounce } = useCrewSave(
-    data,
-    onSave,
-  );
+  }, [data, pendingRef, resolvedTick]);
 
   const saveFollowers = useCallback(
     (next: FollowerData[], prev?: FollowerData[]) => {
