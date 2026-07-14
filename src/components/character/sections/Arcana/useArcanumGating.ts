@@ -85,6 +85,17 @@ export const useArcanumGating = (
   entry: ArcanaMajorEntry,
 ): ArcanumGating => {
   const { frontTrackers, mystery, back } = arcanum;
+  // Legacy/hand-edited docs can have an arcanaMajor entry predating these fields; default so every
+  // lookup below is safe without repeating the guard at each call site. Memoized so the fallback `{}`
+  // doesn't create a new reference every render and break the memos below.
+  const consequencesMarked = useMemo(
+    () => entry.consequencesMarked ?? {},
+    [entry.consequencesMarked],
+  );
+  const mysteryMovesChecked = useMemo(
+    () => entry.mysteryMovesChecked ?? {},
+    [entry.mysteryMovesChecked],
+  );
   // The unlock track is the front tracker with role "marks"; its value lives on entry.marksValue.
   const marksTracker = frontTrackers.find((t) => t.role === "marks");
   const marksMax = marksTracker?.max ?? 0;
@@ -132,7 +143,7 @@ export const useArcanumGating = (
       count !== undefined
         ? Array.from({ length: count }, (_, i) => consequenceMarkId(id, i))
         : markIdsFor(id, text);
-    return markIds.map((markId) => !!entry.consequencesMarked[markId]);
+    return markIds.map((markId) => !!consequencesMarked[markId]);
   };
 
   // The lock reasons and dot override for every mystery move, computed once per relevant state change
@@ -147,7 +158,7 @@ export const useArcanumGating = (
     // its own markable id, so a 3-box consequence contributes up to 3 toward that budget.
     const consequenceIds = allConsequences.flatMap((c) => c.markIds);
     const markedConsequenceCount = consequenceIds.filter(
-      (id) => entry.consequencesMarked[id],
+      (id) => consequencesMarked[id],
     ).length;
     const grantEvery = allMoves.reduce<number | undefined>(
       (found, m) =>
@@ -159,14 +170,14 @@ export const useArcanumGating = (
       : 0;
     const selectedSubMoves = allMoves.filter(
       (m) =>
-        "requires" in m && m.requires?.length && entry.mysteryMovesChecked[m.id],
+        "requires" in m && m.requires?.length && mysteryMovesChecked[m.id],
     ).length;
 
     // A parent named in a child's `requires` counts as met when the player has checked it, or when it's
     // a base move flagged `autoActivateOnUnlock` and the arcanum is unlocked (it's already active and
     // shows no checkbox, so it would otherwise block its children forever).
     const isParentMet = (parentId: string): boolean => {
-      if (entry.mysteryMovesChecked[parentId]) return true;
+      if (mysteryMovesChecked[parentId]) return true;
       const parent = allMoves.find((m) => m.id === parentId);
       return !!(parent && "autoActivateOnUnlock" in parent && parent.autoActivateOnUnlock && unlocked);
     };
@@ -191,7 +202,7 @@ export const useArcanumGating = (
         return [];
       }
       if (!("requires" in move) || !move.requires?.length) return [];
-      if (entry.mysteryMovesChecked[move.id]) return [];
+      if (mysteryMovesChecked[move.id]) return [];
       const unmetParents = move.requires
         .filter((id) => !isParentMet(id))
         .map((id) => allMoves.find((m) => m.id === id)?.name ?? id);
@@ -214,10 +225,10 @@ export const useArcanumGating = (
       const moveBonus = allMoves.reduce((sum, m) => {
         if (!("grantsDotBonus" in m) || !m.grantsDotBonus) return sum;
         if (m.grantsDotBonus.targetId !== targetId) return sum;
-        return entry.mysteryMovesChecked[m.id] ? sum + m.grantsDotBonus.amount : sum;
+        return mysteryMovesChecked[m.id] ? sum + m.grantsDotBonus.amount : sum;
       }, 0);
       const consequenceBonus = allConsequences.reduce((sum, c) => {
-        const marked = c.markIds.some((id) => entry.consequencesMarked[id]);
+        const marked = c.markIds.some((id) => consequencesMarked[id]);
         if (!marked) return sum;
         return (
           sum +
@@ -249,8 +260,8 @@ export const useArcanumGating = (
     allMoves,
     allConsequences,
     entry.marksValue,
-    entry.consequencesMarked,
-    entry.mysteryMovesChecked,
+    consequencesMarked,
+    mysteryMovesChecked,
     marksMax,
     unlocked,
   ]);
@@ -296,7 +307,7 @@ export const useArcanumGating = (
             creatureSeed,
             entry.mysteryCreature,
             creatureConsequences ?? [],
-            entry.consequencesMarked,
+            consequencesMarked,
             entry.consequenceTableChoice ?? {},
           )
         : undefined,
@@ -304,7 +315,7 @@ export const useArcanumGating = (
       creatureSeed,
       creatureConsequences,
       entry.mysteryCreature,
-      entry.consequencesMarked,
+      consequencesMarked,
       entry.consequenceTableChoice,
     ],
   );

@@ -229,7 +229,7 @@ export const getMarkedInstinctOverride = (
     const arcanum = MAJOR_ARCANA.find((m) => m.id === entry.id);
     if (!arcanum) continue;
     for (const [consequenceId, marked] of Object.entries(
-      entry.consequencesMarked,
+      entry.consequencesMarked ?? {},
     )) {
       if (!marked) continue;
       const action = findConsequence(arcanum, consequenceId)?.actions?.find(
@@ -249,7 +249,9 @@ export const getMarkedFollowerCost = (
   markedConsequences: Record<string, boolean>,
   followerId: string,
 ): string | undefined => {
-  for (const [consequenceId, marked] of Object.entries(markedConsequences)) {
+  for (const [consequenceId, marked] of Object.entries(
+    markedConsequences ?? {},
+  )) {
     if (!marked) continue;
     const action = findConsequence(arcanum, consequenceId)?.actions?.find(
       (a) => a.type === "setFollowerCost" && a.followerId === followerId,

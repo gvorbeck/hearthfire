@@ -153,7 +153,7 @@ const BackMove = ({
 }: BackMoveProps) => (
   <MysteryMoveBlock
     move={move}
-    checked={!!entry.mysteryMovesChecked[move.id]}
+    checked={!!entry.mysteryMovesChecked?.[move.id]}
     trackerValue={entry.trackerValues?.[move.id]}
     followerHp={entry.followerHp?.[move.id]}
     bodyChecks={entry.bodyChecks?.[move.id]}
@@ -201,7 +201,7 @@ const BackFollower = ({
     () => (costOverride === undefined ? seedFollower : { ...seedFollower, cost: costOverride }),
     [seedFollower, costOverride],
   );
-  const inactive = !!requiresConsequence && !entry.consequencesMarked[requiresConsequence];
+  const inactive = !!requiresConsequence && !entry.consequencesMarked?.[requiresConsequence];
   const gateText = requiresConsequence ? consequenceTextById[requiresConsequence] : undefined;
   const activationNote = gateText ? `Gained when you mark: “${gateText}”` : undefined;
   // Stable per-follower callbacks so the memoized ArcanaFollowerBlock skips re-rendering when the card
