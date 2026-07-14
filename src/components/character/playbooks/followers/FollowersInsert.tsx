@@ -261,9 +261,8 @@ const FollowerCard = memo(
               Cancel
             </Button>
             <Button
-              variant="primary"
+              variant="danger"
               size="md"
-              className={styles.removeBtn}
               onClick={handleConfirmRemove}
             >
               Remove follower

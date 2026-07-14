@@ -3,13 +3,3 @@
   justify-content: flex-end;
   gap: var(--spacing-3);
 }
-
-.removeBtn {
-  background-color: var(--color-danger);
-  color: #fff;
-}
-
-.removeBtn:hover:not(:disabled) {
-  background-color: color-mix(in srgb, var(--color-danger) 80%, #000);
-  box-shadow: var(--glow-danger);
-}
