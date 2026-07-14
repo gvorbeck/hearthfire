@@ -37,7 +37,7 @@ const MinorArcanaCardRow = memo(({ entry, arcanum, onToggleRequirement, onTracke
 interface MinorArcanaPanelProps {
   arcanaMinor: ArcanaMinorEntry[];
   arcanaMinorRef: MutableRefObject<ArcanaMinorEntry[]>;
-  saveMinor: (next: ArcanaMinorEntry[]) => void;
+  saveMinor: (next: ArcanaMinorEntry[], removedId?: string) => void;
 }
 
 export const MinorArcanaPanel = ({ arcanaMinor, arcanaMinorRef, saveMinor }: MinorArcanaPanelProps) => {
@@ -68,7 +68,7 @@ export const MinorArcanaPanel = ({ arcanaMinor, arcanaMinorRef, saveMinor }: Min
 
   const handleRemoveMinor = useCallback(
     (id: string) => {
-      saveMinor(arcanaMinorRef.current.filter((a) => a.id !== id));
+      saveMinor(arcanaMinorRef.current.filter((a) => a.id !== id), id);
     },
     [saveMinor],
   );
