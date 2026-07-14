@@ -297,18 +297,18 @@ export const useGame = (gameId: string): UseGameResult => {
   const addCharacter = useCallback(async (character: Character) => {
     // Read-modify-write so a double-tap or post-blip retry can't append the
     // same id twice — arrayUnion treats each Character object as unique.
-    await withCharacters(gameRef, (chars) =>
+    await reportSave(() => withCharacters(gameRef, (chars) =>
       chars.some((c) => c.id === character.id) ? chars : [...chars, character]
-    );
-  }, [gameRef]);
+    ));
+  }, [gameRef, reportSave]);
 
   const removeCharacter = useCallback(async (characterId: string) => {
-    await withCharacters(gameRef, (chars) => chars.filter((c) => c.id !== characterId));
-  }, [gameRef]);
+    await reportSave(() => withCharacters(gameRef, (chars) => chars.filter((c) => c.id !== characterId)));
+  }, [gameRef, reportSave]);
 
   const reorderCharacters = useCallback(async (characters: Character[]) => {
     const ids = characters.map((c) => c.id);
-    await withCharacters(gameRef, (current) => {
+    await reportSave(() => withCharacters(gameRef, (current) => {
       const lookup = new Map(current.map((c) => [c.id, c]));
       const reordered = ids.map((id) => lookup.get(id)).filter(Boolean) as Character[];
       // A character concurrently added by another player won't be in the dragging
@@ -316,8 +316,8 @@ export const useGame = (gameId: string): UseGameResult => {
       const idSet = new Set(ids);
       const added = current.filter((c) => !idSet.has(c.id));
       return [...reordered, ...added];
-    });
-  }, [gameRef]);
+    }));
+  }, [gameRef, reportSave]);
 
   const updateCharacterName = useCallback(async (characterId: string, name: string) => {
     await reportSave(() => withCharacters(gameRef, (chars) => chars.map((c) => c.id === characterId ? { ...c, name } : c)));

@@ -194,7 +194,7 @@ const GameContent = ({
   const handleDragEnd = useCallback(() => {
     draggingIdRef.current = null;
     setDraggingId(null);
-    onReorderCharacters(orderedCharactersRef.current);
+    onReorderCharacters(orderedCharactersRef.current).catch(() => {});
   }, [onReorderCharacters]);
 
   // Keyboard-accessible reordering: move a character one slot up (-1) or down (1).
@@ -210,7 +210,7 @@ const GameContent = ({
     const moved = next[to];
     const label = moved.name?.trim() || getPlaybook(moved.playbook)?.label || moved.playbook;
     setMoveAnnouncement(`${label} moved to position ${to + 1} of ${next.length}.`);
-    onReorderCharacters(next);
+    onReorderCharacters(next).catch(() => {});
   }, [onReorderCharacters]);
 
   const showGrip = orderedCharacters.length > 1;
