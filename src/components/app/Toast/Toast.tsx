@@ -35,13 +35,16 @@ const ToastEntry = ({
   const handlePause = useCallback(() => onPause(item.id), [onPause, item.id]);
   const handleResume = useCallback(() => onResume(item.id), [onResume, item.id]);
   const iconName = ({ error: 'warning', success: 'check', info: 'info' } as const)[item.variant];
-  // Errors interrupt assertively; info/success announce politely without preempting.
+  // Errors interrupt assertively via role="alert" here. Info/success are announced
+  // by the persistent polite live region in ToastProvider instead of a role/aria-live
+  // on this node — a live region mounted together with its own text isn't reliably
+  // announced, so this visual toast stays silent for screen readers by design.
   const isError = item.variant === 'error';
 
   return (
     <div
-      role={isError ? 'alert' : 'status'}
-      aria-live={isError ? 'assertive' : 'polite'}
+      role={isError ? 'alert' : undefined}
+      aria-live={isError ? 'assertive' : undefined}
       className={cx}
       onMouseEnter={handlePause}
       onMouseLeave={handleResume}
@@ -64,6 +67,11 @@ const ToastEntry = ({
 
 export const ToastProvider = ({ children }: { children: ReactNode }) => {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
+  // Persistent polite announcement — mounted once up front (not per-toast) so
+  // screen readers pick it up. A live region added to the DOM together with its
+  // text isn't reliably announced; this one already exists, so only its text
+  // content changes when an info/success toast lands.
+  const [announcement, setAnnouncement] = useState('');
   const timers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   // Dedupe key (`variant:message`) per visible toast id, so repeated identical
   // notifications (e.g. one failed save per field while offline) don't stack.
@@ -96,6 +104,13 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
     setToasts((prev) => [...prev, { id, message, variant, exiting: false }]);
     const timer = setTimeout(() => startExit(id), AUTO_DISMISS_MS);
     timers.current.set(id, timer);
+    // Errors get their own role="alert" on the visual toast, which announces on
+    // insertion — routing them through here too would double-announce.
+    if (variant !== 'error') {
+      // Force a change even if the same message repeats back-to-back, so screen
+      // readers re-announce it instead of seeing an unchanged text node.
+      setAnnouncement((prev) => (prev === message ? `${message} ` : message));
+    }
   }, [startExit]);
 
   const handleDismiss = useCallback((id: string) => {
@@ -137,17 +152,22 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
     <ToastContext.Provider value={contextValue}>
       {children}
       {createPortal(
-        <div role="region" className={styles.region} aria-label="Notifications">
-          {toasts.map((item) => (
-            <ToastEntry
-              key={item.id}
-              item={item}
-              onDismiss={handleDismiss}
-              onPause={pauseToast}
-              onResume={resumeToast}
-            />
-          ))}
-        </div>,
+        <>
+          <div role="status" aria-live="polite" className={styles.announcer}>
+            {announcement}
+          </div>
+          <div role="region" className={styles.region} aria-label="Notifications">
+            {toasts.map((item) => (
+              <ToastEntry
+                key={item.id}
+                item={item}
+                onDismiss={handleDismiss}
+                onPause={pauseToast}
+                onResume={resumeToast}
+              />
+            ))}
+          </div>
+        </>,
         document.body
       )}
     </ToastContext.Provider>
