@@ -142,6 +142,25 @@ describe('useGame mutations', () => {
     expect(stored[0].data?.playbookFeatures).toEqual({ keep: true, old: 2 });
   });
 
+  it('updateCharacterData deletes a playbookFeatures key via deleteFeatureKeys (#241)', async () => {
+    firestoreStore.set(GAME_PATH, {
+      name: '', createdAt: 0,
+      characters: [char('a', { data: { playbookFeatures: { followers: [{ id: 'f1' }], keep: true } } } as Partial<Character>)],
+    });
+    const { result } = renderGame();
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    // Omitting `followers` from playbookFeatures is not enough — the merge is additive
+    // and would let the freshly-read doc's `followers` value survive. deleteFeatureKeys
+    // is the explicit sentinel that actually removes it.
+    await act(async () => {
+      await result.current.updateCharacterData('a', { deleteFeatureKeys: ['followers'] } as never);
+    });
+    const stored = firestoreStore.get(GAME_PATH)!.characters as Array<{ id: string; data?: { playbookFeatures?: Record<string, unknown>; deleteFeatureKeys?: unknown } }>;
+    expect(stored[0].data?.playbookFeatures).toEqual({ keep: true });
+    expect(stored[0].data?.deleteFeatureKeys).toBeUndefined();
+  });
+
   it('updateCharacterData leaves other characters untouched', async () => {
     firestoreStore.set(GAME_PATH, {
       name: '', createdAt: 0,

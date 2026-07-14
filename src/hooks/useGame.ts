@@ -333,6 +333,14 @@ export const useGame = (gameId: string): UseGameResult => {
       if (data.playbookFeatures) {
         next.playbookFeatures = { ...c.data?.playbookFeatures, ...data.playbookFeatures };
       }
+      // Omitting a key from data.playbookFeatures merges as "unchanged", not "deleted" —
+      // the spread above just lets the freshly-read doc's value for that key survive.
+      // deleteFeatureKeys is the explicit sentinel for intentional key removal.
+      if (data.deleteFeatureKeys?.length && next.playbookFeatures) {
+        next.playbookFeatures = { ...next.playbookFeatures };
+        for (const key of data.deleteFeatureKeys) delete next.playbookFeatures[key];
+      }
+      delete next.deleteFeatureKeys;
       return { ...c, data: next };
     })));
   }, [gameRef, reportSave]);

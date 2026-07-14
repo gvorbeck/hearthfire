@@ -1,5 +1,4 @@
 import { useState, useCallback, useMemo } from 'react';
-import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
 import { useToast } from '@/components/app';
 import type { Character, CharacterData, PlaybookType } from '@/types';
 
@@ -36,11 +35,12 @@ export const useInsertTabs = (
   const handleConfirmRemoveInsert = useCallback(async () => {
     if (!removeInsert) return;
     const next = (character.data?.inserts ?? []).filter((i) => i !== removeInsert);
-    const resolved = resolvePlaybookFeatures(character.data);
-    const { followers, ...restFeatures } = resolved;
-    void followers;
-    const playbookFeatures = removeInsert === 'Followers' ? restFeatures : resolved;
-    await onSave({ inserts: next, playbookFeatures });
+    const patch: Partial<CharacterData> = { inserts: next };
+    // Followers must be explicitly deleted, not just omitted from playbookFeatures —
+    // updateCharacterData's merge is additive, so an omitted key survives the spread
+    // and reappears from the freshly-read doc (issue #241).
+    if (removeInsert === 'Followers') patch.deleteFeatureKeys = ['followers'];
+    await onSave(patch);
     setActiveIndex(0);
   }, [removeInsert, character.data, onSave, setActiveIndex]);
 

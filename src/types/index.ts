@@ -661,6 +661,11 @@ export interface CharacterData {
   playbookFeatures?: PlaybookFeatures;
   arcanaMinor?: ArcanaMinorEntry[];
   arcanaMajor?: ArcanaMajorEntry[];
+  // Explicit deletion sentinel for updateCharacterData's playbookFeatures merge: keys
+  // named here are deleted from the merged result even though the merge is additive.
+  // Omitting a key from playbookFeatures is NOT deletion — the freshly-read doc's value
+  // for that key survives the spread and reappears.
+  deleteFeatureKeys?: (keyof PlaybookFeatures)[];
 }
 
 export interface PlaybookSectionProps {

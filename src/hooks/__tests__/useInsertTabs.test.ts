@@ -116,7 +116,7 @@ describe('useInsertTabs — handleConfirmRemoveInsert', () => {
     expect(onSave).not.toHaveBeenCalled();
   });
 
-  it('removes a non-Followers insert and preserves the followers feature', async () => {
+  it('removes a non-Followers insert without touching playbookFeatures', async () => {
     const data: CharacterData = {
       inserts: ['Ghost', 'Thrall'],
       playbookFeatures: { followers: [{ id: 'f1', name: 'Ada' }] },
@@ -126,14 +126,15 @@ describe('useInsertTabs — handleConfirmRemoveInsert', () => {
     act(() => hook.result.current.handleRequestRemoveInsert('Ghost'));
     await act(async () => { await hook.result.current.handleConfirmRemoveInsert(); });
 
-    expect(onSave).toHaveBeenCalledWith({
-      inserts: ['Thrall'],
-      playbookFeatures: { followers: [{ id: 'f1', name: 'Ada' }] },
-    });
+    expect(onSave).toHaveBeenCalledWith({ inserts: ['Thrall'] });
     expect(setActiveIndex).toHaveBeenCalledWith(0);
   });
 
-  it('strips the followers feature when removing the Followers insert', async () => {
+  // Regression test for issue #241: omitting `followers` from playbookFeatures isn't
+  // enough — updateCharacterData's merge is additive, so an omitted key survives and
+  // reappears from the freshly-read doc. The explicit deleteFeatureKeys sentinel is
+  // what actually removes it.
+  it('sends an explicit deleteFeatureKeys sentinel when removing the Followers insert', async () => {
     const data: CharacterData = {
       inserts: ['Followers', 'Ghost'],
       playbookFeatures: {
@@ -146,10 +147,10 @@ describe('useInsertTabs — handleConfirmRemoveInsert', () => {
     act(() => hook.result.current.handleRequestRemoveInsert('Followers'));
     await act(async () => { await hook.result.current.handleConfirmRemoveInsert(); });
 
-    const saved = onSave.mock.calls[0][0];
-    expect(saved.inserts).toEqual(['Ghost']);
-    expect(saved.playbookFeatures).not.toHaveProperty('followers');
-    expect(saved.playbookFeatures).toEqual({ revenantInstinct: 'kept' });
+    expect(onSave).toHaveBeenCalledWith({
+      inserts: ['Ghost'],
+      deleteFeatureKeys: ['followers'],
+    });
   });
 
   // Error handling (toast/close/in-flight) now lives in RemoveInsertModal; the
