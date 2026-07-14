@@ -109,6 +109,22 @@ describe('useGame mutations', () => {
     expect(stored.every(Boolean)).toBe(true);
   });
 
+  it('reorderCharacters appends a character concurrently added by another player (#240)', async () => {
+    firestoreStore.set(GAME_PATH, { name: '', createdAt: 0, characters: [char('a'), char('b')] });
+    const { result } = renderGame();
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    // The doc gains 'c' after this client's drag started, so its stale `ids` list
+    // only knows about 'a' and 'b'.
+    firestoreStore.set(GAME_PATH, { name: '', createdAt: 0, characters: [char('a'), char('b'), char('c')] });
+
+    await act(async () => {
+      await result.current.reorderCharacters([char('b'), char('a')]);
+    });
+    const stored = firestoreStore.get(GAME_PATH)!.characters as Character[];
+    expect(stored.map((c) => c.id)).toEqual(['b', 'a', 'c']);
+  });
+
   it('updateCharacterData merges playbookFeatures instead of clobbering sibling keys (#171)', async () => {
     firestoreStore.set(GAME_PATH, {
       name: '', createdAt: 0,

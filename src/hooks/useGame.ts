@@ -310,7 +310,12 @@ export const useGame = (gameId: string): UseGameResult => {
     const ids = characters.map((c) => c.id);
     await withCharacters(gameRef, (current) => {
       const lookup = new Map(current.map((c) => [c.id, c]));
-      return ids.map((id) => lookup.get(id)).filter(Boolean) as Character[];
+      const reordered = ids.map((id) => lookup.get(id)).filter(Boolean) as Character[];
+      // A character concurrently added by another player won't be in the dragging
+      // client's stale `ids` list — append it rather than silently dropping it.
+      const idSet = new Set(ids);
+      const added = current.filter((c) => !idSet.has(c.id));
+      return [...reordered, ...added];
     });
   }, [gameRef]);
 
