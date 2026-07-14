@@ -32,10 +32,14 @@ describe('resolvePlaybookFeatures', () => {
 });
 
 describe('featurePatch', () => {
-  it('merges the patch over the resolved existing features', () => {
+  // featurePatch must emit ONLY the changed keys — never the full resolved feature
+  // set — so useGame's transaction-based merge can deep-merge against the
+  // freshly-read doc without a stale snapshot clobbering a concurrent edit to a
+  // different feature key. See issue #239.
+  it('produces a patch containing only the changed keys, ignoring existing features', () => {
     const data = { playbookFeatures: { sacredPouchTrait: 'iron', foxTallTales: { a: true } } } as CharacterData;
     expect(featurePatch(data, { foxTallTales: { a: true, b: true } })).toEqual({
-      playbookFeatures: { sacredPouchTrait: 'iron', foxTallTales: { a: true, b: true } },
+      playbookFeatures: { foxTallTales: { a: true, b: true } },
     });
   });
 
@@ -45,10 +49,10 @@ describe('featurePatch', () => {
     });
   });
 
-  it('drops malformed existing features before merging (corrupt doc safety)', () => {
+  it('ignores existing features even when malformed (corrupt doc safety)', () => {
     const data = { playbookFeatures: { good: 'keep', bad: null } } as never;
     expect(featurePatch(data, { sacredPouchTrait: 'x' })).toEqual({
-      playbookFeatures: { good: 'keep', sacredPouchTrait: 'x' },
+      playbookFeatures: { sacredPouchTrait: 'x' },
     });
   });
 });

@@ -29,9 +29,14 @@ const safeFeatures = (raw: unknown): PlaybookFeatures => {
 export const resolvePlaybookFeatures = (data: CharacterData | undefined): PlaybookFeatures =>
   safeFeatures(data?.playbookFeatures);
 
+// `data` is unused here — the patch carries only the changed keys so
+// `updateCharacterData`'s transaction can deep-merge them against the freshly-read
+// doc. Spreading the caller's (possibly stale) full feature set would let stale
+// keys overwrite concurrent edits to other features. Kept as a parameter so call
+// sites don't need to change.
 export const featurePatch = (
-  data: CharacterData | undefined,
+  _data: CharacterData | undefined,
   patch: Partial<PlaybookFeatures>,
 ): Partial<CharacterData> => ({
-  playbookFeatures: { ...resolvePlaybookFeatures(data), ...patch },
+  playbookFeatures: patch,
 });
