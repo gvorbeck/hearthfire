@@ -63,7 +63,7 @@
 }
 
 .dismiss:hover {
-  color: var(--text-default);
+  color: var(--text-primary);
   background-color: var(--surface-sunken);
 }
 

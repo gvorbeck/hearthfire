@@ -57,7 +57,9 @@
   padding: 0 var(--spacing-1);
   margin-left: var(--spacing-2);
   background: var(--border-accent);
-  color: var(--text-on-accent, #fff);
+  /* Fixed-color fill like Button's .primary/.danger — gold background doesn't
+     flip by theme, so this stays a fixed light ink in both themes. */
+  color: #fff;
   border-radius: var(--radius-pill);
   font-size: var(--text-xs);
   font-weight: 700;

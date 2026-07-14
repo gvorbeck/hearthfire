@@ -45,12 +45,12 @@
 }
 
 .crossOffBtnActive {
-  color: var(--color-danger);
+  color: var(--text-danger);
   border-color: var(--color-danger);
 }
 
 .crossOffBtnActive:hover {
-  color: var(--color-danger);
+  color: var(--text-danger);
   border-color: var(--color-danger);
 }
 

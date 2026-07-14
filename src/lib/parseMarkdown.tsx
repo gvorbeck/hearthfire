@@ -14,9 +14,9 @@ export const parseInlineMarkdown = (text: string): React.ReactNode[] =>
     if (chunk === '◊') return [...acc, <Icon key={`md-${i}-${chunk}`} name="empty-provisions" size="small" aria-label="provisions" className={styles.inlineIcon} />];
     if (chunk === '◈') return [...acc, <Icon key={`md-${i}-${chunk}`} name="filled-provisions" size="small" aria-label="provisions" className={styles.inlineIcon} />];
     if (chunk === '◻') return [...acc, <span key={`md-${i}-${chunk}`} className={styles.checkbox} aria-label="checkbox" role="img" />];
-    if (chunk.startsWith('***')) return [...acc, <strong key={`md-${i}-${chunk.slice(0, 8)}`}><em>{chunk.slice(3, -3)}</em></strong>];
-    if (chunk.startsWith('**')) return [...acc, <strong key={`md-${i}-${chunk.slice(0, 8)}`}>{chunk.slice(2, -2)}</strong>];
-    if (chunk.startsWith('*')) return [...acc, <em key={`md-${i}-${chunk.slice(0, 8)}`}>{chunk.slice(1, -1)}</em>];
+    if (chunk.startsWith('***') && chunk.endsWith('***') && chunk.length >= 7) return [...acc, <strong key={`md-${i}-${chunk.slice(0, 8)}`}><em>{chunk.slice(3, -3)}</em></strong>];
+    if (chunk.startsWith('**') && chunk.endsWith('**') && chunk.length >= 5) return [...acc, <strong key={`md-${i}-${chunk.slice(0, 8)}`}>{chunk.slice(2, -2)}</strong>];
+    if (chunk.startsWith('*') && chunk.endsWith('*') && chunk.length >= 3) return [...acc, <em key={`md-${i}-${chunk.slice(0, 8)}`}>{chunk.slice(1, -1)}</em>];
     if (AUTO_BOLD_RE.test(chunk)) return [...acc, <strong key={`md-${i}-${chunk.slice(0, 8)}`}>{chunk}</strong>];
     return [...acc, chunk];
   }, []);

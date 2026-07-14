@@ -137,9 +137,12 @@ export const GmImprovementSlots = ({ gmImprovements, onSave }: GmImprovementSlot
     setValue: setLocalSlots,
     save: saveSlots,
     pendingRef,
-  } = useOptimisticField<GmImprovement[]>(
+  } = useOptimisticField<GmImprovement[], [removedId?: string]>(
     gmImprovements ?? [],
-    (slots) => onSave({ gmImprovements: slots }),
+    (slots, removedId) => onSave({
+      gmImprovements: slots,
+      ...(removedId ? { removedGmImprovementIds: [removedId] } : {}),
+    }),
   );
 
   // A text field's edits aren't written until blur, so while one is focused we must
@@ -185,8 +188,9 @@ export const GmImprovementSlots = ({ gmImprovements, onSave }: GmImprovementSlot
   }, [saveSlots, holdSyncWhileFocused]);
 
   const handleRemove = useCallback((index: number) => {
-    saveSlots((prev) => prev.filter((_, i) => i !== index)).finally(holdSyncWhileFocused);
-  }, [saveSlots, holdSyncWhileFocused]);
+    const removedId = localSlotsRef.current[index]?.id;
+    saveSlots((prev) => prev.filter((_, i) => i !== index), removedId).finally(holdSyncWhileFocused);
+  }, [saveSlots, holdSyncWhileFocused, localSlotsRef]);
 
   return (
     <div className={styles.gmSlots}>

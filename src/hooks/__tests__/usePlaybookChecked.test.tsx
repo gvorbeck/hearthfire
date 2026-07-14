@@ -23,14 +23,15 @@ describe('usePlaybookChecked', () => {
     expect(result.current.checked).toEqual({ a: true });
   });
 
-  it('optimistically toggles and saves a merged featurePatch', async () => {
+  it('optimistically toggles and saves a patch containing only the changed key', async () => {
     const data = dataWith({ marshalWarStories: { a: true } });
     const onSave = vi.fn().mockResolvedValue(undefined);
     const { result } = renderHook(() => usePlaybookChecked(data, onSave, 'marshalWarStories'));
 
     await act(async () => { result.current.handleChange('b', true); });
     expect(result.current.checked).toEqual({ a: true, b: true });
-    // featurePatch preserves the rest of playbookFeatures alongside the new key.
+    // featurePatch emits only the changed key so useGame's transaction can deep-merge
+    // against the freshly-read doc instead of clobbering it with a stale snapshot.
     expect(onSave).toHaveBeenCalledWith({ playbookFeatures: { marshalWarStories: { a: true, b: true } } });
   });
 
@@ -77,7 +78,7 @@ describe('usePlaybookCheckedWithAnswers', () => {
 
     await act(async () => { await vi.advanceTimersByTimeAsync(1500); });
     expect(onSave).toHaveBeenCalledTimes(1);
-    expect(onSave).toHaveBeenCalledWith({ playbookFeatures: { marshalWarStories: {}, marshalWarStoriesAnswers: { q1: 'final' } } });
+    expect(onSave).toHaveBeenCalledWith({ playbookFeatures: { marshalWarStoriesAnswers: { q1: 'final' } } });
   });
 
   it('flushes pending answers immediately on flushAnswers', async () => {
@@ -92,7 +93,7 @@ describe('usePlaybookCheckedWithAnswers', () => {
     // the act so the save chain settles without advancing fake timers.
     await act(async () => { result.current.flushAnswers(); });
     expect(onSave).toHaveBeenCalledWith({
-      playbookFeatures: { marshalWarStories: {}, marshalWarStoriesAnswers: { q1: 'now' } },
+      playbookFeatures: { marshalWarStoriesAnswers: { q1: 'now' } },
     });
   });
 
@@ -106,7 +107,7 @@ describe('usePlaybookCheckedWithAnswers', () => {
     await act(async () => { result.current.handleChange('a', true); });
     expect(result.current.checked).toEqual({ a: true });
     expect(onSave).toHaveBeenCalledWith({
-      playbookFeatures: { marshalWarStories: { a: true }, marshalWarStoriesAnswers: {} },
+      playbookFeatures: { marshalWarStories: { a: true } },
     });
   });
 });

@@ -109,6 +109,22 @@ describe('useGame mutations', () => {
     expect(stored.every(Boolean)).toBe(true);
   });
 
+  it('reorderCharacters appends a character concurrently added by another player (#240)', async () => {
+    firestoreStore.set(GAME_PATH, { name: '', createdAt: 0, characters: [char('a'), char('b')] });
+    const { result } = renderGame();
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    // The doc gains 'c' after this client's drag started, so its stale `ids` list
+    // only knows about 'a' and 'b'.
+    firestoreStore.set(GAME_PATH, { name: '', createdAt: 0, characters: [char('a'), char('b'), char('c')] });
+
+    await act(async () => {
+      await result.current.reorderCharacters([char('b'), char('a')]);
+    });
+    const stored = firestoreStore.get(GAME_PATH)!.characters as Character[];
+    expect(stored.map((c) => c.id)).toEqual(['b', 'a', 'c']);
+  });
+
   it('updateCharacterData merges playbookFeatures instead of clobbering sibling keys (#171)', async () => {
     firestoreStore.set(GAME_PATH, {
       name: '', createdAt: 0,
@@ -124,6 +140,117 @@ describe('useGame mutations', () => {
     const stored = firestoreStore.get(GAME_PATH)!.characters as Array<{ id: string; data?: { playbookFeatures?: Record<string, unknown> } }>;
     // The concurrently-written `keep` key survives the merge.
     expect(stored[0].data?.playbookFeatures).toEqual({ keep: true, old: 2 });
+  });
+
+  it('updateCharacterData deletes a playbookFeatures key via deleteFeatureKeys (#241)', async () => {
+    firestoreStore.set(GAME_PATH, {
+      name: '', createdAt: 0,
+      characters: [char('a', { data: { playbookFeatures: { followers: [{ id: 'f1' }], keep: true } } } as Partial<Character>)],
+    });
+    const { result } = renderGame();
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    // Omitting `followers` from playbookFeatures is not enough — the merge is additive
+    // and would let the freshly-read doc's `followers` value survive. deleteFeatureKeys
+    // is the explicit sentinel that actually removes it.
+    await act(async () => {
+      await result.current.updateCharacterData('a', { deleteFeatureKeys: ['followers'] } as never);
+    });
+    const stored = firestoreStore.get(GAME_PATH)!.characters as Array<{ id: string; data?: { playbookFeatures?: Record<string, unknown>; deleteFeatureKeys?: unknown } }>;
+    expect(stored[0].data?.playbookFeatures).toEqual({ keep: true });
+    expect(stored[0].data?.deleteFeatureKeys).toBeUndefined();
+  });
+
+  it('updateCharacterData merges typeMoves instead of clobbering sibling keys (#244)', async () => {
+    firestoreStore.set(GAME_PATH, {
+      name: '', createdAt: 0,
+      characters: [char('a', { data: { typeMoves: { keep: true, old: false } } } as Partial<Character>)],
+    });
+    const { result } = renderGame();
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    // A patch built from a stale snapshot only carries the move the user toggled.
+    await act(async () => {
+      await result.current.updateCharacterData('a', { typeMoves: { old: true } } as never);
+    });
+    const stored = firestoreStore.get(GAME_PATH)!.characters as Array<{ id: string; data?: { typeMoves?: Record<string, unknown> } }>;
+    // The concurrently-written `keep` key survives the merge.
+    expect(stored[0].data?.typeMoves).toEqual({ keep: true, old: true });
+  });
+
+  it('updateCharacterData id-merges arcanaMinor so a concurrently-added entry survives (#244)', async () => {
+    firestoreStore.set(GAME_PATH, {
+      name: '', createdAt: 0,
+      characters: [char('a', { data: { arcanaMinor: [{ id: 'm1', requirementsChecked: {} }] } } as Partial<Character>)],
+    });
+    const { result } = renderGame();
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    // Another client concurrently adds a second entry the first client's stale
+    // snapshot never saw.
+    firestoreStore.set(GAME_PATH, {
+      name: '', createdAt: 0,
+      characters: [char('a', { data: { arcanaMinor: [
+        { id: 'm1', requirementsChecked: {} },
+        { id: 'm2', requirementsChecked: {} },
+      ] } } as Partial<Character>)],
+    });
+
+    // The first client's save only carries its own (still stale) view: an edit to m1.
+    await act(async () => {
+      await result.current.updateCharacterData('a', {
+        arcanaMinor: [{ id: 'm1', requirementsChecked: { req1: true } }],
+      } as never);
+    });
+    const stored = firestoreStore.get(GAME_PATH)!.characters as Array<{ id: string; data?: { arcanaMinor?: Array<{ id: string }> } }>;
+    const ids = stored[0].data?.arcanaMinor?.map((e) => e.id);
+    expect(ids).toContain('m1');
+    expect(ids).toContain('m2');
+  });
+
+  it('updateCharacterData does not delete an arcanaMinor entry merely omitted from the patch (#244)', async () => {
+    firestoreStore.set(GAME_PATH, {
+      name: '', createdAt: 0,
+      characters: [char('a', { data: { arcanaMinor: [
+        { id: 'm1', requirementsChecked: {} },
+        { id: 'm2', requirementsChecked: {} },
+      ] } } as Partial<Character>)],
+    });
+    const { result } = renderGame();
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    // A patch that only names m1 is ambiguous — it could mean "m2 was removed"
+    // or "this client just hasn't touched m2". Without the removal sentinel it
+    // must NOT be treated as deletion.
+    await act(async () => {
+      await result.current.updateCharacterData('a', {
+        arcanaMinor: [{ id: 'm1', requirementsChecked: { req1: true } }],
+      } as never);
+    });
+    const stored = firestoreStore.get(GAME_PATH)!.characters as Array<{ id: string; data?: { arcanaMinor?: Array<{ id: string }> } }>;
+    expect(stored[0].data?.arcanaMinor?.map((e) => e.id)).toContain('m2');
+  });
+
+  it('updateCharacterData removes an arcanaMinor entry via removedArcanaMinorIds (#244)', async () => {
+    firestoreStore.set(GAME_PATH, {
+      name: '', createdAt: 0,
+      characters: [char('a', { data: { arcanaMinor: [
+        { id: 'm1', requirementsChecked: {} },
+        { id: 'm2', requirementsChecked: {} },
+      ] } } as Partial<Character>)],
+    });
+    const { result } = renderGame();
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    await act(async () => {
+      await result.current.updateCharacterData('a', {
+        arcanaMinor: [{ id: 'm1', requirementsChecked: {} }],
+        removedArcanaMinorIds: ['m2'],
+      } as never);
+    });
+    const stored = firestoreStore.get(GAME_PATH)!.characters as Array<{ id: string; data?: { arcanaMinor?: Array<{ id: string }>; removedArcanaMinorIds?: unknown } }>;
+    expect(stored[0].data?.arcanaMinor?.map((e) => e.id)).toEqual(['m1']);
+    expect(stored[0].data?.removedArcanaMinorIds).toBeUndefined();
   });
 
   it('updateCharacterData leaves other characters untouched', async () => {
@@ -160,6 +287,85 @@ describe('useGame mutations', () => {
     expect(steading.improvements).toEqual({ wall: true });
     expect(steading.residents?.[0]).toEqual({ id: 'n1', name: 'Mara' });
     expect('pronouns' in (steading.residents![0])).toBe(false);
+  });
+
+  it('updateSteading id-merges residents so a concurrently-added NPC survives (#244)', async () => {
+    firestoreStore.set(GAME_PATH, {
+      name: '', createdAt: 0, characters: [],
+      steading: { residents: [{ id: 'n1', name: 'Mara' }] },
+    });
+    const { result } = renderGame();
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    // The GM concurrently adds a second resident the player's stale snapshot never saw.
+    firestoreStore.set(GAME_PATH, {
+      name: '', createdAt: 0, characters: [],
+      steading: { residents: [{ id: 'n1', name: 'Mara' }, { id: 'n2', name: 'Boro' }] },
+    });
+
+    // The player's save only carries their own (still stale) view: a rename of n1.
+    await act(async () => {
+      await result.current.updateSteading({ residents: [{ id: 'n1', name: 'Mara the Wise' }] as never });
+    });
+    const steading = firestoreStore.get(GAME_PATH)!.steading as { residents?: Array<{ id: string; name: string }> };
+    const byId = new Map(steading.residents?.map((r) => [r.id, r.name]));
+    expect(byId.get('n1')).toBe('Mara the Wise');
+    expect(byId.get('n2')).toBe('Boro');
+  });
+
+  it('updateSteading removes a resident via removedResidentIds (#244)', async () => {
+    firestoreStore.set(GAME_PATH, {
+      name: '', createdAt: 0, characters: [],
+      steading: { residents: [{ id: 'n1', name: 'Mara' }, { id: 'n2', name: 'Boro' }] },
+    });
+    const { result } = renderGame();
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    await act(async () => {
+      await result.current.updateSteading({
+        residents: [{ id: 'n1', name: 'Mara' }] as never,
+        removedResidentIds: ['n2'],
+      });
+    });
+    const steading = firestoreStore.get(GAME_PATH)!.steading as { residents?: Array<{ id: string }> };
+    expect(steading.residents?.map((r) => r.id)).toEqual(['n1']);
+  });
+
+  it('updateSteading id-merges gmImprovements so a concurrently-added slot survives, and removes via removedGmImprovementIds (#244)', async () => {
+    const gi1 = { id: 'g1', title: 'Wall', summary: '', requirements: '', effects: '', completed: false };
+    const gi2 = { id: 'g2', title: 'Well', summary: '', requirements: '', effects: '', completed: false };
+    firestoreStore.set(GAME_PATH, {
+      name: '', createdAt: 0, characters: [],
+      steading: { gmImprovements: [gi1] },
+    });
+    const { result } = renderGame();
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    // The GM concurrently adds a second slot the player's stale snapshot never saw.
+    firestoreStore.set(GAME_PATH, {
+      name: '', createdAt: 0, characters: [],
+      steading: { gmImprovements: [gi1, gi2] },
+    });
+
+    await act(async () => {
+      await result.current.updateSteading({
+        gmImprovements: [{ ...gi1, completed: true }] as never,
+      });
+    });
+    let steading = firestoreStore.get(GAME_PATH)!.steading as { gmImprovements?: Array<{ id: string; completed: boolean }> };
+    let byId = new Map(steading.gmImprovements?.map((g) => [g.id, g.completed]));
+    expect(byId.get('g1')).toBe(true);
+    expect(byId.has('g2')).toBe(true);
+
+    await act(async () => {
+      await result.current.updateSteading({
+        gmImprovements: [{ ...gi1, completed: true }] as never,
+        removedGmImprovementIds: ['g2'],
+      });
+    });
+    steading = firestoreStore.get(GAME_PATH)!.steading as { gmImprovements?: Array<{ id: string; completed: boolean }> };
+    byId = new Map(steading.gmImprovements?.map((g) => [g.id, g.completed]));
+    expect(byId.has('g2')).toBe(false);
   });
 
   it('shows the error toast and rethrows when a write fails (#210)', async () => {

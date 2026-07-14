@@ -5,7 +5,7 @@ import styles from './Button.module.css';
 
 type ButtonOwnProps<E extends ElementType> = {
   as?: E;
-  variant?: 'primary' | 'secondary' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
   size?: 'sm' | 'md' | 'lg' | 'xl';
   fullWidth?: boolean;
   icon?: IconName;

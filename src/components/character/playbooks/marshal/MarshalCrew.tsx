@@ -327,6 +327,9 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
 
   const lastFirestoreCrewRef = useRef<string | undefined>(undefined);
 
+  const { saveDebounced, saveImmediate, flushDebounce, dataRef, onSaveRef, pendingRef, resolvedTick } =
+    useCrewSave(data, onSave);
+
   useEffect(() => {
     const incoming = JSON.stringify([
       data?.playbookFeatures,
@@ -334,6 +337,11 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
       data?.typeMoveCheckList,
     ]);
     if (incoming === lastFirestoreCrewRef.current) return;
+    // While a save is in flight, skip applying the echo — it would clobber
+    // optimistic local state mid-keystroke. resolvedTick forces this effect to
+    // re-run against the latest `data` once the save resolves, so a remote
+    // edit that arrived mid-save is still applied instead of being dropped.
+    if (pendingRef.current) return;
     lastFirestoreCrewRef.current = incoming;
     const f = resolvePlaybookFeatures(data);
     // Mirror the remote Firestore snapshot into optimistic local state. This is a
@@ -358,10 +366,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
   // Keyed on the specific feature subfields, not the whole `data` object: syncing
   // on every unrelated data change would clobber pending optimistic local edits.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data?.playbookFeatures, data?.typeMoves, data?.typeMoveCheckList]);
-
-  const { saveDebounced, saveImmediate, flushDebounce, dataRef, onSaveRef } =
-    useCrewSave(data, onSave);
+  }, [data?.playbookFeatures, data?.typeMoves, data?.typeMoveCheckList, pendingRef, resolvedTick]);
 
   const handleHpChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

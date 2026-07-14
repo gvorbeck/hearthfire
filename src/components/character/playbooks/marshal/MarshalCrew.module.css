@@ -22,6 +22,7 @@
 }
 
 .customTagInput {
+  composes: focusVisible from '@/components/ui/field.module.css';
   flex: 1;
   min-width: 100px;
   padding: var(--spacing-1) var(--spacing-2);
@@ -42,8 +43,6 @@
 
 .customTagInput:focus-visible {
   border-color: var(--border-accent);
-  outline: 2px solid var(--color-gold-400);
-  outline-offset: 2px;
 }
 
 
@@ -123,6 +122,7 @@
 }
 
 .individualInput {
+  composes: focusVisible from '@/components/ui/field.module.css';
   flex: 1;
   min-width: 0;
   padding: var(--spacing-1) var(--spacing-2);
@@ -143,11 +143,10 @@
 
 .individualInput:focus-visible {
   border-color: var(--border-accent);
-  outline: 2px solid var(--color-gold-400);
-  outline-offset: 2px;
 }
 
 .individualTraits {
+  composes: focusVisible from '@/components/ui/field.module.css';
   width: 100%;
   padding: var(--spacing-1) var(--spacing-2);
   background-color: var(--surface-overlay);
@@ -169,6 +168,4 @@
 
 .individualTraits:focus-visible {
   border-color: var(--border-accent);
-  outline: 2px solid var(--color-gold-400);
-  outline-offset: 2px;
 }

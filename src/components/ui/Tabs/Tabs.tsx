@@ -73,8 +73,8 @@ const PortalTooltip = ({
       className={tipCx}
       style={
         {
-          top: fixedCoords?.top ?? 0,
-          left: fixedCoords?.left ?? 0,
+          "--tooltip-top": `${fixedCoords?.top ?? 0}px`,
+          "--tooltip-left": `${fixedCoords?.left ?? 0}px`,
           "--nudge-x": "0px",
           "--arrow-offset": arrowOffset,
         } as React.CSSProperties

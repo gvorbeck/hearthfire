@@ -661,6 +661,17 @@ export interface CharacterData {
   playbookFeatures?: PlaybookFeatures;
   arcanaMinor?: ArcanaMinorEntry[];
   arcanaMajor?: ArcanaMajorEntry[];
+  // Explicit deletion sentinel for updateCharacterData's playbookFeatures merge: keys
+  // named here are deleted from the merged result even though the merge is additive.
+  // Omitting a key from playbookFeatures is NOT deletion — the freshly-read doc's value
+  // for that key survives the spread and reappears.
+  deleteFeatureKeys?: (keyof PlaybookFeatures)[];
+  // Explicit deletion sentinels for updateCharacterData's id-keyed arcana merge: an id
+  // named here is removed from the merged array even though the merge is additive.
+  // Omitting an entry from arcanaMinor/arcanaMajor is NOT deletion — the freshly-read
+  // doc's entry for that id survives the merge and reappears.
+  removedArcanaMinorIds?: string[];
+  removedArcanaMajorIds?: string[];
 }
 
 export interface PlaybookSectionProps {
@@ -741,6 +752,13 @@ export interface SteadingData {
   neighbors?: SteadingNPC[];
   neighborNotes?: Record<string, string>;
   placesOfInterest?: string[];
+  // Explicit deletion sentinels for updateSteading's id-keyed array merge: an id named
+  // here is removed from the merged array even though the merge is additive. Omitting
+  // an entry is NOT deletion — the freshly-read doc's entry for that id survives the
+  // merge and reappears (mirrors CharacterData's deleteFeatureKeys/removedArcana*Ids).
+  removedResidentIds?: string[];
+  removedNeighborIds?: string[];
+  removedGmImprovementIds?: string[];
 }
 
 export interface GameSession {

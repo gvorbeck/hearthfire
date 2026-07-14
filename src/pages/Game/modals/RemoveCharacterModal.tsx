@@ -44,7 +44,7 @@ export const RemoveCharacterModal = ({ open, character, onClose, onConfirm }: Re
       )}
       <div className={styles.actions}>
         <Button variant="ghost" size="md" onClick={onClose} disabled={removing}>Cancel</Button>
-        <Button variant="primary" size="md" className={styles.removeBtn} onClick={handleConfirm} disabled={removing}>
+        <Button variant="danger" size="md" onClick={handleConfirm} disabled={removing}>
           {removing ? 'Removing…' : 'Remove character'}
         </Button>
       </div>

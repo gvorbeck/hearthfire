@@ -1,4 +1,5 @@
 .base {
+  composes: focusVisible from '../field.module.css';
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -14,11 +15,6 @@
      so without this a sibling would shrink the button below its content width
      and the label would overflow into the padding/border. */
   flex-shrink: 0;
-}
-
-.base:focus-visible {
-  outline: 2px solid var(--color-gold-400);
-  outline-offset: 2px;
 }
 
 .base:disabled {
@@ -60,6 +56,24 @@
 .secondary:active:not(:disabled) {
   background-color: color-mix(in srgb, var(--color-gold-400) 22%, transparent);
   border-color: var(--color-gold-400);
+  transform: translateY(1px);
+}
+
+.danger {
+  background-color: var(--color-danger);
+  /* Fixed-color fill like .primary above — needs fixed white text, not a
+     semantic --text-* token that would flip (and lose contrast) by theme. */
+  color: #fff;
+}
+
+.danger:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--color-danger) 80%, #000);
+  box-shadow: var(--glow-danger);
+}
+
+.danger:active:not(:disabled) {
+  background-color: color-mix(in srgb, var(--color-danger) 70%, #000);
+  box-shadow: none;
   transform: translateY(1px);
 }
 

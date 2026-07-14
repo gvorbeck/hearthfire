@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { useOptimisticField } from '@/hooks/useOptimisticField';
-import type { PlaybookSectionProps } from '@/types';
+import type { ArcanaMajorEntry, ArcanaMinorEntry, PlaybookSectionProps } from '@/types';
 import { Spinner } from '@/components/ui';
 import { ArcanaSubTabs, type ArcanaSubTab } from './ArcanaSubTabs';
 import styles from './ArcanaTab.module.css';
@@ -52,14 +52,18 @@ export const ArcanaTab = ({ data, onSave, adjustCharacterStats }: ArcanaTabProps
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
-  const { value: arcanaMinor, ref: arcanaMinorRef, save: saveMinor } = useOptimisticField(
+  // The optional removedId arg is forwarded to onSave as the explicit removal sentinel
+  // (see CharacterData.removedArcanaMinorIds) — omitting an entry from the array alone
+  // is ambiguous between "removed" and "not yet seen" once updateCharacterData id-merges
+  // this field against the freshly-read doc.
+  const { value: arcanaMinor, ref: arcanaMinorRef, save: saveMinor } = useOptimisticField<ArcanaMinorEntry[], [removedId?: string]>(
     data?.arcanaMinor ?? [],
-    (next) => onSave({ arcanaMinor: next }),
+    (next, removedId) => onSave({ arcanaMinor: next, ...(removedId ? { removedArcanaMinorIds: [removedId] } : {}) }),
     'Failed to save.',
   );
-  const { value: arcanaMajor, ref: arcanaMajorRef, save: saveMajor } = useOptimisticField(
+  const { value: arcanaMajor, ref: arcanaMajorRef, save: saveMajor } = useOptimisticField<ArcanaMajorEntry[], [removedId?: string]>(
     data?.arcanaMajor ?? [],
-    (next) => onSave({ arcanaMajor: next }),
+    (next, removedId) => onSave({ arcanaMajor: next, ...(removedId ? { removedArcanaMajorIds: [removedId] } : {}) }),
     'Failed to save.',
   );
   return (

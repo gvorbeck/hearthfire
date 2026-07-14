@@ -149,7 +149,7 @@
 }
 
 .idHint.idHintTaken {
-  color: var(--color-ember-400);
+  color: var(--text-danger);
 }
 
 .idHint.idHintChecking {

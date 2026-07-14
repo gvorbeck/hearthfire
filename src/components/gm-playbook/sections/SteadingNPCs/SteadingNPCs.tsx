@@ -19,7 +19,7 @@ interface NpcSectionProps {
   title: string;
   description: string;
   npcs: SteadingNPC[];
-  onUpdate: (transform: (current: SteadingNPC[]) => SteadingNPC[]) => void;
+  onUpdate: (transform: (current: SteadingNPC[]) => SteadingNPC[], removedId?: string) => void;
   onToggleDead: (id: string) => void;
   relationshipGroups: DropdownGroup<RelTarget>[];
   resolveTarget: (rel: NpcRelationship) => string;
@@ -57,7 +57,7 @@ const NpcSection = ({ title, description, npcs, onUpdate, onToggleDead, relation
   }, [onUpdate, editNpc]);
 
   const handleRemove = useCallback((id: string) => {
-    onUpdate((current) => current.filter((n) => n.id !== id));
+    onUpdate((current) => current.filter((n) => n.id !== id), id);
   }, [onUpdate]);
 
   return (
@@ -104,11 +104,21 @@ interface SteadingNPCsProps {
   filterTargetId?: string;
 }
 
+// section -> the SteadingData sentinel field updateSteading reads to distinguish
+// intentional removal from an id merely absent from a stale local snapshot.
+const REMOVED_IDS_FIELD = {
+  residents: 'removedResidentIds',
+  neighbors: 'removedNeighborIds',
+} as const satisfies Record<keyof typeof NPC_CONFIG, keyof SteadingData>;
+
 export const SteadingNPCs = ({ section, npcs = [], onSave, game, filterTargetId }: SteadingNPCsProps) => {
   const { title, description } = NPC_CONFIG[section];
-  const { value: localNpcs, save: saveNpcs } = useOptimisticField(
+  const { value: localNpcs, save: saveNpcs } = useOptimisticField<SteadingNPC[], [removedId?: string]>(
     npcs,
-    (next: SteadingNPC[]) => onSave({ [section]: next }),
+    (next, removedId) => onSave({
+      [section]: next,
+      ...(removedId ? { [REMOVED_IDS_FIELD[section]]: [removedId] } : {}),
+    }),
   );
 
   const handleToggleDead = useCallback((id: string) => {

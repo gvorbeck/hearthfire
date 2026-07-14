@@ -67,7 +67,7 @@ const MajorArcanaCardRow = memo(({ entry, arcanum, onMarksChange, onMysteryMoveT
 interface MajorArcanaPanelProps {
   arcanaMajor: ArcanaMajorEntry[];
   arcanaMajorRef: MutableRefObject<ArcanaMajorEntry[]>;
-  saveMajor: (next: ArcanaMajorEntry[]) => void;
+  saveMajor: (next: ArcanaMajorEntry[], removedId?: string) => void;
   // Writer for the absolute field patch a consequence action produces (debility flags). Armor/HP go
   // through adjustCharacterStats instead, since those are additive.
   saveCharacterData: (patch: Partial<CharacterData>) => Promise<void>;
@@ -96,7 +96,7 @@ export const MajorArcanaPanel = ({ arcanaMajor, arcanaMajorRef, saveMajor, saveC
 
   const handleRemoveMajor = useCallback(
     (id: string) => {
-      saveMajor(arcanaMajorRef.current.filter((a) => a.id !== id));
+      saveMajor(arcanaMajorRef.current.filter((a) => a.id !== id), id);
     },
     [saveMajor],
   );

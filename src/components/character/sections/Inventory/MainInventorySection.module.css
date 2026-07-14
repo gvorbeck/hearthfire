@@ -22,17 +22,17 @@
 
 .loadLight {
   background-color: color-mix(in srgb, var(--color-success) 15%, transparent);
-  color: var(--color-success);
+  color: var(--text-success);
 }
 
 .loadNormal {
   background-color: color-mix(in srgb, var(--color-warning) 15%, transparent);
-  color: var(--color-warning);
+  color: var(--text-warning);
 }
 
 .loadHeavy {
   background-color: color-mix(in srgb, var(--color-danger) 15%, transparent);
-  color: var(--color-danger);
+  color: var(--text-danger);
 }
 
 /* ── Shared label rules → inventoryItem.module.css ──── */

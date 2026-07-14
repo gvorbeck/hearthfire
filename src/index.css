@@ -38,10 +38,12 @@
 
   /* Moss — success accent */
   --color-moss-400: #6abf7a;
+  --color-moss-600: #3d7a49;
   --color-success: var(--color-moss-400);
 
   /* Amber — warning accent */
   --color-amber-400: #f59e0b;
+  --color-amber-600: #8a5607;
   --color-warning: var(--color-amber-400);
 
   --font-serif: 'IM Fell English', Georgia, serif;
@@ -101,6 +103,11 @@
   /* Brighter accent for hover/active emphasis on accent-colored controls */
   --text-accent-strong: var(--color-gold-200);
   --text-heading: var(--color-gold-300);
+  /* Status text tiers — alias the theme-aware status colors so error/success/warning
+     copy stays readable in both themes without a separate light-mode override. */
+  --text-danger: var(--color-danger);
+  --text-success: var(--color-success);
+  --text-warning: var(--color-warning);
 
   /* Shadows */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
@@ -143,6 +150,12 @@
   /* Deeper than gold-600 for hover emphasis; clears AA-large on light surfaces. */
   --text-accent-strong: #856008;
   --text-heading: var(--color-gold-600);
+
+  /* Status-accent tiers: source hues (ember/moss/amber-400) fall below 3:1 on
+     light stone surfaces. Darker shades restore AA contrast for text usage. */
+  --color-danger: var(--color-ember-600);
+  --color-success: var(--color-moss-600);
+  --color-warning: var(--color-amber-600);
 
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);

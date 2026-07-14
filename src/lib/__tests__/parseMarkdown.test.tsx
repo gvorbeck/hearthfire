@@ -60,6 +60,16 @@ describe('parseInlineMarkdown', () => {
   it('leaves plain text without markers untouched', () => {
     expect(parseInlineMarkdown('just words')).toEqual(['just words']);
   });
+
+  it('renders an unclosed ** marker as literal text instead of truncating it', () => {
+    render(<Wrapper text="**Unclosed text" />);
+    expect(screen.getByText('**Unclosed text')).toBeInTheDocument();
+  });
+
+  it('renders an unclosed * marker as literal text instead of truncating it', () => {
+    render(<Wrapper text="*Unclosed text" />);
+    expect(screen.getByText('*Unclosed text')).toBeInTheDocument();
+  });
 });
 
 describe('parseMarkdown tables', () => {
