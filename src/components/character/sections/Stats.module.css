@@ -19,6 +19,7 @@
 }
 
 .statInput {
+  composes: focusVisible from '@/components/ui/field.module.css';
   width: 72px;
   height: 72px;
   padding: var(--spacing-2);
@@ -47,8 +48,6 @@
 .statInput:focus-visible {
   border-color: var(--border-accent);
   background-color: var(--surface-overlay);
-  outline: 2px solid var(--color-gold-400);
-  outline-offset: 2px;
 }
 
 .statGroup {
@@ -93,6 +92,7 @@
 }
 
 .infoInput {
+  composes: focusVisible from '@/components/ui/field.module.css';
   width: 80px;
   height: 64px;
   padding: var(--spacing-2);
@@ -121,8 +121,6 @@
 .infoInput:focus-visible {
   border-color: var(--border-accent);
   background-color: var(--surface-overlay);
-  outline: 2px solid var(--color-gold-400);
-  outline-offset: 2px;
 }
 
 .infoStatic {

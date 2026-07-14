@@ -11,17 +11,16 @@
 }
 
 /* Make links inside the footer gold-colored and always underlined for WCAG 1.4.1 (non-color affordance). */
-.footer a {
+.link {
+  composes: focusVisible from '@/components/ui/field.module.css';
   color: var(--text-accent);
   text-decoration: underline;
 }
 
-.footer a:hover {
+.link:hover {
   text-decoration: none;
 }
 
-.footer a:focus-visible {
-  outline: 2px solid var(--color-gold-400);
-  outline-offset: 2px;
+.link:focus-visible {
   border-radius: var(--radius-sm);
 }

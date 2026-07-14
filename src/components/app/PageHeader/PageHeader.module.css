@@ -52,6 +52,7 @@
  * hover/focus to signal it's clickable.
  */
 .wordmarkLink {
+  composes: focusVisible from '@/components/ui/field.module.css';
   color: inherit;
   text-decoration: none;
   transition: color 0.15s ease;
@@ -62,8 +63,6 @@
 }
 
 .wordmarkLink:focus-visible {
-  outline: 2px solid var(--color-gold-400);
-  outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
 
@@ -99,6 +98,7 @@
 }
 
 .titleInput {
+  composes: focusVisible from '@/components/ui/field.module.css';
   font-family: var(--font-serif);
   font-size: var(--text-display);
   font-weight: normal;
@@ -113,12 +113,8 @@
   line-height: 1.05;
 }
 
-.titleInput:focus-visible {
-  outline: 2px solid var(--color-gold-400);
-  outline-offset: 2px;
-}
-
 .editBtn {
+  composes: focusVisible from '@/components/ui/field.module.css';
   color: var(--text-secondary);
   border: none;
 }
@@ -127,11 +123,6 @@
   color: var(--text-accent);
   background: none;
   border: none;
-}
-
-.editBtn:focus-visible {
-  outline: 2px solid var(--color-gold-400);
-  outline-offset: 2px;
 }
 
 .subtitle {
@@ -146,6 +137,7 @@
 }
 
 .copyBtn {
+  composes: focusVisible from '@/components/ui/field.module.css';
   flex-shrink: 0;
   color: var(--text-secondary);
   border: none;
@@ -155,11 +147,6 @@
   color: var(--text-accent);
   background: none;
   border: none;
-}
-
-.copyBtn:focus-visible {
-  outline: 2px solid var(--color-gold-400);
-  outline-offset: 2px;
 }
 
 .rule {

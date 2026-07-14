@@ -55,6 +55,7 @@
 }
 
 .tagRemove {
+  composes: focusVisible from '@/components/ui/field.module.css';
   position: relative;
   display: flex;
   align-items: center;
@@ -88,11 +89,11 @@
 }
 
 .tagRemove:focus-visible {
-  outline: 2px solid var(--color-gold-400);
   outline-offset: 1px;
 }
 
 .input {
+  composes: focusVisible from '@/components/ui/field.module.css';
   flex: 1;
   min-width: 8rem;
   padding: 0;
@@ -105,8 +106,6 @@
 }
 
 .input:focus-visible {
-  outline: 2px solid var(--color-gold-400);
-  outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
 

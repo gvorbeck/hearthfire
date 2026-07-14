@@ -38,6 +38,7 @@
 }
 
 .addTab {
+  composes: focusVisible from '@/components/ui/field.module.css';
   background: none;
   border: 1px solid var(--color-gold-400);
   border-radius: 3px;
@@ -56,11 +57,6 @@
   border-color: var(--text-accent);
 }
 
-.addTab:focus-visible {
-  outline: 2px solid var(--color-gold-400);
-  outline-offset: 2px;
-}
-
 .tabSlot {
   position: relative;
   display: inline-flex;
@@ -68,6 +64,7 @@
 }
 
 .tab {
+  composes: focusVisible from '@/components/ui/field.module.css';
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -95,7 +92,6 @@
 }
 
 .tab:focus-visible {
-  outline: 2px solid var(--color-gold-400);
   outline-offset: -2px;
 }
 
@@ -138,7 +134,7 @@
 }
 
 .tabRemove:hover {
-  color: var(--color-danger);
+  color: var(--text-danger);
   background-color: color-mix(in srgb, var(--color-danger) 15%, transparent);
 }
 
@@ -163,6 +159,8 @@
 
 .tabTooltip.portalFixed {
   position: fixed;
+  top: var(--tooltip-top);
+  left: var(--tooltip-left);
 }
 
 .tabTooltip {

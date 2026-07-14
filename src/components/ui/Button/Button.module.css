@@ -1,4 +1,5 @@
 .base {
+  composes: focusVisible from '../field.module.css';
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -14,11 +15,6 @@
      so without this a sibling would shrink the button below its content width
      and the label would overflow into the padding/border. */
   flex-shrink: 0;
-}
-
-.base:focus-visible {
-  outline: 2px solid var(--color-gold-400);
-  outline-offset: 2px;
 }
 
 .base:disabled {

@@ -103,7 +103,7 @@
 }
 
 .statValueNegative {
-  color: var(--color-danger);
+  color: var(--text-danger);
 }
 
 /* ── Debilities ───────────────────────────────────────── */

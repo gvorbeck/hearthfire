@@ -121,15 +121,7 @@
 }
 
 .srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+  composes: srOnly from '@/components/ui/field.module.css';
 }
 
 .characterLink {
@@ -159,7 +151,7 @@
 .removeCharacterBtn:hover {
   background-color: color-mix(in srgb, var(--color-danger) 12%, transparent);
   border-color: var(--color-danger);
-  color: var(--color-danger);
+  color: var(--text-danger);
 }
 
 .placeholder {

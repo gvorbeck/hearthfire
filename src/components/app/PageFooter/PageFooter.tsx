@@ -15,18 +15,29 @@ export const PageFooter = () => (
     Brimstone. Text released under CC BY-SA 4.0. Some concepts derived from
     Dungeon World by Sage LaTorra &amp; Adam Koebel (CC BY). Logo icon
     commissioned from{" "}
-    <a href="https://www.macteg.com/" target="_blank" rel="noreferrer">
+    <a
+      className={styles.link}
+      href="https://www.macteg.com/"
+      target="_blank"
+      rel="noreferrer"
+    >
       Macteg
     </a>
     .
     <br />
     {/* App credit line — links to the developer's site and the GitHub repo. */}
     &copy; {CURRENT_YEAR}{" "}
-    <a href="https://iamgarrett.com" target="_blank" rel="noreferrer">
+    <a
+      className={styles.link}
+      href="https://iamgarrett.com"
+      target="_blank"
+      rel="noreferrer"
+    >
       J. Garrett Vorbeck
     </a>
     {" · "}
     <a
+      className={styles.link}
       href="https://github.com/gvorbeck/hearthfire"
       target="_blank"
       rel="noreferrer"

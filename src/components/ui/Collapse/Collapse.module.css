@@ -29,6 +29,7 @@
 }
 
 .trigger {
+  composes: focusVisible from '../field.module.css';
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -50,11 +51,6 @@
 .trigger:hover {
   color: var(--text-accent);
   background-color: var(--surface-raised);
-}
-
-.trigger:focus-visible {
-  outline: 2px solid var(--color-gold-400);
-  outline-offset: 2px;
 }
 
 .open .trigger {

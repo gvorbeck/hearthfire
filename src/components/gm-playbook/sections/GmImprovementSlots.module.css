@@ -42,6 +42,7 @@
 }
 
 .gmTitleInput {
+  composes: focusVisible from '@/components/ui/field.module.css';
   font-family: var(--font-serif);
   font-size: var(--text-sm);
   font-weight: 700;
@@ -59,12 +60,8 @@
   border-bottom-color: var(--border-accent);
 }
 
-.gmTitleInput:focus-visible {
-  outline: 2px solid var(--color-gold-400);
-  outline-offset: 2px;
-}
-
 .gmTextarea {
+  composes: focusVisible from '@/components/ui/field.module.css';
   font-family: var(--font-serif);
   font-size: var(--text-sm);
   background: transparent;
@@ -81,9 +78,4 @@
 .gmTextarea:focus {
   outline: none;
   border-bottom-color: var(--border-accent);
-}
-
-.gmTextarea:focus-visible {
-  outline: 2px solid var(--color-gold-400);
-  outline-offset: 2px;
 }

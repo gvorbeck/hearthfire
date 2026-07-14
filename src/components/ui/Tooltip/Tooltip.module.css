@@ -1,4 +1,5 @@
 .wrapper {
+  composes: focusVisible from '../field.module.css';
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -6,8 +7,6 @@
 }
 
 .wrapper:focus-visible {
-  outline: 2px solid var(--color-gold-400);
-  outline-offset: 2px;
   border-radius: 2px;
 }
 

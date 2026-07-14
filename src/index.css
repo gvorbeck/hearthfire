@@ -103,6 +103,11 @@
   /* Brighter accent for hover/active emphasis on accent-colored controls */
   --text-accent-strong: var(--color-gold-200);
   --text-heading: var(--color-gold-300);
+  /* Status text tiers — alias the theme-aware status colors so error/success/warning
+     copy stays readable in both themes without a separate light-mode override. */
+  --text-danger: var(--color-danger);
+  --text-success: var(--color-success);
+  --text-warning: var(--color-warning);
 
   /* Shadows */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
