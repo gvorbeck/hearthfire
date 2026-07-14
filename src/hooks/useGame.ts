@@ -430,9 +430,11 @@ export const useGame = (gameId: string): UseGameResult => {
           // before writing to Firestore, which rejects undefined values.
           dotted[`steading.${k}`] = JSON.parse(JSON.stringify(merged));
         } else if (!(k in idArrayFields) && !k.startsWith('removed')) {
-          // Strip undefined fields from array elements (e.g. parsed NPCs with optional fields)
-          // before writing to Firestore, which rejects undefined values.
-          dotted[`steading.${k}`] = Array.isArray(v)
+          // Strip undefined fields (e.g. parsed NPCs with optional fields, or
+          // debilities' untouched keys from parseDebilities) before writing to
+          // Firestore, which rejects undefined values — for both arrays and
+          // plain objects.
+          dotted[`steading.${k}`] = (Array.isArray(v) || isPlainObject(v))
             ? JSON.parse(JSON.stringify(v))
             : v;
         }

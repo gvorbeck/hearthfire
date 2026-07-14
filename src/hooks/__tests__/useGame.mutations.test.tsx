@@ -428,4 +428,23 @@ describe('useGame mutations', () => {
     });
     expect((firestoreStore.get(GAME_PATH)!.steading as { defenses?: number }).defenses).toBe(3);
   });
+
+  it('updateSteading strips undefined keys from a plain-object patch like debilities (#278)', async () => {
+    // parseDebilities always fills untouched keys with `undefined` (see useGame.ts),
+    // so toggling one debility on then off round-trips the others as `undefined` —
+    // the real Firestore SDK rejects `undefined` field values outright.
+    firestoreStore.set(GAME_PATH, { name: '', createdAt: 0, characters: [], steading: {} });
+    const { result } = renderGame();
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    await act(async () => {
+      await result.current.updateSteading({
+        debilities: { diminished: false, lacking: undefined, malcontent: undefined } as never,
+      });
+    });
+    const steading = firestoreStore.get(GAME_PATH)!.steading as { debilities?: Record<string, unknown> };
+    expect(steading.debilities).toEqual({ diminished: false });
+    expect('lacking' in steading.debilities!).toBe(false);
+    expect('malcontent' in steading.debilities!).toBe(false);
+  });
 });
