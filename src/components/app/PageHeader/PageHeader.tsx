@@ -85,7 +85,12 @@ export const PageHeader = (props: Props) => {
   const navDropdownId = useId();
 
   useEffect(() => {
-    if (editing) inputRef.current?.select();
+    if (editing) {
+      inputRef.current?.select();
+    } else if (committingViaKeyboardRef.current) {
+      committingViaKeyboardRef.current = false;
+      editBtnRef.current?.focus();
+    }
   }, [editing]);
 
   useEffect(() => {
@@ -110,10 +115,6 @@ export const PageHeader = (props: Props) => {
       addToast("Failed to save game name. Try again.", "error");
     } finally {
       setEditing(false);
-      if (committingViaKeyboardRef.current) {
-        committingViaKeyboardRef.current = false;
-        editBtnRef.current?.focus();
-      }
     }
   }, [simple, props, value, addToast]);
 
@@ -129,8 +130,8 @@ export const PageHeader = (props: Props) => {
         commit();
       }
       if (e.key === "Escape") {
+        committingViaKeyboardRef.current = true;
         setEditing(false);
-        editBtnRef.current?.focus();
       }
     },
     [commit],
