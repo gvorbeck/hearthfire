@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useId } from 'react';
 import { Input, Text, PlaybookColumns } from '@/components/ui';
 import { Move } from '@/components/character/Move/Move';
 import { BASIC_MOVES, SPECIAL_MOVES, FOLLOWER_MOVES, HOMEFRONT_MOVES, EXPEDITION_MOVES, PLAYBOOK_MOVES } from '@/lib/moves';
@@ -33,6 +33,7 @@ const MoveList = ({ moves }: { moves: MoveDefinition[] }) => (
 
 export const MoveSearch = () => {
   const [query, setQuery] = useState('');
+  const resultHintId = useId();
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -51,11 +52,16 @@ export const MoveSearch = () => {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         aria-label="Search moves by name"
+        aria-describedby={query.trim() ? resultHintId : undefined}
         className={styles.input}
       />
-      {query.trim() && results.length === 0 && (
-        <Text font="serif" color="muted" className={styles.empty}>No moves match "{query}".</Text>
-      )}
+      <div id={resultHintId} aria-live="polite" aria-atomic="true">
+        {query.trim() && (
+          results.length === 0
+            ? <Text font="serif" color="muted" className={styles.empty}>No moves match "{query}".</Text>
+            : <Text as="span" className={styles.visuallyHidden}>{results.length} move{results.length === 1 ? '' : 's'} found.</Text>
+        )}
+      </div>
       {results.length > 0 && (
         <section aria-label="Move search results" className={styles.results}>
           <PlaybookColumns

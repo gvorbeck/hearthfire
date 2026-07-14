@@ -1,4 +1,4 @@
-import { type ReactNode, type ElementType, type ComponentPropsWithoutRef } from 'react';
+import { forwardRef, type ReactNode, type ElementType, type ComponentPropsWithoutRef, type Ref } from 'react';
 import clsx from 'clsx';
 import { Icon, type IconName, type IconSize } from '../Icon/Icon';
 import styles from './Button.module.css';
@@ -25,16 +25,19 @@ const iconSizeMap: Record<'sm' | 'md' | 'lg' | 'xl', IconSize> = {
   xl: 'large',
 };
 
-export const Button = <E extends ElementType = 'button'>({
-  as,
-  variant = 'primary',
-  size = 'md',
-  icon,
-  fullWidth = false,
-  className,
-  children,
-  ...props
-}: ButtonProps<E>) => {
+const ButtonInner = (
+  {
+    as,
+    variant = 'primary',
+    size = 'md',
+    icon,
+    fullWidth = false,
+    className,
+    children,
+    ...props
+  }: ButtonProps,
+  ref: Ref<Element>,
+) => {
   const Tag = (as ?? 'button') as ElementType;
   const cx = clsx(
     styles.base,
@@ -46,9 +49,13 @@ export const Button = <E extends ElementType = 'button'>({
   );
 
   return (
-    <Tag className={cx} {...(props as ComponentPropsWithoutRef<typeof Tag>)}>
+    <Tag ref={ref} className={cx} {...(props as ComponentPropsWithoutRef<typeof Tag>)}>
       {icon && <Icon name={icon} size={iconSizeMap[size]} />}
       {children}
     </Tag>
   );
 };
+
+export const Button = forwardRef(ButtonInner) as <E extends ElementType = 'button'>(
+  props: ButtonProps<E> & { ref?: Ref<Element> },
+) => ReactNode;

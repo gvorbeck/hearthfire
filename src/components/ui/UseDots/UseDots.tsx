@@ -22,7 +22,8 @@ export const UseDots = ({ total, checked, onChange, disabled, label, ariaLabel }
         key={`dot-${total}-${i}`}
         type="button"
         className={dotCx}
-        aria-label={filled ? `Clear use ${i + 1}` : `Mark use ${i + 1}`}
+        aria-label={`Use ${i + 1}`}
+        aria-pressed={filled}
         onClick={() => onChange(filled ? i : i + 1)}
         disabled={disabled}
       />

@@ -12,6 +12,10 @@
   padding: var(--spacing-2) 0;
 }
 
+.visuallyHidden {
+  composes: srOnly from '@/components/ui/field.module.css';
+}
+
 .results {
   margin-top: var(--spacing-3);
 }
