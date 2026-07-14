@@ -18,12 +18,16 @@ export const useCrewSave = (data: CharacterData | undefined, onSave: (data: Part
   // while the save was pending — otherwise that snapshot would never be
   // applied until some unrelated data change.
   const [resolvedTick, setResolvedTick] = useState(0);
+  const isMountedRef = useRef(true);
   const clearPending = useCallback(() => {
     pendingRef.current = false;
-    setResolvedTick((t) => t + 1);
+    if (isMountedRef.current) setResolvedTick((t) => t + 1);
   }, []);
 
-  useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
+  useEffect(() => () => {
+    isMountedRef.current = false;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+  }, []);
 
   const saveDebounced = useCallback((patch: Patch, onError?: (err: unknown) => void) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);

@@ -153,7 +153,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
       {children}
       {createPortal(
         <>
-          <div role="status" aria-live="polite" className={styles.announcer}>
+          <div role="status" aria-live="polite" aria-atomic="true" className={styles.announcer}>
             {announcement}
           </div>
           <div role="region" className={styles.region} aria-label="Notifications">
