@@ -205,6 +205,11 @@ const mergeById = <T extends { id: string }>(
   return [...incoming, ...onlyInExisting];
 };
 
+// Strip undefined-valued keys (e.g. parsed NPCs' optional fields, or debilities'
+// untouched keys from parseDebilities) before writing to Firestore, which rejects
+// undefined values outright.
+const stripUndefined = <T>(v: T): T => JSON.parse(JSON.stringify(v));
+
 // steading array fields that are id-merged (not overwritten) against the freshly-read doc,
 // each paired with its SteadingData sentinel field for explicit-removal ids.
 const STEADING_ID_ARRAY_FIELDS = {
@@ -426,15 +431,9 @@ export const useGame = (gameId: string): UseGameResult => {
           // stale snapshot. Removal uses the explicit removedXIds sentinel.
           const removedIds = patch[idArrayFields[k]] as string[] | undefined;
           const merged = mergeById(existing[k as keyof SteadingData] as { id: string }[] | undefined, v as { id: string }[], removedIds);
-          // Strip undefined fields from array elements (e.g. parsed NPCs with optional fields)
-          // before writing to Firestore, which rejects undefined values.
-          dotted[`steading.${k}`] = JSON.parse(JSON.stringify(merged));
+          dotted[`steading.${k}`] = stripUndefined(merged);
         } else if (!(k in idArrayFields) && !k.startsWith('removed')) {
-          // Strip undefined fields from array elements (e.g. parsed NPCs with optional fields)
-          // before writing to Firestore, which rejects undefined values.
-          dotted[`steading.${k}`] = Array.isArray(v)
-            ? JSON.parse(JSON.stringify(v))
-            : v;
+          dotted[`steading.${k}`] = (Array.isArray(v) || isPlainObject(v)) ? stripUndefined(v) : v;
         }
       }
       tx.update(gameRef, dotted);
