@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback, useRef, memo } from "react";
+import { useState, useCallback, memo } from "react";
 import { useLatest } from "@/hooks/useLatest";
+import { useFirestoreSync } from "@/hooks/useFirestoreSync";
 import {
   Checkbox,
   CheckboxGroup,
@@ -332,48 +333,21 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
   const customItemsRef = useLatest(customItems);
   const individualsRef = useLatest(individuals);
 
-  const lastFirestoreCrewRef = useRef<string | undefined>(undefined);
-
-  const { saveDebounced, saveImmediate, flushDebounce, dataRef, onSaveRef, pendingRef, resolvedTick } =
+  const { saveDebounced, saveImmediate, flushDebounce, dataRef, onSaveRef, pendingRef } =
     useCrewSave(data, onSave);
 
-  useEffect(() => {
-    const incoming = JSON.stringify([
-      data?.playbookFeatures,
-      data?.typeMoves,
-      data?.typeMoveCheckList,
-    ]);
-    if (incoming === lastFirestoreCrewRef.current) return;
-    // While a save is in flight, skip applying the echo — it would clobber
-    // optimistic local state mid-keystroke. resolvedTick forces this effect to
-    // re-run against the latest `data` once the save resolves, so a remote
-    // edit that arrived mid-save is still applied instead of being dropped.
-    if (pendingRef.current) return;
-    lastFirestoreCrewRef.current = incoming;
-    const f = resolvePlaybookFeatures(data);
-    // Mirror the remote Firestore snapshot into optimistic local state. This is a
-    // store-subscription sync (guarded by lastFirestoreCrewRef), not a derivable
-    // value — deriving in render would drop in-flight edits during the save→echo
-    // window, so the effect is necessary.
-    /* eslint-disable react-hooks/set-state-in-effect */
-    if (f.crewHp !== undefined) setHp(f.crewHp);
-    if (f.crewArmor !== undefined) setArmor(f.crewArmor);
-    if (f.crewTags !== undefined) setTags({ group: true, ...f.crewTags });
-    if (f.crewTagsCustom !== undefined)
-      setTagsCustom(f.crewTagsCustom.slice(0, 2));
-    if (f.crewLoyalty !== undefined) setLoyalty(f.crewLoyalty);
-    if (f.crewInventoryChecked !== undefined)
-      setInventoryChecked(f.crewInventoryChecked);
-    if (f.crewCustomItems !== undefined)
-      setCustomItems(normalizeCustomItems(f.crewCustomItems));
-    if (f.crewSuppliesUses !== undefined) setSuppliesUses(f.crewSuppliesUses);
-    if (f.crewIndividuals !== undefined)
-      setIndividuals(parseIndividuals(f.crewIndividuals));
-    /* eslint-enable react-hooks/set-state-in-effect */
-  // Keyed on the specific feature subfields, not the whole `data` object: syncing
-  // on every unrelated data change would clobber pending optimistic local edits.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data?.playbookFeatures, data?.typeMoves, data?.typeMoveCheckList, pendingRef, resolvedTick]);
+  // Each call independently mirrors one remote Firestore subfield into optimistic
+  // local state, deferring the echo while a save from that field (or any other,
+  // via the shared pendingRef) is in flight. See useFirestoreSync for the guard.
+  useFirestoreSync(features.crewHp, (v) => { if (v !== undefined) setHp(v); }, pendingRef);
+  useFirestoreSync(features.crewArmor, (v) => { if (v !== undefined) setArmor(v); }, pendingRef);
+  useFirestoreSync(features.crewTags, (v) => { if (v !== undefined) setTags({ group: true, ...v }); }, pendingRef);
+  useFirestoreSync(features.crewTagsCustom, (v) => { if (v !== undefined) setTagsCustom(v.slice(0, 2)); }, pendingRef);
+  useFirestoreSync(features.crewLoyalty, (v) => { if (v !== undefined) setLoyalty(v); }, pendingRef);
+  useFirestoreSync(features.crewInventoryChecked, (v) => { if (v !== undefined) setInventoryChecked(v); }, pendingRef);
+  useFirestoreSync(features.crewCustomItems, (v) => { if (v !== undefined) setCustomItems(normalizeCustomItems(v)); }, pendingRef);
+  useFirestoreSync(features.crewSuppliesUses, (v) => { if (v !== undefined) setSuppliesUses(v); }, pendingRef);
+  useFirestoreSync(features.crewIndividuals, (v) => { if (v !== undefined) setIndividuals(parseIndividuals(v)); }, pendingRef);
 
   const handleHpChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
