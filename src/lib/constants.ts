@@ -11,14 +11,16 @@ export const GAMES_COLLECTION = "games";
 export const SAVE_ERROR_MESSAGE =
   "Couldn't save your changes — check your connection.";
 
-// Shown when a write is rejected because the game document exceeds Firestore's
-// 1 MiB per-doc ceiling (surfaced as the `invalid-argument` code). The whole
-// game lives in one doc, so this is reachable with enough content. Both save
-// paths (useGame's reportSave and useDebouncedSave's handler) map the code to
-// this same string so the Toast dedupe collapses them to one — same reason
-// SAVE_ERROR_MESSAGE is shared.
-export const DOC_TOO_LARGE_MESSAGE =
-  "This game has grown too large to save. Trim some content (long notes, unused characters) and try again.";
+// Shown when a write is rejected with Firestore's `invalid-argument` code. That code covers more
+// than one cause — the game doc exceeding the 1 MiB per-doc ceiling, but also a malformed value
+// (e.g. an `undefined` field, an illegal field-path character) that's a bug in this app rather
+// than something the player did. Firestore doesn't distinguish these with different codes, and we
+// can't reliably tell them apart from the client, so the wording stays neutral rather than
+// guessing "too large" and sending the player hunting for content to delete that isn't the actual
+// problem. Both save paths (useGame's reportSave and useDebouncedSave's handler) map the code to
+// this same string so the Toast dedupe collapses them to one — same reason SAVE_ERROR_MESSAGE is shared.
+export const INVALID_WRITE_MESSAGE =
+  "Couldn't save that change — the game may have grown too large, or something went wrong on our end. Try again, and if it keeps happening, trim some content (long notes, unused characters) or report it at github.com/gvorbeck/hearthfire/issues.";
 
 export interface PlaybookOption {
   value: PlaybookType;

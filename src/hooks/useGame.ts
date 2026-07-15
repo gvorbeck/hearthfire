@@ -5,7 +5,7 @@ import type { FirestoreError } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useSaveStatusOptional } from '@/components/app/SaveStatus/SaveStatusContext';
 import { useToastOptional } from '@/components/app/Toast/ToastContext';
-import { DOC_TOO_LARGE_MESSAGE, GAMES_COLLECTION, PLAYBOOKS, SAVE_ERROR_MESSAGE } from '@/lib/constants';
+import { INVALID_WRITE_MESSAGE, GAMES_COLLECTION, PLAYBOOKS, SAVE_ERROR_MESSAGE } from '@/lib/constants';
 import { filterByType, filterNestedRecordByType, filterRecordByType, isBoolean, isNumber, isPlainObject, isRecord, isString } from '@/lib/typeGuards';
 import type { ArcanaMajorEntry, ArcanaMinorEntry, Character, CharacterData, ContentLists, GameSession, GmImprovement, NpcRelationship, PlaybookFeatures, SteadingData, SteadingNPC } from '@/types';
 
@@ -33,10 +33,12 @@ const FIRESTORE_ERROR_MESSAGES: Partial<Record<FirestoreError['code'], string>> 
   unavailable: "Can't reach the server — check your connection and try again.",
   'deadline-exceeded': "The server took too long to respond — try again.",
   unauthenticated: "Your session expired — reload the page and try again.",
-  // A write that exceeds Firestore's 1 MiB per-doc ceiling surfaces as
-  // `invalid-argument`. Without this it fell through to the generic "check your
-  // connection" line, which is both wrong and offers no recovery path.
-  'invalid-argument': DOC_TOO_LARGE_MESSAGE,
+  // Covers both a write that exceeds Firestore's 1 MiB per-doc ceiling and a malformed value
+  // (e.g. an app bug leaving `undefined` in the payload) — Firestore uses the same code for
+  // both, and the client can't reliably tell them apart (see INVALID_WRITE_MESSAGE). Without
+  // this it fell through to the generic "check your connection" line, which is wrong for either
+  // cause and offers no recovery path.
+  'invalid-argument': INVALID_WRITE_MESSAGE,
 };
 
 const friendlyFirestoreError = (err: FirestoreError): string =>
@@ -315,7 +317,12 @@ const withCharacters = async (
     // deleted mid-session, so returning would let reportSave flag "Saved." for a
     // write that never happened. Throwing routes it through the save-error path.
     if (!snap.exists()) throw new Error('Game not found — it may have been deleted.');
-    tx.update(ref, { characters: transform(parseCharacters(snap.data())) });
+    // parseCharacterData sets every unrecognized/absent optional CharacterData field to `undefined`
+    // explicitly (rather than omitting the key), so every character read here already carries some.
+    // Firestore's tx.update rejects the whole write the moment any value anywhere in the payload is
+    // `undefined` (see INVALID_WRITE_MESSAGE for how that surfaces to the player). Strip them at this
+    // single choke point every character write passes through, rather than in each transform.
+    tx.update(ref, { characters: stripUndefined(transform(parseCharacters(snap.data()))) });
   });
 };
 
