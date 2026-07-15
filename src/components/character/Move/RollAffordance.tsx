@@ -28,10 +28,10 @@ interface RollAffordanceProps {
 // How long the dice "tumble" before settling on their rolled faces.
 const TUMBLE_MS = 550;
 
-const MODES: { value: RollMode; label: string }[] = [
-  { value: 'adv', label: 'Adv' },
-  { value: 'normal', label: '—' },
-  { value: 'dis', label: 'Dis' },
+const MODES: { value: RollMode; label: string; title: string }[] = [
+  { value: 'adv', label: 'Adv', title: 'Advantage — roll 3 dice, drop the lowest' },
+  { value: 'normal', label: '—', title: 'Normal — roll 2 dice' },
+  { value: 'dis', label: 'Dis', title: 'Disadvantage — roll 3 dice, drop the highest' },
 ];
 
 // The collapsed button's label: the stat it rolls (`+WIS`), or `+0` for a bare 2d6 (`roll +nothing`).
@@ -91,29 +91,19 @@ export const RollAffordance = ({
 
   return (
     <div className={styles.root}>
-      {open ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          icon="undo"
-          className={clsx(styles.trigger, styles.rerollIcon)}
-          onClick={handleButton}
-          aria-label="Re-roll"
-        />
-      ) : (
-        <Button
-          variant="ghost"
-          size="sm"
-          icon="dice"
-          className={styles.trigger}
-          onClick={handleButton}
-          aria-label={`Roll ${rollLabel(stat)}`}
-        >
-          <Text as="span" size="xs" font="sans" weight="semibold">
-            {rollLabel(stat)}
-          </Text>
-        </Button>
-      )}
+      <Button
+        variant="ghost"
+        size="sm"
+        icon="dice"
+        className={clsx(styles.trigger, open && styles.rerollIcon)}
+        onClick={handleButton}
+        aria-label={open ? 'Re-roll' : `Roll ${rollLabel(stat)}`}
+        title={open ? 'Re-roll' : undefined}
+      >
+        <Text as="span" size="xs" font="sans" weight="semibold">
+          {rollLabel(stat)}
+        </Text>
+      </Button>
 
       {open && result && (
         <div className={styles.result} role="status" aria-live="polite">
@@ -144,6 +134,11 @@ export const RollAffordance = ({
                   type="button"
                   className={clsx(styles.modeButton, mode === m.value && styles.modeButtonActive)}
                   aria-pressed={mode === m.value}
+                  // Only the em-dash button needs an accessible name — its visible label is punctuation.
+                  // The Adv/Dis buttons are named by their visible text; overriding it with aria-label
+                  // would break "click Adv" voice control (Label in Name).
+                  aria-label={m.value === 'normal' ? m.title : undefined}
+                  title={m.title}
                   onClick={() => handleMode(m.value)}
                 >
                   {m.label}

@@ -182,19 +182,23 @@ export const MajorArcanaCard = ({
       )}
 
       {/* Base moves (e.g. the Codex's Cast a Codex Spell) render inline after the description prose so
-          their typed body and dot controls show. */}
-      {arcanum.baseMoves?.map((move) => (
-        <MysteryMoveBlock
-          key={move.id}
-          move={move}
-          checked={!!mysteryMovesChecked[move.id]}
-          trackerValue={entry.trackerValues?.[move.id]}
-          bodyChecks={entry.bodyChecks?.[move.id]}
-          onToggle={onMysteryMoveToggle}
-          onTrackerChange={onTrackerChange}
-          onBodyCheckChange={onBodyCheckChange}
-        />
-      ))}
+          their typed body and dot controls show — in the same two-column grid the mystery moves use. */}
+      {arcanum.baseMoves && arcanum.baseMoves.length > 0 && (
+        <div className={styles.moveGrid}>
+          {arcanum.baseMoves.map((move) => (
+            <MysteryMoveBlock
+              key={move.id}
+              move={move}
+              checked={!!mysteryMovesChecked[move.id]}
+              trackerValue={entry.trackerValues?.[move.id]}
+              bodyChecks={entry.bodyChecks?.[move.id]}
+              onToggle={onMysteryMoveToggle}
+              onTrackerChange={onTrackerChange}
+              onBodyCheckChange={onBodyCheckChange}
+            />
+          ))}
+        </div>
+      )}
 
       {unlocked && back && (
         <div className={styles.mysteries}>

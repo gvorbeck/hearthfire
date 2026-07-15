@@ -357,21 +357,17 @@ export const Move = ({
             })}
           </div>
         )}
-        {(headerAction || (parsedRoll && rollResolved)) && (
-          <div className={styles.headerAction}>
-            {headerAction}
-            {parsedRoll && rollResolved && (
-              <RollAffordance
-                stat={parsedRoll.stat}
-                bands={parsedRoll.bands}
-                mod={rollResolved.mod}
-                debilityDisadvantage={rollResolved.debilityDisadvantage}
-                onRoll={(report) => rollContext!.onRoll(move.name, report)}
-              />
-            )}
-          </div>
-        )}
+        {headerAction && <div className={styles.headerAction}>{headerAction}</div>}
       </div>
+      {parsedRoll && rollResolved && (
+        <RollAffordance
+          stat={parsedRoll.stat}
+          bands={parsedRoll.bands}
+          mod={rollResolved.mod}
+          debilityDisadvantage={rollResolved.debilityDisadvantage}
+          onRoll={(report) => rollContext!.onRoll(move.name, report)}
+        />
+      )}
       {requirement !== undefined && requirement.length > 0 && (
         <Text font="serif" size="xs" color="tertiary" italic>
           {requirement.join(', ')}
