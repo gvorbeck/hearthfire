@@ -30,10 +30,9 @@ const DEBILITY_FIELDS: Record<
   miserable: { marked: "debilityMiserable", locked: "debilityMiserableLocked" },
 };
 
-// Locate a consequence (top-level or child) by id across the arcanum's back sections and its legacy
-// mystery consequences, so a toggle is resolved the same way regardless of which shape authored it.
-// The index is built once per arcanum and cached against the (stable) arcanum object, so repeated
-// toggles are O(1) lookups instead of re-walking every section and consequence tree each time.
+// Locate a consequence (top-level or child) by id across the arcanum's back sections. The index is
+// built once per arcanum and cached against the (stable) arcanum object, so repeated toggles are O(1)
+// lookups instead of re-walking every section and consequence tree each time.
 const indexCache = new WeakMap<MajorArcanum, Map<string, ArcanaConsequence>>();
 
 const buildIndex = (arcanum: MajorArcanum): Map<string, ArcanaConsequence> => {
@@ -52,26 +51,6 @@ const buildIndex = (arcanum: MajorArcanum): Map<string, ArcanaConsequence> => {
         (entry): entry is ArcanaConsequence => "value" in entry,
       ),
     );
-  }
-
-  // Legacy mystery consequences use `text` rather than `value`; normalize to the back shape so the
-  // same action plumbing works while arcana are mid-migration. An arcanum mid-migration may carry both
-  // shapes with shared ids; `back` is authoritative (it's what renders), so never let a mystery entry
-  // overwrite an id already indexed from `back`.
-  const addIfAbsent = (consequence: ArcanaConsequence): void => {
-    if (!index.has(consequence.id)) index.set(consequence.id, consequence);
-  };
-  for (const c of arcanum.mystery?.consequences ?? []) {
-    addIfAbsent({ id: c.id, value: c.text });
-    for (const child of c.children ?? []) {
-      addIfAbsent({
-        id: child.id,
-        value: child.text,
-        actions: child.setsInstinct
-          ? [{ type: "setInstinct", text: child.setsInstinct }]
-          : undefined,
-      });
-    }
   }
   return index;
 };

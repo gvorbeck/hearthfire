@@ -8,7 +8,7 @@ import {
   applyEffects,
   projectCreature,
 } from "../creatureMutations";
-import type { Creature, MajorArcanaMysteryConsequence } from "@/types";
+import type { Creature, ArcanaConsequence } from "@/types";
 
 const servant = (): Creature => ({
   id: "the-mighty-servant",
@@ -95,19 +95,19 @@ describe("applyEffects", () => {
   });
 });
 
-const consequences: MajorArcanaMysteryConsequence[] = [
-  { id: "c3", text: "", effects: [{ type: "removeTag", tag: "meek" }] },
+const consequences: ArcanaConsequence[] = [
+  { id: "c3", value: "", actions: [{ type: "removeTag", tag: "meek" }] },
   {
     id: "c4",
-    text: "",
-    effects: [{ type: "replaceTag", from: "slow", to: "warrior" }],
+    value: "",
+    actions: [{ type: "replaceTag", from: "slow", to: "warrior" }],
     children: [
-      { id: "c4a", text: "", effects: [{ type: "addTag", tag: "area" }] },
+      { id: "c4a", value: "", actions: [{ type: "addTag", tag: "area" }] },
     ],
   },
   {
     id: "c5",
-    text: "",
+    value: "",
     table: {
       columnHeaders: ["1d4", "Purpose", "Cost"],
       rows: [
@@ -122,8 +122,8 @@ const consequences: MajorArcanaMysteryConsequence[] = [
     children: [
       {
         id: "c6",
-        text: "",
-        effects: [
+        value: "",
+        actions: [
           { type: "replaceQuality", label: "Instinct", value: "To pursue its purpose" },
         ],
       },

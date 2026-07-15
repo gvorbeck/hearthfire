@@ -7,7 +7,6 @@ import type {
   MajorArcanum,
   ArcanaMajorEntry,
   Creature,
-  MoveDefinition,
 } from "@/types";
 import { ArcanaCardHeader } from "./ArcanaCardHeader";
 import { parseDescriptionTasks } from "./arcanaParsing";
@@ -15,9 +14,6 @@ import { getMarkedFollowerCost } from "@/lib/consequenceActions";
 import { useArcanumGating } from "./useArcanumGating";
 import {
   ArcanaBackSection,
-  ConsequenceRow,
-  ConsequenceTableBlock,
-  MysteryCreatureCard,
   MysteryMoveBlock,
   TaskRow,
 } from "./cards";
@@ -52,7 +48,7 @@ export const MajorArcanaCard = ({
   onMysteryCreatureSave,
   onRemove,
 }: MajorArcanaCardProps) => {
-  const { frontTrackers, mystery, back } = arcanum;
+  const { frontTrackers, back } = arcanum;
   // Exactly one front tracker is the unlock track (role "marks"); its value lives on entry.marksValue.
   // The rest are resource pools persisting under entry.trackerValues[id].
   const marksTracker = frontTrackers.find((t) => t.role === "marks");
@@ -107,8 +103,8 @@ export const MajorArcanaCard = ({
 
   // Task checkboxes are authored inline as a "[ ] …" block within the description, so the prose and
   // its tasks read as one passage. Split the description around that block: the prose halves render as
-  // markdown, the task labels feed the interactive list between them. Arcana not yet migrated carry
-  // their tasks on the marks tracker's `tasks`, in which case the whole description is `proseBefore`.
+  // markdown, the task labels feed the interactive list between them. An arcanum with no inline task
+  // block falls back to the marks tracker's `tasks`, in which case the whole description is `proseBefore`.
   const { proseBefore, tasks: descriptionTasks, proseAfter } = arcanum.description
     ? parseDescriptionTasks(arcanum.description)
     : { proseBefore: "", tasks: [], proseAfter: "" };
@@ -185,25 +181,20 @@ export const MajorArcanaCard = ({
         </div>
       )}
 
-      {/* Full-MoveDefinition base moves (e.g. the Codex's Cast a Codex Spell) render inline after the
-          description prose so their typed body and dot controls show, unlike the terse ArcanaMove prose
-          that gets folded into the description. Terse ArcanaMoves have no `body`, so skip them here. */}
-      {arcanum.baseMoves
-        ?.filter((move): move is MoveDefinition => "body" in move && !!move.body)
-        .map((move) => (
-          <MysteryMoveBlock
-            key={move.id}
-            move={move}
-            checked={!!mysteryMovesChecked[move.id]}
-            trackerValue={entry.trackerValues?.[move.id]}
-            followerHp={entry.followerHp?.[move.id]}
-            bodyChecks={entry.bodyChecks?.[move.id]}
-            onToggle={onMysteryMoveToggle}
-            onTrackerChange={onTrackerChange}
-            onFollowerHpChange={onFollowerHpChange}
-            onBodyCheckChange={onBodyCheckChange}
-          />
-        ))}
+      {/* Base moves (e.g. the Codex's Cast a Codex Spell) render inline after the description prose so
+          their typed body and dot controls show. */}
+      {arcanum.baseMoves?.map((move) => (
+        <MysteryMoveBlock
+          key={move.id}
+          move={move}
+          checked={!!mysteryMovesChecked[move.id]}
+          trackerValue={entry.trackerValues?.[move.id]}
+          bodyChecks={entry.bodyChecks?.[move.id]}
+          onToggle={onMysteryMoveToggle}
+          onTrackerChange={onTrackerChange}
+          onBodyCheckChange={onBodyCheckChange}
+        />
+      ))}
 
       {unlocked && back && (
         <div className={styles.mysteries}>
@@ -237,106 +228,6 @@ export const MajorArcanaCard = ({
           ))}
         </div>
       )}
-
-      {unlocked &&
-        !back &&
-        mystery &&
-        (mystery.moves.length > 0 ||
-          mystery.mysteryCreature !== undefined ||
-          mystery.consequences.length > 0) && (
-          <div className={styles.mysteries}>
-            <Text
-              font="serif"
-              size="xs"
-              weight="bold"
-              className={styles.mysteriesLabel}
-            >
-              {mystery.sectionLabel ?? "Mysteries"}
-            </Text>
-
-            {projectedCreature && (
-              <MysteryCreatureCard
-                creature={projectedCreature}
-                onSave={onMysteryCreatureSave}
-              />
-            )}
-
-            {mystery.moves.length > 0 && (
-              <div className={styles.mysteryMoves}>
-                {mystery.moves.map((move) => {
-                  const gating = getMoveGating(move);
-                  return (
-                    <MysteryMoveBlock
-                      key={move.id}
-                      move={move}
-                      checked={!!mysteryMovesChecked[move.id]}
-                      trackerValue={entry.trackerValues?.[move.id]}
-                      followerHp={entry.followerHp?.[move.id]}
-                      bodyChecks={entry.bodyChecks?.[move.id]}
-                      requirement={gating.requirement}
-                      rightControlOverride={gating.dotOverride}
-                      onToggle={onMysteryMoveToggle}
-                      onTrackerChange={onTrackerChange}
-                      onFollowerHpChange={onFollowerHpChange}
-                      onBodyCheckChange={onBodyCheckChange}
-                    />
-                  );
-                })}
-              </div>
-            )}
-
-            {mystery.consequences.length > 0 && (
-              <div className={styles.consequences}>
-                <Text
-                  font="serif"
-                  size="xs"
-                  weight="bold"
-                  className={styles.consequencesLabel}
-                >
-                  Consequences
-                </Text>
-                {mystery.consequences.map((c) => (
-                  <div key={c.id} className={styles.consequenceGroup}>
-                    <ConsequenceRow
-                      id={c.id}
-                      text={c.text}
-                      checkedMarks={getConsequenceCheckedMarks(c.id, c.text)}
-                      onToggle={onConsequenceToggle}
-                      tracker={c.tracker}
-                      trackerValue={entry.trackerValues?.[c.id]}
-                      onTrackerChange={onTrackerChange}
-                    />
-                    {c.table && (
-                      <ConsequenceTableBlock
-                        consequenceId={c.id}
-                        table={c.table}
-                        selectedRowId={entry.consequenceTableChoice?.[c.id]}
-                        disabled={!consequencesMarked[c.id]}
-                        onChoose={onConsequenceTableChoice}
-                      />
-                    )}
-                    {c.children && c.children.length > 0 && (
-                      <div className={styles.consequenceChildren}>
-                        {c.children.map((child) => (
-                          <ConsequenceRow
-                            key={child.id}
-                            id={child.id}
-                            text={child.text}
-                            checkedMarks={getConsequenceCheckedMarks(
-                              child.id,
-                              child.text,
-                            )}
-                            onToggle={onConsequenceToggle}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
     </div>
   );
 };

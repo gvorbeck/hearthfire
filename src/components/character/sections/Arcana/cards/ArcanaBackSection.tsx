@@ -116,7 +116,6 @@ export const ArcanaBackSection = ({
               gating={getMoveGating(item)}
               onMysteryMoveToggle={onMysteryMoveToggle}
               onTrackerChange={onTrackerChange}
-              onFollowerHpChange={onFollowerHpChange}
               onBodyCheckChange={onBodyCheckChange}
             />
           ) : null,
@@ -135,7 +134,6 @@ interface BackMoveProps {
   gating: MoveGating;
   onMysteryMoveToggle: (moveId: string, checked: boolean) => void;
   onTrackerChange: (moveId: string, value: number) => void;
-  onFollowerHpChange: (moveId: string, index: number, value: number) => void;
   onBodyCheckChange: (moveId: string, itemId: string, checked: boolean) => void;
 }
 
@@ -148,20 +146,17 @@ const BackMove = ({
   gating,
   onMysteryMoveToggle,
   onTrackerChange,
-  onFollowerHpChange,
   onBodyCheckChange,
 }: BackMoveProps) => (
   <MysteryMoveBlock
     move={move}
     checked={!!entry.mysteryMovesChecked?.[move.id]}
     trackerValue={entry.trackerValues?.[move.id]}
-    followerHp={entry.followerHp?.[move.id]}
     bodyChecks={entry.bodyChecks?.[move.id]}
     requirement={gating.requirement}
     rightControlOverride={gating.dotOverride}
     onToggle={onMysteryMoveToggle}
     onTrackerChange={onTrackerChange}
-    onFollowerHpChange={onFollowerHpChange}
     onBodyCheckChange={onBodyCheckChange}
   />
 );
