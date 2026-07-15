@@ -37,7 +37,7 @@ export interface MoveDefinition {
   // player activates by choice (not one granted outright on unlock) gets a box. Moves with `requires`
   // are selectable regardless; this opts in the ones that are selectable without a prerequisite.
   selectable?: boolean;
-  // Constraint engine — consumed by getLockReason in the parent, unchanged.
+  // Constraint engine — consumed by getLockReason in lib/moveLockReason, unchanged.
   startingMove?: boolean;
   requires?: string[];
   requiresLevel?: number;
