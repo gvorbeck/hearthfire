@@ -1,0 +1,212 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--spacing-2);
+}
+
+/* ── Trigger button (dice / re-roll) ─────────────────── */
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-1) var(--spacing-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  color: var(--text-accent);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.1s ease;
+}
+
+.trigger:hover {
+  border-color: var(--border-accent);
+  background: var(--surface-panel);
+}
+
+.trigger:active {
+  transform: scale(0.94);
+}
+
+/* ── Result panel ────────────────────────────────────── */
+.result {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  align-items: flex-end;
+  width: 100%;
+}
+
+.diceRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--spacing-2);
+}
+
+.die {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5em;
+  height: 1.5em;
+  padding: 0 0.25em;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-accent);
+  background: var(--surface-panel);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A die discarded by advantage/disadvantage: dimmed and struck through. */
+.dieDropped {
+  opacity: 0.4;
+  text-decoration: line-through;
+  border-color: var(--border-subtle);
+}
+
+.modText {
+  font-variant-numeric: tabular-nums;
+}
+
+.total {
+  font-family: var(--font-serif);
+  font-size: var(--text-md);
+  font-weight: 700;
+  color: var(--text-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Adv / — / Dis segmented toggle ──────────────────── */
+.modeToggle {
+  display: inline-flex;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.modeButton {
+  padding: 0 var(--spacing-2);
+  min-width: 2.2em;
+  height: 1.6em;
+  border: none;
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.modeButton:not(:last-child) {
+  border-right: 1px solid var(--border-subtle);
+}
+
+.modeButton:hover {
+  color: var(--text-primary);
+}
+
+.modeButtonActive {
+  background: var(--surface-page);
+  color: var(--text-accent);
+}
+
+/* ── Hit band ────────────────────────────────────────── */
+.band {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Animations (respect reduced-motion) ─────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  .result {
+    animation: rollReveal 0.18s ease both;
+  }
+
+  /* Each die tumbles briefly before settling on its rolled face. */
+  .dieTumbling {
+    animation: diceTumble 0.55s ease;
+  }
+
+  /* The total pops in once the dice have settled, so the eye lands on it last. */
+  .totalSettled {
+    animation: popIn 0.22s ease both;
+  }
+
+  /* A brief accent flash on the matched band as it appears. */
+  .band {
+    animation: bandFlash 0.5s ease both;
+  }
+
+  /* The re-roll icon spins once on press for tactile feedback (icon is the Button's svg child). */
+  .rerollIcon:active svg {
+    animation: spinOnce 0.4s ease;
+  }
+}
+
+@keyframes rollReveal {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes diceTumble {
+  0% {
+    transform: rotate(-18deg) scale(0.85);
+    opacity: 0.5;
+  }
+  40% {
+    transform: rotate(14deg) scale(1.12);
+  }
+  70% {
+    transform: rotate(-6deg) scale(0.97);
+  }
+  100% {
+    transform: rotate(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes bandFlash {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+    transform: translateX(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes spinOnce {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}

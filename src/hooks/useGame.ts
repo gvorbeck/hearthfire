@@ -5,9 +5,9 @@ import type { FirestoreError } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useSaveStatusOptional } from '@/components/app/SaveStatus/SaveStatusContext';
 import { useToastOptional } from '@/components/app/Toast/ToastContext';
-import { INVALID_WRITE_MESSAGE, GAMES_COLLECTION, PLAYBOOKS, SAVE_ERROR_MESSAGE } from '@/lib/constants';
+import { INVALID_WRITE_MESSAGE, GAMES_COLLECTION, PLAYBOOKS, SAVE_ERROR_MESSAGE, STAT_ABBRS } from '@/lib/constants';
 import { filterByType, filterNestedRecordByType, filterRecordByType, isBoolean, isNumber, isPlainObject, isRecord, isString } from '@/lib/typeGuards';
-import type { ArcanaMajorEntry, ArcanaMinorEntry, Character, CharacterData, ContentLists, GameSession, GmImprovement, NpcRelationship, PlaybookFeatures, SteadingData, SteadingNPC } from '@/types';
+import type { ArcanaMajorEntry, ArcanaMinorEntry, Character, CharacterData, ContentLists, GameSession, GmImprovement, LoggedRoll, NpcRelationship, PlaybookFeatures, RollStat, SteadingData, SteadingNPC } from '@/types';
 
 interface UseGameResult {
   game: GameSession | null;
@@ -23,6 +23,7 @@ interface UseGameResult {
   addCharacter: (character: Character) => Promise<void>;
   removeCharacter: (characterId: string) => Promise<void>;
   reorderCharacters: (characters: Character[]) => Promise<void>;
+  logRoll: (roll: LoggedRoll) => Promise<void>;
 }
 
 // Map raw Firestore error codes to messages a player can act on — the raw
@@ -262,6 +263,42 @@ export const parseSteading = (raw: unknown): SteadingData | undefined => {
   };
 };
 
+// How many rolls the shared log keeps; older rolls fall off on the next write. Keeps the game doc well
+// under Firestore's 1 MiB ceiling and the GM's view scannable.
+const ROLL_LOG_CAP = 50;
+
+const ROLL_STATS = new Set<string>([...STAT_ABBRS, 'nothing']);
+const ROLL_MODES = new Set<string>(['normal', 'adv', 'dis']);
+
+// Validate a persisted roll, dropping any malformed entry rather than failing the whole game parse
+// (mirrors how parseCharacters / parseSteading tolerate bad data).
+const parseDiceRolls = (raw: unknown): LoggedRoll[] | undefined => {
+  if (!Array.isArray(raw)) return undefined;
+  const rolls: LoggedRoll[] = [];
+  for (const r of raw) {
+    if (!isRecord(r)) continue;
+    if (!isString(r.id) || !isString(r.characterId) || !isNumber(r.createdAt)) continue;
+    if (!isString(r.stat) || !ROLL_STATS.has(r.stat)) continue;
+    if (!isString(r.mode) || !ROLL_MODES.has(r.mode)) continue;
+    if (!Array.isArray(r.dice) || !r.dice.every(isNumber)) continue;
+    if (!isNumber(r.mod) || !isNumber(r.total)) continue;
+    rolls.push({
+      id: r.id,
+      characterId: r.characterId,
+      characterName: isString(r.characterName) ? r.characterName : '',
+      moveName: isString(r.moveName) ? r.moveName : '',
+      stat: r.stat as RollStat,
+      dice: r.dice as number[],
+      mod: r.mod,
+      total: r.total,
+      mode: r.mode as LoggedRoll['mode'],
+      band: isString(r.band) ? r.band : null,
+      createdAt: r.createdAt,
+    });
+  }
+  return rolls;
+};
+
 const parseGameSession = (raw: Record<string, unknown>, id: string): GameSession => {
   return {
     id,
@@ -274,6 +311,7 @@ const parseGameSession = (raw: Record<string, unknown>, id: string): GameSession
     threats: isString(raw.threats) ? raw.threats : undefined,
     iWonder: isString(raw.iWonder) ? raw.iWonder : undefined,
     steading: parseSteading(raw.steading),
+    diceRolls: parseDiceRolls(raw.diceRolls),
   };
 };
 
@@ -534,5 +572,21 @@ export const useGame = (gameId: string): UseGameResult => {
     }));
   }, [gameRef, reportSave]);
 
-  return { game, loading, error, updateGameName, updateCharacterName, updateCharacterData, adjustCharacterStats, updateContent, updateField, updateSteading, addCharacter, removeCharacter, reorderCharacters };
+  // Append a roll to the shared log. A discrete event — written straight through (not debounced) inside a
+  // transaction so a stale snapshot can't drop a concurrent roll, then capped to the most recent
+  // ROLL_LOG_CAP. Id-merge keeps another client's just-added roll; the trailing slice trims the oldest.
+  const logRoll = useCallback(async (roll: LoggedRoll) => {
+    await reportSave(() => runTransaction(db, async (tx) => {
+      const snap = await tx.get(gameRef);
+      if (!snap.exists()) throw new Error('Game not found — it may have been deleted.');
+      const existing = parseDiceRolls(snap.data().diceRolls) ?? [];
+      // mergeById is add/edit-by-id; our roll is always new, so this reduces to "keep everyone's rolls".
+      const merged = mergeById(existing, [roll])
+        .sort((a, b) => a.createdAt - b.createdAt)
+        .slice(-ROLL_LOG_CAP);
+      tx.update(gameRef, { diceRolls: stripUndefined(merged) });
+    }));
+  }, [gameRef, reportSave]);
+
+  return { game, loading, error, updateGameName, updateCharacterName, updateCharacterData, adjustCharacterStats, updateContent, updateField, updateSteading, addCharacter, removeCharacter, reorderCharacters, logRoll };
 };

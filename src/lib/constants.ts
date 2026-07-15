@@ -1,7 +1,50 @@
+import type { CharacterData, RollStat } from "@/types";
 import type { PlaybookType } from "@/types";
 
 export const DEFAULT_GAME_NAME = "Stonetop Game";
 export const GAMES_COLLECTION = "games";
+
+// The six PC stats — the single source of truth for anything that enumerates stats (roll parsing, roll
+// resolution, log validation, and the Stats section's grouped UI). Each stat carries its display label,
+// CharacterData value field, the debility that imposes disadvantage on it and that debility's arcana-lock
+// field, and the debility's own label. Stats pair up under a shared debility (STR/DEX→weakened,
+// INT/WIS→dazed, CON/CHA→miserable); STAT_GROUPS below derives that pairing. `nothing` (a bare 2d6) is
+// intentionally not a member — it has no stat field or debility.
+export const STATS = [
+  { abbr: 'STR', label: 'Strength', field: 'statStr', debility: 'debilityWeakened', debilityLocked: 'debilityWeakenedLocked', debilityLabel: 'weakened' },
+  { abbr: 'DEX', label: 'Dexterity', field: 'statDex', debility: 'debilityWeakened', debilityLocked: 'debilityWeakenedLocked', debilityLabel: 'weakened' },
+  { abbr: 'INT', label: 'Intelligence', field: 'statInt', debility: 'debilityDazed', debilityLocked: 'debilityDazedLocked', debilityLabel: 'dazed' },
+  { abbr: 'WIS', label: 'Wisdom', field: 'statWis', debility: 'debilityDazed', debilityLocked: 'debilityDazedLocked', debilityLabel: 'dazed' },
+  { abbr: 'CON', label: 'Constitution', field: 'statCon', debility: 'debilityMiserable', debilityLocked: 'debilityMiserableLocked', debilityLabel: 'miserable' },
+  { abbr: 'CHA', label: 'Charisma', field: 'statCha', debility: 'debilityMiserable', debilityLocked: 'debilityMiserableLocked', debilityLabel: 'miserable' },
+] as const satisfies readonly {
+  abbr: Exclude<RollStat, 'nothing'>;
+  label: string;
+  field: keyof CharacterData;
+  debility: keyof CharacterData;
+  debilityLocked: keyof CharacterData;
+  debilityLabel: string;
+}[];
+
+// Just the abbreviations, for regex alternation and membership checks.
+export const STAT_ABBRS = STATS.map((s) => s.abbr);
+
+// The stats grouped into the pairs that share a debility, in display order — the shape the Stats section
+// renders (two stat boxes above one debility checkbox). Derived from STATS so the pairing can't drift.
+export const STAT_GROUPS = [
+  ['STR', 'DEX'],
+  ['INT', 'WIS'],
+  ['CON', 'CHA'],
+].map((pair) => {
+  const fields = pair.map((abbr) => STATS.find((s) => s.abbr === abbr)!);
+  const [first] = fields;
+  return {
+    fields,
+    debilityKey: first.debility,
+    debilityLockedKey: first.debilityLocked,
+    debilityLabel: first.debilityLabel,
+  };
+});
 
 // Shown when a Firestore write fails. Both useGame's central reportSave wrapper
 // and useDebouncedSave's per-field handler toast this on failure; the Toast

@@ -61,6 +61,25 @@ export interface MoveDefinition {
   excludes?: string[];
 }
 
+// A PbtA action roll parsed from a move's prose (2d6 + stat, or +nothing for a bare 2d6). The tail of
+// non-PC-stat modifiers in the book (+favor, +defenses, …) is deliberately excluded — those read a
+// resource the character sheet doesn't hold, so no roll button is offered for them.
+export type RollStat = 'STR' | 'DEX' | 'INT' | 'WIS' | 'CON' | 'CHA' | 'nothing';
+
+// One outcome band shown for a parsed roll (display only — highlights which result you hit; never gates
+// the button). `max` is null for an open-ended band (e.g. "10+", "12+").
+export interface RollBand {
+  label: string; // as written: '10+', '7-9', '6-', '7+', '12+'
+  min: number;
+  max: number | null;
+}
+
+// The result of parsing a move for a rollable action. null when no confident PC-stat roll is found.
+export interface MoveRoll {
+  stat: RollStat;
+  bands: RollBand[];
+}
+
 export interface RadioOption {
   value: string;
   label: string;

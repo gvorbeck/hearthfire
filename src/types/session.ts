@@ -1,4 +1,5 @@
 import type { Character } from './character';
+import type { RollStat } from './content';
 
 export interface ContentLists {
   excluded: string;
@@ -74,6 +75,22 @@ export interface SteadingData {
   removedGmImprovementIds?: string[];
 }
 
+// A dice roll made from a move card, appended to the shared game doc so the GM sees the party's rolls
+// live. Ephemeral by nature: the log is capped and old rolls fall off (see useGame.logRoll).
+export interface LoggedRoll {
+  id: string; // `${characterId}-${createdAt}`
+  characterId: string;
+  characterName: string;
+  moveName: string;
+  stat: RollStat;
+  dice: number[];
+  mod: number;
+  total: number;
+  mode: 'normal' | 'adv' | 'dis';
+  band: string | null; // the outcome band label the total landed in, e.g. '7-9'
+  createdAt: number;
+}
+
 export interface GameSession {
   id: string;
   name: string;
@@ -83,4 +100,8 @@ export interface GameSession {
   threats?: string;
   iWonder?: string;
   steading?: SteadingData;
+  // Shared roll log, newest-last, capped to the most recent rolls. Id-merged like the steading arrays;
+  // `removedDiceRollIds` is the explicit-removal sentinel (a trimmed-off id must not resurrect on merge).
+  diceRolls?: LoggedRoll[];
+  removedDiceRollIds?: string[];
 }

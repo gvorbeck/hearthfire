@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { useDebouncedSave } from '@/hooks/useDebouncedSave';
 import { Checkbox, Input, Text, Stack } from '@/components/ui';
 import { PlaybookSection } from '@/components/playbook/PlaybookSection';
+import { STAT_GROUPS } from '@/lib/constants';
 import type { CharacterData } from '@/types';
 import styles from './Stats.module.css';
 
@@ -133,35 +134,6 @@ const debilitiesFromData = (data: CharacterData | undefined): DebilitiesState =>
   debilityMiserable: data?.debilityMiserable ?? false,
 });
 
-const STAT_GROUPS = [
-  {
-    fields: [
-      { key: 'statStr' as const, label: 'Strength', abbr: 'STR' },
-      { key: 'statDex' as const, label: 'Dexterity', abbr: 'DEX' },
-    ],
-    debilityKey: 'debilityWeakened' as const,
-    debilityLockedKey: 'debilityWeakenedLocked' as const,
-    debilityLabel: 'weakened',
-  },
-  {
-    fields: [
-      { key: 'statInt' as const, label: 'Intelligence', abbr: 'INT' },
-      { key: 'statWis' as const, label: 'Wisdom', abbr: 'WIS' },
-    ],
-    debilityKey: 'debilityDazed' as const,
-    debilityLockedKey: 'debilityDazedLocked' as const,
-    debilityLabel: 'dazed',
-  },
-  {
-    fields: [
-      { key: 'statCon' as const, label: 'Constitution', abbr: 'CON' },
-      { key: 'statCha' as const, label: 'Charisma', abbr: 'CHA' },
-    ],
-    debilityKey: 'debilityMiserable' as const,
-    debilityLockedKey: 'debilityMiserableLocked' as const,
-    debilityLabel: 'miserable',
-  },
-] as const;
 
 const DEFAULT_SCORE_INSTRUCTION = 'Assign these scores: 2, 1, 1, 0, 0, -1. When a debility is marked, you roll with disadvantage.';
 
@@ -308,11 +280,11 @@ export const Stats = ({ data, onSave, hpMax, damage = 'd6', scoreInstruction = D
               <div className={styles.statPair}>
                 {group.fields.map((f) => (
                   <StatBox
-                    key={f.key}
+                    key={f.field}
                     label={f.label}
                     abbr={f.abbr}
-                    statKey={f.key}
-                    value={stats[f.key]}
+                    statKey={f.field}
+                    value={stats[f.field]}
                     onChange={handleStatChange}
                     onBlur={handleFlush}
                   />
