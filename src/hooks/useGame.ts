@@ -6,8 +6,8 @@ import { db } from '@/lib/firebase';
 import { useSaveStatusOptional } from '@/components/app/SaveStatus/SaveStatusContext';
 import { useToastOptional } from '@/components/app/Toast/ToastContext';
 import { DOC_TOO_LARGE_MESSAGE, GAMES_COLLECTION, PLAYBOOKS, SAVE_ERROR_MESSAGE } from '@/lib/constants';
-import { filterByType, isBoolean, isNumber, isPlainObject, isRecord, isString } from '@/lib/typeGuards';
-import type { Character, CharacterData, ContentLists, GameSession, GmImprovement, NpcRelationship, SteadingData, SteadingNPC } from '@/types';
+import { filterByType, filterNestedRecordByType, filterRecordByType, isBoolean, isNumber, isPlainObject, isRecord, isString } from '@/lib/typeGuards';
+import type { ArcanaMajorEntry, ArcanaMinorEntry, Character, CharacterData, ContentLists, GameSession, GmImprovement, NpcRelationship, PlaybookFeatures, SteadingData, SteadingNPC } from '@/types';
 
 interface UseGameResult {
   game: GameSession | null;
@@ -53,6 +53,8 @@ const isFirestoreError = (err: unknown): err is FirestoreError =>
 // in lockstep.
 const VALID_PLAYBOOKS = new Set<string>(PLAYBOOKS.map((p) => p.value));
 
+const num = (v: unknown): number | undefined => isNumber(v) ? v : undefined;
+
 // `level` is deliberately not checked here: a character with a non-numeric level is repaired (see
 // parseCharacters), not dropped. `withCharacters` writes the parsed array back, so anything filtered out
 // here is permanently deleted on the next edit — we only filter on fields with no safe default (id, name,
@@ -63,10 +65,96 @@ const isCharacter = (v: unknown): v is Omit<Character, 'level'> & { level?: unkn
   isString(v.name) &&
   VALID_PLAYBOOKS.has(v.playbook as string);
 
+// Only the id is required; every other field on an arcana entry is optional and read
+// defensively by its own components, so we don't gate on them here — this just guarantees
+// the entry itself is a record an id-merge (mergeById) can key on.
+const isArcanaEntry = (v: unknown): v is (ArcanaMinorEntry | ArcanaMajorEntry) & Record<string, unknown> =>
+  isRecord(v) && isString(v.id);
+
+// `playbookFeatures` is a flat bag of per-playbook Record<string, boolean|string|number> fields
+// (see the type's own comment on why it isn't namespaced). We don't validate each playbook's keys
+// individually — components that read a specific feature already guard the value they pull out —
+// but a field must at least be an object, since several playbooks' components call Object.entries()
+// on their feature record directly and a stray string/number there throws.
+const parsePlaybookFeatures = (v: unknown): CharacterData['playbookFeatures'] | undefined => {
+  if (!isPlainObject(v)) return undefined;
+  return Object.fromEntries(Object.entries(v).filter(([, fv]) => isPlainObject(fv) || Array.isArray(fv) || isString(fv) || isNumber(fv) || isBoolean(fv)));
+};
+
+// CharacterData is the bulk of a character's persisted state (~50 fields) and the most-mutated
+// surface in the app; unlike Character/SteadingData above, it previously passed through
+// completely unvalidated. Several components (SpecialPossessions, MajorArcanaPanel, MarshalCrew)
+// call Object.entries() on these fields directly, so a malformed value crashes the sheet — and
+// since updateCharacterData deep-merges from whatever it last read, a bad value gets re-persisted
+// forever once it lands. As with the parsers above, an unrecognized field is dropped (falls back
+// to undefined) rather than failing the whole character.
+export const parseCharacterData = (v: unknown): CharacterData | undefined => {
+  if (!isPlainObject(v)) return undefined;
+  const r = v;
+  return {
+    inventoryChecked: filterRecordByType(r.inventoryChecked, isBoolean),
+    inventoryUses: filterRecordByType(r.inventoryUses, isNumber),
+    inventorySmallChecked: filterRecordByType(r.inventorySmallChecked, isBoolean),
+    inventorySmallCustom: filterByType(r.inventorySmallCustom, (x): x is { checked: boolean; text: string } =>
+      isRecord(x) && isBoolean(x.checked) && isString(x.text)),
+    inventoryUndefined: num(r.inventoryUndefined),
+    inventorySmallUndefined: num(r.inventorySmallUndefined),
+    inventoryOtherThings: isString(r.inventoryOtherThings) ? r.inventoryOtherThings : undefined,
+    inventoryPossessions: filterByType(r.inventoryPossessions, (x): x is { checked: boolean; text: string; weight: 1 | 2 } =>
+      isRecord(x) && isBoolean(x.checked) && isString(x.text) && (x.weight === 1 || x.weight === 2)),
+    background: isString(r.background) ? r.background : undefined,
+    backgroundChoices: filterByType(r.backgroundChoices, isString),
+    backgroundFreeText: filterRecordByType(r.backgroundFreeText, isString),
+    backgroundUses: filterRecordByType(r.backgroundUses, isNumber),
+    instinct: isString(r.instinct) ? r.instinct : undefined,
+    instinctCustom: isString(r.instinctCustom) ? r.instinctCustom : undefined,
+    appearance: filterRecordByType(r.appearance, isString),
+    appearanceCustom: isString(r.appearanceCustom) ? r.appearanceCustom : undefined,
+    placeOfOrigin: isString(r.placeOfOrigin) ? r.placeOfOrigin : undefined,
+    statStr: isString(r.statStr) ? r.statStr : undefined,
+    statDex: isString(r.statDex) ? r.statDex : undefined,
+    statInt: isString(r.statInt) ? r.statInt : undefined,
+    statWis: isString(r.statWis) ? r.statWis : undefined,
+    statCon: isString(r.statCon) ? r.statCon : undefined,
+    statCha: isString(r.statCha) ? r.statCha : undefined,
+    debilityWeakened: isBoolean(r.debilityWeakened) ? r.debilityWeakened : undefined,
+    debilityDazed: isBoolean(r.debilityDazed) ? r.debilityDazed : undefined,
+    debilityMiserable: isBoolean(r.debilityMiserable) ? r.debilityMiserable : undefined,
+    debilityWeakenedLocked: isBoolean(r.debilityWeakenedLocked) ? r.debilityWeakenedLocked : undefined,
+    debilityDazedLocked: isBoolean(r.debilityDazedLocked) ? r.debilityDazedLocked : undefined,
+    debilityMiserableLocked: isBoolean(r.debilityMiserableLocked) ? r.debilityMiserableLocked : undefined,
+    statHp: isString(r.statHp) ? r.statHp : undefined,
+    statArmor: isString(r.statArmor) ? r.statArmor : undefined,
+    statXp: isString(r.statXp) ? r.statXp : undefined,
+    statLevel: isString(r.statLevel) ? r.statLevel : undefined,
+    typeMoves: filterRecordByType(r.typeMoves, isBoolean),
+    typeMoveUses: filterRecordByType(r.typeMoveUses, isNumber),
+    typeMoveUses2: filterRecordByType(r.typeMoveUses2, isNumber),
+    typeMoveTakes: filterRecordByType(r.typeMoveTakes, isNumber),
+    typeMoveCheckList: filterNestedRecordByType(r.typeMoveCheckList, isBoolean),
+    typeMoveCheckListLevels: filterNestedRecordByType(r.typeMoveCheckListLevels, isNumber),
+    specialPossessions: filterRecordByType(r.specialPossessions, isBoolean),
+    specialPossessionUses: filterRecordByType(r.specialPossessionUses, isNumber),
+    specialPossessionCustom: isString(r.specialPossessionCustom) ? r.specialPossessionCustom : undefined,
+    sacredPouchStock: num(r.sacredPouchStock),
+    herbGardenStock: num(r.herbGardenStock),
+    introductionQuestions: filterRecordByType(r.introductionQuestions, isBoolean),
+    introductionAnswers: filterRecordByType(r.introductionAnswers, isString),
+    inserts: filterByType(r.inserts, isString),
+    playbookFeatures: parsePlaybookFeatures(r.playbookFeatures),
+    arcanaMinor: filterByType(r.arcanaMinor, isArcanaEntry) as ArcanaMinorEntry[] | undefined,
+    arcanaMajor: filterByType(r.arcanaMajor, isArcanaEntry) as ArcanaMajorEntry[] | undefined,
+    deleteFeatureKeys: filterByType(r.deleteFeatureKeys, isString) as (keyof PlaybookFeatures)[] | undefined,
+    removedArcanaMinorIds: filterByType(r.removedArcanaMinorIds, isString),
+    removedArcanaMajorIds: filterByType(r.removedArcanaMajorIds, isString),
+  };
+};
+
 export const parseCharacters = (raw: { characters?: unknown }): Character[] =>
   (filterByType(raw?.characters, isCharacter) ?? []).map((c) => ({
     ...c,
     level: isNumber(c.level) ? c.level : 1,
+    data: parseCharacterData(c.data),
   }));
 
 export const parseContent = (raw: unknown): ContentLists | undefined => {
@@ -78,7 +166,6 @@ export const parseContent = (raw: unknown): ContentLists | undefined => {
   };
 };
 
-const num = (v: unknown): number | undefined => isNumber(v) ? v : undefined;
 const strArr = (v: unknown): string[] | undefined =>
   Array.isArray(v) ? v.filter(isString) : isString(v) && v ? v.split('\n').filter(Boolean) : undefined;
 
