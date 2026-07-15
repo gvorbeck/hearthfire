@@ -1,25 +1,20 @@
 import type { PlaybookType } from '@/types';
 import type { MoveDefinition } from '@/types';
-import { WOULD_BE_HERO_MOVES } from './would-be-hero';
-import { BLESSED_MOVES } from './blessed';
-import { SEEKER_MOVES } from './seeker';
-import { JUDGE_MOVES } from './judge';
-import { LIGHTBEARER_MOVES } from './lightbearer';
-import { MARSHAL_MOVES } from './marshal';
-import { RANGER_MOVES } from './ranger';
-import { HEAVY_MOVES } from './heavy';
-import { FOX_MOVES } from './fox';
 
-export const PLAYBOOK_MOVES: Partial<Record<PlaybookType, MoveDefinition[]>> = {
-  'would-be-hero': WOULD_BE_HERO_MOVES,
-  blessed: BLESSED_MOVES,
-  seeker: SEEKER_MOVES,
-  judge: JUDGE_MOVES,
-  lightbearer: LIGHTBEARER_MOVES,
-  marshal: MARSHAL_MOVES,
-  ranger: RANGER_MOVES,
-  heavy: HEAVY_MOVES,
-  fox: FOX_MOVES,
+// Each playbook's moves are loaded on demand (not statically imported here) so a character
+// sheet's bundle only ever pulls in the ~250 lines for the one playbook it's showing, instead
+// of all nine playbooks' move data (~2,200 lines) — mirrors the lazy-loading already used for
+// per-playbook components in CharacterPlaybook.tsx.
+export const PLAYBOOK_MOVE_LOADERS: Record<PlaybookType, () => Promise<MoveDefinition[]>> = {
+  'would-be-hero': () => import('./would-be-hero').then((m) => m.WOULD_BE_HERO_MOVES),
+  blessed: () => import('./blessed').then((m) => m.BLESSED_MOVES),
+  seeker: () => import('./seeker').then((m) => m.SEEKER_MOVES),
+  judge: () => import('./judge').then((m) => m.JUDGE_MOVES),
+  lightbearer: () => import('./lightbearer').then((m) => m.LIGHTBEARER_MOVES),
+  marshal: () => import('./marshal').then((m) => m.MARSHAL_MOVES),
+  ranger: () => import('./ranger').then((m) => m.RANGER_MOVES),
+  heavy: () => import('./heavy').then((m) => m.HEAVY_MOVES),
+  fox: () => import('./fox').then((m) => m.FOX_MOVES),
 };
 
 export const BACKGROUND_FORCED_MOVES: Partial<Record<PlaybookType, Record<string, string[]>>> = {
