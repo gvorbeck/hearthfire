@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, memo, type MutableRefObject } from 'react';
 import { Button, Text } from '@/components/ui';
-import { MAJOR_ARCANA } from '@/lib/arcanaMajor';
+import { MAJOR_ARCANA } from '@/lib/arcana/major';
 import { applyConsequenceActions, hasConsequenceActions } from '@/lib/consequenceActions';
 import type { MajorArcanum, ArcanaMajorEntry, Creature, CharacterData } from '@/types';
 import { MajorArcanaCard } from './MajorArcanaCard';

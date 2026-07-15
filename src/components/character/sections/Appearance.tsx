@@ -6,7 +6,7 @@ import { useOptimisticField } from '@/hooks/useOptimisticField';
 import { Checkbox, Input, Radio, RadioGroup, Text } from '@/components/ui';
 import { useToast } from '@/components/app';
 import { PlaybookSection } from '@/components/playbook/PlaybookSection';
-import type { AppearanceRows } from '@/lib/appearanceOptions';
+import type { AppearanceRows } from '@/lib/characterCreation/appearanceOptions';
 import type { CharacterData } from '@/types';
 import styles from './Appearance.module.css';
 

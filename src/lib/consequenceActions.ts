@@ -5,7 +5,7 @@ import type {
   DebilityType,
   MajorArcanum,
 } from "@/types";
-import { MAJOR_ARCANA } from "@/lib/arcanaMajor";
+import { MAJOR_ARCANA } from "@/lib/arcana/major";
 
 // The central place where a consequence checkbox's side effects are applied. A consequence can carry
 // `actions` (see ConsequenceAction); marking the box runs them and unmarking reverses them. Each action

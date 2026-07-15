@@ -47,7 +47,7 @@ export const useArcanaWeights = (
       return;
     }
     let active = true;
-    Promise.all([import('@/lib/arcanaMinor'), import('@/lib/arcanaMajor')])
+    Promise.all([import('@/lib/arcana/minor'), import('@/lib/arcana/major')])
       .then(([minor, major]) => {
         if (!active) return;
         setWeights({

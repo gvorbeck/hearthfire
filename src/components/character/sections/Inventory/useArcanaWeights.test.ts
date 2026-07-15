@@ -8,10 +8,10 @@ vi.mock('@/components/app/Toast/ToastContext', () => toastModuleMock());
 
 // Mock the heavy datasets so the hook's dynamic import() resolves to tiny fixtures — this is
 // also what proves the hook reads only id/name/weight (the fixtures carry nothing else).
-vi.mock('@/lib/arcanaMinor', () => ({
+vi.mock('@/lib/arcana/minor', () => ({
   MINOR_ARCANA: [{ id: 'm1', name: 'Trinket', weight: 1 }, { id: 'm2', name: 'A folktale' }],
 }));
-vi.mock('@/lib/arcanaMajor', () => ({
+vi.mock('@/lib/arcana/major', () => ({
   MAJOR_ARCANA: [{ id: 'M1', name: 'Relic', weight: 2 }],
 }));
 
@@ -46,8 +46,8 @@ describe('useArcanaWeights', () => {
 describe('useArcanaWeights when the data fails to load', () => {
   it('falls back to empty maps and shows an error toast', async () => {
     // Re-mock the imports to reject, simulating an offline/failed chunk download.
-    vi.doMock('@/lib/arcanaMinor', () => { throw new Error('offline'); });
-    vi.doMock('@/lib/arcanaMajor', () => { throw new Error('offline'); });
+    vi.doMock('@/lib/arcana/minor', () => { throw new Error('offline'); });
+    vi.doMock('@/lib/arcana/major', () => { throw new Error('offline'); });
     vi.resetModules();
     const { useArcanaWeights: freshHook } = await import('./useArcanaWeights');
 

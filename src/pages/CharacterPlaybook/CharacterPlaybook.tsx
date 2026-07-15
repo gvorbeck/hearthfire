@@ -21,12 +21,12 @@ const ArcanaTab = lazy(() =>
     default: m.ArcanaTab,
   })),
 );
-import { BACKGROUND_OPTIONS, FOX_LIFE_OF_CRIME_BACKGROUND } from '@/lib/backgroundOptions';
-import { INSTINCT_OPTIONS } from '@/lib/instinctOptions';
-import { APPEARANCE_OPTIONS } from '@/lib/appearanceOptions';
-import { PLACE_OF_ORIGIN_OPTIONS } from '@/lib/placeOfOriginOptions';
-import { SPECIAL_POSSESSIONS_OPTIONS } from '@/lib/specialPossessionsOptions';
-import { INTRODUCTIONS_OPTIONS } from '@/lib/introductionsOptions';
+import { BACKGROUND_OPTIONS, FOX_LIFE_OF_CRIME_BACKGROUND } from '@/lib/characterCreation/backgroundOptions';
+import { INSTINCT_OPTIONS } from '@/lib/characterCreation/instinctOptions';
+import { APPEARANCE_OPTIONS } from '@/lib/characterCreation/appearanceOptions';
+import { PLACE_OF_ORIGIN_OPTIONS } from '@/lib/characterCreation/placeOfOriginOptions';
+import { SPECIAL_POSSESSIONS_OPTIONS } from '@/lib/characterCreation/specialPossessionsOptions';
+import { INTRODUCTIONS_OPTIONS } from '@/lib/characterCreation/introductionsOptions';
 import { featurePatch, resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
 import { getMarkedInstinctOverride } from '@/lib/consequenceActions';
 import { useAutoFollowers } from '@/hooks/useAutoFollowers';

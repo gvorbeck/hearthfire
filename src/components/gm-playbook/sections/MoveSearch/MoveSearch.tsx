@@ -3,7 +3,7 @@ import { Input, Text, PlaybookColumns } from '@/components/ui';
 import { Move } from '@/components/character/Move/Move';
 import { BASIC_MOVES, SPECIAL_MOVES, FOLLOWER_MOVES, HOMEFRONT_MOVES, EXPEDITION_MOVES } from '@/lib/moves';
 import { ALL_PLAYBOOK_MOVES } from '@/lib/moves/allPlaybookMoves';
-import { LIGHTBEARER_INVOCATIONS } from '@/lib/lightbearerInvocations';
+import { LIGHTBEARER_INVOCATIONS } from '@/lib/moves/lightbearerInvocations';
 import { REVENANT_MOVES, GHOST_MOVES, THRALL_MOVES, THRALL_MARK_DEFINITIONS } from '@/lib/moves/inserts';
 import type { MoveDefinition } from '@/types';
 import styles from './MoveSearch.module.css';
