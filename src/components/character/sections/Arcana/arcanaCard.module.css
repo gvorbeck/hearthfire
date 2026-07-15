@@ -11,12 +11,11 @@
 
 .cardUnlocked {
   border-color: var(--border-accent);
-  /* Layered gold glow — a tight inner halo plus a soft outer bloom — so an
-     unlocked arcanum reads as charged with magic rather than merely outlined. */
+  /* Gold ring plus the shared glow token, so an unlocked arcanum reads as
+     charged with magic rather than merely outlined. */
   box-shadow:
     0 0 0 1px var(--color-gold-500),
-    0 0 12px -2px rgb(200 149 15 / 0.55),
-    0 0 28px -4px rgb(200 149 15 / 0.35);
+    var(--glow-gold);
 }
 
 .description {

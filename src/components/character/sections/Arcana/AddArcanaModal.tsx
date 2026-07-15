@@ -1,6 +1,6 @@
 import { useState, useId, useMemo, useCallback, memo } from 'react';
 import clsx from 'clsx';
-import { Modal, Heading, Button, Text } from '@/components/ui';
+import { Modal, Heading, Button, Input, Text } from '@/components/ui';
 import styles from './AddArcanaModal.module.css';
 
 interface ArcanaItem {
@@ -57,7 +57,6 @@ export const AddArcanaModal = <T extends ArcanaItem>({
   placeholder,
 }: AddArcanaModalProps<T>) => {
   const headingId = useId();
-  const inputId = useId();
   const idPrefix = useId();
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<T | null>(null);
@@ -131,20 +130,14 @@ export const AddArcanaModal = <T extends ArcanaItem>({
         {title}
       </Heading>
 
-      <div className={styles.searchRow}>
-        <label htmlFor={inputId} className={styles.searchLabel}>
-          Search
-        </label>
-        <input
-          id={inputId}
-          type="search"
-          className={styles.searchInput}
-          placeholder={placeholder}
-          value={query}
-          onChange={handleQueryChange}
-          autoComplete="off"
-        />
-      </div>
+      <Input
+        label="Search"
+        type="search"
+        placeholder={placeholder}
+        value={query}
+        onChange={handleQueryChange}
+        autoComplete="off"
+      />
 
       <div
         className={listCx}

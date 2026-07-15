@@ -44,7 +44,7 @@
 }
 
 .input.hasError {
-  border-color: var(--color-ember-400);
+  border-color: var(--color-danger);
 }
 
 .error {

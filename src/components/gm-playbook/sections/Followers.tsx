@@ -86,8 +86,8 @@ const stepsItems = [
       <Text>**Useful tags:** ___-wise, agile, archer, athletic, beautiful, brave, cunning, fast, fierce, hardy, healer, intimidating, magical, observant, organized, patient, respected, self-sufficient, sharp-eyed, stealthy, tireless, tracker, warrior</Text>
       <Text>**Problematic tags:** bigoted, drunkard, greedy, gullible, lecherous, naive, proud, rookie, reckless, short-fused, stubborn, frail</Text>
       <Text>**Mixed blessing tags:** animal-lover, annoying, big, bully, callous, cautious, devious, eager, thieving, gossipy, honest, kind, little, shameless, terrifying</Text>
-      <Text><><em>Exceptional</em>: reserve this tag for truly outstanding followers. If they have at least one other relevant tag, they get +2 on rolls instead of +1.</></Text>
-      <Text><><em>Group</em>: multiple followers who share tags, moves, instinct, cost, and other stats. They share a pool of Loyalty, but each member has their own HP and can act individually.</></Text>
+      <Text>*Exceptional*: reserve this tag for truly outstanding followers. If they have at least one other relevant tag, they get +2 on rolls instead of +1.</Text>
+      <Text>*Group*: multiple followers who share tags, moves, instinct, cost, and other stats. They share a pool of Loyalty, but each member has their own HP and can act individually.</Text>
     </Stack>
   </>,
   <>
