@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback, useRef, memo } from 'react';
+import { useState, useCallback, memo } from 'react';
 import { useLatest } from '@/hooks/useLatest';
+import { useFirestoreSync } from '@/hooks/useFirestoreSync';
 import { resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
 import { useCrewSave } from '../shared/useCrewSave';
 import { useToast } from '@/components/app';
@@ -291,29 +292,15 @@ export const BlessedInitiatesOfDanu = ({ data, onSave }: BlessedInitiatesOfDanuP
   const picksRef = useLatest(picks);
   const ritesRef = useLatest(rites);
 
-  const lastFirestoreRef = useRef<string | undefined>(undefined);
+  const { saveDebounced, saveImmediate, flushDebounce, pendingRef } = useCrewSave(data, onSave);
 
-  useEffect(() => {
-    const incoming = JSON.stringify(data?.playbookFeatures);
-    if (incoming === lastFirestoreRef.current) return;
-    lastFirestoreRef.current = incoming;
-    const f = resolvePlaybookFeatures(data);
-    // Mirror the remote Firestore snapshot into optimistic local state. This is a
-    // store-subscription sync (guarded by lastFirestoreRef), not a derivable
-    // value — deriving in render would drop the user's in-flight edits during the
-    // save→echo window, so the effect is necessary.
-    /* eslint-disable react-hooks/set-state-in-effect */
-    if (f.initiateHp !== undefined) setHp(f.initiateHp);
-    if (f.initiateLoyalty !== undefined) setLoyalty(f.initiateLoyalty);
-    if (f.initiatePicks !== undefined) setPicks(f.initiatePicks);
-    if (f.initiateRites !== undefined) setRites(f.initiateRites);
-    /* eslint-enable react-hooks/set-state-in-effect */
-  // Keyed on the specific feature subfield, not the whole `data` object: syncing
-  // on every unrelated data change would clobber pending optimistic local edits.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data?.playbookFeatures]);
-
-  const { saveDebounced, saveImmediate, flushDebounce } = useCrewSave(data, onSave);
+  // Each call independently mirrors one remote Firestore subfield into optimistic
+  // local state, deferring the echo while a save from that field (or any other,
+  // via the shared pendingRef) is in flight. See useFirestoreSync for the guard.
+  useFirestoreSync(features.initiateHp, (v) => { if (v !== undefined) setHp(v); }, pendingRef);
+  useFirestoreSync(features.initiateLoyalty, (v) => { if (v !== undefined) setLoyalty(v); }, pendingRef);
+  useFirestoreSync(features.initiatePicks, (v) => { if (v !== undefined) setPicks(v); }, pendingRef);
+  useFirestoreSync(features.initiateRites, (v) => { if (v !== undefined) setRites(v); }, pendingRef);
 
   const handleHpChange = useCallback((initiateValue: string, value: string) => {
     const next = { ...hpRef.current, [initiateValue]: value };

@@ -72,7 +72,7 @@ interface LoyaltyRowProps {
 export const LoyaltyRow = memo(({ label = 'Loyalty', value, onChange, className }: LoyaltyRowProps) => (
   <div className={clsx(styles.loyaltyRow, className)}>
     {label}
-    <UseDots total={3} checked={value} onChange={onChange} />
+    <UseDots total={3} checked={value} onChange={onChange} ariaLabel="Loyalty" />
   </div>
 ));
 

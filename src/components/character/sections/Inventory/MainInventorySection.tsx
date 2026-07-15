@@ -71,7 +71,7 @@ const MainItemRow = memo(
         />
         {hasUses && checked && (
           <div className={styles.itemDots}>
-            <UseDots total={effectiveTotal} checked={uses} onChange={handleUses} />
+            <UseDots total={effectiveTotal} checked={uses} onChange={handleUses} ariaLabel={item.label} />
           </div>
         )}
       </div>

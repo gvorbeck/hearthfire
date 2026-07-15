@@ -74,13 +74,23 @@ export const PageHeader = (props: Props) => {
   const [value, setValue] = useState("");
   const [copied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const editBtnRef = useRef<HTMLButtonElement>(null);
   const copiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Set just before a keyboard-driven commit/cancel so the focus-return in `commit` only fires
+  // for Enter, not for a blur caused by clicking or tabbing to another element — otherwise we'd
+  // steal focus from wherever the user was headed.
+  const committingViaKeyboardRef = useRef(false);
   const editTooltipId = useId();
   const copyTooltipId = useId();
   const navDropdownId = useId();
 
   useEffect(() => {
-    if (editing) inputRef.current?.select();
+    if (editing) {
+      inputRef.current?.select();
+    } else if (committingViaKeyboardRef.current) {
+      committingViaKeyboardRef.current = false;
+      editBtnRef.current?.focus();
+    }
   }, [editing]);
 
   useEffect(() => {
@@ -115,8 +125,14 @@ export const PageHeader = (props: Props) => {
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Enter") commit();
-      if (e.key === "Escape") setEditing(false);
+      if (e.key === "Enter") {
+        committingViaKeyboardRef.current = true;
+        commit();
+      }
+      if (e.key === "Escape") {
+        committingViaKeyboardRef.current = true;
+        setEditing(false);
+      }
     },
     [commit],
   );
@@ -182,6 +198,7 @@ export const PageHeader = (props: Props) => {
                   tooltipId={editTooltipId}
                 >
                   <Button
+                    ref={editBtnRef}
                     variant="ghost"
                     icon="pencil"
                     size="sm"

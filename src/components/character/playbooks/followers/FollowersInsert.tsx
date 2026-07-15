@@ -1,5 +1,6 @@
-import { useState, useCallback, useRef, useEffect, memo, useId } from "react";
+import { useState, useCallback, memo, useId } from "react";
 import { useLatest } from "@/hooks/useLatest";
+import { useFirestoreSync } from "@/hooks/useFirestoreSync";
 import clsx from "clsx";
 import {
   Button,
@@ -451,28 +452,20 @@ export const FollowersInsert = ({ data, onSave }: FollowersInsertProps) => {
 
   const followersRef = useLatest(followers);
 
-  const { saveDebounced, saveImmediate, flushDebounce, pendingRef, resolvedTick } =
+  const { saveDebounced, saveImmediate, flushDebounce, pendingRef } =
     useCrewSave(data, onSave);
 
-  // Track the last Firestore snapshot we applied so we only sync when it
-  // actually changes, not on every local keystroke that triggers a re-render.
-  const lastFirestoreFollowersRef = useRef<string | undefined>(undefined);
-
-  useEffect(() => {
-    const f = resolvePlaybookFeatures(data);
-    if (f.followers === undefined) return;
-    const incoming = JSON.stringify(f.followers);
-    if (incoming === lastFirestoreFollowersRef.current) return;
-    // While a save is in flight, skip applying the echo — it would clobber
-    // optimistic local state mid-keystroke. resolvedTick forces this effect to
-    // re-run against the latest `data` once the save resolves, so a remote
-    // edit that arrived mid-save is still applied instead of being dropped.
-    if (pendingRef.current) return;
-    lastFirestoreFollowersRef.current = incoming;
-    setFollowers(
-      f.followers.map((fl) => normalizeFollower(fl, fl.id ?? generateId())),
-    );
-  }, [data, pendingRef, resolvedTick]);
+  // Mirrors the remote Firestore snapshot into optimistic local state, deferring
+  // the echo while a save is in flight. See useFirestoreSync for the guard.
+  useFirestoreSync(
+    features.followers,
+    (v) => {
+      if (v !== undefined) {
+        setFollowers(v.map((fl) => normalizeFollower(fl, fl.id ?? generateId())));
+      }
+    },
+    pendingRef,
+  );
 
   const saveFollowers = useCallback(
     (next: FollowerData[], prev?: FollowerData[]) => {

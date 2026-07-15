@@ -66,6 +66,15 @@ export const MajorArcanaCard = ({
 
   const cx = clsx(styles.card, unlocked && styles.cardUnlocked);
 
+  // Legacy/hand-edited docs can have an arcanaMajor entry predating these fields; default so every
+  // lookup below is safe without repeating the guard at each call site. Memoized so the fallback `{}`
+  // doesn't create a new reference every render and break followerCostById's memo.
+  const consequencesMarked = useMemo(
+    () => entry.consequencesMarked ?? {},
+    [entry.consequencesMarked],
+  );
+  const mysteryMovesChecked = entry.mysteryMovesChecked ?? {};
+
   // A consequence can replace a follower's Cost (e.g. the Ring of Daagon's daagon-c4). Derive the
   // effective override per follower id from marked state, so unmarking restores the seed cost.
   const followerCostById = useMemo(() => {
@@ -73,12 +82,12 @@ export const MajorArcanaCard = ({
     for (const section of back?.sections ?? []) {
       for (const item of section.content) {
         if (!("follower" in item)) continue;
-        const cost = getMarkedFollowerCost(arcanum, entry.consequencesMarked, item.id);
+        const cost = getMarkedFollowerCost(arcanum, consequencesMarked, item.id);
         if (cost !== undefined) map[item.id] = cost;
       }
     }
     return map;
-  }, [arcanum, back, entry.consequencesMarked]);
+  }, [arcanum, back, consequencesMarked]);
 
   // A follower gained via a consequence shows a note naming that consequence's prose; map each back
   // consequence id to its text so a follower can look up its activating consequence across sections.
@@ -132,7 +141,7 @@ export const MajorArcanaCard = ({
                 key={`${taskKey}-${task}`}
                 taskKey={taskKey}
                 task={task}
-                checked={!!entry.consequencesMarked[taskKey]}
+                checked={!!consequencesMarked[taskKey]}
                 onToggle={onConsequenceToggle}
               />
             );
@@ -185,7 +194,7 @@ export const MajorArcanaCard = ({
           <MysteryMoveBlock
             key={move.id}
             move={move}
-            checked={!!entry.mysteryMovesChecked[move.id]}
+            checked={!!mysteryMovesChecked[move.id]}
             trackerValue={entry.trackerValues?.[move.id]}
             followerHp={entry.followerHp?.[move.id]}
             bodyChecks={entry.bodyChecks?.[move.id]}
@@ -260,7 +269,7 @@ export const MajorArcanaCard = ({
                     <MysteryMoveBlock
                       key={move.id}
                       move={move}
-                      checked={!!entry.mysteryMovesChecked[move.id]}
+                      checked={!!mysteryMovesChecked[move.id]}
                       trackerValue={entry.trackerValues?.[move.id]}
                       followerHp={entry.followerHp?.[move.id]}
                       bodyChecks={entry.bodyChecks?.[move.id]}
@@ -302,7 +311,7 @@ export const MajorArcanaCard = ({
                         consequenceId={c.id}
                         table={c.table}
                         selectedRowId={entry.consequenceTableChoice?.[c.id]}
-                        disabled={!entry.consequencesMarked[c.id]}
+                        disabled={!consequencesMarked[c.id]}
                         onChoose={onConsequenceTableChoice}
                       />
                     )}
@@ -345,7 +354,7 @@ interface DotRowProps {
 // Acumen): dots on the left, a "N / max label" counter on the right.
 const DotRow = ({ total, value, label, ariaLabel, onChange }: DotRowProps) => (
   <div className={styles.marksRow}>
-    <UseDots total={total} checked={value} onChange={onChange} aria-label={ariaLabel} />
+    <UseDots total={total} checked={value} onChange={onChange} ariaLabel={ariaLabel} />
     <Text as="span" font="serif" size="xs" color="muted">
       {value} / {total} {label}
     </Text>

@@ -30,7 +30,7 @@ export const MinorArcanaCard = ({
   onRemove,
 }: MinorArcanaCardProps) => {
   const reqKeys = arcanum.requirements.map((_, i) => `req${i}`);
-  const checkedCount = reqKeys.filter((k) => requirementsChecked[k]).length;
+  const checkedCount = reqKeys.filter((k) => requirementsChecked?.[k]).length;
   const unlockThreshold = arcanum.requirementsUnlockAt ?? reqKeys.length;
   const allChecked = checkedCount >= unlockThreshold;
 
@@ -62,7 +62,7 @@ export const MinorArcanaCard = ({
         {reqKeys.map((key, i) => (
           <label key={key} className={styles.reqRow}>
             <Checkbox
-              checked={!!requirementsChecked[key]}
+              checked={!!requirementsChecked?.[key]}
               onChange={makeToggle(key)}
             />
             <Text as="span" font="serif">

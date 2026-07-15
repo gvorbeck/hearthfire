@@ -1,5 +1,7 @@
-import { useState, useEffect, useCallback, useRef, memo } from "react";
+import { useState, useCallback, memo } from "react";
 import { useLatest } from "@/hooks/useLatest";
+import { useFirestoreSync } from "@/hooks/useFirestoreSync";
+import { usePlaybookField } from "@/hooks/usePlaybookField";
 import {
   Checkbox,
   CheckboxGroup,
@@ -21,6 +23,7 @@ import {
   BACKGROUND_GRANTED_CREW_TAGS,
 } from "@/lib/moves";
 import { useCrewSave } from "../shared/useCrewSave";
+import { useTrackedField } from "../shared/useTrackedField";
 import { StatBox, LoyaltyRow, CustomItemsGrid } from "../shared/CrewWidgets";
 import type { CharacterData, PlaybookSectionProps } from "@/types";
 import styles from "./MarshalCrew.module.css";
@@ -257,7 +260,14 @@ const SuppliesMemberDots = memo(
       (n: number) => onChange(memberIndex, n),
       [memberIndex, onChange],
     );
-    return <UseDots total={total} checked={checked} onChange={handleChange} />;
+    return (
+      <UseDots
+        total={total}
+        checked={checked}
+        onChange={handleChange}
+        ariaLabel={`Supplies, individual ${memberIndex + 1}`}
+      />
+    );
   },
 );
 
@@ -288,144 +298,65 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
   const { addToast } = useToast();
   const features = resolvePlaybookFeatures(data);
 
-  const [hp, setHp] = useState<string>(
-    () => features.crewHp ?? String(CREW_HP_MAX),
-  );
-  const [armor, setArmor] = useState<string>(() => features.crewArmor ?? "0");
-  const [tags, setTags] = useState<Record<string, boolean>>(() => ({
-    group: true,
-    ...(features.crewTags ?? {}),
-  }));
-  const [tagsCustom, setTagsCustom] = useState<string[]>(() =>
-    (features.crewTagsCustom ?? ["", ""]).slice(0, 2),
-  );
-  const [loyalty, setLoyalty] = useState<number>(
-    () => features.crewLoyalty ?? 0,
-  );
-  const [inventoryChecked, setInventoryChecked] = useState<
-    Record<string, boolean>
-  >(() => features.crewInventoryChecked ?? {});
   const [customItems, setCustomItems] = useState<
     { checked: boolean; text: string }[]
   >(() => normalizeCustomItems(features.crewCustomItems));
-  const [suppliesUses, setSuppliesUses] = useState<number[]>(
-    () => features.crewSuppliesUses ?? Array(CREW_SIZE).fill(0),
-  );
   const [individuals, setIndividuals] = useState<Individual[]>(() =>
     parseIndividuals(features.crewIndividuals),
   );
 
-  const hpRef = useLatest(hp);
-  const armorRef = useLatest(armor);
-  const tagsRef = useLatest(tags);
-  const tagsCustomRef = useLatest(tagsCustom);
-  const loyaltyRef = useLatest(loyalty);
-  const inventoryCheckedRef = useLatest(inventoryChecked);
-  const suppliesUsesRef = useLatest(suppliesUses);
   const customItemsRef = useLatest(customItems);
   const individualsRef = useLatest(individuals);
 
-  const lastFirestoreCrewRef = useRef<string | undefined>(undefined);
-
-  const { saveDebounced, saveImmediate, flushDebounce, dataRef, onSaveRef, pendingRef, resolvedTick } =
+  const { saveDebounced, saveImmediate, flushDebounce, dataRef, onSaveRef, pendingRef } =
     useCrewSave(data, onSave);
 
-  useEffect(() => {
-    const incoming = JSON.stringify([
-      data?.playbookFeatures,
-      data?.typeMoves,
-      data?.typeMoveCheckList,
-    ]);
-    if (incoming === lastFirestoreCrewRef.current) return;
-    // While a save is in flight, skip applying the echo — it would clobber
-    // optimistic local state mid-keystroke. resolvedTick forces this effect to
-    // re-run against the latest `data` once the save resolves, so a remote
-    // edit that arrived mid-save is still applied instead of being dropped.
-    if (pendingRef.current) return;
-    lastFirestoreCrewRef.current = incoming;
-    const f = resolvePlaybookFeatures(data);
-    // Mirror the remote Firestore snapshot into optimistic local state. This is a
-    // store-subscription sync (guarded by lastFirestoreCrewRef), not a derivable
-    // value — deriving in render would drop in-flight edits during the save→echo
-    // window, so the effect is necessary.
-    /* eslint-disable react-hooks/set-state-in-effect */
-    if (f.crewHp !== undefined) setHp(f.crewHp);
-    if (f.crewArmor !== undefined) setArmor(f.crewArmor);
-    if (f.crewTags !== undefined) setTags({ group: true, ...f.crewTags });
-    if (f.crewTagsCustom !== undefined)
-      setTagsCustom(f.crewTagsCustom.slice(0, 2));
-    if (f.crewLoyalty !== undefined) setLoyalty(f.crewLoyalty);
-    if (f.crewInventoryChecked !== undefined)
-      setInventoryChecked(f.crewInventoryChecked);
-    if (f.crewCustomItems !== undefined)
-      setCustomItems(normalizeCustomItems(f.crewCustomItems));
-    if (f.crewSuppliesUses !== undefined) setSuppliesUses(f.crewSuppliesUses);
-    if (f.crewIndividuals !== undefined)
-      setIndividuals(parseIndividuals(f.crewIndividuals));
-    /* eslint-enable react-hooks/set-state-in-effect */
-  // Keyed on the specific feature subfields, not the whole `data` object: syncing
-  // on every unrelated data change would clobber pending optimistic local edits.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data?.playbookFeatures, data?.typeMoves, data?.typeMoveCheckList, pendingRef, resolvedTick]);
+  // Each call independently mirrors one remote Firestore subfield into optimistic
+  // local state, deferring the echo while a save from that field (or any other,
+  // via the shared pendingRef) is in flight. See useFirestoreSync for the guard.
+  useFirestoreSync(features.crewCustomItems, (v) => { if (v !== undefined) setCustomItems(normalizeCustomItems(v)); }, pendingRef);
+  useFirestoreSync(features.crewIndividuals, (v) => { if (v !== undefined) setIndividuals(parseIndividuals(v)); }, pendingRef);
+
+  const {
+    value: suppliesUses,
+    ref: suppliesUsesRef,
+    save: saveSuppliesUses,
+  } = usePlaybookField(
+    "crewSuppliesUses",
+    features.crewSuppliesUses ?? Array(CREW_SIZE).fill(0),
+    saveImmediate,
+    "Failed to save.",
+  );
+
+  const { value: hp, setValue: setHp, handleBlur: handleHpBlur } =
+    useTrackedField(features.crewHp ?? String(CREW_HP_MAX), "crewHp", saveDebounced, flushDebounce);
 
   const handleHpChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const raw = e.target.value;
       if (raw === "") {
         setHp(raw);
-        saveDebounced({ crewHp: raw }, () =>
-          addToast("Failed to save.", "error"),
-        );
+        saveDebounced({ crewHp: raw });
         return;
       }
       const n = parseInt(raw, 10);
       if (!isNaN(n)) {
         const val = String(Math.max(0, Math.min(n, CREW_HP_MAX)));
         setHp(val);
-        saveDebounced({ crewHp: val }, () =>
-          addToast("Failed to save.", "error"),
-        );
+        saveDebounced({ crewHp: val });
       }
     },
-    [saveDebounced, addToast],
+    [setHp, saveDebounced],
   );
 
-  const handleHpBlur = useCallback(() => {
-    flushDebounce({ crewHp: hpRef.current }).catch(() =>
-      addToast("Failed to save.", "error"),
-    );
-  }, [flushDebounce, addToast]);
+  const { value: armor, handleChange: handleArmorChange, handleBlur: handleArmorBlur } =
+    useTrackedField(features.crewArmor ?? "0", "crewArmor", saveDebounced, flushDebounce);
 
-  const handleArmorChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const val = e.target.value;
-      setArmor(val);
-      saveDebounced({ crewArmor: val }, () =>
-        addToast("Failed to save.", "error"),
-      );
-    },
-    [saveDebounced, addToast],
+  const [tagsCustom, setTagsCustom] = useState<string[]>(() =>
+    (features.crewTagsCustom ?? ["", ""]).slice(0, 2),
   );
-
-  const handleArmorBlur = useCallback(() => {
-    flushDebounce({ crewArmor: armorRef.current }).catch(() =>
-      addToast("Failed to save.", "error"),
-    );
-  }, [flushDebounce, addToast]);
-
-  const handleTagChange = useCallback(
-    (id: string, checked: boolean) => {
-      if (id === "group") return;
-      const prev = tagsRef.current;
-      const next = { ...prev, [id]: checked };
-      setTags(next);
-      saveImmediate({ crewTags: next }).catch(() => {
-        setTags(prev);
-        addToast("Failed to save.", "error");
-      });
-    },
-    [saveImmediate, addToast],
-  );
+  const tagsCustomRef = useLatest(tagsCustom);
+  useFirestoreSync(features.crewTagsCustom, (v) => { if (v !== undefined) setTagsCustom(v.slice(0, 2)); }, pendingRef);
 
   const handleTagCustomChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -438,38 +369,58 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
         addToast("Failed to save.", "error"),
       );
     },
-    [saveDebounced, addToast],
+    [tagsCustomRef, saveDebounced, addToast],
   );
 
   const handleTagCustomBlur = useCallback(() => {
     flushDebounce({ crewTagsCustom: tagsCustomRef.current }).catch(() =>
       addToast("Failed to save.", "error"),
     );
-  }, [flushDebounce, addToast]);
+  }, [flushDebounce, tagsCustomRef, addToast]);
+
+  const { value: tagsRaw, ref: tagsRef, save: saveTags } = usePlaybookField(
+    "crewTags",
+    features.crewTags ?? {},
+    saveImmediate,
+    "Failed to save.",
+  );
+  const tags: Record<string, boolean> = { group: true, ...tagsRaw };
+
+  const { value: loyalty, save: saveLoyalty } = usePlaybookField(
+    "crewLoyalty",
+    features.crewLoyalty ?? 0,
+    saveImmediate,
+    "Failed to save.",
+  );
+
+  const { value: inventoryChecked, ref: inventoryCheckedRef, save: saveInventoryChecked } =
+    usePlaybookField(
+      "crewInventoryChecked",
+      features.crewInventoryChecked ?? {},
+      saveImmediate,
+      "Failed to save.",
+    );
+
+  const handleTagChange = useCallback(
+    (id: string, checked: boolean) => {
+      if (id === "group") return;
+      saveTags({ ...tagsRef.current, [id]: checked });
+    },
+    [saveTags, tagsRef],
+  );
 
   const handleLoyaltyChange = useCallback(
     (n: number) => {
-      const prev = loyaltyRef.current;
-      setLoyalty(n);
-      saveImmediate({ crewLoyalty: n }).catch(() => {
-        setLoyalty(prev);
-        addToast("Failed to save.", "error");
-      });
+      saveLoyalty(n);
     },
-    [saveImmediate, addToast],
+    [saveLoyalty],
   );
 
   const handleInventoryCheckedChange = useCallback(
     (id: string, val: boolean) => {
-      const prev = inventoryCheckedRef.current;
-      const next = { ...prev, [id]: val };
-      setInventoryChecked(next);
-      saveImmediate({ crewInventoryChecked: next }).catch(() => {
-        setInventoryChecked(prev);
-        addToast("Failed to save.", "error");
-      });
+      saveInventoryChecked({ ...inventoryCheckedRef.current, [id]: val });
     },
-    [saveImmediate, addToast],
+    [saveInventoryChecked, inventoryCheckedRef],
   );
 
   const handleCustomItemChecked = useCallback(
@@ -508,16 +459,11 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
 
   const handleSuppliesUsesChange = useCallback(
     (memberIndex: number, n: number) => {
-      const prev = suppliesUsesRef.current;
-      const next = [...prev];
+      const next = [...suppliesUsesRef.current];
       next[memberIndex] = n;
-      setSuppliesUses(next);
-      saveImmediate({ crewSuppliesUses: next }).catch(() => {
-        setSuppliesUses(prev);
-        addToast("Failed to save.", "error");
-      });
+      saveSuppliesUses(next);
     },
-    [saveImmediate, addToast],
+    [saveSuppliesUses, suppliesUsesRef],
   );
 
   const handleIndividualChange = useCallback(
