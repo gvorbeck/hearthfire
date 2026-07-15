@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useDebouncedSave } from '../useDebouncedSave';
-import { DOC_TOO_LARGE_MESSAGE } from '@/lib/constants';
+import { INVALID_WRITE_MESSAGE } from '@/lib/constants';
 
 const addToastSpy = vi.fn();
 vi.mock('@/components/app/Toast/ToastContext', () => ({
@@ -283,7 +283,7 @@ describe('useDebouncedSave', () => {
     expect(onSave).toHaveBeenCalledTimes(1);
   });
 
-  it('shows the doc-too-large message (not the generic one) on an invalid-argument failure (#254)', async () => {
+  it('shows the invalid-write message (not the generic one) on an invalid-argument failure (#254)', async () => {
     const onSave = vi.fn().mockRejectedValue(Object.assign(new Error('too big'), { code: 'invalid-argument' }));
     const { result } = renderHook(() => useDebouncedSave(onSave, 1500));
 
@@ -291,7 +291,7 @@ describe('useDebouncedSave', () => {
       result.current.onChange('hello');
       vi.advanceTimersByTime(1500);
     });
-    expect(addToastSpy).toHaveBeenCalledWith(DOC_TOO_LARGE_MESSAGE, 'error');
+    expect(addToastSpy).toHaveBeenCalledWith(INVALID_WRITE_MESSAGE, 'error');
   });
 
   it('reports failures through onError instead of the default handling when provided', async () => {

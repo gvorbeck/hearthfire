@@ -21,12 +21,12 @@ const ArcanaTab = lazy(() =>
     default: m.ArcanaTab,
   })),
 );
-import { BACKGROUND_OPTIONS, FOX_LIFE_OF_CRIME_BACKGROUND } from '@/lib/backgroundOptions';
-import { INSTINCT_OPTIONS } from '@/lib/instinctOptions';
-import { APPEARANCE_OPTIONS } from '@/lib/appearanceOptions';
-import { PLACE_OF_ORIGIN_OPTIONS } from '@/lib/placeOfOriginOptions';
-import { SPECIAL_POSSESSIONS_OPTIONS } from '@/lib/specialPossessionsOptions';
-import { INTRODUCTIONS_OPTIONS } from '@/lib/introductionsOptions';
+import { BACKGROUND_OPTIONS, FOX_LIFE_OF_CRIME_BACKGROUND } from '@/lib/characterCreation/backgroundOptions';
+import { INSTINCT_OPTIONS } from '@/lib/characterCreation/instinctOptions';
+import { APPEARANCE_OPTIONS } from '@/lib/characterCreation/appearanceOptions';
+import { PLACE_OF_ORIGIN_OPTIONS } from '@/lib/characterCreation/placeOfOriginOptions';
+import { SPECIAL_POSSESSIONS_OPTIONS } from '@/lib/characterCreation/specialPossessionsOptions';
+import { INTRODUCTIONS_OPTIONS } from '@/lib/characterCreation/introductionsOptions';
 import { featurePatch, resolvePlaybookFeatures } from '@/lib/resolvePlaybookFeatures';
 import { getMarkedInstinctOverride } from '@/lib/consequenceActions';
 import { useAutoFollowers } from '@/hooks/useAutoFollowers';
@@ -55,7 +55,9 @@ const RevenantInsert = lazy(() => import('@/components/character/playbooks/reven
 const GhostInsert = lazy(() => import('@/components/character/playbooks/ghost/GhostInsert').then((m) => ({ default: m.GhostInsert })));
 const ThrallInsert = lazy(() => import('@/components/character/playbooks/thrall/ThrallInsert').then((m) => ({ default: m.ThrallInsert })));
 const FollowersInsert = lazy(() => import('@/components/character/playbooks/followers/FollowersInsert').then((m) => ({ default: m.FollowersInsert })));
-import type { Character, CharacterData, GameSession, PlaybookType, PlaybookFeatures } from '@/types';
+import type { Character, CharacterData, GameSession, LoggedRoll, PlaybookType, PlaybookFeatures } from '@/types';
+import type { RollReport } from '@/components/character/Move/RollAffordance';
+import { CharacterRollContext } from '@/components/character/Move/CharacterRollContext';
 import styles from './CharacterPlaybook.module.css';
 
 type PlaybookSectionComponent = ComponentType<{ data: CharacterData | undefined; onSave: (data: Partial<CharacterData>) => Promise<void> }>;
@@ -154,6 +156,7 @@ interface SheetProps {
   updateCharacterName: (characterId: string, name: string) => Promise<void>;
   updateCharacterData: (characterId: string, data: Partial<CharacterData>) => Promise<void>;
   adjustCharacterStats: (characterId: string, deltas: Partial<Record<'statArmor' | 'statHp', number>>) => Promise<void>;
+  logRoll: (roll: LoggedRoll) => Promise<void>;
 }
 
 type PlaybookTabConfig = {
@@ -193,8 +196,38 @@ const resolveStaticTabContent = (
 };
 
 
-const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, nav, updateCharacterName, updateCharacterData, adjustCharacterStats }: SheetProps) => {
+const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, nav, updateCharacterName, updateCharacterData, adjustCharacterStats, logRoll }: SheetProps) => {
   const headerRef = useRef<HTMLDivElement>(null);
+
+  // Turn a move roll into a shared-log entry stamped with this character's identity and the current time,
+  // then fire-and-forget the write (a dropped log entry is acceptable UX; reportSave surfaces failures).
+  const handleRoll = useCallback(
+    (moveName: string, report: RollReport) => {
+      const createdAt = Date.now();
+      const roll: LoggedRoll = {
+        id: `${character.id}-${createdAt}`,
+        characterId: character.id,
+        characterName: character.name?.trim() || '',
+        moveName,
+        stat: report.stat,
+        dice: report.dice,
+        mod: report.mod,
+        total: report.total,
+        mode: report.mode,
+        band: report.band,
+        createdAt,
+      };
+      logRoll(roll).catch(() => {});
+    },
+    [logRoll, character.id, character.name],
+  );
+
+  // One roll context for the whole sheet, so every Move — Moves tab, Arcana mysteries, inserts — offers
+  // rolling without threading. Memoized so the value reference only changes when the data or callback do.
+  const rollContextValue = useMemo(
+    () => ({ data: character.data, onRoll: handleRoll }),
+    [character.data, handleRoll],
+  );
 
   const handleSaveCharacterData = useCallback(
     (data: Partial<CharacterData>) => updateCharacterData(character.id, data),
@@ -317,6 +350,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, n
   }, [hashHandleActiveChange, showInvocationsBadge, tabs, handleSaveCharacterData, characterData, level]);
 
   return (
+    <CharacterRollContext.Provider value={rollContextValue}>
     <PageLayout
       title={characterName || playbookLabel}
       titleLabel="Edit character name"
@@ -351,16 +385,18 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, n
         <RemoveInsertModal open={removeInsert !== null} insert={removeInsert} onClose={handleCloseRemoveInsert} onConfirm={handleConfirmRemoveInsert} />
       )}
     </PageLayout>
+    </CharacterRollContext.Provider>
   );
 };
 
-const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, updateCharacterData, adjustCharacterStats }: {
+const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, updateCharacterData, adjustCharacterStats, logRoll }: {
   g: GameSession;
   id: string;
   playbook: PlaybookType;
   updateCharacterName: (characterId: string, name: string) => Promise<void>;
   updateCharacterData: (characterId: string, data: Partial<CharacterData>) => Promise<void>;
   adjustCharacterStats: (characterId: string, deltas: Partial<Record<'statArmor' | 'statHp', number>>) => Promise<void>;
+  logRoll: (roll: LoggedRoll) => Promise<void>;
 }) => {
   const prosperity = g.steading?.prosperity ?? 0;
   const playbookOption = getPlaybook(playbook);
@@ -401,13 +437,14 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
       updateCharacterName={updateCharacterName}
       updateCharacterData={updateCharacterData}
       adjustCharacterStats={adjustCharacterStats}
+      logRoll={logRoll}
     />
   );
 };
 
 export const CharacterPlaybook = () => {
   const { id = '', playbook = '' } = useParams<{ id: string; playbook: string }>();
-  const { game, loading, error, updateCharacterName, updateCharacterData, adjustCharacterStats } = useGame(id);
+  const { game, loading, error, updateCharacterName, updateCharacterData, adjustCharacterStats, logRoll } = useGame(id);
 
   return (
     <GameGuard loading={loading} error={error} game={game} errorBackTo={`/game/${id}`} errorBackLabel="Back to Game">
@@ -419,6 +456,7 @@ export const CharacterPlaybook = () => {
           updateCharacterName={updateCharacterName}
           updateCharacterData={updateCharacterData}
           adjustCharacterStats={adjustCharacterStats}
+          logRoll={logRoll}
         />
       )}
     </GameGuard>

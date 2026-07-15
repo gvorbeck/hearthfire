@@ -6,18 +6,14 @@ import type {
   ConsequenceTable,
 } from "@/types";
 
-// The projection reads only the creature-mutating parts of a consequence (never its prose), so it works
-// on either consequence shape without per-shape branching:
-//   • legacy mystery consequences (`text`) carry creature effects on `effects`;
-//   • back consequences (`value`) carry them among their `actions` (a superset that also holds PC ops).
-// A back consequence's creature ops are extracted from `actions`; PC ops are ignored here (they're
-// applied by lib/consequenceActions.ts, not the projection).
+// The projection reads only the creature-mutating parts of a consequence (never its prose): a back
+// consequence's creature ops are extracted from `actions` (a superset that also holds PC ops); PC ops
+// are ignored here (they're applied by lib/consequenceActions.ts, not the projection).
 interface ProjectableConsequence {
   id: string;
-  effects?: CreatureEffect[];
   actions?: ConsequenceAction[];
   table?: ConsequenceTable;
-  children?: { id: string; effects?: CreatureEffect[]; actions?: ConsequenceAction[] }[];
+  children?: { id: string; actions?: ConsequenceAction[] }[];
 }
 
 // The `type`s that mutate the creature (as opposed to the PC). A ConsequenceAction of one of these is
@@ -30,20 +26,14 @@ const CREATURE_OPS = new Set<ConsequenceAction["type"]>([
   "replaceQuality",
 ]);
 
-// The creature effects a consequence contributes, from whichever field carries them: a mystery
-// consequence's `effects`, plus the creature-op subset of a back consequence's `actions`.
-// A type guard (not a bare filter) so the compiler verifies a kept action really is a CreatureEffect,
-// rather than trusting a cast — a renamed op then fails to compile instead of silently slipping through.
+// The creature-op subset of a consequence's `actions`. A type guard (not a bare filter) so the
+// compiler verifies a kept action really is a CreatureEffect, rather than trusting a cast — a renamed
+// op then fails to compile instead of silently slipping through.
 const isCreatureEffect = (a: ConsequenceAction): a is CreatureEffect =>
   CREATURE_OPS.has(a.type);
 
-const creatureEffectsOf = (c: {
-  effects?: CreatureEffect[];
-  actions?: ConsequenceAction[];
-}): CreatureEffect[] => [
-  ...(c.effects ?? []),
-  ...(c.actions ?? []).filter(isCreatureEffect),
-];
+const creatureEffectsOf = (c: { actions?: ConsequenceAction[] }): CreatureEffect[] =>
+  (c.actions ?? []).filter(isCreatureEffect);
 
 // Creature tags are stored as a single comma-separated string (e.g. "large, construct, meek").
 // These helpers parse to a list and rejoin so callers work with individual tags.

@@ -10,6 +10,10 @@ import {
   UseDots,
 } from '@/components/ui';
 import type { MoveBlock, MoveDefinition, RightControlSpec } from '@/types';
+import { parseMoveRoll } from '@/lib/parseMoveRoll';
+import { resolveRollStat } from '@/lib/rollDice';
+import { RollAffordance } from './RollAffordance';
+import { useCharacterRollOptional } from './CharacterRollContext';
 import styles from './Move.module.css';
 
 // Persistent left-control state: box 0 selects/gates the move, boxes 1..n track times taken.
@@ -151,6 +155,13 @@ export const Move = ({
   // Dots and body controls are inactive only when a selectable move hasn't been chosen. readOnly
   // (starting/granted) counts as always-on. Display-only moves omit the controls entirely.
   const interactiveDisabled = !readOnly && !selected;
+
+  // Roll affordance: self-served from the character-sheet context (present on every character tab, absent
+  // in the GM move search / bare tests). Shown only on an active move whose prose parses to a stat roll —
+  // so the same shared Move offers rolling everywhere it appears, with no per-caller wiring.
+  const rollContext = useCharacterRollOptional();
+  const parsedRoll = rollContext && !interactiveDisabled ? parseMoveRoll(move) : null;
+  const rollResolved = parsedRoll ? resolveRollStat(parsedRoll.stat, rollContext!.data) : null;
 
   const citationText = citation ?? move.citation;
   const blocks = move.body ?? [];
@@ -346,10 +357,17 @@ export const Move = ({
             })}
           </div>
         )}
-        {headerAction && (
-          <div className={styles.headerAction}>{headerAction}</div>
-        )}
+        {headerAction && <div className={styles.headerAction}>{headerAction}</div>}
       </div>
+      {parsedRoll && rollResolved && (
+        <RollAffordance
+          stat={parsedRoll.stat}
+          bands={parsedRoll.bands}
+          mod={rollResolved.mod}
+          debilityDisadvantage={rollResolved.debilityDisadvantage}
+          onRoll={(report) => rollContext!.onRoll(move.name, report)}
+        />
+      )}
       {requirement !== undefined && requirement.length > 0 && (
         <Text font="serif" size="xs" color="tertiary" italic>
           {requirement.join(', ')}

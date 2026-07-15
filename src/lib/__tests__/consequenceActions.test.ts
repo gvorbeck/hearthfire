@@ -5,7 +5,7 @@ import {
   getMarkedInstinctOverride,
   getMarkedFollowerCost,
 } from "../consequenceActions";
-import { MAJOR_ARCANA } from "../arcanaMajor";
+import { MAJOR_ARCANA } from "../arcana/major";
 
 const HLAD = MAJOR_ARCANA.find((m) => m.id === "hungering-maw-of-hlad")!;
 const CODEX = MAJOR_ARCANA.find((m) => m.id === "hectumel-codex")!;

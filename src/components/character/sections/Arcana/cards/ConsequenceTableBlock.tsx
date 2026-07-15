@@ -1,11 +1,11 @@
 import { memo } from "react";
 import { Table } from "@/components/ui";
-import type { MajorArcanaMysteryConsequence } from "@/types";
+import type { ConsequenceTable } from "@/types";
 import styles from "../arcanaCard.module.css";
 
 interface ConsequenceTableBlockProps {
   consequenceId: string;
-  table: NonNullable<MajorArcanaMysteryConsequence["table"]>;
+  table: ConsequenceTable;
   selectedRowId?: string;
   // The table only drives an effect while its consequence is marked, so the rows stay disabled until
   // the box is checked.

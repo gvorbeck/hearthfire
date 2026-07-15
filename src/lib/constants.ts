@@ -1,7 +1,50 @@
+import type { CharacterData, RollStat } from "@/types";
 import type { PlaybookType } from "@/types";
 
 export const DEFAULT_GAME_NAME = "Stonetop Game";
 export const GAMES_COLLECTION = "games";
+
+// The six PC stats — the single source of truth for anything that enumerates stats (roll parsing, roll
+// resolution, log validation, and the Stats section's grouped UI). Each stat carries its display label,
+// CharacterData value field, the debility that imposes disadvantage on it and that debility's arcana-lock
+// field, and the debility's own label. Stats pair up under a shared debility (STR/DEX→weakened,
+// INT/WIS→dazed, CON/CHA→miserable); STAT_GROUPS below derives that pairing. `nothing` (a bare 2d6) is
+// intentionally not a member — it has no stat field or debility.
+export const STATS = [
+  { abbr: 'STR', label: 'Strength', field: 'statStr', debility: 'debilityWeakened', debilityLocked: 'debilityWeakenedLocked', debilityLabel: 'weakened' },
+  { abbr: 'DEX', label: 'Dexterity', field: 'statDex', debility: 'debilityWeakened', debilityLocked: 'debilityWeakenedLocked', debilityLabel: 'weakened' },
+  { abbr: 'INT', label: 'Intelligence', field: 'statInt', debility: 'debilityDazed', debilityLocked: 'debilityDazedLocked', debilityLabel: 'dazed' },
+  { abbr: 'WIS', label: 'Wisdom', field: 'statWis', debility: 'debilityDazed', debilityLocked: 'debilityDazedLocked', debilityLabel: 'dazed' },
+  { abbr: 'CON', label: 'Constitution', field: 'statCon', debility: 'debilityMiserable', debilityLocked: 'debilityMiserableLocked', debilityLabel: 'miserable' },
+  { abbr: 'CHA', label: 'Charisma', field: 'statCha', debility: 'debilityMiserable', debilityLocked: 'debilityMiserableLocked', debilityLabel: 'miserable' },
+] as const satisfies readonly {
+  abbr: Exclude<RollStat, 'nothing'>;
+  label: string;
+  field: keyof CharacterData;
+  debility: keyof CharacterData;
+  debilityLocked: keyof CharacterData;
+  debilityLabel: string;
+}[];
+
+// Just the abbreviations, for regex alternation and membership checks.
+export const STAT_ABBRS = STATS.map((s) => s.abbr);
+
+// The stats grouped into the pairs that share a debility, in display order — the shape the Stats section
+// renders (two stat boxes above one debility checkbox). Derived from STATS so the pairing can't drift.
+export const STAT_GROUPS = [
+  ['STR', 'DEX'],
+  ['INT', 'WIS'],
+  ['CON', 'CHA'],
+].map((pair) => {
+  const fields = pair.map((abbr) => STATS.find((s) => s.abbr === abbr)!);
+  const [first] = fields;
+  return {
+    fields,
+    debilityKey: first.debility,
+    debilityLockedKey: first.debilityLocked,
+    debilityLabel: first.debilityLabel,
+  };
+});
 
 // Shown when a Firestore write fails. Both useGame's central reportSave wrapper
 // and useDebouncedSave's per-field handler toast this on failure; the Toast
@@ -11,14 +54,16 @@ export const GAMES_COLLECTION = "games";
 export const SAVE_ERROR_MESSAGE =
   "Couldn't save your changes — check your connection.";
 
-// Shown when a write is rejected because the game document exceeds Firestore's
-// 1 MiB per-doc ceiling (surfaced as the `invalid-argument` code). The whole
-// game lives in one doc, so this is reachable with enough content. Both save
-// paths (useGame's reportSave and useDebouncedSave's handler) map the code to
-// this same string so the Toast dedupe collapses them to one — same reason
-// SAVE_ERROR_MESSAGE is shared.
-export const DOC_TOO_LARGE_MESSAGE =
-  "This game has grown too large to save. Trim some content (long notes, unused characters) and try again.";
+// Shown when a write is rejected with Firestore's `invalid-argument` code. That code covers more
+// than one cause — the game doc exceeding the 1 MiB per-doc ceiling, but also a malformed value
+// (e.g. an `undefined` field, an illegal field-path character) that's a bug in this app rather
+// than something the player did. Firestore doesn't distinguish these with different codes, and we
+// can't reliably tell them apart from the client, so the wording stays neutral rather than
+// guessing "too large" and sending the player hunting for content to delete that isn't the actual
+// problem. Both save paths (useGame's reportSave and useDebouncedSave's handler) map the code to
+// this same string so the Toast dedupe collapses them to one — same reason SAVE_ERROR_MESSAGE is shared.
+export const INVALID_WRITE_MESSAGE =
+  "Couldn't save that change — the game may have grown too large, or something went wrong on our end. Try again, and if it keeps happening, trim some content (long notes, unused characters) or report it at github.com/gvorbeck/hearthfire/issues.";
 
 export interface PlaybookOption {
   value: PlaybookType;

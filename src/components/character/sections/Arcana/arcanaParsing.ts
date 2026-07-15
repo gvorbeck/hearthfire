@@ -1,13 +1,10 @@
-import type {
-  ArcanaMove,
-  MajorArcanaMysteryMove,
-  MoveDefinition,
-} from "@/types";
+import type { MoveDefinition } from "@/types";
 
-// A move authored in the Move-component shape (typed body blocks) rather than the legacy flat string.
+// A back section entry authored in the Move-component shape (typed body blocks) rather than as a
+// consequence or follower entry. Consequences carry `value`; followers carry `follower`.
 export const isMoveDefinition = (
-  move: ArcanaMove | MajorArcanaMysteryMove | MoveDefinition,
-): move is MoveDefinition => "body" in move;
+  entry: MoveDefinition | { value: string } | { follower: unknown },
+): entry is MoveDefinition => "body" in entry;
 
 // A consequence prefixed with a run of ◻ glyphs (e.g. "◻◻◻ The dark spirit…") can be marked that
 // many separate times. Split the boxes off into a mark count and return the prose without them.

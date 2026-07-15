@@ -5,42 +5,6 @@
   gap: var(--spacing-4);
 }
 
-.searchRow {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-1);
-}
-
-.searchLabel {
-  font-size: var(--text-xs);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-}
-
-.searchInput {
-  width: 100%;
-  padding: var(--spacing-2) var(--spacing-3);
-  background: var(--surface-raised);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-md);
-  color: var(--text-primary);
-  font-family: var(--font-serif);
-  font-size: var(--text-sm);
-  outline: none;
-}
-
-.searchInput:focus-visible {
-  border-color: var(--border-accent);
-  outline: 2px solid var(--border-accent);
-  outline-offset: 1px;
-}
-
-.searchInput::placeholder {
-  color: var(--text-secondary);
-}
-
 .list {
   max-height: 280px;
   overflow-y: auto;

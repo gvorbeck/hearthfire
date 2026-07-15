@@ -5,9 +5,9 @@ import type { FirestoreError } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useSaveStatusOptional } from '@/components/app/SaveStatus/SaveStatusContext';
 import { useToastOptional } from '@/components/app/Toast/ToastContext';
-import { DOC_TOO_LARGE_MESSAGE, GAMES_COLLECTION, PLAYBOOKS, SAVE_ERROR_MESSAGE } from '@/lib/constants';
-import { filterByType, isBoolean, isNumber, isPlainObject, isRecord, isString } from '@/lib/typeGuards';
-import type { Character, CharacterData, ContentLists, GameSession, GmImprovement, NpcRelationship, SteadingData, SteadingNPC } from '@/types';
+import { INVALID_WRITE_MESSAGE, GAMES_COLLECTION, PLAYBOOKS, SAVE_ERROR_MESSAGE, STAT_ABBRS } from '@/lib/constants';
+import { filterByType, filterNestedRecordByType, filterRecordByType, isBoolean, isNumber, isPlainObject, isRecord, isString } from '@/lib/typeGuards';
+import type { ArcanaMajorEntry, ArcanaMinorEntry, Character, CharacterData, ContentLists, GameSession, GmImprovement, LoggedRoll, NpcRelationship, PlaybookFeatures, RollStat, SteadingData, SteadingNPC } from '@/types';
 
 interface UseGameResult {
   game: GameSession | null;
@@ -23,6 +23,7 @@ interface UseGameResult {
   addCharacter: (character: Character) => Promise<void>;
   removeCharacter: (characterId: string) => Promise<void>;
   reorderCharacters: (characters: Character[]) => Promise<void>;
+  logRoll: (roll: LoggedRoll) => Promise<void>;
 }
 
 // Map raw Firestore error codes to messages a player can act on — the raw
@@ -33,10 +34,12 @@ const FIRESTORE_ERROR_MESSAGES: Partial<Record<FirestoreError['code'], string>> 
   unavailable: "Can't reach the server — check your connection and try again.",
   'deadline-exceeded': "The server took too long to respond — try again.",
   unauthenticated: "Your session expired — reload the page and try again.",
-  // A write that exceeds Firestore's 1 MiB per-doc ceiling surfaces as
-  // `invalid-argument`. Without this it fell through to the generic "check your
-  // connection" line, which is both wrong and offers no recovery path.
-  'invalid-argument': DOC_TOO_LARGE_MESSAGE,
+  // Covers both a write that exceeds Firestore's 1 MiB per-doc ceiling and a malformed value
+  // (e.g. an app bug leaving `undefined` in the payload) — Firestore uses the same code for
+  // both, and the client can't reliably tell them apart (see INVALID_WRITE_MESSAGE). Without
+  // this it fell through to the generic "check your connection" line, which is wrong for either
+  // cause and offers no recovery path.
+  'invalid-argument': INVALID_WRITE_MESSAGE,
 };
 
 const friendlyFirestoreError = (err: FirestoreError): string =>
@@ -53,6 +56,8 @@ const isFirestoreError = (err: unknown): err is FirestoreError =>
 // in lockstep.
 const VALID_PLAYBOOKS = new Set<string>(PLAYBOOKS.map((p) => p.value));
 
+const num = (v: unknown): number | undefined => isNumber(v) ? v : undefined;
+
 // `level` is deliberately not checked here: a character with a non-numeric level is repaired (see
 // parseCharacters), not dropped. `withCharacters` writes the parsed array back, so anything filtered out
 // here is permanently deleted on the next edit — we only filter on fields with no safe default (id, name,
@@ -63,10 +68,96 @@ const isCharacter = (v: unknown): v is Omit<Character, 'level'> & { level?: unkn
   isString(v.name) &&
   VALID_PLAYBOOKS.has(v.playbook as string);
 
+// Only the id is required; every other field on an arcana entry is optional and read
+// defensively by its own components, so we don't gate on them here — this just guarantees
+// the entry itself is a record an id-merge (mergeById) can key on.
+const isArcanaEntry = (v: unknown): v is (ArcanaMinorEntry | ArcanaMajorEntry) & Record<string, unknown> =>
+  isRecord(v) && isString(v.id);
+
+// `playbookFeatures` is a flat bag of per-playbook Record<string, boolean|string|number> fields
+// (see the type's own comment on why it isn't namespaced). We don't validate each playbook's keys
+// individually — components that read a specific feature already guard the value they pull out —
+// but a field must at least be an object, since several playbooks' components call Object.entries()
+// on their feature record directly and a stray string/number there throws.
+const parsePlaybookFeatures = (v: unknown): CharacterData['playbookFeatures'] | undefined => {
+  if (!isPlainObject(v)) return undefined;
+  return Object.fromEntries(Object.entries(v).filter(([, fv]) => isPlainObject(fv) || Array.isArray(fv) || isString(fv) || isNumber(fv) || isBoolean(fv)));
+};
+
+// CharacterData is the bulk of a character's persisted state (~50 fields) and the most-mutated
+// surface in the app; unlike Character/SteadingData above, it previously passed through
+// completely unvalidated. Several components (SpecialPossessions, MajorArcanaPanel, MarshalCrew)
+// call Object.entries() on these fields directly, so a malformed value crashes the sheet — and
+// since updateCharacterData deep-merges from whatever it last read, a bad value gets re-persisted
+// forever once it lands. As with the parsers above, an unrecognized field is dropped (falls back
+// to undefined) rather than failing the whole character.
+export const parseCharacterData = (v: unknown): CharacterData | undefined => {
+  if (!isPlainObject(v)) return undefined;
+  const r = v;
+  return {
+    inventoryChecked: filterRecordByType(r.inventoryChecked, isBoolean),
+    inventoryUses: filterRecordByType(r.inventoryUses, isNumber),
+    inventorySmallChecked: filterRecordByType(r.inventorySmallChecked, isBoolean),
+    inventorySmallCustom: filterByType(r.inventorySmallCustom, (x): x is { checked: boolean; text: string } =>
+      isRecord(x) && isBoolean(x.checked) && isString(x.text)),
+    inventoryUndefined: num(r.inventoryUndefined),
+    inventorySmallUndefined: num(r.inventorySmallUndefined),
+    inventoryOtherThings: isString(r.inventoryOtherThings) ? r.inventoryOtherThings : undefined,
+    inventoryPossessions: filterByType(r.inventoryPossessions, (x): x is { checked: boolean; text: string; weight: 1 | 2 } =>
+      isRecord(x) && isBoolean(x.checked) && isString(x.text) && (x.weight === 1 || x.weight === 2)),
+    background: isString(r.background) ? r.background : undefined,
+    backgroundChoices: filterByType(r.backgroundChoices, isString),
+    backgroundFreeText: filterRecordByType(r.backgroundFreeText, isString),
+    backgroundUses: filterRecordByType(r.backgroundUses, isNumber),
+    instinct: isString(r.instinct) ? r.instinct : undefined,
+    instinctCustom: isString(r.instinctCustom) ? r.instinctCustom : undefined,
+    appearance: filterRecordByType(r.appearance, isString),
+    appearanceCustom: isString(r.appearanceCustom) ? r.appearanceCustom : undefined,
+    placeOfOrigin: isString(r.placeOfOrigin) ? r.placeOfOrigin : undefined,
+    statStr: isString(r.statStr) ? r.statStr : undefined,
+    statDex: isString(r.statDex) ? r.statDex : undefined,
+    statInt: isString(r.statInt) ? r.statInt : undefined,
+    statWis: isString(r.statWis) ? r.statWis : undefined,
+    statCon: isString(r.statCon) ? r.statCon : undefined,
+    statCha: isString(r.statCha) ? r.statCha : undefined,
+    debilityWeakened: isBoolean(r.debilityWeakened) ? r.debilityWeakened : undefined,
+    debilityDazed: isBoolean(r.debilityDazed) ? r.debilityDazed : undefined,
+    debilityMiserable: isBoolean(r.debilityMiserable) ? r.debilityMiserable : undefined,
+    debilityWeakenedLocked: isBoolean(r.debilityWeakenedLocked) ? r.debilityWeakenedLocked : undefined,
+    debilityDazedLocked: isBoolean(r.debilityDazedLocked) ? r.debilityDazedLocked : undefined,
+    debilityMiserableLocked: isBoolean(r.debilityMiserableLocked) ? r.debilityMiserableLocked : undefined,
+    statHp: isString(r.statHp) ? r.statHp : undefined,
+    statArmor: isString(r.statArmor) ? r.statArmor : undefined,
+    statXp: isString(r.statXp) ? r.statXp : undefined,
+    statLevel: isString(r.statLevel) ? r.statLevel : undefined,
+    typeMoves: filterRecordByType(r.typeMoves, isBoolean),
+    typeMoveUses: filterRecordByType(r.typeMoveUses, isNumber),
+    typeMoveUses2: filterRecordByType(r.typeMoveUses2, isNumber),
+    typeMoveTakes: filterRecordByType(r.typeMoveTakes, isNumber),
+    typeMoveCheckList: filterNestedRecordByType(r.typeMoveCheckList, isBoolean),
+    typeMoveCheckListLevels: filterNestedRecordByType(r.typeMoveCheckListLevels, isNumber),
+    specialPossessions: filterRecordByType(r.specialPossessions, isBoolean),
+    specialPossessionUses: filterRecordByType(r.specialPossessionUses, isNumber),
+    specialPossessionCustom: isString(r.specialPossessionCustom) ? r.specialPossessionCustom : undefined,
+    sacredPouchStock: num(r.sacredPouchStock),
+    herbGardenStock: num(r.herbGardenStock),
+    introductionQuestions: filterRecordByType(r.introductionQuestions, isBoolean),
+    introductionAnswers: filterRecordByType(r.introductionAnswers, isString),
+    inserts: filterByType(r.inserts, isString),
+    playbookFeatures: parsePlaybookFeatures(r.playbookFeatures),
+    arcanaMinor: filterByType(r.arcanaMinor, isArcanaEntry) as ArcanaMinorEntry[] | undefined,
+    arcanaMajor: filterByType(r.arcanaMajor, isArcanaEntry) as ArcanaMajorEntry[] | undefined,
+    deleteFeatureKeys: filterByType(r.deleteFeatureKeys, isString) as (keyof PlaybookFeatures)[] | undefined,
+    removedArcanaMinorIds: filterByType(r.removedArcanaMinorIds, isString),
+    removedArcanaMajorIds: filterByType(r.removedArcanaMajorIds, isString),
+  };
+};
+
 export const parseCharacters = (raw: { characters?: unknown }): Character[] =>
   (filterByType(raw?.characters, isCharacter) ?? []).map((c) => ({
     ...c,
     level: isNumber(c.level) ? c.level : 1,
+    data: parseCharacterData(c.data),
   }));
 
 export const parseContent = (raw: unknown): ContentLists | undefined => {
@@ -78,7 +169,6 @@ export const parseContent = (raw: unknown): ContentLists | undefined => {
   };
 };
 
-const num = (v: unknown): number | undefined => isNumber(v) ? v : undefined;
 const strArr = (v: unknown): string[] | undefined =>
   Array.isArray(v) ? v.filter(isString) : isString(v) && v ? v.split('\n').filter(Boolean) : undefined;
 
@@ -173,6 +263,42 @@ export const parseSteading = (raw: unknown): SteadingData | undefined => {
   };
 };
 
+// How many rolls the shared log keeps; older rolls fall off on the next write. Keeps the game doc well
+// under Firestore's 1 MiB ceiling and the GM's view scannable.
+const ROLL_LOG_CAP = 50;
+
+const ROLL_STATS = new Set<string>([...STAT_ABBRS, 'nothing']);
+const ROLL_MODES = new Set<string>(['normal', 'adv', 'dis']);
+
+// Validate a persisted roll, dropping any malformed entry rather than failing the whole game parse
+// (mirrors how parseCharacters / parseSteading tolerate bad data).
+const parseDiceRolls = (raw: unknown): LoggedRoll[] | undefined => {
+  if (!Array.isArray(raw)) return undefined;
+  const rolls: LoggedRoll[] = [];
+  for (const r of raw) {
+    if (!isRecord(r)) continue;
+    if (!isString(r.id) || !isString(r.characterId) || !isNumber(r.createdAt)) continue;
+    if (!isString(r.stat) || !ROLL_STATS.has(r.stat)) continue;
+    if (!isString(r.mode) || !ROLL_MODES.has(r.mode)) continue;
+    if (!Array.isArray(r.dice) || !r.dice.every(isNumber)) continue;
+    if (!isNumber(r.mod) || !isNumber(r.total)) continue;
+    rolls.push({
+      id: r.id,
+      characterId: r.characterId,
+      characterName: isString(r.characterName) ? r.characterName : '',
+      moveName: isString(r.moveName) ? r.moveName : '',
+      stat: r.stat as RollStat,
+      dice: r.dice as number[],
+      mod: r.mod,
+      total: r.total,
+      mode: r.mode as LoggedRoll['mode'],
+      band: isString(r.band) ? r.band : null,
+      createdAt: r.createdAt,
+    });
+  }
+  return rolls;
+};
+
 const parseGameSession = (raw: Record<string, unknown>, id: string): GameSession => {
   return {
     id,
@@ -185,6 +311,7 @@ const parseGameSession = (raw: Record<string, unknown>, id: string): GameSession
     threats: isString(raw.threats) ? raw.threats : undefined,
     iWonder: isString(raw.iWonder) ? raw.iWonder : undefined,
     steading: parseSteading(raw.steading),
+    diceRolls: parseDiceRolls(raw.diceRolls),
   };
 };
 
@@ -228,7 +355,12 @@ const withCharacters = async (
     // deleted mid-session, so returning would let reportSave flag "Saved." for a
     // write that never happened. Throwing routes it through the save-error path.
     if (!snap.exists()) throw new Error('Game not found — it may have been deleted.');
-    tx.update(ref, { characters: transform(parseCharacters(snap.data())) });
+    // parseCharacterData sets every unrecognized/absent optional CharacterData field to `undefined`
+    // explicitly (rather than omitting the key), so every character read here already carries some.
+    // Firestore's tx.update rejects the whole write the moment any value anywhere in the payload is
+    // `undefined` (see INVALID_WRITE_MESSAGE for how that surfaces to the player). Strip them at this
+    // single choke point every character write passes through, rather than in each transform.
+    tx.update(ref, { characters: stripUndefined(transform(parseCharacters(snap.data()))) });
   });
 };
 
@@ -440,5 +572,21 @@ export const useGame = (gameId: string): UseGameResult => {
     }));
   }, [gameRef, reportSave]);
 
-  return { game, loading, error, updateGameName, updateCharacterName, updateCharacterData, adjustCharacterStats, updateContent, updateField, updateSteading, addCharacter, removeCharacter, reorderCharacters };
+  // Append a roll to the shared log. A discrete event — written straight through (not debounced) inside a
+  // transaction so a stale snapshot can't drop a concurrent roll, then capped to the most recent
+  // ROLL_LOG_CAP. Id-merge keeps another client's just-added roll; the trailing slice trims the oldest.
+  const logRoll = useCallback(async (roll: LoggedRoll) => {
+    await reportSave(() => runTransaction(db, async (tx) => {
+      const snap = await tx.get(gameRef);
+      if (!snap.exists()) throw new Error('Game not found — it may have been deleted.');
+      const existing = parseDiceRolls(snap.data().diceRolls) ?? [];
+      // mergeById is add/edit-by-id; our roll is always new, so this reduces to "keep everyone's rolls".
+      const merged = mergeById(existing, [roll])
+        .sort((a, b) => a.createdAt - b.createdAt)
+        .slice(-ROLL_LOG_CAP);
+      tx.update(gameRef, { diceRolls: stripUndefined(merged) });
+    }));
+  }, [gameRef, reportSave]);
+
+  return { game, loading, error, updateGameName, updateCharacterName, updateCharacterData, adjustCharacterStats, updateContent, updateField, updateSteading, addCharacter, removeCharacter, reorderCharacters, logRoll };
 };

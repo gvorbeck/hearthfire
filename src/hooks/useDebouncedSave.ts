@@ -1,7 +1,7 @@
 import { useRef, useCallback, useEffect, useState, useInsertionEffect, type MutableRefObject } from 'react';
 import { useToastOptional } from '@/components/app/Toast/ToastContext';
 import { useLatest } from './useLatest';
-import { DOC_TOO_LARGE_MESSAGE, SAVE_ERROR_MESSAGE } from '@/lib/constants';
+import { INVALID_WRITE_MESSAGE, SAVE_ERROR_MESSAGE } from '@/lib/constants';
 
 interface UseDebouncedSaveReturn<T> {
   onChange: (value: T) => void;
@@ -18,8 +18,9 @@ interface UseDebouncedSaveReturn<T> {
 // connection blip to clear.
 const RETRY_DELAY_MS = 4000;
 
-// A write over Firestore's 1 MiB doc ceiling rejects with `invalid-argument`.
-const isDocTooLarge = (error: unknown): boolean =>
+// Firestore's `invalid-argument` code covers both an over-size doc and a malformed value (an
+// app bug); see INVALID_WRITE_MESSAGE for why this doesn't try to tell them apart.
+const isInvalidWrite = (error: unknown): boolean =>
   typeof error === 'object' && error !== null &&
   (error as { code?: unknown }).code === 'invalid-argument';
 
@@ -88,10 +89,10 @@ export const useDebouncedSave = <T>(
         const isFirstFailure = failedKeyRef.current !== key;
         failedKeyRef.current = key;
         if (onErrorRef.current) onErrorRef.current(error);
-        // The 1 MiB doc-size rejection gets its own actionable line; every other
-        // failure uses the generic message. Both strings match the ones useGame's
-        // reportSave emits, so the Toast dedupe collapses the two paths to one.
-        else addToast?.(isDocTooLarge(error) ? DOC_TOO_LARGE_MESSAGE : SAVE_ERROR_MESSAGE, 'error');
+        // invalid-argument gets its own line; every other failure uses the generic message. Both
+        // strings match the ones useGame's reportSave emits, so the Toast dedupe collapses the
+        // two paths to one.
+        else addToast?.(isInvalidWrite(error) ? INVALID_WRITE_MESSAGE : SAVE_ERROR_MESSAGE, 'error');
         if (isFirstFailure) {
           retryTimerRef.current = setTimeout(() => { void saveRef.current(value); }, RETRY_DELAY_MS);
         }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseCharacters, parseContent, parseSteading } from '../../hooks/useGame';
+import { parseCharacterData, parseCharacters, parseContent, parseSteading } from '../../hooks/useGame';
 
 describe('parseCharacters', () => {
   it('filters out null/undefined entries', () => {
@@ -39,6 +39,66 @@ describe('parseCharacters', () => {
   it('returns an empty array when characters is missing or not an array', () => {
     expect(parseCharacters({} as never)).toEqual([]);
     expect(parseCharacters({ characters: 'nope' } as never)).toEqual([]);
+  });
+});
+
+describe('parseCharacterData', () => {
+  it('returns undefined when given a non-object', () => {
+    expect(parseCharacterData(null)).toBeUndefined();
+    expect(parseCharacterData('bad')).toBeUndefined();
+  });
+
+  it('drops a record-shaped field whose value is the wrong primitive type', () => {
+    const result = parseCharacterData({ typeMoves: { move1: true, move2: 'yes' } });
+    expect(result?.typeMoves).toEqual({ move1: true });
+  });
+
+  it('drops arcanaMajor entirely when it is not an array, instead of throwing', () => {
+    const result = parseCharacterData({ arcanaMajor: 'not-an-array' });
+    expect(result?.arcanaMajor).toBeUndefined();
+  });
+
+  it('drops individual arcana entries missing an id, keeping well-formed ones', () => {
+    const result = parseCharacterData({
+      arcanaMajor: [
+        { id: 'a1', marksValue: 2, consequencesMarked: { c1: true } },
+        { marksValue: 3 }, // missing id -> dropped
+      ],
+    });
+    expect(result?.arcanaMajor).toHaveLength(1);
+    expect(result?.arcanaMajor?.[0].id).toBe('a1');
+  });
+
+  it('drops playbookFeatures entirely when it is not an object', () => {
+    const result = parseCharacterData({ playbookFeatures: 'corrupt-string' });
+    expect(result?.playbookFeatures).toBeUndefined();
+  });
+
+  it('keeps well-formed playbookFeatures, dropping malformed sub-fields', () => {
+    const result = parseCharacterData({
+      playbookFeatures: { foxTallTales: { tale1: true }, heavyViolence: null },
+    });
+    expect(result?.playbookFeatures).toEqual({ foxTallTales: { tale1: true } });
+  });
+
+  it('filters nested checklist maps, dropping non-object inner values', () => {
+    const result = parseCharacterData({
+      typeMoveCheckList: { move1: { box1: true, box2: 'nope' }, move2: 'not-a-map' },
+    });
+    expect(result?.typeMoveCheckList).toEqual({ move1: { box1: true } });
+  });
+});
+
+describe('parseCharacters', () => {
+  it('validates nested character.data through parseCharacterData', () => {
+    const raw = {
+      characters: [
+        { id: '1', name: 'Ok', playbook: 'heavy', level: 1, data: { statHp: '10', arcanaMajor: 'bad' } },
+      ],
+    };
+    const result = parseCharacters(raw as never);
+    expect(result[0].data?.statHp).toBe('10');
+    expect(result[0].data?.arcanaMajor).toBeUndefined();
   });
 });
 

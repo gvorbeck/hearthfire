@@ -6,19 +6,16 @@ import type {
   ConsequenceAction,
   Creature,
   MajorArcanum,
-  MajorArcanaMystery,
   ArcanaMajorEntry,
   MoveDefinition,
   RightControlSpec,
 } from "@/types";
 import { consequenceMarkId, markIdsFor } from "./arcanaParsing";
 
-type MysteryMove = MajorArcanaMystery["moves"][number];
 type WidenDotsAction = Extract<ConsequenceAction, { type: "widenDots" }>;
 
 // A consequence flattened to what the gating math needs: an id, its mark-box ids, and any `widenDots`
-// actions it carries. Mystery consequences derive box ids from the ◻-glyph prefix in their text; back
-// consequences from `checkboxes`. Only back consequences carry actions (mystery ones never do).
+// actions it carries. Box ids come from the consequence's `checkboxes` count (default 1).
 interface FlatConsequence {
   id: string;
   markIds: string[];
@@ -26,8 +23,8 @@ interface FlatConsequence {
 }
 
 // Back sections mix MoveDefinitions, ArcanaConsequences, and follower entries; these split a section's
-// content by kind so back moves can be gated and back consequences counted alongside the legacy mystery
-// ones. Followers carry `follower`, moves carry `body`, consequences carry `value`.
+// content by kind so back moves can be gated and back consequences counted. Followers carry `follower`,
+// moves carry `body`, consequences carry `value`.
 type BackEntry = ArcanaSection["content"][number];
 const isBackConsequence = (entry: BackEntry): entry is ArcanaConsequence =>
   "value" in entry;
@@ -73,7 +70,7 @@ export interface ArcanumGating {
   getConsequenceCheckedMarks: (id: string, text: string, count?: number) => boolean[];
   // The lock reasons and dot override for a mystery move, looked up by id from a memoized map so the
   // arrays stay referentially stable across unrelated re-renders (keeping MysteryMoveBlock's memo).
-  getMoveGating: (move: MysteryMove) => MoveGating;
+  getMoveGating: (move: MoveDefinition) => MoveGating;
 }
 
 // Derives every gated/computed value the card's mystery section needs from the arcanum's book data
@@ -84,7 +81,7 @@ export const useArcanumGating = (
   arcanum: MajorArcanum,
   entry: ArcanaMajorEntry,
 ): ArcanumGating => {
-  const { frontTrackers, mystery, back } = arcanum;
+  const { frontTrackers, back } = arcanum;
   // Legacy/hand-edited docs can have an arcanaMajor entry predating these fields; default so every
   // lookup below is safe without repeating the guard at each call site. Memoized so the fallback `{}`
   // doesn't create a new reference every render and break the memos below.
@@ -106,34 +103,21 @@ export const useArcanumGating = (
     !!entry.everUnlocked ||
     entry.marksValue >= (marksTracker?.unlockAt ?? marksMax);
 
-  // Gating runs over both shapes during the migration: a move or consequence is subject to the same
-  // lock rules whether it was authored under `mystery` or in a `back` section.
-  const allMoves: MysteryMove[] = useMemo(() => {
-    const backMoves = (back?.sections ?? []).flatMap((s) =>
-      s.content.filter(isBackMove),
-    );
-    return [...(mystery?.moves ?? []), ...backMoves];
-  }, [mystery?.moves, back]);
+  const allMoves: MoveDefinition[] = useMemo(
+    () => (back?.sections ?? []).flatMap((s) => s.content.filter(isBackMove)),
+    [back],
+  );
 
-  const allConsequences: FlatConsequence[] = useMemo(() => {
-    const mysteryFlat = (mystery?.consequences ?? []).flatMap((c) => [
-      { id: c.id, markIds: markIdsFor(c.id, c.text), widenDots: [] },
-      ...(c.children?.map((child) => ({
-        id: child.id,
-        markIds: markIdsFor(child.id, child.text),
-        widenDots: [],
-      })) ?? []),
-    ]);
-    const backFlat = (back?.sections ?? []).flatMap((s) =>
-      flattenBackConsequences(
-        s.content.filter(isBackConsequence),
+  const allConsequences: FlatConsequence[] = useMemo(
+    () =>
+      (back?.sections ?? []).flatMap((s) =>
+        flattenBackConsequences(s.content.filter(isBackConsequence)),
       ),
-    );
-    return [...mysteryFlat, ...backFlat];
-  }, [mystery?.consequences, back]);
+    [back],
+  );
 
-  // The checked state of each mark box, in order. Box count comes from `count` when given (back
-  // consequences, via their `checkboxes`), else from the legacy ◻-glyph prefix in the text (mystery).
+  // The checked state of each mark box, in order. Box count comes from `count` when given, else from
+  // the ◻-glyph prefix in the text.
   const getConsequenceCheckedMarks = (
     id: string,
     text: string,
@@ -146,10 +130,10 @@ export const useArcanumGating = (
     return markIds.map((markId) => !!consequencesMarked[markId]);
   };
 
-  // The lock reasons and dot override for every mystery move, computed once per relevant state change
-  // into a map. Memoizing here keeps each move's arrays referentially stable across re-renders that
-  // don't touch this card's gated state (a keystroke elsewhere, a snapshot echo), so MysteryMoveBlock's
-  // memo holds. The map only rebuilds when marks or the checked maps actually change.
+  // The lock reasons and dot override for every move, computed once per relevant state change into a
+  // map. Memoizing here keeps each move's arrays referentially stable across re-renders that don't
+  // touch this card's gated state (a keystroke elsewhere, a snapshot echo), so MysteryMoveBlock's memo
+  // holds. The map only rebuilds when marks or the checked maps actually change.
   const moveGatingById = useMemo(() => {
     // Budget gate for sub-moves that require a parent move (e.g. Noruba's Ice Sphere): the book grants
     // one such move "for every N Consequences you mark", where N is the parent's `grantsPerConsequences`.
@@ -161,16 +145,14 @@ export const useArcanumGating = (
       (id) => consequencesMarked[id],
     ).length;
     const grantEvery = allMoves.reduce<number | undefined>(
-      (found, m) =>
-        found ?? ("grantsPerConsequences" in m ? m.grantsPerConsequences : undefined),
+      (found, m) => found ?? m.grantsPerConsequences,
       undefined,
     );
     const consequenceGrants = grantEvery
       ? Math.floor(markedConsequenceCount / grantEvery)
       : 0;
     const selectedSubMoves = allMoves.filter(
-      (m) =>
-        "requires" in m && m.requires?.length && mysteryMovesChecked[m.id],
+      (m) => m.requires?.length && mysteryMovesChecked[m.id],
     ).length;
 
     // A parent named in a child's `requires` counts as met when the player has checked it, or when it's
@@ -179,13 +161,13 @@ export const useArcanumGating = (
     const isParentMet = (parentId: string): boolean => {
       if (mysteryMovesChecked[parentId]) return true;
       const parent = allMoves.find((m) => m.id === parentId);
-      return !!(parent && "autoActivateOnUnlock" in parent && parent.autoActivateOnUnlock && unlocked);
+      return !!(parent?.autoActivateOnUnlock && unlocked);
     };
 
-    const requirementFor = (move: MysteryMove): string[] => {
+    const requirementFor = (move: MoveDefinition): string[] => {
       // A move granted at a marks threshold (e.g. the Codex's Darksome Vessel at all 4) stays locked
       // until that many marks are filled on the arcanum's marks track.
-      if ("requiresMarks" in move && move.requiresMarks) {
+      if (move.requiresMarks) {
         if (entry.marksValue < move.requiresMarks) {
           return [
             `Make ${move.requiresMarks === marksMax ? "the last mark" : `${move.requiresMarks} marks`}`,
@@ -195,13 +177,13 @@ export const useArcanumGating = (
       }
       // A move granted at a Consequence threshold (e.g. A Flickering Flame at 3) stays locked until
       // that many Consequences are marked.
-      if ("requiresConsequences" in move && move.requiresConsequences) {
+      if (move.requiresConsequences) {
         if (markedConsequenceCount < move.requiresConsequences) {
           return [`Mark ${move.requiresConsequences} Consequences`];
         }
         return [];
       }
-      if (!("requires" in move) || !move.requires?.length) return [];
+      if (!move.requires?.length) return [];
       if (mysteryMovesChecked[move.id]) return [];
       const unmetParents = move.requires
         .filter((id) => !isParentMet(id))
@@ -223,7 +205,7 @@ export const useArcanumGating = (
     // by all of them. Undefined when no active bonus applies.
     const dotBonusFor = (targetId: string): number => {
       const moveBonus = allMoves.reduce((sum, m) => {
-        if (!("grantsDotBonus" in m) || !m.grantsDotBonus) return sum;
+        if (!m.grantsDotBonus) return sum;
         if (m.grantsDotBonus.targetId !== targetId) return sum;
         return mysteryMovesChecked[m.id] ? sum + m.grantsDotBonus.amount : sum;
       }, 0);
@@ -241,9 +223,9 @@ export const useArcanumGating = (
     };
 
     const dotOverrideFor = (
-      move: MysteryMove,
+      move: MoveDefinition,
     ): RightControlSpec[] | undefined => {
-      const base = "rightControl" in move ? move.rightControl : undefined;
+      const base = move.rightControl;
       if (!base) return undefined;
       const bonus = dotBonusFor(move.id);
       if (bonus === 0) return undefined;
@@ -266,17 +248,14 @@ export const useArcanumGating = (
     unlocked,
   ]);
 
-  const getMoveGating = (move: MysteryMove): MoveGating =>
+  const getMoveGating = (move: MoveDefinition): MoveGating =>
     moveGatingById.get(move.id) ?? EMPTY_GATING;
 
   // The creature's book data is a projection of the seed plus every marked consequence; recompute it
-  // only when the seed or marked state changes so the memo on MysteryCreatureCard holds.
-  // The seed comes from a `back` section carrying a `creature` when the arcanum has migrated (e.g. the
-  // Mindgem), else from the legacy `mystery`. `back` is authoritative: the card renders `back` when
-  // present, so its creature must win over any stale `mystery` seed. Its projecting consequences are
+  // only when the seed or marked state changes so the memo on MysteryCreatureCard holds. The seed comes
+  // from a `back` section carrying a `creature` (e.g. the Mindgem). Its projecting consequences are
   // every back consequence across all sections — the "Consequences" section is separate from the
   // creature's, so we don't confine projection to the creature section's own (empty) content.
-  // Sub-paths hoisted into consts so the memo deps are bare bindings the React Compiler can track.
   // The whole projection assumes at most one creature per arcanum (one seed, one card): both this hook
   // and ArcanaBackSection would otherwise show every creature section the same first-found creature.
   // Fail loudly on a second so the assumption is caught in dev, not shipped as a silently-wrong card.
@@ -290,15 +269,15 @@ export const useArcanumGating = (
     );
   }
   const backCreatureSection = creatureSections[0];
-  const creatureSeed = backCreatureSection?.creature ?? mystery?.mysteryCreature;
+  const creatureSeed = backCreatureSection?.creature;
   // Memoized so its reference is stable across renders (it's derived by flattening a fresh array each
   // render), keeping the projectedCreature memo below from rebuilding on every unrelated re-render.
   const creatureConsequences = useMemo(
     () =>
       backCreatureSection
         ? (back?.sections ?? []).flatMap((s) => s.content.filter(isBackConsequence))
-        : mystery?.consequences,
-    [backCreatureSection, back, mystery?.consequences],
+        : undefined,
+    [backCreatureSection, back],
   );
   const projectedCreature = useMemo(
     () =>

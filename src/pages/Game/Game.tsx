@@ -10,6 +10,7 @@ import { AddCharacterModal } from './modals/AddCharacterModal';
 import { RemoveCharacterModal } from './modals/RemoveCharacterModal';
 import { GameGuard } from '@/components/app/GameGuard/GameGuard';
 import { PageLayout } from '@/components/app/PageLayout/PageLayout';
+import { RollLog } from '@/components/character/RollLog/RollLog';
 import type { Character, GameSession } from '@/types';
 import styles from './Game.module.css';
 
@@ -293,6 +294,11 @@ const GameContent = ({
             <div className={styles.section}>
               <Heading as="h2" size="label">GM Playbook</Heading>
               <Button as={Link} to={`/game/${id}/gm`} variant="secondary" size="xl" fullWidth>Open GM Playbook</Button>
+            </div>
+
+            <div className={styles.section}>
+              <Heading as="h2" size="label">Recent Rolls</Heading>
+              <RollLog rolls={g.diceRolls ?? []} />
             </div>
           </div>
         </div>

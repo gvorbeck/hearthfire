@@ -1,5 +1,9 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from 'firebase/firestore';
 
 // Each Firebase config field maps to the env var it reads from. This is the
 // single source of truth: the config and the missing-var check both derive
@@ -36,4 +40,9 @@ if (missingVars.length > 0) {
 
 const app = initializeApp(firebaseConfig);
 
-export const db = getFirestore(app);
+// Persistent local cache lets writes queue offline and snapshots serve from
+// cache; multi-tab manager coordinates it across tabs, since players commonly
+// keep several character sheets open at once.
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
+});

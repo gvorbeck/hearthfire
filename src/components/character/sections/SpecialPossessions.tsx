@@ -6,7 +6,7 @@ import clsx from 'clsx';
 import { Checkbox, Input, Radio, Text, UseDots } from '@/components/ui';
 import { useToast } from '@/components/app';
 import { PlaybookSection } from '@/components/playbook/PlaybookSection';
-import type { Possession, PossessionSubItem, PlaybookSpecialPossessions } from '@/lib/specialPossessionsOptions';
+import type { Possession, PossessionSubItem, PlaybookSpecialPossessions } from '@/lib/characterCreation/specialPossessionsOptions';
 import type { CharacterData } from '@/types';
 import styles from './SpecialPossessions.module.css';
 

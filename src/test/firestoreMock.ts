@@ -178,12 +178,27 @@ export const firestoreMockModule = () => {
     values,
   }));
 
-  // src/lib/firebase.ts calls getFirestore at import time; return a dummy db so
-  // that module loads under the same firebase/firestore mock. Tests should also
-  // mock 'firebase/app' (vi.mock('firebase/app', () => ({ initializeApp: () => ({}) }))).
-  const getFirestore = vi.fn(() => ({}));
+  // src/lib/firebase.ts calls initializeFirestore at import time; return a dummy
+  // db so that module loads under the same firebase/firestore mock. Tests should
+  // also mock 'firebase/app' (vi.mock('firebase/app', () => ({ initializeApp: () => ({}) }))).
+  const initializeFirestore = vi.fn(() => ({}));
+  const persistentLocalCache = vi.fn((options: unknown) => options);
+  const persistentMultipleTabManager = vi.fn(() => ({}));
 
-  return { doc, collection, getDoc, updateDoc, setDoc, addDoc, onSnapshot, runTransaction, arrayUnion, getFirestore };
+  return {
+    doc,
+    collection,
+    getDoc,
+    updateDoc,
+    setDoc,
+    addDoc,
+    onSnapshot,
+    runTransaction,
+    arrayUnion,
+    initializeFirestore,
+    persistentLocalCache,
+    persistentMultipleTabManager,
+  };
 };
 
 interface Transaction {

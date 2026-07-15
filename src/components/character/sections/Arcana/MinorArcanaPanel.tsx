@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, memo, type MutableRefObject } from 'react';
 import { Button, Text, Tooltip } from '@/components/ui';
-import { MINOR_ARCANA } from '@/lib/arcanaMinor';
+import { MINOR_ARCANA } from '@/lib/arcana/minor';
 import type { MinorArcanum, ArcanaMinorEntry } from '@/types';
 import { MinorArcanaCard } from './MinorArcanaCard';
 import { AddArcanaModal } from './AddArcanaModal';

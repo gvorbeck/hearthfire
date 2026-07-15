@@ -30,8 +30,8 @@
 }
 
 .error {
-  background-color: color-mix(in srgb, var(--color-ember-400) 12%, var(--surface-overlay));
-  border-color: color-mix(in srgb, var(--color-ember-400) 40%, transparent);
+  background-color: color-mix(in srgb, var(--color-danger) 12%, var(--surface-overlay));
+  border-color: color-mix(in srgb, var(--color-danger) 40%, transparent);
   color: var(--text-primary);
 }
 

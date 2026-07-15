@@ -3,7 +3,7 @@ import { Text } from '@/components/ui';
 import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import { Move } from '../../Move';
 import { usePlaybookChecked } from '@/hooks/usePlaybookChecked';
-import { LIGHTBEARER_INVOCATIONS } from '@/lib/lightbearerInvocations';
+import { LIGHTBEARER_INVOCATIONS } from '@/lib/moves/lightbearerInvocations';
 import type { MoveDefinition, PlaybookSectionProps } from '@/types';
 import styles from './LightbearerInvocations.module.css';
 

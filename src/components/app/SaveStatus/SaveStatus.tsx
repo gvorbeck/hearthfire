@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import clsx from 'clsx';
-import { Icon, Text } from '@/components/ui';
+import { Button, Icon, Text } from '@/components/ui';
 import { useSaveStatusOptional } from './SaveStatusContext';
 import styles from './SaveStatus.module.css';
 
@@ -80,14 +80,13 @@ export const SaveStatus = () => {
             {label}
           </Text>
           {!isSaving && (
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              icon="close"
               className={styles.dismiss}
               onClick={() => setDismissedAt(lastSavedAt)}
               aria-label="Dismiss saved indicator"
-            >
-              <Icon name="close" size="small" aria-hidden="true" />
-            </button>
+            />
           )}
         </>
       )}

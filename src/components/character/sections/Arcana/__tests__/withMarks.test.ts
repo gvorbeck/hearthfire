@@ -3,7 +3,7 @@ import type { ArcanaMajorEntry } from '@/types';
 
 // Tiny fixtures so withMarks resolves each entry's unlock threshold without pulling the real dataset:
 // "cyclic" unlocks at its max (5, no unlockAt — the Rune-laden Scales shape); "per-mark" unlocks at 1.
-vi.mock('@/lib/arcanaMajor', () => ({
+vi.mock('@/lib/arcana/major', () => ({
   MAJOR_ARCANA: [
     { id: 'cyclic', name: 'Cyclic', description: '', frontTrackers: [{ id: 'marks', label: 'marks', max: 5, role: 'marks' }] },
     { id: 'per-mark', name: 'Per-mark', description: '', frontTrackers: [{ id: 'marks', label: 'marks', max: 4, role: 'marks', unlockAt: 1 }] },

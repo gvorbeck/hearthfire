@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { firestoreMockModule, firestoreStore } from '@/test/firestoreMock';
 import { addToastSpy, toastModuleMock } from '@/test/toastMock';
-import { DOC_TOO_LARGE_MESSAGE, SAVE_ERROR_MESSAGE } from '@/lib/constants';
+import { INVALID_WRITE_MESSAGE, SAVE_ERROR_MESSAGE } from '@/lib/constants';
 
 vi.mock('firebase/app', () => ({ initializeApp: () => ({}) }));
 vi.mock('firebase/firestore', () => firestoreMockModule());
@@ -268,6 +268,28 @@ describe('useGame mutations', () => {
     expect(stored.find((c) => c.id === 'b')?.name).toBe('Keep Me');
   });
 
+  it('updateCharacterData strips undefined keys that parseCharacterData fills on read (#268)', async () => {
+    // parseCharacterData fills every unrecognized/absent optional CharacterData field with
+    // `undefined` explicitly (see useGame.ts), so a character read back from a doc with only a
+    // couple of fields set still round-trips the rest as `undefined` on write. The real Firestore
+    // SDK rejects a write outright the moment any value anywhere in the payload is `undefined` —
+    // this mock doesn't enforce that (see firestoreMock.ts), so assert on the written shape directly.
+    firestoreStore.set(GAME_PATH, {
+      name: '', createdAt: 0,
+      characters: [char('a', { data: { statHp: '18' } as never })],
+    });
+    const { result } = renderGame();
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    await act(async () => {
+      await result.current.updateCharacterData('a', { statHp: '20' });
+    });
+    const stored = firestoreStore.get(GAME_PATH)!.characters as Character[];
+    const data = stored.find((c) => c.id === 'a')?.data as Record<string, unknown>;
+    expect(data.statHp).toBe('20');
+    expect(Object.values(data).some((v) => v === undefined)).toBe(false);
+  });
+
   it('updateSteading writes dotted improvement keys and never writes undefined array fields', async () => {
     firestoreStore.set(GAME_PATH, { name: '', createdAt: 0, characters: [], steading: {} });
     const { result } = renderGame();
@@ -401,12 +423,14 @@ describe('useGame mutations', () => {
     expect(addToastSpy).toHaveBeenCalledWith(SAVE_ERROR_MESSAGE, 'error');
   });
 
-  it('surfaces the doc-size-limit message when a write hits invalid-argument (#254)', async () => {
+  it('surfaces the invalid-write message when a write hits invalid-argument (#254, #268)', async () => {
     firestoreStore.set(GAME_PATH, { name: 'Test', createdAt: 0, characters: [char('a')] });
     const { result } = renderGame();
     await waitFor(() => expect(result.current.loading).toBe(false));
 
-    // Simulate Firestore rejecting an over-1MiB write with invalid-argument.
+    // invalid-argument covers both an over-1MiB write and a malformed value (e.g. `undefined`
+    // left in the payload by a bug) — the message can't assume which one this is (see
+    // INVALID_WRITE_MESSAGE), so this only asserts the code maps to that shared message.
     const { updateDoc } = await import('firebase/firestore');
     (updateDoc as unknown as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
       Object.assign(new Error('maximum size'), { code: 'invalid-argument' }),
@@ -415,7 +439,7 @@ describe('useGame mutations', () => {
     await act(async () => {
       await expect(result.current.updateGameName('New Name')).rejects.toThrow();
     });
-    expect(addToastSpy).toHaveBeenCalledWith(DOC_TOO_LARGE_MESSAGE, 'error');
+    expect(addToastSpy).toHaveBeenCalledWith(INVALID_WRITE_MESSAGE, 'error');
   });
 
   it('updateSteading validates debility booleans pass through as written', async () => {
