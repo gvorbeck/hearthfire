@@ -12,9 +12,13 @@ export const usePlaybookMoves = (playbook: PlaybookType): MoveDefinition[] => {
 
   useEffect(() => {
     let cancelled = false;
-    PLAYBOOK_MOVE_LOADERS[playbook]().then((moves) => {
-      if (!cancelled) setLoaded({ playbook, moves });
-    });
+    PLAYBOOK_MOVE_LOADERS[playbook]()
+      .then((moves) => {
+        if (!cancelled) setLoaded({ playbook, moves });
+      })
+      // A failed chunk load (offline, stale cache) leaves the empty-array fallback in place rather
+      // than surfacing an unhandled rejection.
+      .catch(() => {});
     return () => {
       cancelled = true;
     };
