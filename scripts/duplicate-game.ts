@@ -9,9 +9,15 @@ if (!sourceId) {
   process.exit(1);
 }
 
-const serviceKeyPath = path.resolve(process.env.GOOGLE_APPLICATION_CREDENTIALS ?? '');
-if (!serviceKeyPath || !fs.existsSync(serviceKeyPath)) {
+const credentialsEnv = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+if (!credentialsEnv) {
   console.error('Set GOOGLE_APPLICATION_CREDENTIALS to the path of your Firebase service account JSON.');
+  process.exit(1);
+}
+
+const serviceKeyPath = path.resolve(credentialsEnv);
+if (!fs.statSync(serviceKeyPath, { throwIfNoEntry: false })?.isFile()) {
+  console.error(`GOOGLE_APPLICATION_CREDENTIALS does not point to a file: ${serviceKeyPath}`);
   process.exit(1);
 }
 
