@@ -34,7 +34,7 @@ A digital companion for [Stonetop](https://www.kickstarter.com/projects/19561016
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 20.19+ or 22.12+ (required by Vite 8)
 - A Firebase project with Firestore enabled
 
 ### Installation
