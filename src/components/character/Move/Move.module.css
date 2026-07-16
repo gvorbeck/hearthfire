@@ -1,25 +1,50 @@
-/* ── Move card ───────────────────────────────────────── */
+/* ── Move card — a "forged tablet": recessed header plaque over a prose bay, ──
+   with a spine down the left edge that lights gold when the move is selected. */
 .move {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2);
-  padding: var(--spacing-3);
   border-radius: var(--radius-md);
   background: var(--surface-raised);
   border: 1px solid var(--border-subtle);
-  transition: border-color 0.15s ease;
+  /* The spine. Rendered as a thick left border so it hugs the rounded corners. */
+  border-left: 3px solid var(--border-strong);
+  box-shadow: var(--shadow-sm);
+  /* Clip the header plaque's band background to the card's rounded corners. */
+  overflow: hidden;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .move:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
 }
 
 .moveSelected {
-  border-color: var(--border-accent);
+  border-left-color: var(--border-accent);
+  box-shadow: var(--glow-gold-subtle), var(--shadow-sm);
 }
 
-/* ── Header row (name + use dots) ────────────────────── */
+/* ── Header plaque (name + take/use controls) ────────── */
 .moveHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-3);
+  padding: var(--spacing-2) var(--spacing-3);
+  /* A touch darker than the body bay, with a hairline beneath — reads as a plate
+     hammered onto the piece. color-mix keeps it theme-aware without a new token. */
+  background: color-mix(in srgb, var(--surface-overlay) 55%, transparent);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* ── Body bay (prose, roll, requirement, citation) ───── */
+.moveBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  padding: var(--spacing-3);
 }
 
 .moveCheckbox {
