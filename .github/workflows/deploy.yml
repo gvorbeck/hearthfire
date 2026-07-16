@@ -11,12 +11,15 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          # Pin below 22.23.0: that release's "fix response queue poisoning in
-          # http.Agent" introduced a false-positive ERR_STREAM_PREMATURE_CLOSE
-          # on keep-alive sockets, which breaks firebase-tools' OAuth token
-          # exchange (gaxios -> node-fetch). The deploy then misreports it as
-          # "Failed to authenticate". See nodejs/node#63989, firebase-tools#10692.
-          node-version: "22.20.0"
+          # Reads .nvmrc (Node 24) so deploy matches package.json engines.
+          # NOTE: Node 22.23.0 shipped an http.Agent "response queue poisoning"
+          # fix that caused a false-positive ERR_STREAM_PREMATURE_CLOSE on
+          # keep-alive sockets, breaking firebase-tools' OAuth token exchange
+          # (gaxios -> node-fetch) and misreporting it as "Failed to
+          # authenticate" (nodejs/node#63989, firebase-tools#10692). Node 24
+          # carries the same http.Agent fix, so if a deploy fails auth, pin
+          # back to a known-good version here.
+          node-version-file: ".nvmrc"
           cache: "npm"
       - name: Install dependencies
         run: npm ci
