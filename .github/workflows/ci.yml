@@ -12,8 +12,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          # Match deploy.yml's pinned version so CI and deploy run on identical Node.
-          node-version: "22.20.0"
+          # Single source of truth — matches .nvmrc and package.json engines.
+          node-version-file: ".nvmrc"
           cache: "npm"
       - name: Install dependencies
         run: npm ci
