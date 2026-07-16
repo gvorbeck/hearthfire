@@ -184,6 +184,38 @@ describe('useDebouncedSave', () => {
     expect(result.current.isPending).toBe(false);
   });
 
+  it('isPending stays true across a resolving save when a newer edit is already queued behind it', async () => {
+    const resolvers: Array<() => void> = [];
+    const onSave = vi.fn().mockImplementation(() => new Promise<void>((resolve) => { resolvers.push(resolve); }));
+    const { result } = renderHook(() => useDebouncedSave(onSave, 1500));
+
+    // First edit flushes (e.g. blur) and its write is in flight.
+    await act(async () => { void result.current.flush('first'); });
+    expect(onSave).toHaveBeenCalledOnce();
+    expect(result.current.isPending).toBe(true);
+
+    // A second edit arrives before the first write resolves — it's queued on
+    // the debounce timer, not yet handed to save().
+    act(() => { result.current.onChange('second'); });
+    expect(result.current.isPending).toBe(true);
+
+    // The first write resolves. Without the queuedRef check, isPending would
+    // drop to false here even though 'second' hasn't saved yet — that gap is
+    // what let useFirestoreSync apply a stale echo and clobber local state.
+    await act(async () => { resolvers[0]!(); });
+    expect(result.current.isPending).toBe(true);
+    expect(onSave).toHaveBeenCalledOnce();
+
+    // The queued edit's debounce timer fires, handing it to save().
+    await act(async () => { vi.advanceTimersByTime(1500); });
+    expect(onSave).toHaveBeenCalledTimes(2);
+    expect(onSave).toHaveBeenLastCalledWith('second');
+    expect(result.current.isPending).toBe(true);
+
+    await act(async () => { resolvers[1]!(); });
+    expect(result.current.isPending).toBe(false);
+  });
+
   it('automatically retries a failed save once', async () => {
     const onSave = vi.fn()
       .mockRejectedValueOnce(new Error('network error'))

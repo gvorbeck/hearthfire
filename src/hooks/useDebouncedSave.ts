@@ -99,7 +99,10 @@ export const useDebouncedSave = <T>(
       }
     }).finally(() => {
       activeSavesRef.current -= 1;
-      if (activeSavesRef.current === 0) setPending(false);
+      // A newer edit may already be queued on the debounce timer, not yet handed
+      // to save() — pending must stay true through it, or useFirestoreSync will
+      // apply a stale echo of the write that just resolved and clobber it.
+      if (activeSavesRef.current === 0 && queuedRef.current === null) setPending(false);
     });
     chainRef.current = run;
     return run;
