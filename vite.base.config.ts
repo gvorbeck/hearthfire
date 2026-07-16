@@ -36,6 +36,13 @@ export default defineConfig({
     },
   },
   build: {
+    // vendor-firebase is a single ~550 kB chunk: the Firestore v12 SDK (its gRPC
+    // transport plus the IndexedDB persistent cache we opt into in firebase.ts for
+    // offline writes + multi-tab sync). It's intrinsic to the SDK, not unused code —
+    // we already import only the lean modular subpaths. Raising the limit past it
+    // silences a warning that would otherwise fire on every build; a real regression
+    // (e.g. an accidental full-barrel import) would push it well beyond this.
+    chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
         // Vite 8's bundler (rolldown) only supports the function form of
