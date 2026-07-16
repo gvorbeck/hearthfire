@@ -33,7 +33,7 @@ export interface UseTooltipResult {
   // internal anchor storage (and forwards to any externalRef), so consumers never
   // mutate a hook-owned ref directly.
   anchorRef: (el: HTMLElement | null) => void;
-  tooltipRef: React.RefObject<HTMLSpanElement>;
+  tooltipRef: React.RefObject<HTMLSpanElement | null>;
   anchorProps: {
     onMouseEnter: () => void;
     onMouseLeave: () => void;

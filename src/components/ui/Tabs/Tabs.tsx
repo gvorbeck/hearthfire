@@ -47,7 +47,7 @@ const PortalTooltip = ({
   resolvedSide,
   children,
 }: {
-  tooltipRef: React.RefObject<HTMLSpanElement>;
+  tooltipRef: React.RefObject<HTMLSpanElement | null>;
   tooltipId: string;
   visible: boolean;
   fixedCoords: { top: number; left: number } | null;

@@ -166,6 +166,13 @@ export const Move = ({
   const citationText = citation ?? move.citation;
   const blocks = move.body ?? [];
 
+  // Whether the body bay holds anything — a roll affordance, requirement note, prose blocks, or a
+  // citation. Display-only moves with none of these skip the bay so the plaque isn't left with an
+  // empty padded region hanging beneath it.
+  const hasRoll = !!(parsedRoll && rollResolved);
+  const hasRequirement = requirement !== undefined && requirement.length > 0;
+  const hasBody = hasRoll || hasRequirement || blocks.length > 0 || !!citationText;
+
   // ── Block renderer ──────────────────────────────────────────────────────────
   // Pass raw strings to Text / List / CheckboxGroup: those atoms call parseInlineMarkdown internally.
   // Pre-parsing here would double-render bold / provision icons.
@@ -359,32 +366,36 @@ export const Move = ({
         )}
         {headerAction && <div className={styles.headerAction}>{headerAction}</div>}
       </div>
-      {parsedRoll && rollResolved && (
-        <RollAffordance
-          stat={parsedRoll.stat}
-          bands={parsedRoll.bands}
-          mod={rollResolved.mod}
-          debilityDisadvantage={rollResolved.debilityDisadvantage}
-          onRoll={(report) => rollContext!.onRoll(move.name, report)}
-        />
-      )}
-      {requirement !== undefined && requirement.length > 0 && (
-        <Text font="serif" size="xs" color="tertiary" italic>
-          {requirement.join(', ')}
-        </Text>
-      )}
-      {blocks.map(renderBlock)}
-      {citationText && (
-        <Text
-          as="span"
-          font="serif"
-          size="xs"
-          color="tertiary"
-          italic
-          className={styles.moveCitation}
-        >
-          {citationText}
-        </Text>
+      {hasBody && (
+        <div className={styles.moveBody}>
+          {hasRoll && (
+            <RollAffordance
+              stat={parsedRoll!.stat}
+              bands={parsedRoll!.bands}
+              mod={rollResolved!.mod}
+              debilityDisadvantage={rollResolved!.debilityDisadvantage}
+              onRoll={(report) => rollContext!.onRoll(move.name, report)}
+            />
+          )}
+          {hasRequirement && (
+            <Text font="serif" size="xs" color="tertiary" italic>
+              {requirement!.join(', ')}
+            </Text>
+          )}
+          {blocks.map(renderBlock)}
+          {citationText && (
+            <Text
+              as="span"
+              font="serif"
+              size="xs"
+              color="tertiary"
+              italic
+              className={styles.moveCitation}
+            >
+              {citationText}
+            </Text>
+          )}
+        </div>
       )}
     </div>
   );

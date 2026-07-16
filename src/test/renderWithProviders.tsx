@@ -8,7 +8,7 @@ export const renderRoute = (element: React.ReactElement, path: string, route: st
   render(
     <HelmetProvider>
       <ToastProvider>
-        <MemoryRouter initialEntries={[path]} future={{ v7_relativeSplatPath: true }}>
+        <MemoryRouter initialEntries={[path]}>
           <Routes>
             <Route path={route} element={element} />
           </Routes>
@@ -21,7 +21,7 @@ export const renderWithProviders = (element: React.ReactElement): RenderResult =
   render(
     <HelmetProvider>
       <ToastProvider>
-        <MemoryRouter future={{ v7_relativeSplatPath: true }}>
+        <MemoryRouter>
           {element}
         </MemoryRouter>
       </ToastProvider>

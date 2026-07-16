@@ -48,7 +48,7 @@ export const RollAffordance = ({
   const [mode, setMode] = useState<RollMode>(debilityDisadvantage ? 'dis' : 'normal');
   const [result, setResult] = useState<RollResult | null>(null);
   const [tumbling, setTumbling] = useState(false);
-  const tumbleTimer = useRef<ReturnType<typeof setTimeout>>();
+  const tumbleTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => () => clearTimeout(tumbleTimer.current), []);
 

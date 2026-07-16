@@ -20,9 +20,9 @@ A digital companion for [Stonetop](https://www.kickstarter.com/projects/19561016
 
 | Layer     | Technology                       |
 | --------- | -------------------------------- |
-| Framework | React 18 + TypeScript            |
+| Framework | React 19 + TypeScript            |
 | Build     | Vite                             |
-| Routing   | React Router v6                  |
+| Routing   | React Router v7                  |
 | Database  | Firebase Firestore               |
 | Testing   | Vitest + Testing Library         |
 | Styling   | CSS Modules + clsx               |
@@ -34,7 +34,7 @@ A digital companion for [Stonetop](https://www.kickstarter.com/projects/19561016
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 24+ (see `.nvmrc`; enforced by `engines` in `package.json`)
 - A Firebase project with Firestore enabled
 
 ### Installation

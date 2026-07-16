@@ -161,8 +161,11 @@ describe('buildRelationshipGraph', () => {
     }
   });
 
-  it('keeps every node inside the frame, even for a large graph', () => {
-    // A 60-node chain exercises the tick-scaling path for big steadings.
+  it('keeps every node bounded and finite, even for a large graph', () => {
+    // A 60-node chain exercises the tick-scaling path for big steadings. The
+    // coordinate space scales up with node count (see sizeForCount), so nodes
+    // are bounded by the scaled frame, not the base W×H — assert a generous
+    // ceiling proportional to that growth rather than the raw base size.
     const residents = Array.from({ length: 60 }, (_, i) =>
       npc(`r${i}`, {
         relationships:
@@ -173,12 +176,49 @@ describe('buildRelationshipGraph', () => {
     );
     const graph = buildRelationshipGraph(makeGame({ steading: { residents } }), W, H);
     expect(graph.nodes).toHaveLength(60);
+    // sqrt(60/8) ≈ 2.74; allow a little slack above that for the label gutter.
+    const ceilingX = W * 3;
+    const ceilingY = H * 3;
     for (const n of graph.nodes) {
+      expect(Number.isFinite(n.x)).toBe(true);
+      expect(Number.isFinite(n.y)).toBe(true);
       expect(n.x).toBeGreaterThanOrEqual(0);
-      expect(n.x).toBeLessThanOrEqual(W);
+      expect(n.x).toBeLessThanOrEqual(ceilingX);
       expect(n.y).toBeGreaterThanOrEqual(0);
-      expect(n.y).toBeLessThanOrEqual(H);
+      expect(n.y).toBeLessThanOrEqual(ceilingY);
     }
+  });
+
+  it('spreads a large graph across 2D area instead of piling nodes on the frame edges', () => {
+    // Regression for the bug where many NPCs got clamped flat against the
+    // viewport walls (piling up on the sides/corners). A hub-and-chain web of
+    // 40 nodes should occupy real width AND height, with few nodes stuck at the
+    // extremes of the used span.
+    const residents = Array.from({ length: 40 }, (_, i) => {
+      const prev = i === 0 ? 'r39' : `r${i - 1}`;
+      return npc(`r${i}`, {
+        relationships: [
+          { id: `rel-${i}-hub`, type: 'friend', targetId: 'r0', targetKind: 'resident' as const },
+          { id: `rel-${i}-chain`, type: 'kin', targetId: prev, targetKind: 'resident' as const },
+        ],
+      });
+    });
+    const graph = buildRelationshipGraph(makeGame({ steading: { residents } }), W, H);
+    const xs = graph.nodes.map((n) => n.x);
+    const ys = graph.nodes.map((n) => n.y);
+    const minX = Math.min(...xs), maxX = Math.max(...xs);
+    const minY = Math.min(...ys), maxY = Math.max(...ys);
+
+    // Real 2D spread, not a thin line crammed against one edge.
+    expect(maxX - minX).toBeGreaterThan(200);
+    expect(maxY - minY).toBeGreaterThan(200);
+
+    // Only a handful of nodes should sit at the extreme edges of the used span
+    // (a normal convex-hull boundary), not the majority (a wall pile-up).
+    const onEdge = graph.nodes.filter(
+      (n) => n.x <= minX + 2 || n.x >= maxX - 2 || n.y <= minY + 2 || n.y >= maxY - 2,
+    ).length;
+    expect(onEdge).toBeLessThan(graph.nodes.length / 3);
   });
 
   it('marks dead NPCs', () => {
