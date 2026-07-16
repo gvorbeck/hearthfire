@@ -128,16 +128,23 @@ const collectEdges = (game: GameSession, known: Map<string, RawNode>): GraphEdge
 /*
  * Deterministic radial seed placement. Positions are derived purely from node
  * index and count — no Math.random — so the layout is stable across renders and
- * the simulation always settles to the same shape for the same data.
+ * the simulation always settles to the same shape for the same data. Nodes are
+ * laid on a phyllotaxis-style expanding spiral rather than a single ring, so a
+ * large set starts already spread across the area (a lone ring bunches every
+ * node onto one thin circle, which the simulation then has to untangle).
  */
 const seedPositions = (ids: string[], width: number, height: number): Map<string, { x: number; y: number }> => {
   const cx = width / 2;
   const cy = height / 2;
-  const radius = Math.min(width, height) * 0.35;
+  const maxRadius = Math.min(width, height) * 0.42;
   const positions = new Map<string, { x: number; y: number }>();
   const count = ids.length;
+  // Golden-angle spiral: each node steps out along a radius that grows with
+  // sqrt(i), spreading nodes evenly over the disc instead of one perimeter.
+  const goldenAngle = Math.PI * (3 - Math.sqrt(5));
   ids.forEach((id, i) => {
-    const angle = (i / Math.max(count, 1)) * Math.PI * 2;
+    const angle = i * goldenAngle;
+    const radius = count > 1 ? maxRadius * Math.sqrt(i / (count - 1)) : 0;
     positions.set(id, { x: cx + Math.cos(angle) * radius, y: cy + Math.sin(angle) * radius });
   });
   return positions;
@@ -266,6 +273,28 @@ const egoSubset = (
   };
 };
 
+// Node count at which the base viewport is exactly filled; growth is measured
+// against this anchor. Small enough that graphs in the low teens are already
+// getting extra room (no flat dead zone where 12 and 20 nodes look identical),
+// while the base size is never shrunk below itself for tiny graphs.
+const SIZE_ANCHOR_COUNT = 8;
+
+/*
+ * Scale the layout's coordinate space to the node count. A force-directed graph
+ * needs area roughly proportional to the number of nodes to keep them apart at
+ * a fixed spring length; a fixed viewport just packs a large set against the
+ * edges. Growth is a continuous sqrt(n) (area ∝ n) with no hard threshold — the
+ * base size acts only as a floor, so every graph above the anchor gets steadily
+ * more room instead of jumping at a cutoff. The caller's aspect ratio is
+ * preserved. The SVG scales this viewBox to fit its fixed CSS height, so a
+ * larger space renders the graph a bit smaller but untangled — pan/zoom then
+ * let the user explore it.
+ */
+const sizeForCount = (baseWidth: number, baseHeight: number, count: number): { width: number; height: number } => {
+  const scale = Math.max(1, Math.sqrt(count / SIZE_ANCHOR_COUNT));
+  return { width: baseWidth * scale, height: baseHeight * scale };
+};
+
 /*
  * Build a laid-out relationship graph from the game's steading data.
  *
@@ -297,6 +326,9 @@ export const buildRelationshipGraph = (
     edges = subset.edges;
   }
 
-  const nodes = simulate(rawNodes, edges, width, height);
+  // Grow the coordinate space with the (possibly ego-filtered) node count so a
+  // large web spreads out instead of piling against the frame edges.
+  const { width: w, height: h } = sizeForCount(width, height, rawNodes.length);
+  const nodes = simulate(rawNodes, edges, w, h);
   return { nodes, edges };
 };
