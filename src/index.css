@@ -5,7 +5,11 @@
   --color-stone-200: #e8e5df;
   --color-stone-300: #d4cfc7;
   --color-stone-400: #9e9790;
+  /* Half-steps: 450 is the dimmest text that clears WCAG AA on dark surfaces;
+     550 is the dimmest that clears AA on light surfaces. */
+  --color-stone-450: #938a81;
   --color-stone-500: #72685f;
+  --color-stone-550: #5d544b;
   --color-stone-600: #524d48;
   --color-stone-700: #3d3830;
   --color-stone-800: #242019;
@@ -30,6 +34,10 @@
   --color-gold-400: #e6b020;
   --color-gold-500: #c8950f;
   --color-gold-600: #9e7209;
+  /* Deep golds for body-size accent text on light surfaces, where gold-600
+     only manages ≈3.9:1 (AA needs 4.5:1). */
+  --color-gold-700: #7a5a08;
+  --color-gold-800: #6b4f07;
 
   /* Ember — danger/warning accent */
   --color-ember-400: #e86b3a;
@@ -49,10 +57,12 @@
   --font-serif: 'IM Fell English', Georgia, serif;
   --font-sans: 'Inter', system-ui, sans-serif;
 
-  /* Type scale — Major Third (×1.25), base 1rem = 16px */
-  --text-2xs:  0.625rem;   /* 10px — sub-label fine print */
-  --text-xs:   0.75rem;    /* 12px — labels, citations, meta */
-  --text-sm:   0.8125rem;  /* 13px — body copy, move text, most content */
+  /* Type scale — Major Third (×1.25), base 1rem = 16px.
+     Sub-md steps sit above the strict scale: IM Fell English has a small
+     x-height, so body sizes are bumped for readability (player feedback). */
+  --text-2xs:  0.6875rem;  /* 11px — sub-label fine print */
+  --text-xs:   0.8125rem;  /* 13px — labels, citations, meta */
+  --text-sm:   0.9375rem;  /* 15px — body copy, move text, most content */
   --text-md:   1rem;       /* 16px — UI chrome, collapse headers */
   --text-lg:   1.25rem;    /* 20px — section headings, descriptions */
   --text-xl:   1.5625rem;  /* 25px — stat inputs */
@@ -91,14 +101,22 @@
   --surface-raised: var(--color-forge-700);
   --surface-overlay: var(--color-forge-600);
 
+  /* Control fills that sit under fixed white ink — deliberately the same in both
+     themes, unlike --color-danger, which flips for text-on-surface contrast. */
+  --fill-danger: var(--color-ember-600);
+
   --border-subtle: var(--color-stone-700);
-  --border-strong: var(--color-stone-600);
+  /* stone-500, not 600: control boundaries (unchecked checkboxes, inputs) need
+     ≥3:1 non-text contrast (WCAG 1.4.11); stone-600 sits at ≈2.1:1 on panels.
+     Shared by both themes — no light-mode override needed. */
+  --border-strong: var(--color-stone-500);
   --border-accent: var(--color-gold-500);
 
   --text-primary: var(--color-stone-100);
   --text-secondary: var(--color-stone-400);
-  /* Dimmest text tier — instructions, placeholder labels, drag handles */
-  --text-tertiary: var(--color-stone-500);
+  /* Dimmest text tier — instructions, placeholder labels, drag handles.
+     stone-450, not 500: stone-500 fails WCAG AA on every dark surface (≈3.2:1). */
+  --text-tertiary: var(--color-stone-450);
   --text-accent: var(--color-gold-300);
   /* Brighter accent for hover/active emphasis on accent-colored controls */
   --text-accent-strong: var(--color-gold-200);
@@ -139,16 +157,19 @@
   --surface-overlay: var(--color-stone-300);
 
   --border-subtle: var(--color-stone-300);
-  --border-strong: var(--color-stone-400);
+  /* --border-strong intentionally not overridden: stone-500 clears the 3:1
+     non-text minimum (WCAG 1.4.11) on both themes' surfaces. */
 
   --text-primary: var(--color-stone-800);
   --text-secondary: var(--color-stone-600);
-  /* One-off between stone-500 and stone-600: keeps a distinct dim tier while still
-     clearing WCAG AA (≈4.8:1) on the overlay surface, where stone-500 fails (≈3.5:1). */
-  --text-tertiary: #5d544b;
-  --text-accent: var(--color-gold-600);
-  /* Deeper than gold-600 for hover emphasis; clears AA-large on light surfaces. */
-  --text-accent-strong: #856008;
+  /* stone-550: keeps a distinct dim tier while still clearing WCAG AA (≈4.8:1)
+     on the overlay surface, where stone-500 fails (≈3.5:1). */
+  --text-tertiary: var(--color-stone-550);
+  /* gold-700, not 600: accent text also renders at body size (selected move
+     names, labels), which needs 4.5:1 — gold-600 only manages ≈3.9:1 on panels. */
+  --text-accent: var(--color-gold-700);
+  /* Deeper than --text-accent so hover/active still darkens; passes AA on all surfaces. */
+  --text-accent-strong: var(--color-gold-800);
   --text-heading: var(--color-gold-600);
 
   /* Status-accent tiers: source hues (ember/moss/amber-400) fall below 3:1 on

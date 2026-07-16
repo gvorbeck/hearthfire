@@ -116,7 +116,7 @@ export const RollAffordance = ({
                   tumbling && styles.dieTumbling,
                   !tumbling && result.dropped === i && styles.dieDropped,
                 )}
-                style={tumbling ? { animationDelay: `${i * 80}ms` } : undefined}
+                style={{ '--die-delay': `${i * 80}ms` } as React.CSSProperties}
               >
                 {face}
               </span>

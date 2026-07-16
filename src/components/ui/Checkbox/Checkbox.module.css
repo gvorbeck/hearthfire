@@ -5,6 +5,8 @@
   cursor: pointer;
   user-select: none;
   font-size: var(--text-sm);
+  /* Must match the Text atom's body line-height — the indicator's 1lh centering below relies on it. */
+  line-height: 1.6;
 }
 
 .input {
@@ -13,7 +15,8 @@
 
 .indicator {
   flex-shrink: 0;
-  margin-top: 1px;
+  /* Center within the label's first line; multi-line labels stay first-line aligned. */
+  margin-top: calc((1lh - 16px) / 2);
   width: 16px;
   height: 16px;
   border-radius: var(--radius-sm);
@@ -23,6 +26,12 @@
   align-items: center;
   justify-content: center;
   transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+/* Label-less checkboxes (aria-label only, e.g. move take-boxes) have no text line to align to —
+   drop the offset so parent flex rows can center the bare indicator exactly. */
+.indicator:last-child {
+  margin-top: 0;
 }
 
 .check {

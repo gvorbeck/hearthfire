@@ -128,9 +128,11 @@
     animation: rollReveal 0.18s ease both;
   }
 
-  /* Each die tumbles briefly before settling on its rolled face. */
+  /* Each die tumbles briefly before settling on its rolled face; --die-delay
+     staggers the dice so they don't move in lockstep. */
   .dieTumbling {
     animation: diceTumble 0.55s ease;
+    animation-delay: var(--die-delay, 0ms);
   }
 
   /* The total pops in once the dice have settled, so the eye lands on it last. */
