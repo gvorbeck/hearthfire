@@ -38,15 +38,20 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-firebase': ['firebase/app', 'firebase/firestore'],
+        // Vite 8's bundler (rolldown) only supports the function form of
+        // manualChunks — the object form throws "manualChunks is not a
+        // function". Each branch reproduces one entry of the former object.
+        manualChunks(id) {
+          if (/node_modules\/(react|react-dom|react-router-dom|react-router|scheduler)\//.test(id)) {
+            return 'vendor-react';
+          }
+          if (/node_modules\/(@firebase|firebase)\//.test(id)) return 'vendor-firebase';
           // The Arcana card data is large (~2,850 lines total). Major and Minor
           // are split into separate chunks so each loads only when its sub-tab
           // panel is viewed (the panels are lazy-loaded in ArcanaTab), and so
           // each caches independently of the main CharacterPlaybook chunk.
-          'arcana-major-data': ['@/lib/arcana/major'],
-          'arcana-minor-data': ['@/lib/arcana/minor'],
+          if (id.includes('/src/lib/arcana/major')) return 'arcana-major-data';
+          if (id.includes('/src/lib/arcana/minor')) return 'arcana-minor-data';
         },
       },
     },
