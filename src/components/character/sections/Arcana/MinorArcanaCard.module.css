@@ -27,14 +27,13 @@
 
 .reqRow {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--spacing-2);
   cursor: pointer;
 }
 
 .reqRow > span {
   flex: 1;
-  padding-top: 2px;
 }
 
 .moveReveal {
