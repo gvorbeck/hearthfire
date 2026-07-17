@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { Fragment, useCallback } from 'react';
 import clsx from 'clsx';
 import { Checkbox, Text } from '@/components/ui';
 import { parseMarkdown } from '@/lib/parseMarkdown';
@@ -30,9 +30,12 @@ export const MinorArcanaCard = ({
   onRemove,
 }: MinorArcanaCardProps) => {
   const reqKeys = arcanum.requirements.map((_, i) => `req${i}`);
-  const checkedCount = reqKeys.filter((k) => requirementsChecked?.[k]).length;
-  const unlockThreshold = arcanum.requirementsUnlockAt ?? reqKeys.length;
-  const allChecked = checkedCount >= unlockThreshold;
+  const isUnlocked = arcanum.unlockGroups
+    ? arcanum.unlockGroups.some((group) =>
+        group.every((i) => !!requirementsChecked?.[reqKeys[i]]),
+      )
+    : reqKeys.filter((k) => requirementsChecked?.[k]).length >=
+      (arcanum.requirementsUnlockAt ?? reqKeys.length);
 
   const makeToggle = useCallback(
     (key: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,7 +44,7 @@ export const MinorArcanaCard = ({
     [onToggleRequirement],
   );
 
-  const cx = clsx(styles.card, allChecked && styles.cardUnlocked);
+  const cx = clsx(styles.card, isUnlocked && styles.cardUnlocked);
   const { move } = arcanum;
 
   return (
@@ -60,15 +63,22 @@ export const MinorArcanaCard = ({
 
       <div className={styles.requirements}>
         {reqKeys.map((key, i) => (
-          <label key={key} className={styles.reqRow}>
-            <Checkbox
-              checked={!!requirementsChecked?.[key]}
-              onChange={makeToggle(key)}
-            />
-            <Text as="span" font="serif">
-              {arcanum.requirements[i]}
-            </Text>
-          </label>
+          <Fragment key={key}>
+            {arcanum.requirementsDivider?.index === i && (
+              <Text as="span" font="serif" italic color="muted">
+                {arcanum.requirementsDivider.text}
+              </Text>
+            )}
+            <label className={styles.reqRow}>
+              <Checkbox
+                checked={!!requirementsChecked?.[key]}
+                onChange={makeToggle(key)}
+              />
+              <Text as="span" font="serif">
+                {arcanum.requirements[i]}
+              </Text>
+            </label>
+          </Fragment>
         ))}
         {arcanum.requirementsNote && (
           <div className={styles.requirementsNote}>
@@ -77,7 +87,7 @@ export const MinorArcanaCard = ({
         )}
       </div>
 
-      {allChecked && (
+      {isUnlocked && (
         <div className={styles.moveReveal}>
           <div className={styles.moveHeader}>
             <Text font="serif" weight="bold">
