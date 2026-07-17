@@ -36,6 +36,10 @@
   flex: 1;
 }
 
+.requirementsNote {
+  font-family: var(--font-serif);
+}
+
 .moveReveal {
   display: flex;
   flex-direction: column;

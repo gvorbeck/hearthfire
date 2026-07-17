@@ -207,6 +207,8 @@ export interface MinorArcanum {
   requirements: string[];
   // How many requirements must be checked to unlock the move. Defaults to all.
   requirementsUnlockAt?: number;
+  // A caveat/consequence sentence shown below the checkbox list — not a task to check off.
+  requirementsNote?: string;
   move: ArcanaMove;
 }
 

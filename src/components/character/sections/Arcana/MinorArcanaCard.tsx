@@ -70,6 +70,11 @@ export const MinorArcanaCard = ({
             </Text>
           </label>
         ))}
+        {arcanum.requirementsNote && (
+          <div className={styles.requirementsNote}>
+            {parseMarkdown(arcanum.requirementsNote)}
+          </div>
+        )}
       </div>
 
       {allChecked && (
