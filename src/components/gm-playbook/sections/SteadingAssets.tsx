@@ -75,7 +75,7 @@ const CurrencyField = ({ label, fieldKey, savedValue, onSave }: CurrencyFieldPro
 };
 
 interface SteadingAssetsProps {
-  steading: Pick<SteadingData, 'assetsList' | 'improvements' | 'gmImprovements' | CurrencyKey>;
+  steading: Pick<SteadingData, 'assetsList' | 'improvements' | 'gmImprovements' | 'removedFixedItems' | CurrencyKey>;
   onSave: (patch: Partial<SteadingData>) => Promise<void>;
 }
 
@@ -84,6 +84,7 @@ export const SteadingAssets = ({ steading, onSave }: SteadingAssetsProps) => {
     assetsList = [],
     improvements = {},
     gmImprovements = [],
+    removedFixedItems = [],
     silverPurses = 0,
     silverHandfuls = 0,
     silverCoins = 0,
@@ -95,6 +96,11 @@ export const SteadingAssets = ({ steading, onSave }: SteadingAssetsProps) => {
   const { value: localAssetsList, save: saveAssetsList } = useOptimisticField(
     assetsList,
     (next: string[]) => onSave({ assetsList: next }),
+  );
+
+  const { value: localRemovedFixed, save: saveRemovedFixed } = useOptimisticField(
+    removedFixedItems,
+    (next: string[]) => onSave({ removedFixedItems: next }),
   );
 
   const firestoreCurrency = useMemo<Record<CurrencyKey, number>>(
@@ -129,6 +135,10 @@ export const SteadingAssets = ({ steading, onSave }: SteadingAssetsProps) => {
   }, [improvementItems]);
 
   const handleSaveList = useCallback((items: string[]) => saveAssetsList(() => items), [saveAssetsList]);
+  const handleRemoveFixed = useCallback(
+    (label: string) => saveRemovedFixed((current) => current.includes(label) ? current : [...current, label]),
+    [saveRemovedFixed],
+  );
   const handleCurrencySave = useCallback((key: CurrencyKey, v: number) => {
     saveCurrency((c) => ({ ...c, [key]: v }), key);
   }, [saveCurrency]);
@@ -147,6 +157,8 @@ export const SteadingAssets = ({ steading, onSave }: SteadingAssetsProps) => {
         onSave={handleSaveList}
         addLabel="Add asset"
         itemLabel="Asset gained in play"
+        removedFixedItems={localRemovedFixed}
+        onRemoveFixed={handleRemoveFixed}
       />
 
       <div className={styles.currency}>

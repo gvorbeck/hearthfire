@@ -73,6 +73,12 @@ export interface SteadingData {
   removedResidentIds?: string[];
   removedNeighborIds?: string[];
   removedGmImprovementIds?: string[];
+  // Labels of fixed/improvement-derived resources, fortifications, and assets the GM has
+  // removed (e.g. a requisitioned horse died, a trade fell through). Unlike the sentinels
+  // above, this is a normal persisted field read back on every load — fixed items are
+  // hard-coded constants, not Firestore records, so there's no id to merge against; the
+  // label itself is the key, and this array is overwritten (not id-merged) on save.
+  removedFixedItems?: string[];
 }
 
 // A dice roll made from a move card, appended to the shared game doc so the GM sees the party's rolls

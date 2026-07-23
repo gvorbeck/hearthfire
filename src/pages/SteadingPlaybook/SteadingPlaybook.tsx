@@ -103,6 +103,7 @@ const SteadingTab = ({ steading, updateSteading }: SteadingTabProps) => (
           items={steading.resources}
           improvements={steading.improvements}
           gmImprovements={steading.gmImprovements}
+          removedFixedItems={steading.removedFixedItems}
           onSave={updateSteading}
         />
       </PlaybookSection>
@@ -112,6 +113,7 @@ const SteadingTab = ({ steading, updateSteading }: SteadingTabProps) => (
           items={steading.fortifications}
           improvements={steading.improvements}
           gmImprovements={steading.gmImprovements}
+          removedFixedItems={steading.removedFixedItems}
           onSave={updateSteading}
         />
       </PlaybookSection>

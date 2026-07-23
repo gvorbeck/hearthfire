@@ -206,7 +206,22 @@ export interface MinorArcanum {
   description: string;
   requirements: string[];
   // How many requirements must be checked to unlock the move. Defaults to all.
+  // Ignored when unlockGroups is present.
   requirementsUnlockAt?: number;
+  // Alternative unlock branches, as groups of requirement indices — the move unlocks when
+  // every index in at least one group is checked. Use when a plain count can't tell branches
+  // apart, e.g. "item 1 alone, OR both items 2 and 3" is [[0], [1, 2]], not requirementsUnlockAt: 1
+  // (which would also unlock on item 3 alone, an invalid path).
+  unlockGroups?: number[][];
+  // A divider line (e.g. "or…", "And then…") rendered above the requirement at `index`,
+  // for lists that need a visual break — alternate branches, a later consequence, etc.
+  requirementsDivider?: { index: number; text: string };
+  // Requirement indices that render as multiple independent checkboxes (e.g. "on three
+  // separate nights, do X" is one string but three separately-trackable boxes). Keyed by
+  // requirement string index, valued by how many checkboxes to render for it.
+  requirementRepeats?: Record<number, number>;
+  // A caveat/consequence sentence shown below the checkbox list — not a task to check off.
+  requirementsNote?: string;
   move: ArcanaMove;
 }
 

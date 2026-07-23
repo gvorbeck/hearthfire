@@ -17,6 +17,25 @@
   flex-shrink: 0;
 }
 
+/* Matches RepeaterField's .removeBtn treatment: borderless, dim-until-hover so it
+   doesn't visually compete with the fixed-item text at rest. */
+.removeFixedBtn {
+  padding: 0;
+  border: none;
+  color: var(--text-tertiary);
+  opacity: 0.2;
+  transition: opacity 0.1s ease;
+}
+
+.fixedItem:hover .removeFixedBtn,
+.fixedItem:focus-within .removeFixedBtn {
+  opacity: 1;
+}
+
+.removeFixedBtn:focus-visible {
+  opacity: 1;
+}
+
 /* Align the editable custom-item rows with the static fixed items above them,
    which render through Text (sans body font, 1.6 leading, spacing-1 row gap).
    RepeaterField defaults to the serif inventory styling, so override it here. */

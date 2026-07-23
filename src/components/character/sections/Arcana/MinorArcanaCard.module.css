@@ -27,14 +27,23 @@
 
 .reqRow {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--spacing-2);
   cursor: pointer;
 }
 
-.reqRow > span {
+.reqRow > span:last-child {
   flex: 1;
-  padding-top: 2px;
+}
+
+.reqBoxes {
+  display: flex;
+  gap: var(--spacing-1);
+  flex-shrink: 0;
+}
+
+.requirementsNote {
+  font-family: var(--font-serif);
 }
 
 .moveReveal {

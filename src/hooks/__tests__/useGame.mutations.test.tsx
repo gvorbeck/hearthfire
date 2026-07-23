@@ -353,6 +353,40 @@ describe('useGame mutations', () => {
     expect(steading.residents?.map((r) => r.id)).toEqual(['n1']);
   });
 
+  it('updateSteading persists removedFixedItems and reads it back (#289)', async () => {
+    firestoreStore.set(GAME_PATH, { name: '', createdAt: 0, characters: [], steading: {} });
+    const { result } = renderGame();
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    await act(async () => {
+      await result.current.updateSteading({ removedFixedItems: ['Village militia'] });
+    });
+    const steading = firestoreStore.get(GAME_PATH)!.steading as { removedFixedItems?: string[] };
+    expect(steading.removedFixedItems).toEqual(['Village militia']);
+    expect(result.current.game?.steading?.removedFixedItems).toEqual(['Village militia']);
+  });
+
+  it('updateSteading unions removedFixedItems so a concurrent removal from a sibling section survives (#289)', async () => {
+    // Simulates the Fortifications section removing an item from its own stale local copy
+    // of the shared removedFixedItems field, after the Resources section already persisted
+    // its own removal — the two writes must not clobber each other.
+    firestoreStore.set(GAME_PATH, {
+      name: '', createdAt: 0, characters: [],
+      steading: { removedFixedItems: ['Farming (beans, potatoes, oats, barley)'] },
+    });
+    const { result } = renderGame();
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    await act(async () => {
+      await result.current.updateSteading({ removedFixedItems: ['Village militia'] });
+    });
+    const steading = firestoreStore.get(GAME_PATH)!.steading as { removedFixedItems?: string[] };
+    expect(steading.removedFixedItems).toEqual(
+      expect.arrayContaining(['Farming (beans, potatoes, oats, barley)', 'Village militia']),
+    );
+    expect(steading.removedFixedItems).toHaveLength(2);
+  });
+
   it('updateSteading id-merges gmImprovements so a concurrently-added slot survives, and removes via removedGmImprovementIds (#244)', async () => {
     const gi1 = { id: 'g1', title: 'Wall', summary: '', requirements: '', effects: '', completed: false };
     const gi2 = { id: 'g2', title: 'Well', summary: '', requirements: '', effects: '', completed: false };

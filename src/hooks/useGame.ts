@@ -260,6 +260,7 @@ export const parseSteading = (raw: unknown): SteadingData | undefined => {
       ? Object.fromEntries(Object.entries(r.neighborNotes).filter(([, iv]) => isString(iv))) as Record<string, string>
       : undefined,
     placesOfInterest: filterByType(r.placesOfInterest, isString),
+    removedFixedItems: filterByType(r.removedFixedItems, isString),
   };
 };
 
@@ -547,6 +548,10 @@ export const useGame = (gameId: string): UseGameResult => {
       const existing = parseSteading(snap.data().steading) ?? {};
 
       const idArrayFields: Record<string, keyof SteadingData> = STEADING_ID_ARRAY_FIELDS;
+      // The write-only sentinel keys (paired to an id-array field above) are consumed via
+      // patch[idArrayFields[k]] below and never written under their own name — unlike
+      // removedFixedItems, which has no paired incoming array and is a real persisted field.
+      const sentinelKeys = new Set(Object.values(idArrayFields));
 
       const dotted: Record<string, unknown> = {};
       for (const [k, v] of Object.entries(patch)) {
@@ -564,7 +569,14 @@ export const useGame = (gameId: string): UseGameResult => {
           const removedIds = patch[idArrayFields[k]] as string[] | undefined;
           const merged = mergeById(existing[k as keyof SteadingData] as { id: string }[] | undefined, v as { id: string }[], removedIds);
           dotted[`steading.${k}`] = stripUndefined(merged);
-        } else if (!(k in idArrayFields) && !k.startsWith('removed')) {
+        } else if (k === 'removedFixedItems' && Array.isArray(v)) {
+          // Union against the freshly-read doc rather than overwrite: the Resources,
+          // Fortifications, and Assets sections each hold their own optimistic copy of this
+          // one shared field, so a stale copy's write must not drop another section's
+          // concurrent removal (or another client's).
+          const merged = new Set([...(existing.removedFixedItems ?? []), ...(v as string[])]);
+          dotted[`steading.${k}`] = [...merged];
+        } else if (!(k in idArrayFields) && !sentinelKeys.has(k as keyof SteadingData)) {
           dotted[`steading.${k}`] = (Array.isArray(v) || isPlainObject(v)) ? stripUndefined(v) : v;
         }
       }
