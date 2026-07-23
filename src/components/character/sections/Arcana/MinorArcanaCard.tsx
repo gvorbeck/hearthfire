@@ -29,10 +29,17 @@ export const MinorArcanaCard = ({
   onFollowerHpChange,
   onRemove,
 }: MinorArcanaCardProps) => {
-  const reqKeys = arcanum.requirements.map((_, i) => `req${i}`);
+  // Most requirements render as a single checkbox; requirementRepeats expands the
+  // requirement at a given string index into multiple independently-checkable boxes
+  // (e.g. "on three separate nights, do X" is one string but three tracked boxes).
+  const reqSlotKeys = arcanum.requirements.map((_, i) => {
+    const repeat = arcanum.requirementRepeats?.[i] ?? 1;
+    return Array.from({ length: repeat }, (_, n) => `req${i}` + (repeat > 1 ? `-${n}` : ''));
+  });
+  const reqKeys = reqSlotKeys.flat();
   const isUnlocked = arcanum.unlockGroups
     ? arcanum.unlockGroups.some((group) =>
-        group.every((i) => !!requirementsChecked?.[reqKeys[i]]),
+        group.every((i) => reqSlotKeys[i].every((key) => !!requirementsChecked?.[key])),
       )
     : reqKeys.filter((k) => requirementsChecked?.[k]).length >=
       (arcanum.requirementsUnlockAt ?? reqKeys.length);
@@ -62,18 +69,23 @@ export const MinorArcanaCard = ({
       </div>
 
       <div className={styles.requirements}>
-        {reqKeys.map((key, i) => (
-          <Fragment key={key}>
+        {reqSlotKeys.map((slotKeys, i) => (
+          <Fragment key={`req${i}`}>
             {arcanum.requirementsDivider?.index === i && (
               <Text as="span" font="serif" italic color="muted">
                 {arcanum.requirementsDivider.text}
               </Text>
             )}
             <label className={styles.reqRow}>
-              <Checkbox
-                checked={!!requirementsChecked?.[key]}
-                onChange={makeToggle(key)}
-              />
+              <span className={styles.reqBoxes}>
+                {slotKeys.map((key) => (
+                  <Checkbox
+                    key={key}
+                    checked={!!requirementsChecked?.[key]}
+                    onChange={makeToggle(key)}
+                  />
+                ))}
+              </span>
               <Text as="span" font="serif">
                 {arcanum.requirements[i]}
               </Text>

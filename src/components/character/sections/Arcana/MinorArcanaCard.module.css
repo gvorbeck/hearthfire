@@ -32,8 +32,14 @@
   cursor: pointer;
 }
 
-.reqRow > span {
+.reqRow > span:last-child {
   flex: 1;
+}
+
+.reqBoxes {
+  display: flex;
+  gap: var(--spacing-1);
+  flex-shrink: 0;
 }
 
 .requirementsNote {

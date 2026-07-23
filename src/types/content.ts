@@ -216,6 +216,10 @@ export interface MinorArcanum {
   // A divider line (e.g. "or…", "And then…") rendered above the requirement at `index`,
   // for lists that need a visual break — alternate branches, a later consequence, etc.
   requirementsDivider?: { index: number; text: string };
+  // Requirement indices that render as multiple independent checkboxes (e.g. "on three
+  // separate nights, do X" is one string but three separately-trackable boxes). Keyed by
+  // requirement string index, valued by how many checkboxes to render for it.
+  requirementRepeats?: Record<number, number>;
   // A caveat/consequence sentence shown below the checkbox list — not a task to check off.
   requirementsNote?: string;
   move: ArcanaMove;

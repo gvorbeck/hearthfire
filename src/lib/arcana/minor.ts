@@ -1105,6 +1105,7 @@ export const MINOR_ARCANA: MinorArcanum[] = [
     weight: 1,
     description:
       "Found in an engraved lead box, this grisly relic is adorned with three golden rings (Value 2). Each ring has an empty setting, as though it was meant to hold a stone. Only dark, rust-like flakes remain.\n\nThe hand still thrums with unholy vitality. To unlock its mysteries, you must…",
+    requirementRepeats: { 2: 3 },
     requirements: [
       "…learn the name of the sorcerer whose hand this was.",
       "…learn the words of power and the process below.",
