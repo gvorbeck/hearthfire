@@ -27,6 +27,7 @@ interface SteadingImprovementListProps {
   items: string[] | undefined;
   improvements: Record<string, boolean> | undefined;
   gmImprovements: GmImprovement[] | undefined;
+  removedFixedItems: string[] | undefined;
   onSave: (patch: Partial<SteadingData>) => Promise<void>;
 }
 
@@ -40,6 +41,7 @@ export const SteadingImprovementList = ({
   items,
   improvements = {},
   gmImprovements,
+  removedFixedItems,
   onSave,
 }: SteadingImprovementListProps) => {
   const { fieldKey, gmCategory, fixedItems, improvementItems, addLabel, itemLabel } = config;
@@ -50,7 +52,17 @@ export const SteadingImprovementList = ({
     (next: string[]) => onSave({ [fieldKey]: next }),
   );
 
+  const firestoreRemovedFixed = removedFixedItems ?? [];
+  const { value: localRemovedFixed, save: saveRemovedFixed } = useOptimisticField(
+    firestoreRemovedFixed,
+    (next: string[]) => onSave({ removedFixedItems: next }),
+  );
+
   const handleSave = useCallback((next: string[]) => save(() => next), [save]);
+  const handleRemoveFixed = useCallback(
+    (label: string) => saveRemovedFixed((current) => current.includes(label) ? current : [...current, label]),
+    [saveRemovedFixed],
+  );
 
   // Hide any improvement that a chosen upgrade replaces (e.g. Palisade once Stone Wall is enabled).
   const visibleImprovements = useMemo(() => {
@@ -75,6 +87,8 @@ export const SteadingImprovementList = ({
       onSave={handleSave}
       addLabel={addLabel}
       itemLabel={itemLabel}
+      removedFixedItems={localRemovedFixed}
+      onRemoveFixed={handleRemoveFixed}
     />
   );
 };
