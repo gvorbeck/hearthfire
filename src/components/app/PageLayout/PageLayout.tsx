@@ -45,6 +45,8 @@ type FullProps = {
   icon?: React.ReactElement<SVGSVGElement>;
   gameId: string;
   nav?: GameNav;
+  // Forwarded to PageHeader's game-ID row — see its `actions` prop.
+  actions?: React.ReactNode;
 } & (
   | { onSaveTitle: (value: string) => Promise<void>; titleLabel: string }
   | { onSaveTitle?: never; titleLabel?: never }
@@ -76,6 +78,7 @@ export const PageLayout = (props: Props) => {
             icon={props.icon}
             gameId={props.gameId}
             nav={props.nav}
+            actions={props.actions}
             onSaveTitle={props.onSaveTitle}
             titleLabel={props.titleLabel!}
           />
@@ -86,6 +89,7 @@ export const PageLayout = (props: Props) => {
             icon={(props as FullProps).icon}
             gameId={(props as FullProps).gameId}
             nav={(props as FullProps).nav}
+            actions={(props as FullProps).actions}
           />
         )
       )}

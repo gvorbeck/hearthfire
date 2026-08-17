@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLatest } from './useLatest';
-import { doc, onSnapshot, runTransaction, updateDoc } from 'firebase/firestore';
+import { doc, onSnapshot, runTransaction, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useSaveStatusOptional } from '@/components/app/SaveStatus/SaveStatusContext';
 import { useToastOptional } from '@/components/app/Toast/ToastContext';
@@ -29,6 +29,7 @@ interface UseGameResult {
   removeCharacter: (characterId: string) => Promise<void>;
   reorderCharacters: (characters: Character[]) => Promise<void>;
   logRoll: (roll: LoggedRoll) => Promise<void>;
+  replaceGameData: (game: Record<string, unknown>) => Promise<void>;
 }
 
 export const useGame = (gameId: string): UseGameResult => {
@@ -266,5 +267,14 @@ export const useGame = (gameId: string): UseGameResult => {
     }));
   }, [gameRef, reportSave]);
 
-  return { game, loading, error, updateGameName, updateCharacterName, updateCharacterData, adjustCharacterStats, updateContent, updateField, updateSteading, addCharacter, removeCharacter, reorderCharacters, logRoll };
+  // Replace the whole document with a validated backup payload (see readImportFile).
+  // Deliberately a `setDoc` overwrite, not a merge: restoring a backup has to be able to
+  // remove things too — a merge would leave characters, NPCs, and improvements added since
+  // the backup was taken sitting alongside the restored ones. The only caller confirms
+  // through a destructive-action dialog and downloads a safety copy of the live doc first.
+  const replaceGameData = useCallback(async (game: Record<string, unknown>) => {
+    await reportSave(() => setDoc(gameRef, game));
+  }, [gameRef, reportSave]);
+
+  return { game, loading, error, updateGameName, updateCharacterName, updateCharacterData, adjustCharacterStats, updateContent, updateField, updateSteading, addCharacter, removeCharacter, reorderCharacters, logRoll, replaceGameData };
 };

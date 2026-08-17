@@ -136,6 +136,17 @@
   margin-top: var(--spacing-3);
 }
 
+/* Page-specific controls sit after the copy button, set apart by a hairline so they
+   read as a separate group rather than more game-ID affordances. */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  margin-left: var(--spacing-1);
+  padding-left: var(--spacing-3);
+  border-left: 1px solid var(--border-subtle);
+}
+
 .copyBtn {
   composes: focusVisible from '@/components/ui/field.module.css';
   flex-shrink: 0;

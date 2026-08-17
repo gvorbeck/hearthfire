@@ -54,6 +54,10 @@ type FullProps = {
   icon?: React.ReactElement<SVGSVGElement>;
   gameId: string;
   nav?: GameNav;
+  // Page-specific controls rendered alongside the game ID. A slot rather than a
+  // flag so PageHeader stays generic: only the page that owns a control passes
+  // one, and no gating is needed to keep it off the pages that don't.
+  actions?: React.ReactNode;
 } & (
   | { onSaveTitle: (value: string) => Promise<void>; titleLabel: string }
   | { onSaveTitle?: never; titleLabel?: never }
@@ -158,7 +162,7 @@ export const PageHeader = (props: Props) => {
    */
   let pageIdentity: React.ReactNode = null;
   if (!simple) {
-    const { title, subtitle, icon, gameId, nav } = props as FullProps;
+    const { title, subtitle, icon, gameId, nav, actions } = props as FullProps;
     const onSaveTitle = (props as FullProps).onSaveTitle;
     const titleLabel = (props as FullProps).titleLabel;
 
@@ -240,6 +244,7 @@ export const PageHeader = (props: Props) => {
               aria-describedby={copyTooltipId}
             />
           </Tooltip>
+          {actions && <div className={styles.actions}>{actions}</div>}
         </div>
         <RuleDivider className={styles.rule} />
       </div>
