@@ -99,11 +99,16 @@ export const useTooltip = ({ side = 'top', tooltipId: externalId, portal = false
           const tipTop = flippedSide === 'bottom'
             ? anchorRect.bottom + TOOLTIP_GAP
             : anchorRect.top - tipHeight - TOOLTIP_GAP;
+          // A fixed tooltip is centred on the anchor via translateX(-50%), so
+          // fold the screen-margin shift straight into the coordinate rather
+          // than the transform, and walk the arrow back by the same amount so
+          // it keeps pointing at the anchor. Without this, an anchor near the
+          // viewport edge (the add button always is) overflows off screen.
           setPosition({
             resolvedSide: flippedSide,
             nudgeX: 0,
-            arrowOffset: '50%',
-            fixedCoords: { top: tipTop, left: anchorRect.left + anchorRect.width / 2 },
+            arrowOffset: shift !== 0 ? `${50 - (shift / tipWidth) * 100}%` : '50%',
+            fixedCoords: { top: tipTop, left: anchorRect.left + anchorRect.width / 2 + shift },
           });
         } else {
           setPosition({

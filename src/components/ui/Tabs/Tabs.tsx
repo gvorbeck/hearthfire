@@ -2,6 +2,7 @@ import {
   useState,
   useId,
   useRef,
+  useEffect,
   useCallback,
   useMemo,
   type ReactNode,
@@ -75,7 +76,6 @@ const PortalTooltip = ({
         {
           "--tooltip-top": `${fixedCoords?.top ?? 0}px`,
           "--tooltip-left": `${fixedCoords?.left ?? 0}px`,
-          "--nudge-x": "0px",
           "--arrow-offset": arrowOffset,
         } as React.CSSProperties
       }
@@ -209,18 +209,14 @@ const TabButton = ({
     // eslint-disable-next-line react-hooks/immutability
     tabRefs.current[index] = el as HTMLDivElement | null;
   }, [tabRefs, index]);
-  const { anchorRef, tooltipId, anchorProps, tooltipRef, visible, nudgeX, arrowOffset, resolvedSide } = useTooltip({
+  const { anchorRef, tooltipId, anchorProps, tooltipRef, visible, fixedCoords, arrowOffset, resolvedSide } = useTooltip({
     side: "bottom",
     tooltipId: tab.badgeTooltip ? `${baseId}-tab-${slotId}-tooltip` : undefined,
+    portal: true,
     externalRef: collectTabNode,
   });
   const cx = clsx(styles.tab, isActive && styles.active, onRemove && styles.tabHasRemove);
   const slotCx = clsx(styles.tabSlot, isActive && styles.tabSlotActive);
-  const tipCx = clsx(
-    styles.tabTooltip,
-    styles[resolvedSide],
-    visible && styles.tabTooltipVisible,
-  );
 
   const handleClick = useCallback(() => onActivate(index), [onActivate, index]);
   const handleKeyDown = useCallback((e: KeyboardEvent<HTMLDivElement>) => {
@@ -234,23 +230,19 @@ const TabButton = ({
     onKeyDown(e, index);
   }, [onActivate, onKeyDown, index]);
 
+  // Portalled like the add/remove tooltips: the tab strip is an overflow
+  // container, so a tooltip rendered below the tab in flow gets clipped away.
   const badgeTooltipEl = tab.badgeTooltip ? (
-    <span
-      ref={tooltipRef}
-      role="tooltip"
-      id={tooltipId}
-      aria-hidden={!visible}
-      className={tipCx}
-      style={
-        {
-          "--nudge-x": `${nudgeX}px`,
-          "--arrow-offset": arrowOffset,
-        } as React.CSSProperties
-      }
+    <PortalTooltip
+      tooltipRef={tooltipRef}
+      tooltipId={tooltipId}
+      visible={visible}
+      fixedCoords={fixedCoords}
+      arrowOffset={arrowOffset}
+      resolvedSide={resolvedSide}
     >
       {tab.badgeTooltip}
-      <span className={styles.tabTooltipArrow} />
-    </span>
+    </PortalTooltip>
   ) : null;
 
   // The remove control is a real <button>; render it as a sibling of the
@@ -273,8 +265,8 @@ const TabButton = ({
       >
         {tab.label}
         {tab.badge}
-        {badgeTooltipEl}
       </div>
+      {badgeTooltipEl}
       {onRemove && (
         <TabRemoveButton
           tab={tab}
@@ -301,6 +293,7 @@ export const Tabs = ({
 
   const baseId = useId();
   const tabRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const tablistRef = useRef<HTMLDivElement>(null);
 
   const resolvedTabs = useMemo(
     () =>
@@ -340,6 +333,24 @@ export const Tabs = ({
 
   const cx = clsx(styles.root, className);
 
+  // Keep the active tab within the scrolled strip. Clicking and keyboard focus
+  // scroll it into view on their own, but a controlled `activeIndex` change
+  // (hash routing) touches neither, so a deep link can land on a tab that is
+  // scrolled off screen. Measured off rects, not offsetLeft: the tab's
+  // offsetParent is its position:relative slot, not the strip.
+  useEffect(() => {
+    const strip = tablistRef.current;
+    const el = tabRefs.current[active];
+    if (!strip || !el) return;
+    const stripRect = strip.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    if (elRect.left < stripRect.left) {
+      strip.scrollLeft -= stripRect.left - elRect.left;
+    } else if (elRect.right > stripRect.right) {
+      strip.scrollLeft += elRect.right - stripRect.right;
+    }
+  }, [active]);
+
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLDivElement>, i: number) => {
       if (e.key === "ArrowRight") {
@@ -367,7 +378,7 @@ export const Tabs = ({
   return (
     <div className={cx}>
       <div className={styles.tablistRow}>
-        <div className={styles.tablist} role="tablist" aria-label={ariaLabel}>
+        <div ref={tablistRef} className={styles.tablist} role="tablist" aria-label={ariaLabel}>
           {resolvedTabs.map((tab, i) => (
             <TabButton
               key={tab.id}

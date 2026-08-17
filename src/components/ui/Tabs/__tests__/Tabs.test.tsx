@@ -54,6 +54,17 @@ describe('Tabs', () => {
     expect(getTab('One').contains(removeButton)).toBe(false);
   });
 
+  it('portals the badge tooltip out of the tab strip', () => {
+    const withBadge = [{ ...TABS[0], badgeTooltip: 'New invocations available' }, TABS[1]];
+    render(<Tabs tabs={withBadge} aria-label="Example" />);
+
+    const tip = screen.getByText('New invocations available');
+    // The strip is an overflow container, so a tooltip rendered inside it is
+    // clipped and never visible. It has to live outside the tablist entirely.
+    expect(screen.getByRole('tablist').contains(tip)).toBe(false);
+    expect(tip.closest('[role="tab"]')).toBeNull();
+  });
+
   it('clicking remove fires onRemove without activating the tab', () => {
     let removed = false;
     const removable = [
