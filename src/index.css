@@ -1,4 +1,10 @@
 :root {
+  /* Tells the UA which palette to draw its own chrome in — the overscroll
+     gutter, native <select> popups, and any scrollbar our CSS below can't
+     reach. Must live here rather than in a later rule: [data-theme="light"]
+     has equal specificity, so a later :root would win over it. */
+  color-scheme: dark;
+
   /* Stone — warm neutrals */
   --color-stone-50: #fafaf9;
   --color-stone-100: #f5f4f0;
@@ -127,6 +133,11 @@
   --text-success: var(--color-success);
   --text-warning: var(--color-warning);
 
+  /* Scrollbars — aged brass on a transparent track. No hover token: browsers
+     derive their own hover and active shades from the thumb color. */
+  --scrollbar-thumb: var(--color-gold-600);
+  --scrollbar-track: transparent;
+
   /* Shadows */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
@@ -151,6 +162,8 @@
 }
 
 [data-theme="light"] {
+  color-scheme: light;
+
   --surface-page: var(--color-stone-50);
   --surface-panel: var(--color-stone-100);
   --surface-raised: var(--color-stone-200);
@@ -177,6 +190,12 @@
   --color-danger: var(--color-ember-600);
   --color-success: var(--color-moss-600);
   --color-warning: var(--color-amber-600);
+
+  /* gold-700, not 600: a styled scrollbar is an author-drawn UI component, so
+     the thumb needs ≥3:1 against every surface it can sit on (WCAG 1.4.11).
+     gold-600 only manages ≈2.8:1 on the overlay surface behind dropdown lists,
+     and gold-400 is ≈1.9:1 — invisible on light stone. */
+  --scrollbar-thumb: var(--color-gold-700);
 
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -216,6 +235,16 @@ body {
   min-height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+/* Scrollbars. scrollbar-color is inherited, so setting it on the root themes
+   every scroll container in the app at once; Tabs opts out with its own local
+   override. Deliberately no scrollbar-width: `thin` narrows the bar below the
+   system size on Windows and Linux, shrinking the drag target for anyone who
+   struggles with fine pointer control. Browsers that predate scrollbar-color
+   just render their default bar. */
+html {
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
 a {
