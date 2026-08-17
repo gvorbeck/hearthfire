@@ -11,6 +11,7 @@ import { RemoveCharacterModal } from './modals/RemoveCharacterModal';
 import { GameGuard } from '@/components/app/GameGuard/GameGuard';
 import { PageLayout } from '@/components/app/PageLayout/PageLayout';
 import { RollLog } from '@/components/character/RollLog/RollLog';
+import { GameDataActions } from './GameDataActions';
 import type { Character, GameSession } from '@/types';
 import styles from './Game.module.css';
 
@@ -118,6 +119,7 @@ interface GameContentProps {
   onAddCharacter: ReturnType<typeof useGame>['addCharacter'];
   onRemoveCharacter: ReturnType<typeof useGame>['removeCharacter'];
   onReorderCharacters: ReturnType<typeof useGame>['reorderCharacters'];
+  onReplaceGameData: ReturnType<typeof useGame>['replaceGameData'];
 }
 
 const GameContent = ({
@@ -132,6 +134,7 @@ const GameContent = ({
   onAddCharacter,
   onRemoveCharacter,
   onReorderCharacters,
+  onReplaceGameData,
 }: GameContentProps) => {
   const gameName = g.name || DEFAULT_GAME_NAME;
   const [removingCharacter, setRemovingCharacter] = useState<Character | null>(null);
@@ -248,6 +251,13 @@ const GameContent = ({
         titleLabel="Edit game name"
         gameId={id}
         onSaveTitle={onSaveTitle}
+        actions={
+          <GameDataActions
+            gameId={id}
+            gameName={gameName}
+            onReplaceGameData={onReplaceGameData}
+          />
+        }
       >
         <div className={styles.sections}>
           <div className={styles.sectionCharacters}>
@@ -310,7 +320,7 @@ const GameContent = ({
 export const Game = () => {
   const { id = '' } = useParams<{ id: string }>();
   const { state } = useLocation();
-  const { game, loading, error, updateGameName, addCharacter, removeCharacter, reorderCharacters } = useGame(id);
+  const { game, loading, error, updateGameName, addCharacter, removeCharacter, reorderCharacters, replaceGameData } = useGame(id);
   const [showIdModal, setShowIdModal] = useState((state as LocationState | null)?.isNew === true);
   const [showAddCharacter, setShowAddCharacter] = useState(false);
 
@@ -339,6 +349,7 @@ export const Game = () => {
           onAddCharacter={addCharacter}
           onRemoveCharacter={removeCharacter}
           onReorderCharacters={reorderCharacters}
+          onReplaceGameData={replaceGameData}
         />
       )}
     </GameGuard>

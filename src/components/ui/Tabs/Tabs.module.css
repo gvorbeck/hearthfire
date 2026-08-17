@@ -7,34 +7,38 @@
   display: flex;
   align-items: center;
   border-bottom: 1px solid var(--border-subtle);
+}
+
+/* The tab strip scrolls, not the whole row: the add button lives outside this
+   box so overflowing tabs can never slide under it. `min-width: 0` lets the
+   strip shrink past its content, which is what makes the overflow scroll. */
+.tablist {
+  display: flex;
+  flex: 1;
+  min-width: 0;
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: thin;
   scrollbar-color: var(--color-gold-400) transparent;
 }
 
-.tablistRow::-webkit-scrollbar {
+.tablist::-webkit-scrollbar {
   height: 3px;
 }
 
-.tablistRow::-webkit-scrollbar-track {
+.tablist::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.tablistRow::-webkit-scrollbar-thumb {
+.tablist::-webkit-scrollbar-thumb {
   background: var(--color-gold-400);
   border-radius: 2px;
-}
-
-.tablist {
-  display: flex;
-  flex: 1;
-  min-width: 0;
 }
 
 .addTabWrapper {
   display: inline-flex;
   align-items: center;
+  flex: none;
 }
 
 .addTab {
@@ -57,10 +61,13 @@
   border-color: var(--text-accent);
 }
 
+/* Never shrink a tab below its label — the strip scrolls instead. Without this
+   the labels squeeze to min-content and wrap mid-word. */
 .tabSlot {
   position: relative;
   display: inline-flex;
   align-items: center;
+  flex: none;
 }
 
 .tab {
@@ -157,12 +164,6 @@
               0 0 10px 2px color-mix(in srgb, var(--color-gold-400) 30%, transparent);
 }
 
-.tabTooltip.portalFixed {
-  position: fixed;
-  top: var(--tooltip-top);
-  left: var(--tooltip-left);
-}
-
 .tabTooltip {
   position: absolute;
   z-index: var(--z-tooltip);
@@ -188,29 +189,36 @@
 }
 
 .tabTooltip.bottom {
-  top: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(calc(-50% + var(--nudge-x, 0px))) translateY(-4px);
+  transform: translateX(-50%) translateY(-4px);
 }
 
 .tabTooltip.bottom.tabTooltipVisible {
   opacity: 1;
   visibility: visible;
   transition: opacity 0.12s ease, transform 0.12s ease, visibility 0s 0s;
-  transform: translateX(calc(-50% + var(--nudge-x, 0px))) translateY(0);
+  transform: translateX(-50%) translateY(0);
 }
 
 .tabTooltip.top {
-  bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(calc(-50% + var(--nudge-x, 0px))) translateY(4px);
+  transform: translateX(-50%) translateY(4px);
 }
 
 .tabTooltip.top.tabTooltipVisible {
   opacity: 1;
   visibility: visible;
   transition: opacity 0.12s ease, transform 0.12s ease, visibility 0s 0s;
-  transform: translateX(calc(-50% + var(--nudge-x, 0px))) translateY(0);
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Every tooltip in this file is portalled to <body>, so placement comes from the
+   viewport coordinates useTooltip measures — never from the anchor. The .top /
+   .bottom rules deliberately set no offsets: an anchor-relative `bottom` here
+   would resolve against the viewport and fight this `top`, over-constraining the
+   box until it collapses to half height. They own only the transform and arrow. */
+.tabTooltip.portalFixed {
+  position: fixed;
+  top: var(--tooltip-top);
+  left: var(--tooltip-left);
 }
 
 .tabTooltipArrow {

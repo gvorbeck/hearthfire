@@ -1,0 +1,23 @@
+/* Matches PageHeader's .copyBtn so the three controls in the game-ID row read as one set. */
+.actionBtn {
+  composes: focusVisible from '@/components/ui/field.module.css';
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  border: none;
+}
+
+.actionBtn:hover:not(:disabled) {
+  color: var(--text-accent);
+  background: none;
+  border: none;
+}
+
+/* display:none would make the input unclickable in some browsers, and the label lives on
+   the visible button instead — so hide it visually while leaving it in the layout. */
+.fileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}

@@ -2,6 +2,7 @@ import { initializeApp, cert, type ServiceAccount } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import * as path from 'path';
 import * as fs from 'fs';
+import { EXPORT_FORMAT, EXPORT_VERSION } from '@/lib/gameBackupFormat';
 
 const serviceKeyPath = path.resolve(process.env.GOOGLE_APPLICATION_CREDENTIALS ?? '');
 if (!serviceKeyPath || !fs.existsSync(serviceKeyPath)) {
@@ -53,11 +54,42 @@ const clearCheckpoint = (): void => {
   if (fs.existsSync(CHECKPOINT_PATH)) fs.rmSync(CHECKPOINT_PATH);
 };
 
+// Two file shapes reach this script. `npm run backup` writes a doc-id-keyed map of the
+// whole collection; the in-app Export button writes a single-game envelope. Normalize the
+// envelope down to the same map so the rest of the script has one shape to handle.
+const normalize = (parsed: Record<string, unknown>): Record<string, unknown> => {
+  if (parsed.format !== EXPORT_FORMAT) return parsed;
+
+  const version = parsed.version;
+  if (typeof version !== 'number') {
+    console.error('Export file is missing its version number — refusing to restore it.');
+    process.exit(1);
+  }
+  if (version > EXPORT_VERSION) {
+    console.error(`Export file is format v${version}, but this script only understands up to v${EXPORT_VERSION}. Update the repo and try again.`);
+    process.exit(1);
+  }
+
+  const gameId = parsed.gameId;
+  const game = parsed.game;
+  if (typeof gameId !== 'string' || !gameId) {
+    console.error('Export file has no gameId — refusing to guess which document to overwrite.');
+    process.exit(1);
+  }
+  if (typeof game !== 'object' || game === null || Array.isArray(game)) {
+    console.error('Export file has no game data in it.');
+    process.exit(1);
+  }
+
+  console.log(`Detected single-game export (format v${version}) for "${gameId}", taken ${parsed.exportedAt ?? 'unknown'}.\n`);
+  return { [gameId]: game };
+};
+
 const restore = async () => {
   console.log(`Mode: ${WRITE ? 'WRITE' : 'DRY RUN (pass --write to commit)'}`);
   console.log(`Backup file: ${backupPath}\n`);
 
-  const data = JSON.parse(fs.readFileSync(backupPath, 'utf8')) as Record<string, unknown>;
+  const data = normalize(JSON.parse(fs.readFileSync(backupPath, 'utf8')) as Record<string, unknown>);
   const ids = Object.keys(data);
   console.log(`Found ${ids.length} documents in backup.\n`);
 
