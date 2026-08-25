@@ -24,6 +24,14 @@ export interface RollReport {
   band: string | null;
 }
 
+// A resolved stat option for a multi-stat move (Defy Danger, Interfere, Heavy Death's Door).
+export interface StatOption {
+  stat: RollStat;
+  mod: number;
+  debilityDisadvantage: boolean;
+  resource?: string;
+}
+
 interface RollAffordanceProps {
   stat: RollStat;
   bands: RollBand[];
@@ -33,6 +41,9 @@ interface RollAffordanceProps {
   // Set when the move rolls against something the sheet can't read (+Favor, +Fortunes, +STAT, …). The
   // roll starts at 0 and the player dials the value in on the adjustment stepper.
   resource?: string;
+  // Multi-stat moves: one entry per rollable stat. When present (length > 1), the trigger area renders
+  // a row of per-stat buttons instead of a single trigger.
+  statOptions?: StatOption[];
   onRoll?: (report: RollReport) => void;
 }
 
@@ -61,31 +72,36 @@ const rollLabel = (stat: RollStat, resource: string | undefined): string => {
 const signed = (n: number): string => (n >= 0 ? `+${n}` : `${n}`);
 
 export const RollAffordance = ({
-  stat,
+  stat: initialStat,
   bands,
-  mod,
-  debilityDisadvantage,
-  resource,
+  mod: initialMod,
+  debilityDisadvantage: initialDebilityDis,
+  resource: initialResource,
+  statOptions,
   onRoll,
 }: RollAffordanceProps) => {
+  const isMultiStat = statOptions !== undefined && statOptions.length > 1;
+
+  // Multi-stat: the selected stat is internal state (changed by clicking a stat button).
+  // Single-stat: the stat is always the prop value — no internal override.
+  const [selectedStat, setSelectedStat] = useState<StatOption | null>(null);
+  const activeStat = isMultiStat && selectedStat ? selectedStat.stat : initialStat;
+  const activeMod = isMultiStat && selectedStat ? selectedStat.mod : initialMod;
+  const activeResource = isMultiStat && selectedStat ? selectedStat.resource : initialResource;
+
   const [open, setOpen] = useState(false);
-  const [mode, setMode] = useState<RollMode>(debilityDisadvantage ? 'dis' : 'normal');
+  const [mode, setMode] = useState<RollMode>(initialDebilityDis ? 'dis' : 'normal');
   const [result, setResult] = useState<RollResult | null>(null);
   const [tumbling, setTumbling] = useState(false);
-  // A hand-dialed flat modifier: the resource value for a `+Favor` roll, or the "add +1 for this,
-  // -1 for that" adjustments the prose asks for on top of a stat.
   const [adjust, setAdjust] = useState(0);
   const tumbleTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  // Identity of the roll on the table, so a mode change updates its log entry instead of adding one.
   const rollId = useRef('');
-  // A third die this roll has rolled and since set aside by switching back to normal. Held so flipping
-  // back to advantage/disadvantage re-reads it — otherwise toggling would be a free re-roll of that die.
   const spare = useRef<number | null>(null);
 
   useEffect(() => () => clearTimeout(tumbleTimer.current), []);
 
   const report = useCallback(
-    (next: RollResult) => {
+    (next: RollResult, stat: RollStat, resource: string | undefined) => {
       onRoll?.({
         rollId: rollId.current,
         stat,
@@ -98,33 +114,43 @@ export const RollAffordance = ({
         band: bandFor(next.total, bands)?.label ?? null,
       });
     },
-    [bands, onRoll, stat, resource],
+    [bands, onRoll],
   );
 
   const doRoll = useCallback(
-    (rollMode: RollMode) => {
+    (rollMode: RollMode, mod: number, stat: RollStat, resource: string | undefined) => {
       const next = rollAction(mod + adjust, rollMode);
       rollId.current = generateId();
       spare.current = null;
       setResult(next);
       setTumbling(true);
       clearTimeout(tumbleTimer.current);
-      // The result is decided immediately; only the display tumbles, then settles.
       tumbleTimer.current = setTimeout(() => setTumbling(false), TUMBLE_MS);
-      report(next);
+      report(next, stat, resource);
     },
-    [mod, adjust, report],
+    [adjust, report],
   );
 
-  // First tap opens the panel and rolls; the button becomes the re-roll control once open.
+  // Single-stat: first tap opens and rolls; subsequent taps re-roll.
   const handleButton = useCallback(() => {
     if (!open) setOpen(true);
-    doRoll(mode);
-  }, [open, mode, doRoll]);
+    doRoll(mode, activeMod, activeStat, activeResource);
+  }, [open, mode, doRoll, activeMod, activeStat, activeResource]);
 
-  // Before a roll the toggle only arms the next one. Once dice are on the table it re-reads *those*
-  // dice under the new mode — advantage/disadvantage add a third, normal sets it aside — so a player who
-  // remembers their advantage after rolling doesn't lose the roll they already made.
+  // Multi-stat: clicking a stat button selects it and rolls.
+  const handleStatClick = useCallback(
+    (option: StatOption) => {
+      setSelectedStat(option);
+      const newMode = option.debilityDisadvantage ? 'dis' : 'normal';
+      setMode(newMode);
+      setResult(null);
+      spare.current = null;
+      if (!open) setOpen(true);
+      doRoll(newMode, option.mod, option.stat, option.resource);
+    },
+    [open, doRoll],
+  );
+
   const handleMode = useCallback(
     (next: RollMode) => {
       if (next === mode) return;
@@ -133,53 +159,74 @@ export const RollAffordance = ({
       const remoded = remodeRoll(result, next, spare.current);
       spare.current = remoded.dice[2] ?? result.dice[2] ?? spare.current;
       setResult(remoded);
-      report(remoded);
+      report(remoded, activeStat, activeResource);
     },
-    [mode, result, report],
+    [mode, result, report, activeStat, activeResource],
   );
 
-  // Tapping the stepper never re-rolls — it sets the modifier for the *next* roll, so a multi-click
-  // adjustment doesn't burn a handful of rolls (or log them) on its way to the number you wanted.
   const handleAdjust = useCallback(
     (delta: number) => setAdjust((a) => Math.min(ADJUST_MAX, Math.max(ADJUST_MIN, a + delta))),
     [],
   );
 
   const hitBand = result && !tumbling ? bandFor(result.total, bands) : null;
-  const label = rollLabel(stat, resource);
+  const label = rollLabel(activeStat, activeResource);
   const triggerCx = clsx(styles.trigger, open && styles.rerollIcon);
-  // Marked rather than truly `disabled` at the bounds: a disabled button drops the keyboard focus that
-  // is sitting on it, and the clamp in handleAdjust already makes the extra press a no-op.
   const atMin = adjust <= ADJUST_MIN;
   const atMax = adjust >= ADJUST_MAX;
 
-  // What the settled roll actually added, read back off the result so the row keeps describing the roll
-  // that was made even after the stepper has been dialed to something else for the next one.
   const modText = (rolled: RollResult): string => {
-    const rolledAdjust = rolled.mod - mod;
-    if (resource) return `${signed(rolled.mod)} ${resource}`;
-    if (stat === 'nothing') return signed(rolled.mod);
-    return `${signed(mod)} ${stat}${rolledAdjust === 0 ? '' : ` ${signed(rolledAdjust)}`}`;
+    const rolledAdjust = rolled.mod - activeMod;
+    if (activeResource) return `${signed(rolled.mod)} ${activeResource}`;
+    if (activeStat === 'nothing') return signed(rolled.mod);
+    return `${signed(activeMod)} ${activeStat}${rolledAdjust === 0 ? '' : ` ${signed(rolledAdjust)}`}`;
   };
 
   return (
     <div className={styles.root}>
       <div className={styles.controls}>
-        <Button
-          variant="ghost"
-          size="sm"
-          icon="dice"
-          className={triggerCx}
-          onClick={handleButton}
-          aria-label={open ? 'Re-roll' : `Roll ${label}`.trim()}
-          title={open ? 'Re-roll' : undefined}
-        >
-          {label && (
-            <Text as="span" size="xs" font="sans" weight="semibold">
-              {label}
-            </Text>
-          )}
-        </Button>
+        {isMultiStat ? (
+          <div className={styles.statPicker} role="group" aria-label="Choose a stat to roll">
+            {statOptions.map((option) => {
+              const optLabel = rollLabel(option.stat, option.resource);
+              const isActive = open && option.stat === activeStat && option.resource === activeResource;
+              return (
+                <Button
+                  key={`${option.stat}-${option.resource ?? ''}`}
+                  variant="ghost"
+                  size="sm"
+                  icon="dice"
+                  className={clsx(styles.trigger, isActive && styles.statTriggerActive)}
+                  onClick={() => handleStatClick(option)}
+                  aria-label={`Roll ${optLabel}`.trim()}
+                  aria-pressed={isActive}
+                >
+                  {optLabel && (
+                    <Text as="span" size="xs" font="sans" weight="semibold">
+                      {optLabel}
+                    </Text>
+                  )}
+                </Button>
+              );
+            })}
+          </div>
+        ) : (
+          <Button
+            variant="ghost"
+            size="sm"
+            icon="dice"
+            className={triggerCx}
+            onClick={handleButton}
+            aria-label={open ? 'Re-roll' : `Roll ${label}`.trim()}
+            title={open ? 'Re-roll' : undefined}
+          >
+            {label && (
+              <Text as="span" size="xs" font="sans" weight="semibold">
+                {label}
+              </Text>
+            )}
+          </Button>
+        )}
 
         <div className={styles.modeToggle} role="group" aria-label="Advantage / disadvantage">
           {MODES.map((m) => (
@@ -188,9 +235,6 @@ export const RollAffordance = ({
               type="button"
               className={clsx(styles.modeButton, mode === m.value && styles.modeButtonActive)}
               aria-pressed={mode === m.value}
-              // Only the em-dash button needs an accessible name — its visible label is punctuation.
-              // The Adv/Dis buttons are named by their visible text; overriding it with aria-label
-              // would break "click Adv" voice control (Label in Name).
               aria-label={m.value === 'normal' ? m.title : undefined}
               title={m.title}
               onClick={() => handleMode(m.value)}
@@ -209,8 +253,6 @@ export const RollAffordance = ({
             aria-disabled={atMin}
             aria-label="Subtract 1 from the roll"
           />
-          {/* aria-live so the value is announced as the buttons change it — the buttons' own names are
-              fixed, so nothing else would speak the new number. */}
           <span className={styles.adjustValue} aria-live="polite" aria-atomic="true">
             {signed(adjust)}
           </span>

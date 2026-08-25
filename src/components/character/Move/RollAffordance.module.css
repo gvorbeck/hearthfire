@@ -37,6 +37,20 @@
   transform: scale(0.94);
 }
 
+/* ── Multi-stat picker row (Defy Danger, Interfere) ──── */
+.statPicker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-1);
+}
+
+/* The active stat's button gets an accent border + inset ring so it stands out from a mere hover. */
+.statTriggerActive {
+  border-color: var(--border-accent);
+  background: var(--surface-panel);
+  box-shadow: inset 0 0 0 1px var(--border-accent);
+}
+
 /* ── Hand-dialed modifier stepper ────────────────────── */
 .adjust {
   display: flex;

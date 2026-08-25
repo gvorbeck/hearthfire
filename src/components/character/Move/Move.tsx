@@ -12,7 +12,7 @@ import {
 import type { MoveBlock, MoveDefinition, RightControlSpec } from '@/types';
 import { parseMoveRoll } from '@/lib/parseMoveRoll';
 import { resolveRollStat } from '@/lib/rollDice';
-import { RollAffordance } from './RollAffordance';
+import { RollAffordance, type StatOption } from './RollAffordance';
 import { useCharacterRollOptional } from './CharacterRollContext';
 import styles from './Move.module.css';
 
@@ -167,8 +167,25 @@ export const Move = ({
   // in the GM move search / bare tests). Shown only on an active move whose prose names a roll —
   // so the same shared Move offers rolling everywhere it appears, with no per-caller wiring.
   const rollContext = useCharacterRollOptional();
-  const parsedRoll = rollContext && rollActive ? parseMoveRoll(move) : null;
-  const rollResolved = parsedRoll ? resolveRollStat(parsedRoll.stat, rollContext!.data) : null;
+  const parsedRolls = rollContext && rollActive ? parseMoveRoll(move) : null;
+
+  // For single-stat (array length 1): resolve and render exactly as before.
+  // For multi-stat: resolve every option into a StatOption[] for the RollAffordance picker.
+  const rollResolved = parsedRolls?.length === 1
+    ? resolveRollStat(parsedRolls[0].stat, rollContext!.data)
+    : null;
+  const statOptions: StatOption[] | undefined =
+    parsedRolls && parsedRolls.length > 1
+      ? parsedRolls.map((roll) => {
+          const resolved = resolveRollStat(roll.stat, rollContext!.data);
+          return {
+            stat: roll.stat,
+            mod: resolved.mod,
+            debilityDisadvantage: resolved.debilityDisadvantage,
+            resource: roll.resource,
+          };
+        })
+      : undefined;
 
   const citationText = citation ?? move.citation;
   const blocks = move.body ?? [];
@@ -176,7 +193,7 @@ export const Move = ({
   // Whether the body bay holds anything — a roll affordance, requirement note, prose blocks, or a
   // citation. Display-only moves with none of these skip the bay so the plaque isn't left with an
   // empty padded region hanging beneath it.
-  const hasRoll = !!(parsedRoll && rollResolved);
+  const hasRoll = !!(parsedRolls && (rollResolved || statOptions));
   const hasRequirement = requirement !== undefined && requirement.length > 0;
   const hasBody = hasRoll || hasRequirement || blocks.length > 0 || !!citationText;
 
@@ -375,13 +392,24 @@ export const Move = ({
       </div>
       {hasBody && (
         <div className={styles.moveBody}>
-          {hasRoll && (
+          {hasRoll && statOptions && (
             <RollAffordance
-              stat={parsedRoll!.stat}
-              bands={parsedRoll!.bands}
-              mod={rollResolved!.mod}
-              debilityDisadvantage={rollResolved!.debilityDisadvantage}
-              resource={parsedRoll!.resource}
+              stat={statOptions[0].stat}
+              bands={parsedRolls![0].bands}
+              mod={statOptions[0].mod}
+              debilityDisadvantage={statOptions[0].debilityDisadvantage}
+              resource={statOptions[0].resource}
+              statOptions={statOptions}
+              onRoll={(report) => rollContext!.onRoll(move.name, report)}
+            />
+          )}
+          {hasRoll && rollResolved && !statOptions && (
+            <RollAffordance
+              stat={parsedRolls![0].stat}
+              bands={parsedRolls![0].bands}
+              mod={rollResolved.mod}
+              debilityDisadvantage={rollResolved.debilityDisadvantage}
+              resource={parsedRolls![0].resource}
               onRoll={(report) => rollContext!.onRoll(move.name, report)}
             />
           )}

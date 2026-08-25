@@ -7,6 +7,15 @@ import { STAT_ABBRS } from './constants';
 // adjustment stepper — which is also how "add +1 for this, -1 for that" prose gets applied.
 const ROLL_TARGET_RE = /\broll \+([a-z]+)\b/i;
 
+// Ellipsis pattern: "roll..." or "roll…" — the player picks one of several stats named in the body.
+const ROLL_ELLIPSIS_RE = /\broll\s*(?:\.{3}|…)/i;
+
+// Inline "or" pattern: "roll +CON or +nothing" — two targets on one line.
+const ROLL_OR_RE = /\broll \+([a-z]+)\s+or\s+\+([a-z]+)\b/i;
+
+// Collect stat abbreviations that appear as `+STR`, `+DEX` etc. in a block of text.
+const STAT_TARGET_RE = new RegExp(`\\+(?:${STAT_ABBRS.join('|')})\\b`, 'g');
+
 // The stat alternation is derived from the shared STATS table so it can't drift from the rest of the app.
 const STAT_TARGETS = new Set<string>(STAT_ABBRS);
 
@@ -45,28 +54,55 @@ const parseBands = (text: string): RollBand[] => {
   }
   for (const [, hi] of text.matchAll(BAND_MISS_RE)) {
     const max = Number(hi);
-    // A "6-" miss band: everything at or below the threshold.
     add({ label: `${hi}-`, min: 0, max });
   }
 
   return [...byLabel.values()].sort((a, b) => b.min - a.min);
 };
 
-// Parse a move for a rollable action. Returns null (→ no roll button) unless the prose says "roll +"
-// something. Only the first `roll +X` is used; the handful of multi-roll moves in the book roll their
-// first target in v1 (a documented limitation).
-export const parseMoveRoll = (move: MoveDefinition): MoveRoll | null => {
+// Resolve a captured target word into a MoveRoll entry (stat, resource, or nothing).
+const resolveTarget = (target: string, bands: RollBand[]): MoveRoll => {
+  const upper = target.toUpperCase();
+  if (STAT_TARGETS.has(upper)) return { stat: upper as RollStat, bands };
+  if (upper === 'NOTHING') return { stat: 'nothing', bands };
+  return { stat: 'nothing', bands, resource: target };
+};
+
+// Parse a move for rollable actions. Returns null (→ no roll button) unless the prose says "roll +"
+// something. Multi-stat moves (Defy Danger, Interfere) and "or" moves (Heavy's Death's Door) return
+// multiple entries; single-stat moves return a 1-element array.
+export const parseMoveRoll = (move: MoveDefinition): MoveRoll[] | null => {
   const text = bodyText(move);
+
+  // "roll +CON or +nothing" — two explicit targets on one line.
+  const orMatch = text.match(ROLL_OR_RE);
+  if (orMatch) {
+    const bands = parseBands(text);
+    return [resolveTarget(orMatch[1], bands), resolveTarget(orMatch[2], bands)];
+  }
+
+  // "roll..." / "roll…" — ellipsis followed by a list of +STAT options in the body.
+  if (ROLL_ELLIPSIS_RE.test(text)) {
+    const statMatches = [...text.matchAll(STAT_TARGET_RE)].map((m) =>
+      m[0].slice(1),
+    );
+    if (statMatches.length > 0) {
+      const bands = parseBands(text);
+      const seen = new Set<string>();
+      const rolls: MoveRoll[] = [];
+      for (const abbr of statMatches) {
+        if (!seen.has(abbr)) {
+          seen.add(abbr);
+          rolls.push({ stat: abbr as RollStat, bands });
+        }
+      }
+      return rolls;
+    }
+  }
+
+  // Single-stat: "roll +WIS" — wrap in a 1-element array.
   const match = text.match(ROLL_TARGET_RE);
   if (!match) return null;
 
-  const target = match[1].toUpperCase();
-  const bands = parseBands(text);
-
-  if (STAT_TARGETS.has(target)) return { stat: target as RollStat, bands };
-  if (target === 'NOTHING') return { stat: 'nothing', bands };
-
-  // A resource roll: nothing on the sheet to read, so it starts at 0 and keeps the prose's own wording
-  // for the button label ('+Favor', '+STAT') so the player can see what they're dialing in.
-  return { stat: 'nothing', bands, resource: match[1] };
+  return [resolveTarget(match[1], parseBands(text))];
 };
