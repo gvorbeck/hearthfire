@@ -28,8 +28,8 @@ import { StatBox, LoyaltyRow, CustomItemsGrid } from "../shared/CrewWidgets";
 import type { PlaybookSectionProps } from "@/types";
 import styles from "./MarshalCrew.module.css";
 
-const CREW_HP_MAX = 6;
-const CREW_DAMAGE = "d6";
+const CREW_HP_BASE = 6;
+const CREW_DAMAGE_DICE = ["d6", "d8", "d10"] as const;
 const CREW_SIZE = 6;
 
 const TAG_ITEMS = [
@@ -298,6 +298,31 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
   const { addToast } = useToast();
   const features = resolvePlaybookFeatures(data);
 
+  const hasHeroesToTheLast =
+    data?.typeMoves?.["marshal-heroes-to-the-last"] === true;
+  const backgroundForcedMoves = data?.background
+    ? (BACKGROUND_FORCED_MOVES.marshal?.[data.background] ?? [])
+    : [];
+  // Veteran Crew can be background-forced without ever being written to
+  // typeMoves, so check both. The checklist reads below are gated by this flag
+  // because deselecting a move leaves its checklist state behind in Firestore.
+  const hasVeteranCrew =
+    data?.typeMoves?.["marshal-veteran-crew"] === true ||
+    backgroundForcedMoves.includes("marshal-veteran-crew");
+
+  const hasVeteranDamage = hasVeteranCrew &&
+    data?.typeMoveCheckList?.["marshal-veteran-crew"]?.["marshal-vc-damage"] === true;
+  const hasVeteranHp = hasVeteranCrew &&
+    data?.typeMoveCheckList?.["marshal-veteran-crew"]?.["marshal-vc-hp"] === true;
+  const hasHeroesDamage = hasHeroesToTheLast &&
+    data?.typeMoveCheckList?.["marshal-heroes-to-the-last"]?.["marshal-httl-damage"] === true;
+  const hasHeroesHp = hasHeroesToTheLast &&
+    data?.typeMoveCheckList?.["marshal-heroes-to-the-last"]?.["marshal-httl-hp"] === true;
+
+  const crewHpMax = CREW_HP_BASE + (hasVeteranHp ? 2 : 0) + (hasHeroesHp ? 4 : 0);
+  const damageSteps = (hasVeteranDamage ? 1 : 0) + (hasHeroesDamage ? 1 : 0);
+  const crewDamage = CREW_DAMAGE_DICE[Math.min(damageSteps, CREW_DAMAGE_DICE.length - 1)];
+
   const [customItems, setCustomItems] = useState<
     { checked: boolean; text: string }[]
   >(() => normalizeCustomItems(features.crewCustomItems));
@@ -329,7 +354,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
   );
 
   const { value: hp, setValue: setHp, handleBlur: handleHpBlur } =
-    useTrackedField(features.crewHp ?? String(CREW_HP_MAX), "crewHp", saveDebounced, flushDebounce);
+    useTrackedField(features.crewHp ?? String(CREW_HP_BASE), "crewHp", saveDebounced, flushDebounce);
 
   const handleHpChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -341,12 +366,12 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
       }
       const n = parseInt(raw, 10);
       if (!isNaN(n)) {
-        const val = String(Math.max(0, Math.min(n, CREW_HP_MAX)));
+        const val = String(Math.max(0, Math.min(n, crewHpMax)));
         setHp(val);
         saveDebounced({ crewHp: val });
       }
     },
-    [setHp, saveDebounced],
+    [setHp, saveDebounced, crewHpMax],
   );
 
   const { value: armor, handleChange: handleArmorChange, handleBlur: handleArmorBlur } =
@@ -509,8 +534,6 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
     [data, onSave],
   );
 
-  const hasHeroesToTheLast =
-    data?.typeMoves?.["marshal-heroes-to-the-last"] === true;
   const isExceptional =
     data?.typeMoveCheckList?.["marshal-heroes-to-the-last"]?.[
       "marshal-httl-exceptional"
@@ -518,15 +541,6 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
   const grantedTag = data?.background
     ? BACKGROUND_GRANTED_CREW_TAGS.marshal?.[data.background]
     : undefined;
-  // Veteran Crew can be background-forced without ever being written to
-  // typeMoves, so check both. The checklist gate matters because deselecting a
-  // move leaves its checklist state behind in Firestore.
-  const backgroundForcedMoves = data?.background
-    ? (BACKGROUND_FORCED_MOVES.marshal?.[data.background] ?? [])
-    : [];
-  const hasVeteranCrew =
-    data?.typeMoves?.["marshal-veteran-crew"] === true ||
-    backgroundForcedMoves.includes("marshal-veteran-crew");
   const hasVeteranTags =
     hasVeteranCrew &&
     data?.typeMoveCheckList?.["marshal-veteran-crew"]?.["marshal-vc-tags"] ===
@@ -591,12 +605,12 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
           <StatBox
             ariaLabel="Crew HP"
             value={hp}
-            inputProps={{ min: 0, max: CREW_HP_MAX }}
+            inputProps={{ min: 0, max: crewHpMax }}
             onChange={handleHpChange}
             onBlur={handleHpBlur}
             onWheel={handleWheel}
             label={
-              <>HP <Text as="span" size="xs" color="muted" italic>Max [{CREW_HP_MAX}]</Text></>
+              <>HP <Text as="span" size="xs" color="muted" italic>Max [{crewHpMax}]</Text></>
             }
           />
           <StatBox
@@ -612,7 +626,7 @@ export const MarshalCrew = ({ data, prosperity, onSave }: MarshalCrewProps) => {
           />
           <StatBox
             ariaLabel="Crew damage"
-            staticValue={CREW_DAMAGE}
+            staticValue={crewDamage}
             label={
               <>Damage <Text as="span" size="xs" color="muted" italic>(starts at d6)</Text></>
             }
