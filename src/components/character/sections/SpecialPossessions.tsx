@@ -221,12 +221,12 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1, chooseOver
     if (!config?.items.length) return;
     const topIds = new Set(config.items.map(p => p.id));
     const count = Object.entries(selected).filter(([k, v]) => v && topIds.has(k) && !alwaysSelectedIds.has(k)).length;
-    const pc = config.pickCount ?? PICK_COUNT;
+    const pc = chooseOverride?.count ?? config.pickCount ?? PICK_COUNT;
     if (count >= pc && !hasInitializedCollapse.current) {
       hasInitializedCollapse.current = true;
       setIsCollapsed(true);
     }
-  }, [selected, config, alwaysSelectedIds]);
+  }, [selected, config, alwaysSelectedIds, chooseOverride]);
 
   const handleToggle = useCallback((id: string, checked: boolean) => {
     saveSelected({ ...selectedRef.current, [id]: checked });
@@ -280,8 +280,8 @@ export const SpecialPossessions = ({ config, data, onSave, level = 1, chooseOver
   const basePick = config.pickCount ?? PICK_COUNT;
   const pickCount = chooseOverride?.count ?? basePick;
   const selectedCount = Object.entries(selected).filter(([k, v]) => v && topLevelIds.has(k) && !alwaysSelectedIds.has(k)).length;
-  const atMax = selectedCount >= basePick;
-  const warn = selectedCount < basePick;
+  const atMax = selectedCount >= pickCount;
+  const warn = selectedCount < pickCount;
   const isComplete = !warn;
   const visibleItems = isCollapsed && isComplete
     ? config.items.filter((p) => alwaysSelectedIds.has(p.id) || selected[p.id])
