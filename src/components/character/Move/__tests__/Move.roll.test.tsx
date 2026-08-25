@@ -95,3 +95,52 @@ describe('Move roll affordance gating', () => {
     expect(screen.getByLabelText('Roll +Prosperity')).toBeInTheDocument();
   });
 });
+
+describe('Move multi-stat roll', () => {
+  const multiStatMove: MoveDefinition = {
+    id: 'defy-danger',
+    name: 'Defy Danger',
+    body: [
+      { kind: 'para', text: 'When **danger looms**, roll...' },
+      {
+        kind: 'list',
+        items: [
+          '+STR to power through',
+          '+DEX to employ speed',
+          '+CON to endure',
+          '+INT to apply expertise',
+          '+WIS to exert willpower',
+          '+CHA to charm',
+        ],
+      },
+      { kind: 'para', text: 'On a 10+, great; on a 7-9, cost.' },
+    ],
+  };
+
+  it('renders a stat button for each option', () => {
+    renderInSheet(<Move title={multiStatMove.name} move={multiStatMove} />);
+    expect(screen.getByLabelText('Roll +STR')).toBeInTheDocument();
+    expect(screen.getByLabelText('Roll +DEX')).toBeInTheDocument();
+    expect(screen.getByLabelText('Roll +CON')).toBeInTheDocument();
+    expect(screen.getByLabelText('Roll +INT')).toBeInTheDocument();
+    expect(screen.getByLabelText('Roll +WIS')).toBeInTheDocument();
+    expect(screen.getByLabelText('Roll +CHA')).toBeInTheDocument();
+  });
+
+  it('renders two buttons for an "or" move', () => {
+    const orMove: MoveDefinition = {
+      id: 'heavy-death',
+      name: "Death's Door",
+      body: [
+        {
+          kind: 'para',
+          text: "When you **are at Death's Door**, you can roll +CON or +nothing. On a 7-9, recover.",
+        },
+      ],
+    };
+    renderInSheet(<Move title={orMove.name} move={orMove} />);
+    expect(screen.getByLabelText('Roll +CON')).toBeInTheDocument();
+    // +nothing renders without a label, so the aria-label is just "Roll"
+    expect(screen.getByLabelText('Roll')).toBeInTheDocument();
+  });
+});
