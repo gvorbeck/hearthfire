@@ -7,7 +7,36 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     tags: "close, magical, awkward",
     weight: 1,
     description:
-      "A sphere of greenish glass, etched with a cat's-eye design and set atop a staff of rough, pitted black iron. The orb catches the light and seems to glow, and the pupil seems to widen in the dark and narrow to a slit in daylight.\n\nAnd sometimes, you could swear, it seems to look about on its own.\n\nBut that's preposterous.\n\n---\n\nWhen you **grip the staff, close your eyes, and see through the Lidless Orb**, roll +CON: **on a 10+**, choose 3 from the list below; **on a 7-9**, choose 1.\n\n- The orb sees through darkness, natural or magical\n- The orb sees through illusion, glamour, and invisibility\n- The orb can see strong emotions as auras radiating from people and lingering on places\n- You can move about and operate effectively while seeing through the orb (otherwise, not so much)\n\nWhatever you choose, the effect lasts until you open your eyes or let go of the staff.\n\n**On a 6-**, the orb shows you a terrible vision of some distant time or place. Mark 1 (or see below) and ask the GM what you see. While the vision lasts, you are oblivious to the world around you and have disadvantage on your first roll after coming to.\n\nWhen you **make the last mark**, you unlock the mysteries of the Staff and can use Power of the Lidless Orb. Mark one of the four effects (your choice); you can produce that effect.\n\nWhen you **would mark a circle but have already marked all three**, mark a new effect for Power of the Lidless Orb. You can now produce that effect.",
+      "A sphere of greenish glass, etched with a cat's-eye design and set atop a staff of rough, pitted black iron. The orb catches the light and seems to glow, and the pupil seems to widen in the dark and narrow to a slit in daylight.\n\nAnd sometimes, you could swear, it seems to look about on its own.\n\nBut that's preposterous.\n\n---\n\nWhen you **make the last mark**, you unlock the mysteries of the Staff and can use Power of the Lidless Orb. Mark one of the four effects (your choice); you can produce that effect.\n\nWhen you **would mark a circle but have already marked all three**, mark a new effect for Power of the Lidless Orb. You can now produce that effect.",
+    baseMoves: [
+      {
+        id: "see-through-the-lidless-orb",
+        name: "See Through the Lidless Orb",
+        body: [
+          {
+            kind: "para",
+            text: "When you **grip the staff, close your eyes, and see through the Lidless Orb**, roll +CON: **on a 10+**, choose 3 from the list below; **on a 7-9**, choose 1.",
+          },
+          {
+            kind: "list",
+            items: [
+              "The orb sees through darkness, natural or magical",
+              "The orb sees through illusion, glamour, and invisibility",
+              "The orb can see strong emotions as auras radiating from people and lingering on places",
+              "You can move about and operate effectively while seeing through the orb (otherwise, not so much)",
+            ],
+          },
+          {
+            kind: "para",
+            text: "Whatever you choose, the effect lasts until you open your eyes or let go of the staff.",
+          },
+          {
+            kind: "para",
+            text: "**On a 6-**, the orb shows you a terrible vision of some distant time or place. Mark 1 (or see below) and ask the GM what you see. While the vision lasts, you are oblivious to the world around you and have disadvantage on your first roll after coming to.",
+          },
+        ],
+      },
+    ],
     frontTrackers: [{ id: "marks", label: "marks", max: 3, role: "marks" }],
     back: {
       label: "Mysteries of the Staff of the Lidless Orb",
@@ -1628,7 +1657,26 @@ export const MAJOR_ARCANA: MajorArcanum[] = [
     name: "Storm Markings",
     tags: "implanted, magical",
     description:
-      "A series of branching, tree-like markings coursing up and down your skin. Usually pale blue, almost like veins, but when you become agitated they seem to glow, pulse, and ripple with light.\n\nThe markings are usually seen as a blessing of Tor (rainmaker, thunderhead, slayer-of-beasts). But like most blessings of the gods, they are also a great burden.\n\n---\n\nWhen you **roil with anger**, you do +1 damage until you calm down. But when you **try to control your temper**, roll +WIS: **on a 10+**, you keep your cool and act as you wish; **on a 7-9**, choose 1 from the list below; **on a 6-**, you just lose it—tell the GM what damn fool thing you end up doing.\n\n- Take some deep breaths and count to ten, fuming all the while\n- Vent your rage, but tell us how and on what\n\nWhen you **are struck by lightning or an electrical discharge**, mark 1, take no damage, and suffer no ill effects (your gear, alas, has no such protection).\n\nWhen you **make the last mark**, you unlock the mysteries of the Storm Markings and can use Storm's Fury.\n\nWhen you **would make a mark but have already marked all 3**, set your Fury to 3.",
+      "A series of branching, tree-like markings coursing up and down your skin. Usually pale blue, almost like veins, but when you become agitated they seem to glow, pulse, and ripple with light.\n\nThe markings are usually seen as a blessing of Tor (rainmaker, thunderhead, slayer-of-beasts). But like most blessings of the gods, they are also a great burden.\n\n---\n\nWhen you **are struck by lightning or an electrical discharge**, mark 1, take no damage, and suffer no ill effects (your gear, alas, has no such protection).\n\nWhen you **make the last mark**, you unlock the mysteries of the Storm Markings and can use Storm's Fury.\n\nWhen you **would make a mark but have already marked all 3**, set your Fury to 3.",
+    baseMoves: [
+      {
+        id: "control-your-temper",
+        name: "Control Your Temper",
+        body: [
+          {
+            kind: "para",
+            text: "When you **roil with anger**, you do +1 damage until you calm down. But when you **try to control your temper**, roll +WIS: **on a 10+**, you keep your cool and act as you wish; **on a 7-9**, choose 1 from the list below; **on a 6-**, you just lose it—tell the GM what damn fool thing you end up doing.",
+          },
+          {
+            kind: "list",
+            items: [
+              "Take some deep breaths and count to ten, fuming all the while",
+              "Vent your rage, but tell us how and on what",
+            ],
+          },
+        ],
+      },
+    ],
     frontTrackers: [{ id: "marks", label: "marks", max: 3, role: "marks" }],
     back: {
       label: "Mysteries of the Storm Markings",
