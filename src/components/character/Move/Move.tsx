@@ -1,10 +1,11 @@
 import clsx from 'clsx';
-import type { ReactNode } from 'react';
+import { useState, useRef, useCallback, type ReactNode } from 'react';
 import {
   Checkbox,
   CheckboxGroup,
   Divider,
   Icon,
+  Input,
   List,
   Text,
   UseDots,
@@ -12,6 +13,9 @@ import {
 import type { MoveBlock, MoveDefinition, RightControlSpec } from '@/types';
 import { parseMoveRoll } from '@/lib/parseMoveRoll';
 import { resolveRollStat } from '@/lib/rollDice';
+import { useDebouncedSave } from '@/hooks/useDebouncedSave';
+import { useFirestoreSync } from '@/hooks/useFirestoreSync';
+import { useLatest } from '@/hooks/useLatest';
 import { RollAffordance, type StatOption } from './RollAffordance';
 import { useCharacterRollOptional } from './CharacterRollContext';
 import styles from './Move.module.css';
@@ -48,6 +52,50 @@ interface BodyLevelState {
   forcedIds?: string[];
 }
 
+const TakeNotesField = ({
+  value: firestoreValue,
+  onSave,
+  disabled,
+}: {
+  value: string;
+  onSave: (value: string) => Promise<void>;
+  disabled: boolean;
+}) => {
+  const [local, setLocal] = useState(firestoreValue);
+  const pendingRef = useRef(false);
+  const onSaveRef = useLatest(onSave);
+  const saveFn = useCallback(
+    (v: string) => onSaveRef.current(v).finally(() => { pendingRef.current = false; }),
+    [],
+  );
+  const { onChange: debouncedChange, flush } = useDebouncedSave(saveFn, 1000);
+  useFirestoreSync(firestoreValue, setLocal, pendingRef);
+
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target.value;
+    setLocal(val);
+    pendingRef.current = true;
+    debouncedChange(val);
+  }, [debouncedChange]);
+
+  const handleBlur = useCallback((e: React.FocusEvent<HTMLTextAreaElement>) => {
+    flush(e.target.value).finally(() => { pendingRef.current = false; });
+  }, [flush]);
+
+  return (
+    <Input
+      multiline
+      value={local}
+      placeholder="Note which move you chose…"
+      aria-label="Take notes"
+      rows={2}
+      disabled={disabled}
+      onChange={handleChange}
+      onBlur={handleBlur}
+    />
+  );
+};
+
 interface MoveProps {
   title: string;
   move: MoveDefinition;
@@ -67,6 +115,9 @@ interface MoveProps {
   requirement?: string[];
   citation?: string;
   headerAction?: ReactNode;
+  // Cross-playbook move picker: Firestore value + save callback for the debounced textarea.
+  takeNoteValue?: string;
+  onTakeNoteSave?: (value: string) => Promise<void>;
 }
 
 // Private to Move; maps 1:1 to the left-box group. Flat props are intentional — grouping would only
@@ -124,6 +175,8 @@ export const Move = ({
   requirement,
   citation,
   headerAction,
+  takeNoteValue,
+  onTakeNoteSave,
 }: MoveProps) => {
   const readOnly = (selection?.readOnly ?? false) || (defaultChecked ?? false);
   const selected = readOnly ? true : (selection?.selected ?? false);
@@ -195,7 +248,7 @@ export const Move = ({
   // empty padded region hanging beneath it.
   const hasRoll = !!(parsedRolls && (rollResolved || statOptions));
   const hasRequirement = requirement !== undefined && requirement.length > 0;
-  const hasBody = hasRoll || hasRequirement || blocks.length > 0 || !!citationText;
+  const hasBody = hasRoll || hasRequirement || blocks.length > 0 || !!citationText || move.takeNotes;
 
   // ── Block renderer ──────────────────────────────────────────────────────────
   // Pass raw strings to Text / List / CheckboxGroup: those atoms call parseInlineMarkdown internally.
@@ -419,6 +472,13 @@ export const Move = ({
             </Text>
           )}
           {blocks.map(renderBlock)}
+          {move.takeNotes && onTakeNoteSave && (
+            <TakeNotesField
+              value={takeNoteValue ?? ''}
+              onSave={onTakeNoteSave}
+              disabled={interactiveDisabled}
+            />
+          )}
           {citationText && (
             <Text
               as="span"

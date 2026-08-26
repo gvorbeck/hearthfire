@@ -226,6 +226,7 @@ export interface CharacterData {
   typeMoveTakes?: Record<string, number>;
   typeMoveCheckList?: Record<string, Record<string, boolean>>;
   typeMoveCheckListLevels?: Record<string, Record<string, number>>;
+  typeMoveTakeNotes?: Record<string, string>;
   specialPossessions?: Record<string, boolean>;
   specialPossessionUses?: Record<string, number>;
   specialPossessionCustom?: string;

@@ -114,6 +114,20 @@ describe('parseMoveRoll', () => {
     expect(result?.[0]?.stat).toBe('CHA');
   });
 
+  // ── Substitution pattern (Laugh at Danger) ──────────────────────────────────
+  it('uses the replacement stat in a "roll +X... roll +Y instead" substitution', () => {
+    const result = parseMoveRoll(
+      move([
+        {
+          kind: 'para',
+          text: 'When you ***are about to roll +CON and you make a joke about the adversity you face***, you can roll +CHA instead.',
+        },
+      ]),
+    );
+    expect(result).toHaveLength(1);
+    expect(result?.[0]?.stat).toBe('CHA');
+  });
+
   // ── Ellipsis pattern (Defy Danger / Interfere) ──────────────────────────────
   it('parses an ellipsis roll with 6 stat targets (Defy Danger)', () => {
     const result = parseMoveRoll(

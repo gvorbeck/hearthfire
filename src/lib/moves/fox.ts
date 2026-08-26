@@ -61,8 +61,9 @@ export const FOX_MOVES: MoveDefinition[] = [
   {
     id: 'fox-dabbler',
     name: 'Dabbler',
-    leftControl: 1,
+    leftControl: 3,
     requiresLevel: 2,
+    takeNotes: true,
     body: [
       { kind: 'para', text: 'Each time you take this move, choose a move from the Heavy, Marshal, Ranger, or Seeker playbooks for which you otherwise qualify. (You can\'t take Improved Stat or Superior Stat.)' },
     ],
