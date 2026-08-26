@@ -59,6 +59,9 @@ export interface MoveDefinition {
   // A Mighty Will grants Mindwalking +1 Power dot). Read by MajorArcanaCard's gating.
   grantsDotBonus?: { targetId: string; amount: number };
   excludes?: string[];
+  // Cross-playbook move pickers (Dabbler, Wild Soul, etc.): render a textarea so the player can note
+  // which move(s) they chose. State persisted in CharacterData.typeMoveTakeNotes.
+  takeNotes?: boolean;
 }
 
 // A PbtA action roll parsed from a move's prose (2d6 + stat, or +nothing for a bare 2d6). Rolls against

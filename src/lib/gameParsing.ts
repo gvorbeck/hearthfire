@@ -89,6 +89,7 @@ export const parseCharacterData = (v: unknown): CharacterData | undefined => {
     typeMoveTakes: filterRecordByType(r.typeMoveTakes, isNumber),
     typeMoveCheckList: filterNestedRecordByType(r.typeMoveCheckList, isBoolean),
     typeMoveCheckListLevels: filterNestedRecordByType(r.typeMoveCheckListLevels, isNumber),
+    typeMoveTakeNotes: filterRecordByType(r.typeMoveTakeNotes, isString),
     specialPossessions: filterRecordByType(r.specialPossessions, isBoolean),
     specialPossessionUses: filterRecordByType(r.specialPossessionUses, isNumber),
     specialPossessionCustom: isString(r.specialPossessionCustom) ? r.specialPossessionCustom : undefined,

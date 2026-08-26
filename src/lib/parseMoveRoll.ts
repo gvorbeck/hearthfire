@@ -7,6 +7,9 @@ import { STAT_ABBRS } from './constants';
 // adjustment stepper — which is also how "add +1 for this, -1 for that" prose gets applied.
 const ROLL_TARGET_RE = /\broll \+([a-z]+)\b/i;
 
+// Substitution pattern: "roll +CON... roll +CHA instead" — the second stat replaces the first.
+const ROLL_INSTEAD_RE = /\broll \+[a-z]+\b.*\broll \+([a-z]+)\s+instead\b/i;
+
 // Ellipsis pattern: "roll..." or "roll…" — the player picks one of several stats named in the body.
 const ROLL_ELLIPSIS_RE = /\broll\s*(?:\.{3}|…)/i;
 
@@ -98,6 +101,12 @@ export const parseMoveRoll = (move: MoveDefinition): MoveRoll[] | null => {
       }
       return rolls;
     }
+  }
+
+  // Substitution: "roll +CON... roll +CHA instead" — use the replacement stat.
+  const insteadMatch = text.match(ROLL_INSTEAD_RE);
+  if (insteadMatch) {
+    return [resolveTarget(insteadMatch[1], parseBands(text))];
   }
 
   // Single-stat: "roll +WIS" — wrap in a 1-element array.

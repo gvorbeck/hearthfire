@@ -75,6 +75,7 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
   const [isHideUnselected, setIsHideUnselected] = useState(false);
   const handleHideUnselected = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setIsHideUnselected(e.target.checked), []);
 
+  const onSaveRef = useLatest(onSave);
   const forcedMoveIdsRef = useLatest(forcedMoveIds);
   const typeMovesRef = useLatest(typeMoves);
   const levelRef = useLatest(level);
@@ -137,6 +138,7 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
     const takesMap: Record<string, (n: number) => void> = {};
     const checkListMap: Record<string, (itemId: string, checked: boolean) => void> = {};
     const checkListLevelMap: Record<string, (itemId: string, lvl: number | null) => void> = {};
+    const takeNoteSaveMap: Record<string, (value: string) => Promise<void>> = {};
     for (const m of typeMoves) {
       select[m.id] = (val) => handleSelect(m.id, val);
       usesMap[m.id] = (n) => handleUses(m.id, n);
@@ -144,8 +146,11 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
       takesMap[m.id] = (n) => handleTakes(m.id, n);
       checkListMap[m.id] = (itemId, checked) => handleCheckList(m.id, itemId, checked);
       checkListLevelMap[m.id] = (itemId, lvl) => handleCheckListLevel(m.id, itemId, lvl);
+      if (m.takeNotes) {
+        takeNoteSaveMap[m.id] = (value) => onSaveRef.current({ typeMoveTakeNotes: { [m.id]: value } });
+      }
     }
-    return { select, usesMap, uses2Map, takesMap, checkListMap, checkListLevelMap };
+    return { select, usesMap, uses2Map, takesMap, checkListMap, checkListLevelMap, takeNoteSaveMap };
   }, [typeMoves, handleSelect, handleUses, handleUses2, handleTakes, handleCheckList, handleCheckListLevel]);
 
   const sortedTypeMoves = useMemo(() => {
@@ -167,6 +172,10 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
     [sortedTypeMoves, isHideUnselected]
   );
 
+  // boundHandlers only carries stable handler fns; the Compiler treats it as
+  // ref-tainted because those fns close over useLatest refs, but we only read a
+  // handler here (never a ref's .current), so the render-phase access is safe.
+  /* eslint-disable react-hooks/refs */
   const moveNodes = useMemo(() => visibleTypeMoves.map(({ move, isDisabled, isForced }) => {
     const requirement = isForced
       ? ['Required by your background']
@@ -178,17 +187,11 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
       if (block.kind === 'checkbox') hasCheckbox = true;
       else if (block.kind === 'tracked') hasTracked = true;
     }
-    // Index 0 → typeMoveUses, index 1 → typeMoveUses2; sliced to the controls this move declares.
-    // boundHandlers only carries stable handler fns; the Compiler treats it as
-    // ref-tainted because those fns close over useLatest refs, but we only read a
-    // handler here (never a ref's .current), so the render-phase access is safe.
-    /* eslint-disable react-hooks/refs */
     const rightControlState = move.rightControl?.map((_, i) =>
       i === 0
         ? { checked: uses[move.id] ?? 0, onChange: boundHandlers.usesMap[move.id] }
         : { checked: uses2[move.id] ?? 0, onChange: boundHandlers.uses2Map[move.id] }
     );
-    /* eslint-enable react-hooks/refs */
     return (
       <Move
         key={move.id}
@@ -202,6 +205,8 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
           takesChecked: takes[move.id] ?? 0,
           onTakesChange: boundHandlers.takesMap[move.id],
         }}
+        takeNoteValue={move.takeNotes ? (data?.typeMoveTakeNotes?.[move.id] ?? '') : undefined}
+        onTakeNoteSave={move.takeNotes ? boundHandlers.takeNoteSaveMap[move.id] : undefined}
         rightControlState={rightControlState}
         bodyCheck={hasCheckbox
           ? { checked: checkLists[move.id] ?? {}, forcedIds: forcedCheckList[move.id], onChange: boundHandlers.checkListMap[move.id] }
@@ -211,7 +216,8 @@ export const Moves = ({ playbook, data, onSave, level }: MovesProps) => {
           : undefined}
       />
     );
-  }), [visibleTypeMoves, typeMoves, level, selected, takes, uses, uses2, checkListLevels, checkLists, forcedCheckList, boundHandlers, effectiveSelected]);
+  }), [visibleTypeMoves, typeMoves, level, selected, takes, uses, uses2, checkListLevels, checkLists, data?.typeMoveTakeNotes, forcedCheckList, boundHandlers, effectiveSelected]);
+  /* eslint-enable react-hooks/refs */
 
   return (
     <PlaybookSection title="Moves">

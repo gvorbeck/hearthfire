@@ -136,6 +136,7 @@ export const HEAVY_MOVES: MoveDefinition[] = [
     name: 'Seasoned Warrior',
     leftControl: 3,
     requiresLevel: 2,
+    takeNotes: true,
     body: [
       { kind: 'para', text: 'Take a move from the Fox, Marshal, Ranger, or Seeker playbooks, for which you otherwise qualify. You can pick from a different playbook each time. (You can\'t pick Improved Stat or Superior Stat.)' },
     ],

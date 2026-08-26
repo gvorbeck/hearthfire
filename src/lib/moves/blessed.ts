@@ -215,8 +215,9 @@ export const BLESSED_MOVES: MoveDefinition[] = [
   {
     id: 'blessed-wild-soul',
     name: 'Wild Soul',
-    leftControl: 1,
+    leftControl: 3,
     requiresLevel: 2,
+    takeNotes: true,
     body: [
       { kind: 'para', text: "Each time you take this move, gain a Ranger move of your choice for which you qualify. You can't pick Improved Stat or Superior Stat." },
     ],
