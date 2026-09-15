@@ -4,6 +4,8 @@ import type { ComponentType, ReactNode } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
+import { useNotesActions } from '@/hooks/useNotesActions';
+import { SharedNotes, type NotesActions } from '@/components/playbook/SharedNotes/SharedNotes';
 import { PLAYBOOKS, DEFAULT_GAME_NAME, getPlaybook } from '@/lib/constants';
 import { Heading, Button, ScrollToTop, Tabs, tabBadgeClass, Icon, Text, PlaybookColumns, Stack, Spinner } from '@/components/ui';
 import { AddInsertModal } from './modals/AddInsertModal';
@@ -54,7 +56,7 @@ const RangerSomethingWicked = lazy(() => import('@/components/character/playbook
 const RangerAnimalCompanion = lazy(() => import('@/components/character/playbooks/ranger').then((m) => ({ default: m.RangerAnimalCompanion })));
 const SeekerCollection = lazy(() => import('@/components/character/playbooks/seeker').then((m) => ({ default: m.SeekerCollection })));
 const WouldBeHeroFearAnger = lazy(() => import('@/components/character/playbooks/would-be-hero').then((m) => ({ default: m.WouldBeHeroFearAnger })));
-import type { Character, CharacterData, GameSession, LoggedRoll, PlaybookType, PlaybookFeatures } from '@/types';
+import type { Character, CharacterData, GameSession, LoggedRoll, NotesLock, PlaybookType, PlaybookFeatures } from '@/types';
 import type { RollReport } from '@/components/character/Move/RollAffordance';
 import { CharacterRollContext } from '@/components/character/Move/CharacterRollContext';
 import styles from './CharacterPlaybook.module.css';
@@ -156,6 +158,9 @@ interface SheetProps {
   updateCharacterData: (characterId: string, data: Partial<CharacterData>) => Promise<void>;
   adjustCharacterStats: (characterId: string, deltas: Partial<Record<'statArmor' | 'statHp', number>>) => Promise<void>;
   logRoll: (roll: LoggedRoll) => Promise<void>;
+  notesHtml: string | undefined;
+  notesLock: NotesLock | undefined;
+  notesActions: NotesActions;
 }
 
 type PlaybookTabConfig = {
@@ -180,7 +185,7 @@ const getPlaybookTabs = (playbook: PlaybookType, data: CharacterData | undefined
   (PLAYBOOK_TAB_CONFIGS[playbook] ?? []).filter(({ when }) => !when || when(data));
 
 
-const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, nav, updateCharacterName, updateCharacterData, adjustCharacterStats, logRoll }: SheetProps) => {
+const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, nav, updateCharacterName, updateCharacterData, adjustCharacterStats, logRoll, notesHtml, notesLock, notesActions }: SheetProps) => {
   const headerRef = useRef<HTMLDivElement>(null);
 
   // Turn a move roll into a shared-log entry stamped with this character's identity and the current time,
@@ -376,6 +381,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, n
         onActiveChange={handleActiveChange}
         onAdd={canAddInsert ? handleOpenAddTab : undefined}
       />
+      <SharedNotes notesKey={character.id} html={notesHtml} lock={notesLock} actions={notesActions} />
       {/* Mounted only while open so per-open UI state resets on each open. */}
       {addTabOpen && (
         <AddInsertModal open={addTabOpen} onClose={handleCloseAddTab} onAdd={handleAddInsert} existingInserts={characterData?.inserts ?? []} />
@@ -388,7 +394,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, n
   );
 };
 
-const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, updateCharacterData, adjustCharacterStats, logRoll }: {
+const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, updateCharacterData, adjustCharacterStats, logRoll, notesActions }: {
   g: GameSession;
   id: string;
   playbook: PlaybookType;
@@ -396,6 +402,7 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
   updateCharacterData: (characterId: string, data: Partial<CharacterData>) => Promise<void>;
   adjustCharacterStats: (characterId: string, deltas: Partial<Record<'statArmor' | 'statHp', number>>) => Promise<void>;
   logRoll: (roll: LoggedRoll) => Promise<void>;
+  notesActions: NotesActions;
 }) => {
   const prosperity = g.steading?.prosperity ?? 0;
   const playbookOption = getPlaybook(playbook);
@@ -443,13 +450,17 @@ const CharacterPlaybookContent = ({ g, id, playbook, updateCharacterName, update
       updateCharacterData={updateCharacterData}
       adjustCharacterStats={adjustCharacterStats}
       logRoll={logRoll}
+      notesHtml={g.notes?.[character.id]}
+      notesLock={g.notesLocks?.[character.id]}
+      notesActions={notesActions}
     />
   );
 };
 
 export const CharacterPlaybook = () => {
   const { id = '', playbook = '' } = useParams<{ id: string; playbook: string }>();
-  const { game, loading, error, updateCharacterName, updateCharacterData, adjustCharacterStats, logRoll } = useGame(id);
+  const { game, loading, error, updateCharacterName, updateCharacterData, adjustCharacterStats, logRoll, updateNotes, claimNotesLock, refreshNotesLock, releaseNotesLock } = useGame(id);
+  const notesActions = useNotesActions({ updateNotes, claimNotesLock, refreshNotesLock, releaseNotesLock });
 
   return (
     <GameGuard loading={loading} error={error} game={game} errorBackTo={`/game/${id}`} errorBackLabel="Back to Game">
@@ -462,6 +473,7 @@ export const CharacterPlaybook = () => {
           updateCharacterData={updateCharacterData}
           adjustCharacterStats={adjustCharacterStats}
           logRoll={logRoll}
+          notesActions={notesActions}
         />
       )}
     </GameGuard>

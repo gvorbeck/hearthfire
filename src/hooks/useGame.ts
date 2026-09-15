@@ -5,7 +5,8 @@ import { db } from '@/lib/firebase';
 import { useSaveStatusOptional } from '@/components/app/SaveStatus/SaveStatusContext';
 import { useToastOptional } from '@/components/app/Toast/ToastContext';
 import { GAMES_COLLECTION, SAVE_ERROR_MESSAGE } from '@/lib/constants';
-import { isBoolean, isPlainObject, isRecord } from '@/lib/typeGuards';
+import { isBoolean, isNumber, isPlainObject, isRecord } from '@/lib/typeGuards';
+import { NOTES_CLIENT_ID, NOTES_STALE_MS } from '@/lib/sharedNotes';
 import { parseDiceRolls, parseGameSession, parseSteading, ROLL_LOG_CAP } from '@/lib/gameParsing';
 import { FIRESTORE_ERROR_MESSAGES, friendlyFirestoreError, isFirestoreError, mergeById, STEADING_ID_ARRAY_FIELDS, stripUndefined, withCharacters } from '@/lib/gameMutations';
 import type { Character, CharacterData, ContentLists, GameSession, LoggedRoll, SteadingData } from '@/types';
@@ -14,7 +15,7 @@ import type { Character, CharacterData, ContentLists, GameSession, LoggedRoll, S
 // that import them from this hook keep working.
 export { parseCharacterData, parseCharacters, parseContent, parseSteading } from '@/lib/gameParsing';
 
-interface UseGameResult {
+export interface UseGameResult {
   game: GameSession | null;
   loading: boolean;
   error: string | null;
@@ -29,6 +30,10 @@ interface UseGameResult {
   removeCharacter: (characterId: string) => Promise<void>;
   reorderCharacters: (characters: Character[]) => Promise<void>;
   logRoll: (roll: LoggedRoll) => Promise<void>;
+  updateNotes: (key: string, html: string) => Promise<void>;
+  claimNotesLock: (key: string) => Promise<boolean>;
+  refreshNotesLock: (key: string) => Promise<void>;
+  releaseNotesLock: (key: string, html: string) => Promise<void>;
   replaceGameData: (game: Record<string, unknown>) => Promise<void>;
 }
 
@@ -267,6 +272,67 @@ export const useGame = (gameId: string): UseGameResult => {
     }));
   }, [gameRef, reportSave]);
 
+  // Shared notes: a plain save (on blur) plus a typing lock so only one tab edits a given notes key at
+  // a time. Every write keys on `notes.<key>` / `notesLocks.<key>`, so notes for different pages never
+  // touch each other. Keys are 'gm', 'steading', or a character id (a UUID) — no dots.
+  const updateNotes = useCallback(async (key: string, html: string) => {
+    await reportSave(() => updateDoc(gameRef, { [`notes.${key}`]: html }));
+  }, [gameRef, reportSave]);
+
+  // Resolves true if this tab now holds the lock. Transactional so two tabs whose first keystrokes
+  // cross can't both win. The staleness check compares the holder's clock to ours — a skew of a few
+  // seconds only shortens or lengthens the abandoned-lock window, it can't break a live lock.
+  const claimNotesLock = useCallback(async (key: string): Promise<boolean> => {
+    let claimed = false;
+    await reportSave(() => runTransaction(db, async (tx) => {
+      // Reset per attempt — Firestore re-runs the updater when a concurrent write lands.
+      claimed = false;
+      const snap = await tx.get(gameRef);
+      if (!snap.exists()) throw new Error('Game not found — it may have been deleted.');
+      const locks = snap.data().notesLocks;
+      const lock = isPlainObject(locks) ? locks[key] : undefined;
+      const heldByOther = isPlainObject(lock)
+        && lock.clientId !== NOTES_CLIENT_ID
+        && isNumber(lock.at)
+        && Date.now() - lock.at < NOTES_STALE_MS;
+      if (heldByOther) return;
+      tx.update(gameRef, { [`notesLocks.${key}`]: { clientId: NOTES_CLIENT_ID, at: Date.now() } });
+      claimed = true;
+    }));
+    return claimed;
+  }, [gameRef, reportSave]);
+
+  // Heartbeat while typing. Deliberately not routed through reportSave: it fires every few seconds and
+  // isn't a user-visible save, and a missed beat is harmless (the release write clears the lock anyway).
+  const refreshNotesLock = useCallback(async (key: string) => {
+    await runTransaction(db, async (tx) => {
+      const snap = await tx.get(gameRef);
+      if (!snap.exists()) return;
+      const locks = snap.data().notesLocks;
+      const lock = isPlainObject(locks) ? locks[key] : undefined;
+      // Only re-stamp our own lock — never extend (or recreate) one another tab has since taken.
+      if (!isPlainObject(lock) || lock.clientId !== NOTES_CLIENT_ID) return;
+      tx.update(gameRef, { [`notesLocks.${key}.at`]: Date.now() });
+    });
+  }, [gameRef]);
+
+  // Save the final content and drop the lock in one write, so other tabs see the new text arrive in
+  // the same snapshot that re-enables their editor. The content is written even if another tab has
+  // since taken over an abandoned lock, so this tab's edit is never silently dropped.
+  const releaseNotesLock = useCallback(async (key: string, html: string) => {
+    await reportSave(() => runTransaction(db, async (tx) => {
+      const snap = await tx.get(gameRef);
+      if (!snap.exists()) throw new Error('Game not found — it may have been deleted.');
+      const locks = snap.data().notesLocks;
+      const lock = isPlainObject(locks) ? locks[key] : undefined;
+      const ours = isPlainObject(lock) && lock.clientId === NOTES_CLIENT_ID;
+      tx.update(gameRef, {
+        [`notes.${key}`]: html,
+        ...(ours ? { [`notesLocks.${key}`]: null } : {}),
+      });
+    }));
+  }, [gameRef, reportSave]);
+
   // Replace the whole document with a validated backup payload (see readImportFile).
   // Deliberately a `setDoc` overwrite, not a merge: restoring a backup has to be able to
   // remove things too — a merge would leave characters, NPCs, and improvements added since
@@ -276,5 +342,5 @@ export const useGame = (gameId: string): UseGameResult => {
     await reportSave(() => setDoc(gameRef, game));
   }, [gameRef, reportSave]);
 
-  return { game, loading, error, updateGameName, updateCharacterName, updateCharacterData, adjustCharacterStats, updateContent, updateField, updateSteading, addCharacter, removeCharacter, reorderCharacters, logRoll, replaceGameData };
+  return { game, loading, error, updateGameName, updateCharacterName, updateCharacterData, adjustCharacterStats, updateContent, updateField, updateSteading, addCharacter, removeCharacter, reorderCharacters, logRoll, updateNotes, claimNotesLock, refreshNotesLock, releaseNotesLock, replaceGameData };
 };

@@ -3,6 +3,8 @@ import { useHashTabs } from '@/hooks/useHashTabs';
 import { useParams } from 'react-router-dom';
 import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
+import { useNotesActions } from '@/hooks/useNotesActions';
+import { SharedNotes, type NotesActions } from '@/components/playbook/SharedNotes/SharedNotes';
 import { ScrollToTop, Tabs, Dropdown, Button, PlaybookColumns } from '@/components/ui';
 import type { DropdownGroup } from '@/components/ui';
 import { PageLayout } from '@/components/app/PageLayout/PageLayout';
@@ -24,6 +26,7 @@ interface SteadingContentProps {
   g: GameSession;
   id: string;
   updateSteading: (patch: Partial<SteadingData>) => Promise<void>;
+  notesActions: NotesActions;
 }
 
 interface NpcFilterRowProps {
@@ -181,7 +184,7 @@ const ReferenceTab = () => (
   />
 );
 
-const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
+const SteadingContent = ({ g, id, updateSteading, notesActions }: SteadingContentProps) => {
   const headerRef = useRef<HTMLDivElement>(null);
   const gameName = g.name || DEFAULT_GAME_NAME;
   const steading = g.steading ?? {};
@@ -231,18 +234,25 @@ const SteadingContent = ({ g, id, updateSteading }: SteadingContentProps) => {
         activeIndex={activeIndex}
         onActiveChange={handleActiveChange}
       />
+      <SharedNotes
+        notesKey="steading"
+        html={g.notes?.steading}
+        lock={g.notesLocks?.steading}
+        actions={notesActions}
+      />
     </PageLayout>
   );
 };
 
 export const SteadingPlaybook = () => {
   const { id = '' } = useParams<{ id: string }>();
-  const { game, loading, error, updateSteading } = useGame(id);
+  const { game, loading, error, updateSteading, updateNotes, claimNotesLock, refreshNotesLock, releaseNotesLock } = useGame(id);
+  const notesActions = useNotesActions({ updateNotes, claimNotesLock, refreshNotesLock, releaseNotesLock });
 
   return (
     <GameGuard loading={loading} error={error} game={game} errorBackTo={`/game/${id}`} errorBackLabel="Back to Game">
       {(g) => (
-        <SteadingContent g={g} id={id} updateSteading={updateSteading} />
+        <SteadingContent g={g} id={id} updateSteading={updateSteading} notesActions={notesActions} />
       )}
     </GameGuard>
   );
