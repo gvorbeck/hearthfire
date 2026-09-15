@@ -40,7 +40,11 @@
       "Bash(sed -n *)",
       "Bash(gh repo view *)",
       "Skill(code-review)",
-      "Skill(code-review:*)"
+      "Skill(code-review:*)",
+      "WebFetch(domain:registry.npmjs.org)",
+      "Bash(git reset *)",
+      "Bash(echo \"DIFF_VS_STASH_EXIT=$?\")",
+      "Skill(css-audit)"
     ]
   },
   "hooks": {

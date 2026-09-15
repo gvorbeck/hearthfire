@@ -3,13 +3,14 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import { firestoreMockModule, firestoreStore } from '@/test/firestoreMock';
 import { addToastSpy, toastModuleMock } from '@/test/toastMock';
 import { INVALID_WRITE_MESSAGE, SAVE_ERROR_MESSAGE } from '@/lib/constants';
+import { NOTES_CLIENT_ID, NOTES_STALE_MS } from '@/lib/sharedNotes';
 
 vi.mock('firebase/app', () => ({ initializeApp: () => ({}) }));
 vi.mock('firebase/firestore', () => firestoreMockModule());
 vi.mock('@/components/app/Toast/ToastContext', () => toastModuleMock());
 
 import { useGame } from '../useGame';
-import type { Character, LoggedRoll } from '@/types';
+import type { Character, LoggedRoll, NotesLock } from '@/types';
 
 const GAME_PATH = 'games/g1';
 
@@ -600,5 +601,103 @@ describe('useGame mutations', () => {
     const rolls = result.current.game!.diceRolls!;
     expect(rolls.map((r) => r.id)).toEqual(['good', 'bad-resource']);
     expect(rolls[1].resource).toBeUndefined();
+  });
+
+  describe('shared notes', () => {
+    const locks = () => firestoreStore.get(GAME_PATH)!.notesLocks as Record<string, NotesLock | null> | undefined;
+    const notes = () => firestoreStore.get(GAME_PATH)!.notes as Record<string, string> | undefined;
+
+    const loaded = async (seed: Record<string, unknown> = {}) => {
+      firestoreStore.set(GAME_PATH, { name: '', createdAt: 0, characters: [], ...seed });
+      const { result } = renderGame();
+      await waitFor(() => expect(result.current.loading).toBe(false));
+      return result;
+    };
+
+    it('claimNotesLock takes a free lock for this tab', async () => {
+      const result = await loaded();
+      let claimed = false;
+      await act(async () => { claimed = await result.current.claimNotesLock('gm'); });
+      expect(claimed).toBe(true);
+      expect(locks()?.gm?.clientId).toBe(NOTES_CLIENT_ID);
+    });
+
+    it("claimNotesLock refuses another tab's fresh lock and leaves it untouched", async () => {
+      const theirs = { clientId: 'other-tab', at: Date.now() };
+      const result = await loaded({ notesLocks: { gm: theirs } });
+      let claimed = true;
+      await act(async () => { claimed = await result.current.claimNotesLock('gm'); });
+      expect(claimed).toBe(false);
+      expect(locks()?.gm).toEqual(theirs);
+    });
+
+    it("claimNotesLock takes over another tab's abandoned lock", async () => {
+      const result = await loaded({ notesLocks: { gm: { clientId: 'other-tab', at: Date.now() - NOTES_STALE_MS - 1 } } });
+      let claimed = false;
+      await act(async () => { claimed = await result.current.claimNotesLock('gm'); });
+      expect(claimed).toBe(true);
+      expect(locks()?.gm?.clientId).toBe(NOTES_CLIENT_ID);
+    });
+
+    it('locks are per key', async () => {
+      const result = await loaded({ notesLocks: { gm: { clientId: 'other-tab', at: Date.now() } } });
+      let claimed = false;
+      await act(async () => { claimed = await result.current.claimNotesLock('steading'); });
+      expect(claimed).toBe(true);
+      expect(locks()?.gm?.clientId).toBe('other-tab');
+    });
+
+    it('refreshNotesLock re-stamps only a lock this tab holds', async () => {
+      const result = await loaded({ notesLocks: { gm: { clientId: NOTES_CLIENT_ID, at: 1 }, steading: { clientId: 'other-tab', at: 1 } } });
+      await act(async () => {
+        await result.current.refreshNotesLock('gm');
+        await result.current.refreshNotesLock('steading');
+        await result.current.refreshNotesLock('missing');
+      });
+      expect(locks()?.gm?.at).toBeGreaterThan(1);
+      expect(locks()?.steading?.at).toBe(1);
+      expect(locks()?.missing).toBeUndefined();
+    });
+
+    it('releaseNotesLock saves the content and clears this tab\'s lock in one write', async () => {
+      const result = await loaded({ notes: { steading: '<p>keep</p>' }, notesLocks: { gm: { clientId: NOTES_CLIENT_ID, at: 1 } } });
+      await act(async () => { await result.current.releaseNotesLock('gm', '<p>hello</p>'); });
+      expect(notes()).toEqual({ steading: '<p>keep</p>', gm: '<p>hello</p>' });
+      expect(locks()?.gm).toBeNull();
+      await waitFor(() => expect(result.current.game?.notesLocks?.gm).toBeUndefined());
+      expect(result.current.game?.notes?.gm).toBe('<p>hello</p>');
+    });
+
+    it('releaseNotesLock still saves, but keeps a lock another tab has since taken', async () => {
+      const theirs = { clientId: 'other-tab', at: 5 };
+      const result = await loaded({ notesLocks: { gm: theirs } });
+      await act(async () => { await result.current.releaseNotesLock('gm', '<p>mine</p>'); });
+      expect(notes()?.gm).toBe('<p>mine</p>');
+      expect(locks()?.gm).toEqual(theirs);
+    });
+
+    it('updateNotes writes one key without touching the others', async () => {
+      const result = await loaded({ notes: { gm: '<p>gm</p>' } });
+      await act(async () => { await result.current.updateNotes('char-1', '<p>char</p>'); });
+      expect(notes()).toEqual({ gm: '<p>gm</p>', 'char-1': '<p>char</p>' });
+    });
+
+    it('a failed release surfaces the save-error toast', async () => {
+      const result = await loaded();
+      firestoreStore.delete(GAME_PATH);
+      await act(async () => {
+        await expect(result.current.releaseNotesLock('gm', '<p>x</p>')).rejects.toThrow();
+      });
+      expect(addToastSpy).toHaveBeenCalledWith(SAVE_ERROR_MESSAGE, 'error');
+    });
+
+    it('drops malformed notes and locks when parsing', async () => {
+      const result = await loaded({
+        notes: { gm: '<p>ok</p>', steading: 42 },
+        notesLocks: { gm: { clientId: 'x', at: 1 }, steading: { clientId: 'x' }, other: null },
+      });
+      expect(result.current.game?.notes).toEqual({ gm: '<p>ok</p>' });
+      expect(result.current.game?.notesLocks).toEqual({ gm: { clientId: 'x', at: 1 } });
+    });
   });
 });

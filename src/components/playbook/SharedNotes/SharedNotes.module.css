@@ -1,0 +1,185 @@
+.root {
+  margin-top: var(--spacing-6);
+}
+
+/* ── GM visibility warning ───────────────────────────── */
+.warning {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin: 0;
+  color: var(--text-warning);
+}
+
+.warningIcon {
+  flex-shrink: 0;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-6);
+}
+
+/* ── Editor shell ────────────────────────────────────── */
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+/* Read-only while another tab holds the lock. The status line stays full-strength so the reason is legible. */
+.editorLocked > :not(.status) {
+  opacity: 0.6;
+}
+
+.status {
+  min-height: 1.25em;
+}
+
+/* ── Toolbar ─────────────────────────────────────────── */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-1);
+}
+
+/* Plain buttons rather than <Button size="sm">, whose min-width is too wide for single glyphs. */
+.toolButton {
+  composes: focusVisible from '@/components/ui/field.module.css';
+  min-width: 2.25em;
+  height: 2.25em;
+  padding: 0 var(--spacing-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  line-height: 1;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.toolButton:hover:not(:disabled) {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.toolButton:disabled {
+  cursor: not-allowed;
+}
+
+.toolButtonActive {
+  background: var(--surface-page);
+  border-color: var(--border-accent);
+  color: var(--text-accent);
+}
+
+.glyphBold {
+  font-weight: 800;
+}
+
+.glyphItalic {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: var(--text-sm);
+}
+
+.glyphUnderline {
+  text-decoration: underline;
+}
+
+/* ── Editable area (class applied to the ProseMirror element) ── */
+.content {
+  min-height: 10rem;
+  padding: var(--spacing-3) var(--spacing-4);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--text-primary);
+  background-color: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.content:focus {
+  border-color: var(--border-accent);
+  background-color: var(--surface-overlay);
+  outline: none;
+}
+
+.content > * + * {
+  margin-top: var(--spacing-2);
+}
+
+.content p,
+.content h2,
+.content h3,
+.content ul,
+.content ol,
+.content blockquote {
+  margin-bottom: 0;
+}
+
+.content h2 {
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: 400;
+  color: var(--text-heading);
+  margin-top: var(--spacing-4);
+}
+
+.content h3 {
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--text-heading);
+  margin-top: var(--spacing-3);
+}
+
+.content > h2:first-child,
+.content > h3:first-child {
+  margin-top: 0;
+}
+
+.content ul,
+.content ol {
+  padding-left: var(--spacing-6);
+}
+
+.content ul {
+  list-style: disc;
+}
+
+.content ol {
+  list-style: decimal;
+}
+
+.content li > p {
+  margin: 0;
+}
+
+.content blockquote {
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: var(--spacing-3);
+  border-left: 3px solid var(--border-accent);
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.content hr {
+  border: none;
+  border-top: 1px solid var(--border-strong);
+  margin: var(--spacing-4) 0;
+}
+
+/* ProseMirror marks a selected node (e.g. a clicked divider) with this global class. */
+.content :global(.ProseMirror-selectednode) {
+  outline: 2px solid var(--border-accent);
+}
