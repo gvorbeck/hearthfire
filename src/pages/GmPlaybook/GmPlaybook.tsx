@@ -3,6 +3,8 @@ import { useHashTabs } from '@/hooks/useHashTabs';
 import { useParams } from 'react-router-dom';
 import { PageMeta } from '@/components/app/PageMeta/PageMeta';
 import { useGame } from '@/hooks/useGame';
+import { useNotesActions } from '@/hooks/useNotesActions';
+import { SharedNotes, type NotesActions } from '@/components/playbook/SharedNotes/SharedNotes';
 import { ScrollToTop, Tabs, PlaybookColumns } from '@/components/ui';
 import { PageLayout } from '@/components/app/PageLayout/PageLayout';
 import { buildGameNav } from '@/components/app/PageHeader/gameNav';
@@ -72,9 +74,10 @@ interface GmPlaybookContentProps {
   id: string;
   updateContent: (field: keyof ContentLists, value: string) => Promise<void>;
   updateField: (field: keyof Pick<GameSession, 'threats' | 'iWonder'>, value: string) => Promise<void>;
+  notesActions: NotesActions;
 }
 
-const GmPlaybookContent = ({ g, id, updateContent, updateField }: GmPlaybookContentProps) => {
+const GmPlaybookContent = ({ g, id, updateContent, updateField, notesActions }: GmPlaybookContentProps) => {
   const headerRef = useRef<HTMLDivElement>(null);
   const gameName = g.name || DEFAULT_GAME_NAME;
   const saveIWonder = useCallback((value: string) => updateField('iWonder', value), [updateField]);
@@ -139,13 +142,21 @@ const GmPlaybookContent = ({ g, id, updateContent, updateField }: GmPlaybookCont
         activeIndex={activeIndex}
         onActiveChange={handleActiveChange}
       />
+      <SharedNotes
+        notesKey="gm"
+        html={g.notes?.gm}
+        lock={g.notesLocks?.gm}
+        actions={notesActions}
+        warning="Everyone in this game can see these notes. Keep secrets somewhere else."
+      />
     </PageLayout>
   );
 };
 
 export const GmPlaybook = () => {
   const { id = '' } = useParams<{ id: string }>();
-  const { game, loading, error, updateContent, updateField } = useGame(id);
+  const { game, loading, error, updateContent, updateField, updateNotes, claimNotesLock, refreshNotesLock, releaseNotesLock } = useGame(id);
+  const notesActions = useNotesActions({ updateNotes, claimNotesLock, refreshNotesLock, releaseNotesLock });
 
   return (
     <GameGuard loading={loading} error={error} game={game} errorBackTo={`/game/${id}`} errorBackLabel="Back to Game">
@@ -155,6 +166,7 @@ export const GmPlaybook = () => {
           id={id}
           updateContent={updateContent}
           updateField={updateField}
+          notesActions={notesActions}
         />
       )}
     </GameGuard>

@@ -103,6 +103,14 @@ export interface LoggedRoll {
   createdAt: number;
 }
 
+// Who is currently typing in a shared notes editor. `clientId` identifies a browser tab (there's no
+// auth); `at` is the holder's clock at the last heartbeat, used only to spot an abandoned lock when
+// another tab tries to claim it. Cleared to null on release.
+export interface NotesLock {
+  clientId: string;
+  at: number;
+}
+
 export interface GameSession {
   id: string;
   name: string;
@@ -116,4 +124,8 @@ export interface GameSession {
   // `removedDiceRollIds` is the explicit-removal sentinel (a trimmed-off id must not resurrect on merge).
   diceRolls?: LoggedRoll[];
   removedDiceRollIds?: string[];
+  // Shared rich-text notes (HTML) at the bottom of each playbook page, keyed by 'gm', 'steading', or a
+  // character id. `notesLocks` holds the matching typing lock for each key (see NotesLock).
+  notes?: Record<string, string>;
+  notesLocks?: Record<string, NotesLock>;
 }

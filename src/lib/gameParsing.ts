@@ -1,6 +1,6 @@
 import { PLAYBOOKS, STAT_ABBRS } from '@/lib/constants';
 import { filterByType, filterNestedRecordByType, filterRecordByType, isBoolean, isNumber, isPlainObject, isRecord, isString } from '@/lib/typeGuards';
-import type { ArcanaMajorEntry, ArcanaMinorEntry, Character, CharacterData, ContentLists, GameSession, GmImprovement, LoggedRoll, NpcRelationship, PlaybookFeatures, RollStat, SteadingData, SteadingNPC } from '@/types';
+import type { ArcanaMajorEntry, ArcanaMinorEntry, Character, CharacterData, ContentLists, GameSession, GmImprovement, LoggedRoll, NotesLock, NpcRelationship, PlaybookFeatures, RollStat, SteadingData, SteadingNPC } from '@/types';
 
 // Derived from the canonical PLAYBOOKS list, not hand-copied: a character whose
 // playbook isn't recognized gets filtered out of the array we write back (see
@@ -269,5 +269,9 @@ export const parseGameSession = (raw: Record<string, unknown>, id: string): Game
     iWonder: isString(raw.iWonder) ? raw.iWonder : undefined,
     steading: parseSteading(raw.steading),
     diceRolls: parseDiceRolls(raw.diceRolls),
+    notes: filterRecordByType(raw.notes, isString),
+    // A released lock is written as null, so it drops out here along with any malformed entry.
+    notesLocks: filterRecordByType(raw.notesLocks, (v): v is NotesLock =>
+      isRecord(v) && isString(v.clientId) && isNumber(v.at)),
   };
 };
