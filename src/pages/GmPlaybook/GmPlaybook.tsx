@@ -12,7 +12,7 @@ import { PlaybookSection } from '@/components/playbook/PlaybookSection';
 import { CoreLoop, GmMoves, Principles, DamageAndDebilities, ContentSection, Threats, IWonder, Expeditions, Sites, Discoveries, Hazards, Monsters, NPCs, Followers, Homefront, FlowOfPlay, MoveSearch } from '@/components/gm-playbook/sections';
 import { GameGuard } from '@/components/app/GameGuard/GameGuard';
 import { DEFAULT_GAME_NAME } from '@/lib/constants';
-import type { ContentLists, GameSession } from '@/types';
+import type { ContentLists, GameSession, LoggedRoll } from '@/types';
 import styles from './GmPlaybook.module.css';
 
 const ReferenceTabContent = () => (
@@ -74,10 +74,11 @@ interface GmPlaybookContentProps {
   id: string;
   updateContent: (field: keyof ContentLists, value: string) => Promise<void>;
   updateField: (field: keyof Pick<GameSession, 'threats' | 'iWonder'>, value: string) => Promise<void>;
+  logRoll: (roll: LoggedRoll) => Promise<void>;
   notesActions: NotesActions;
 }
 
-const GmPlaybookContent = ({ g, id, updateContent, updateField, notesActions }: GmPlaybookContentProps) => {
+const GmPlaybookContent = ({ g, id, updateContent, updateField, logRoll, notesActions }: GmPlaybookContentProps) => {
   const headerRef = useRef<HTMLDivElement>(null);
   const gameName = g.name || DEFAULT_GAME_NAME;
   const saveIWonder = useCallback((value: string) => updateField('iWonder', value), [updateField]);
@@ -128,7 +129,7 @@ const GmPlaybookContent = ({ g, id, updateContent, updateField, notesActions }: 
   const nav = buildGameNav(g, id, `/game/${id}/gm`);
 
   return (
-    <PageLayout title="GM Playbook" gameId={id} nav={nav}>
+    <PageLayout title="GM Playbook" gameId={id} nav={nav} diceRoller={{ rollerId: 'gm', rollerName: 'GM', onRoll: logRoll }}>
       <PageMeta
         title={`GM Playbook — ${gameName} — Hearthfire`}
         description={`GM playbook for ${gameName}. Core loop, moves, principles, and session tools.`}
@@ -155,7 +156,7 @@ const GmPlaybookContent = ({ g, id, updateContent, updateField, notesActions }: 
 
 export const GmPlaybook = () => {
   const { id = '' } = useParams<{ id: string }>();
-  const { game, loading, error, updateContent, updateField, updateNotes, claimNotesLock, refreshNotesLock, releaseNotesLock } = useGame(id);
+  const { game, loading, error, updateContent, updateField, logRoll, updateNotes, claimNotesLock, refreshNotesLock, releaseNotesLock } = useGame(id);
   const notesActions = useNotesActions({ updateNotes, claimNotesLock, refreshNotesLock, releaseNotesLock });
 
   return (
@@ -166,6 +167,7 @@ export const GmPlaybook = () => {
           id={id}
           updateContent={updateContent}
           updateField={updateField}
+          logRoll={logRoll}
           notesActions={notesActions}
         />
       )}

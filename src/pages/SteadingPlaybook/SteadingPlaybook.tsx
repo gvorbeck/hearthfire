@@ -19,13 +19,14 @@ import { SteadingAssets } from '@/components/gm-playbook/sections/SteadingAssets
 import { SteadingNPCs } from '@/components/gm-playbook/sections/SteadingNPCs/SteadingNPCs';
 import { RelationshipGraph } from '@/components/gm-playbook/sections/SteadingNPCs/RelationshipGraph';
 import { PlacesOfInterest, ReferenceNames, NpcTraits } from '@/components/gm-playbook/sections/SteadingReference';
-import type { GameSession, SteadingData, SteadingNPC } from '@/types';
+import type { GameSession, LoggedRoll, SteadingData, SteadingNPC } from '@/types';
 import styles from './SteadingPlaybook.module.css';
 
 interface SteadingContentProps {
   g: GameSession;
   id: string;
   updateSteading: (patch: Partial<SteadingData>) => Promise<void>;
+  logRoll: (roll: LoggedRoll) => Promise<void>;
   notesActions: NotesActions;
 }
 
@@ -184,7 +185,7 @@ const ReferenceTab = () => (
   />
 );
 
-const SteadingContent = ({ g, id, updateSteading, notesActions }: SteadingContentProps) => {
+const SteadingContent = ({ g, id, updateSteading, logRoll, notesActions }: SteadingContentProps) => {
   const headerRef = useRef<HTMLDivElement>(null);
   const gameName = g.name || DEFAULT_GAME_NAME;
   const steading = g.steading ?? {};
@@ -220,7 +221,7 @@ const SteadingContent = ({ g, id, updateSteading, notesActions }: SteadingConten
   const nav = buildGameNav(g, id, `/game/${id}/steading`);
 
   return (
-    <PageLayout title="Steading Playbook" gameId={id} nav={nav}>
+    <PageLayout title="Steading Playbook" gameId={id} nav={nav} diceRoller={{ rollerId: 'steading', rollerName: 'Steading', onRoll: logRoll }}>
       <PageMeta
         title={`Steading Playbook — ${gameName} — Hearthfire`}
         description={`Stonetop steading playbook for ${gameName}. Track stats, improvements, assets, and NPCs.`}
@@ -246,13 +247,13 @@ const SteadingContent = ({ g, id, updateSteading, notesActions }: SteadingConten
 
 export const SteadingPlaybook = () => {
   const { id = '' } = useParams<{ id: string }>();
-  const { game, loading, error, updateSteading, updateNotes, claimNotesLock, refreshNotesLock, releaseNotesLock } = useGame(id);
+  const { game, loading, error, updateSteading, logRoll, updateNotes, claimNotesLock, refreshNotesLock, releaseNotesLock } = useGame(id);
   const notesActions = useNotesActions({ updateNotes, claimNotesLock, refreshNotesLock, releaseNotesLock });
 
   return (
     <GameGuard loading={loading} error={error} game={game} errorBackTo={`/game/${id}`} errorBackLabel="Back to Game">
       {(g) => (
-        <SteadingContent g={g} id={id} updateSteading={updateSteading} notesActions={notesActions} />
+        <SteadingContent g={g} id={id} updateSteading={updateSteading} logRoll={logRoll} notesActions={notesActions} />
       )}
     </GameGuard>
   );

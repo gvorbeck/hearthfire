@@ -1,6 +1,8 @@
 import { PageFooter } from '@/components/app/PageFooter/PageFooter';
 import { PageHeader } from '@/components/app/PageHeader/PageHeader';
 import type { GameNav } from '@/components/app/PageHeader/gameNav';
+import { DiceRoller } from '@/components/app/DiceRoller/DiceRoller';
+import type { LoggedRoll } from '@/types';
 import styles from './PageLayout.module.css';
 
 /*
@@ -17,6 +19,9 @@ import styles from './PageLayout.module.css';
  *   <main>       — the scrollable content area. Page content goes here.
  *
  *   PageFooter   — legal/credit text. Always shown.
+ *
+ *   DiceRoller   — slide-out tab on the right edge, full mode only, when the
+ *                  page passes `diceRoller`.
  *
  * There are two prop shapes:
  *
@@ -47,6 +52,8 @@ type FullProps = {
   nav?: GameNav;
   // Forwarded to PageHeader's game-ID row — see its `actions` prop.
   actions?: React.ReactNode;
+  // Mounts the slide-out dice roller; its rolls land in the game's shared roll log via `onRoll`.
+  diceRoller?: { rollerId: string; rollerName: string; onRoll: (roll: LoggedRoll) => Promise<void> };
 } & (
   | { onSaveTitle: (value: string) => Promise<void>; titleLabel: string }
   | { onSaveTitle?: never; titleLabel?: never }
@@ -104,6 +111,8 @@ export const PageLayout = (props: Props) => {
       </main>
 
       <PageFooter />
+
+      {!simple && props.diceRoller && <DiceRoller {...props.diceRoller} />}
     </>
   );
 };

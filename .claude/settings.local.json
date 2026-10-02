@@ -44,7 +44,10 @@
       "WebFetch(domain:registry.npmjs.org)",
       "Bash(git reset *)",
       "Bash(echo \"DIFF_VS_STASH_EXIT=$?\")",
-      "Skill(css-audit)"
+      "Skill(css-audit)",
+      "Bash(python3 -)",
+      "Bash(git branch *)",
+      "Bash(git -c user.name=\"J. Garrett Vorbeck\" -c user.email=\"gvorbeck@gmail.com\" commit --amend --no-edit --reset-author)"
     ]
   },
   "hooks": {

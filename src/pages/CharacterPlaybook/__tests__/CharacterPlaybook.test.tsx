@@ -63,5 +63,6 @@ describe('CharacterPlaybook', () => {
     expect(second.mode).toBe('adv');
     // The first two dice survive the switch; only a third is added.
     expect(second.dice.slice(0, 2)).toEqual(first.dice);
-  });
+    // Full-page render plus two clicks: well under the 5s default locally, but CI runners are several times slower.
+  }, 20000);
 });
