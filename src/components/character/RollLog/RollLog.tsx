@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { Text } from '@/components/ui';
 import type { LoggedRoll } from '@/types';
 import styles from './RollLog.module.css';
@@ -43,11 +44,15 @@ export const RollLog = ({ rolls }: RollLogProps) => {
             {roll.characterName || 'Someone'}
           </Text>
           <Text as="span" size="sm" color="muted" className={styles.move}>
-            {roll.moveName} {statLabel(roll)}
-            {modeLabel(roll.mode)}
+            {roll.notation ?? (
+              <>
+                {roll.moveName} {statLabel(roll)}
+                {modeLabel(roll.mode)}
+              </>
+            )}
           </Text>
-          <Text as="span" size="sm" className={styles.result}>
-            {diceExpr(roll)} = <span className={styles.total}>{roll.total}</span>
+          <Text as="span" size="sm" className={clsx(styles.result, roll.breakdown && styles.resultWrap)}>
+            {roll.breakdown ?? diceExpr(roll)} = <span className={styles.total}>{roll.total}</span>
             {roll.band && <span className={styles.band}> ({roll.band})</span>}
           </Text>
         </li>

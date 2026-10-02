@@ -95,4 +95,11 @@ describe('RollLog', () => {
     render(<RollLog rolls={[roll({ characterName: '' })]} />);
     expect(screen.getByText('Someone')).toBeInTheDocument();
   });
+
+  it('renders a free-form dice roll by its notation and breakdown', () => {
+    render(<RollLog rolls={[roll({ moveName: '', stat: 'nothing', dice: [], mod: 0, total: 14, band: null, notation: '4d6dl1', breakdown: '[(1), 6, 5, 3]' })]} />);
+    expect(screen.getByText('4d6dl1')).toBeInTheDocument();
+    expect(screen.getByText('[(1), 6, 5, 3] =')).toBeInTheDocument();
+    expect(screen.getByText('14')).toBeInTheDocument();
+  });
 });

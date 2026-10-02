@@ -363,6 +363,7 @@ const CharacterSheet = ({ character, playbookOption, id, gameName, prosperity, n
       gameId={id}
       nav={nav}
       onSaveTitle={handleSaveCharacterName}
+      diceRoller={{ rollerId: character.id, rollerName: characterName || '', onRoll: logRoll }}
     >
       <PageMeta
         title={pageTitle}

@@ -44,7 +44,8 @@
       "WebFetch(domain:registry.npmjs.org)",
       "Bash(git reset *)",
       "Bash(echo \"DIFF_VS_STASH_EXIT=$?\")",
-      "Skill(css-audit)"
+      "Skill(css-audit)",
+      "Bash(python3 -)"
     ]
   },
   "hooks": {

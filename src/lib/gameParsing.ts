@@ -250,6 +250,8 @@ export const parseDiceRolls = (raw: unknown): LoggedRoll[] | undefined => {
       total: r.total,
       mode: r.mode as LoggedRoll['mode'],
       band: isString(r.band) ? r.band : null,
+      ...(isString(r.notation) ? { notation: r.notation } : {}),
+      ...(isString(r.breakdown) ? { breakdown: r.breakdown } : {}),
       createdAt: r.createdAt,
     });
   }

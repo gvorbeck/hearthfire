@@ -36,6 +36,12 @@
   white-space: nowrap;
 }
 
+/* Free-form rolls can list many dice, so let their working wrap instead of overflowing the row. */
+.resultWrap {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 .total {
   font-weight: 700;
   color: var(--text-accent);

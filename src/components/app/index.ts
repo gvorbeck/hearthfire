@@ -5,6 +5,7 @@ export { SaveStatusProvider } from './SaveStatus/SaveStatusProvider';
 export { SaveStatus } from './SaveStatus/SaveStatus';
 export { PageHeader } from './PageHeader/PageHeader';
 export { PageFooter } from './PageFooter/PageFooter';
+export { DiceRoller } from './DiceRoller/DiceRoller';
 export { PageLayout } from './PageLayout/PageLayout';
 export { PageMeta } from './PageMeta/PageMeta';
 export { GameGuard } from './GameGuard/GameGuard';
